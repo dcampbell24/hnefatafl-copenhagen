@@ -1,8 +1,8 @@
-use std::{io, io::Error};
+use std::io;
 
 use hnefatafl::{/* board::Board, */ game::Game, message::Message};
 
-fn main() -> Result<(), Error> {
+fn main() -> anyhow::Result<()> {
     // iced::run("Hnefatafl", Board::update, Board::view)
 
     let mut buffer = String::new();
@@ -10,14 +10,12 @@ fn main() -> Result<(), Error> {
 
     let mut game = Game::default();
     loop {
+        print!("{game}");
+
         stdin.read_line(&mut buffer)?;
         let message = Message::from(buffer.as_str());
-        game.update(message);
+        game.update(message)?;
         buffer.clear();
-
-        game.turn = game.turn.opposite();
-
-        print!("{game}");
     }
 }
 

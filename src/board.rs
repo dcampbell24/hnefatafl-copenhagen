@@ -1,17 +1,18 @@
-use std::{fmt, process::exit};
+use std::fmt;
 
+use anyhow::Context;
 use iced::{
     widget::{button, text, Column, Row},
     Element,
 };
 
-use crate::message::Message;
+use crate::message::{Message, Move, Vertex};
 
 use super::space::Space;
 
 #[derive(Debug, Clone)]
 pub struct Board {
-    spaces: Vec<Vec<Space>>,
+    pub spaces: Vec<Vec<Space>>,
 }
 
 impl Default for Board {
@@ -43,6 +44,25 @@ impl From<Vec<&str>> for Board {
 }
 
 impl Board {
+    /// # Errors
+    ///
+    /// If the move is out of bounds.
+    pub fn get(&self, move_: &Move) -> anyhow::Result<Space> {
+        let column = self
+            .spaces
+            .get(move_.from.x)
+            .context("Index is out of bounds.")?;
+
+        Ok(column
+            .get(move_.from.y)
+            .context("Index is out of bounds.")?
+            .clone())
+    }
+
+    pub fn set(&mut self, vertex: &Vertex, space: Space) {
+        self.spaces[vertex.x][vertex.y] = space;
+    }
+
     fn new() -> Self {
         let spaces = vec![
             "E  XXXXX  E",
@@ -123,14 +143,6 @@ impl Board {
         }
 
         columns.into()
-    }
-
-    pub fn update(&mut self, message: &Message) {
-        match message {
-            Message::Empty | Message::Move(_) => {}
-            Message::Quit => exit(0),
-            Message::ShowBoard => print!("{self}"),
-        }
     }
 
     #[must_use]

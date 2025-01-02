@@ -17,8 +17,9 @@ impl From<&str> for Message {
         match *args.first().unwrap() {
             "move" => {
                 let move_ = Move {
-                    from: Vertex { x: 0, y: 0 },
-                    to: Vertex { x: 0, y: 0 },
+                    // x: letters, y: digits
+                    from: Vertex { x: 1, y: 5 },
+                    to: Vertex { x: 2, y: 5 },
                 };
                 Message::Move(move_)
             }
@@ -37,6 +38,6 @@ pub struct Move {
 
 #[derive(Debug, Clone)]
 pub struct Vertex {
-    pub x: u8,
-    pub y: u8,
+    pub x: usize,
+    pub y: usize,
 }

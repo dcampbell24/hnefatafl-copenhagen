@@ -1,3 +1,5 @@
+use crate::color::Color;
+
 #[derive(Debug, Default, Clone)]
 pub enum Space {
     #[default]
@@ -17,6 +19,17 @@ impl From<char> for Space {
             'E' => Self::Exit,
             'K' => Self::King,
             ch => panic!("error trying to convert '{ch}' to a Space"),
+        }
+    }
+}
+
+impl Space {
+    #[must_use]
+    pub fn color(&self) -> Color {
+        match self {
+            Self::Black => Color::Black,
+            Self::White | Self::King => Color::White,
+            Self::Empty | Self::Exit => Color::Colorless,
         }
     }
 }

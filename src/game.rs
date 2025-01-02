@@ -1,8 +1,12 @@
-use std::fmt;
+use std::{fmt, process::exit};
+
+use anyhow::Ok;
 
 use crate::{
     board::Board,
+    color::Color,
     message::{Message, Move},
+    space::Space,
 };
 
 #[derive(Debug, Default, Clone)]
@@ -21,27 +25,32 @@ impl fmt::Display for Game {
 }
 
 impl Game {
-    pub fn update(&mut self, message: Message) {
-        self.board.update(&message);
-        if let Message::Move(move_) = message {
-            self.moves.push(move_);
+    /// # Errors
+    ///
+    /// If the move is out of bounds.
+    pub fn update(&mut self, message: Message) -> anyhow::Result<()> {
+        match message {
+            Message::Empty => {}
+            Message::Move(_) => {
+                if let Message::Move(move_) = message {
+                    let space = self.board.get(&move_)?;
+                    let color = space.color();
+                    if self.turn == color {
+                        // Check if the piece has an uninterrupted line to the space it moves to.
+                        // Move the piece.
+                        self.board.set(&move_.from, Space::Empty);
+                        self.board.set(&move_.to, space);
+                        // Check for a win.
+                        // Check for captures.
+                        self.moves.push(move_);
+                        self.turn = self.turn.opposite();
+                    }
+                }
+            }
+            Message::Quit => exit(0),
+            Message::ShowBoard => print!("{self}"),
         }
-    }
-}
 
-#[derive(Debug, Default, Clone)]
-pub enum Color {
-    #[default]
-    Black,
-    White,
-}
-
-impl Color {
-    #[must_use]
-    pub fn opposite(&self) -> Self {
-        match self {
-            Self::Black => Self::White,
-            Self::White => Self::Black,
-        }
+        Ok(())
     }
 }
