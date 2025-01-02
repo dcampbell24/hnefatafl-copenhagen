@@ -5,3 +5,9 @@ edition = "2021"
 
 [dependencies]
 iced = "0.13"
+
+[lints.clippy]
+# cargo = "warn"
+pedantic = "warn"
+
+multiple_crate_versions = { level = "allow", priority = 1 }
