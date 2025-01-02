@@ -152,7 +152,9 @@ impl Board {
             self.set(&move_.to, space);
             // Check for a win.
             // Check for captures.
-        } // else { // tried to move the wrong color...
+        } else {
+            return Err(anyhow::Error::msg("it isn't your turn"));
+        }
 
         Ok(())
     }
