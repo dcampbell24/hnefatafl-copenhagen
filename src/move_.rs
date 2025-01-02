@@ -1,0 +1,48 @@
+use anyhow::Context;
+
+#[derive(Debug, Clone)]
+pub struct Move {
+    pub from: Vertex,
+    pub to: Vertex,
+}
+
+impl TryFrom<Vec<&str>> for Move {
+    type Error = anyhow::Error;
+
+    fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {
+        if args.len() != 3 {
+            return Err(anyhow::Error::msg("move: wrong number of arguments"));
+        }
+
+        Ok(Self {
+            from: Vertex::try_from(args[1])?,
+            to: Vertex::try_from(args[2])?,
+        })
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Vertex {
+    pub x: usize,
+    pub y: usize,
+}
+
+impl TryFrom<&str> for Vertex {
+    type Error = anyhow::Error;
+
+    fn try_from(vertex: &str) -> Result<Self, Self::Error> {
+        let mut chars = vertex.chars();
+
+        if let Some(ch) = chars.next() {
+            let x = "abcdefghjkl"
+                .find(ch)
+                .context("the first letter is not a legal char")?;
+            let y = chars.as_str().parse()?;
+            if y < 11 {
+                return Ok(Self { x, y });
+            }
+        }
+
+        Err(anyhow::Error::msg("You failed!"))
+    }
+}

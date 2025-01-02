@@ -1,3 +1,5 @@
+use crate::move_::Move;
+
 #[derive(Debug, Clone)]
 pub enum Message {
     Empty,
@@ -16,11 +18,7 @@ impl From<&str> for Message {
 
         match *args.first().unwrap() {
             "move" => {
-                let move_ = Move {
-                    // x: letters, y: digits
-                    from: Vertex { x: 1, y: 5 },
-                    to: Vertex { x: 2, y: 5 },
-                };
+                let move_ = Move::try_from(args).unwrap();
                 Message::Move(move_)
             }
             "quit" => Message::Quit,
@@ -28,16 +26,4 @@ impl From<&str> for Message {
             _ => Message::Empty,
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct Move {
-    pub from: Vertex,
-    pub to: Vertex,
-}
-
-#[derive(Debug, Clone)]
-pub struct Vertex {
-    pub x: usize,
-    pub y: usize,
 }

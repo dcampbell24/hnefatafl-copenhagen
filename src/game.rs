@@ -2,12 +2,7 @@ use std::{fmt, process::exit};
 
 use anyhow::Ok;
 
-use crate::{
-    board::Board,
-    color::Color,
-    message::{Message, Move},
-    space::Space,
-};
+use crate::{board::Board, color::Color, message::Message, move_::Move, space::Space};
 
 #[derive(Debug, Default, Clone)]
 pub struct Game {
@@ -37,11 +32,13 @@ impl Game {
                     let color = space.color();
                     if self.turn == color {
                         // Check if the piece has an uninterrupted line to the space it moves to.
-                        // Move the piece.
+
                         self.board.set(&move_.from, Space::Empty);
                         self.board.set(&move_.to, space);
+
                         // Check for a win.
                         // Check for captures.
+
                         self.moves.push(move_);
                         self.turn = self.turn.opposite();
                     }

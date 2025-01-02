@@ -6,7 +6,10 @@ use iced::{
     Element,
 };
 
-use crate::message::{Message, Move, Vertex};
+use crate::{
+    message::Message,
+    move_::{Move, Vertex},
+};
 
 use super::space::Space;
 
@@ -84,13 +87,17 @@ impl Board {
     #[must_use]
     pub fn show(&self) -> String {
         let mut board = String::new();
+        let letters = "   ABCDEFGHJKL \n";
 
-        board.push('┌');
+        board.push_str(letters);
+        board.push_str("  ┌");
         board.push_str(&"─".repeat(11));
         board.push('┐');
         board.push('\n');
 
-        for line in &self.spaces {
+        for (mut i, line) in self.spaces.iter().enumerate() {
+            i = 11 - i;
+            board.push_str(&format!("{i:2}"));
             board.push('│');
 
             for space in line {
@@ -107,7 +114,7 @@ impl Board {
             board.push('\n');
         }
 
-        board.push('└');
+        board.push_str("  └");
         board.push_str(&"─".repeat(11));
         board.push('┘');
         board.push('\n');
