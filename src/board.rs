@@ -7,8 +7,7 @@ use iced::{
 };
 
 use crate::{
-    message::Message,
-    move_::{Move, Vertex},
+    color::Color, message::Message, move_::{Move, Vertex}
 };
 
 use super::space::Space;
@@ -80,16 +79,69 @@ impl Board {
     /// # Errors
     ///
     /// If the move is out of bounds.
-    pub fn get(&self, move_: &Move) -> anyhow::Result<Space> {
+    pub fn get(&self, vertex: &Vertex) -> anyhow::Result<Space> {
         let column = self
             .spaces
-            .get(move_.from.y)
+            .get(usize::from(vertex.x))
             .context("Index is out of bounds.")?;
 
         Ok(column
-            .get(move_.from.x)
+            .get(vertex.y)
             .context("Index is out of bounds.")?
             .clone())
+    }
+
+    pub fn move_(&mut self, move_: &Move, turn: &Color) -> anyhow::Result<()> {
+        let space = self.get(&move_.from)?;
+        let color = space.color();
+
+        if *turn == color {
+            let x_diff = move_.from.x as i32 - move_.to.x as i32;
+            let y_diff = move_.from.y as i32 - move_.to.y as i32;
+
+            if x_diff != 0 && y_diff != 0 {
+                return Err(anyhow::Error::msg("you can only move in a straight line"));
+            }
+
+            if x_diff == 0 && y_diff == 0 {
+                return Err(anyhow::Error::msg("you have to change location"));
+            }
+
+            if x_diff != 0 {
+                let x_diff_sign = x_diff.signum();
+                for x_diff in 1..=x_diff.abs() {
+                    let vertex = Vertex {
+                        x: (move_.from.x as i32 - (x_diff * x_diff_sign)) as usize,
+                        y: move_.from.y,
+                    };
+
+                    let space = self.get(&vertex)?;
+                    if space != Space::Empty && space != Space::Exit {
+                        return Err(anyhow::Error::msg("you have to move through empty locations"));
+                    }
+                }
+            } else {
+                let y_diff_sign = y_diff.signum();
+                for y_diff in 1..=y_diff.abs() {
+                    let vertex = Vertex {
+                        x: move_.from.x,
+                        y: (move_.from.y as i32 - (y_diff * y_diff_sign)) as usize,
+                    };
+                    let space = self.get(&vertex)?;
+                    if space != Space::Empty && space != Space::Exit {
+                        return Err(anyhow::Error::msg("you have to move through empty locations"));
+                    }
+                }
+            }
+
+            self.set(&move_.from, Space::Empty);
+            self.set(&move_.to, space);
+            // Check for a win.
+            // Check for captures.
+
+        } // else { // tried to move the wrong color...
+
+        Ok(())
     }
 
     fn new() -> Self {
@@ -110,7 +162,7 @@ impl Board {
         spaces.into()
     }
 
-    pub fn set(&mut self, vertex: &Vertex, space: Space) {
+    fn set(&mut self, vertex: &Vertex, space: Space) {
         self.spaces[vertex.x][vertex.y] = space;
     }
 

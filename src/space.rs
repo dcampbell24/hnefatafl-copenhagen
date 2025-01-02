@@ -1,6 +1,6 @@
 use crate::color::Color;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub enum Space {
     #[default]
     Empty,

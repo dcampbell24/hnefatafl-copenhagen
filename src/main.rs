@@ -1,6 +1,6 @@
 use std::io;
 
-use hnefatafl::{/* board::Board, */ game::Game, message::Message};
+use hnefatafl_copenhagen::{/* board::Board, */ game::Game, message::Message};
 
 fn main() -> anyhow::Result<()> {
     // iced::run("Hnefatafl", Board::update, Board::view)
@@ -10,11 +10,15 @@ fn main() -> anyhow::Result<()> {
 
     let mut game = Game::default();
     loop {
-        print!("{game}");
+        println!("{game}");
 
         stdin.read_line(&mut buffer)?;
         let message = Message::from(buffer.as_str());
-        game.update(message)?;
+
+        if let Err(error) = game.update(message) {
+            println!("Error: {error}");
+        }
+
         buffer.clear();
     }
 }
