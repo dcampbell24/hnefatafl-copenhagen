@@ -40,7 +40,7 @@ impl Game {
 
                     self.moves.push(move_);
                     self.turn = self.turn.opposite();
-                }
+                } // else { // tried to move the wrong color...
             }
             Message::Quit => exit(0),
             Message::ShowBoard => print!("{self}"),
