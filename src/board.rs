@@ -7,7 +7,9 @@ use iced::{
 };
 
 use crate::{
-    color::Color, message::Message, move_::{Move, Vertex}
+    color::Color,
+    message::Message,
+    move_::{Move, Vertex},
 };
 
 use super::space::Space;
@@ -82,7 +84,7 @@ impl Board {
     pub fn get(&self, vertex: &Vertex) -> anyhow::Result<Space> {
         let column = self
             .spaces
-            .get(usize::from(vertex.x))
+            .get(vertex.x)
             .context("Index is out of bounds.")?;
 
         Ok(column
@@ -91,6 +93,14 @@ impl Board {
             .clone())
     }
 
+    /// # Errors
+    ///
+    /// If the move is illegal.
+    #[allow(
+        clippy::cast_possible_truncation,
+        clippy::cast_possible_wrap,
+        clippy::cast_sign_loss
+    )]
     pub fn move_(&mut self, move_: &Move, turn: &Color) -> anyhow::Result<()> {
         let space = self.get(&move_.from)?;
         let color = space.color();
@@ -117,7 +127,9 @@ impl Board {
 
                     let space = self.get(&vertex)?;
                     if space != Space::Empty && space != Space::Exit {
-                        return Err(anyhow::Error::msg("you have to move through empty locations"));
+                        return Err(anyhow::Error::msg(
+                            "you have to move through empty locations",
+                        ));
                     }
                 }
             } else {
@@ -129,7 +141,9 @@ impl Board {
                     };
                     let space = self.get(&vertex)?;
                     if space != Space::Empty && space != Space::Exit {
-                        return Err(anyhow::Error::msg("you have to move through empty locations"));
+                        return Err(anyhow::Error::msg(
+                            "you have to move through empty locations",
+                        ));
                     }
                 }
             }
@@ -138,7 +152,6 @@ impl Board {
             self.set(&move_.to, space);
             // Check for a win.
             // Check for captures.
-
         } // else { // tried to move the wrong color...
 
         Ok(())
