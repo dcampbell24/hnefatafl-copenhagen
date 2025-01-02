@@ -26,22 +26,20 @@ impl Game {
     pub fn update(&mut self, message: Message) -> anyhow::Result<()> {
         match message {
             Message::Empty => {}
-            Message::Move(_) => {
-                if let Message::Move(move_) = message {
-                    let space = self.board.get(&move_)?;
-                    let color = space.color();
-                    if self.turn == color {
-                        // Check if the piece has an uninterrupted line to the space it moves to.
+            Message::Move(move_) => {
+                let space = self.board.get(&move_)?;
+                let color = space.color();
+                if self.turn == color {
+                    // Check if the piece has an uninterrupted line to the space it moves to.
 
-                        self.board.set(&move_.from, Space::Empty);
-                        self.board.set(&move_.to, space);
+                    self.board.set(&move_.from, Space::Empty);
+                    self.board.set(&move_.to, space);
 
-                        // Check for a win.
-                        // Check for captures.
+                    // Check for a win.
+                    // Check for captures.
 
-                        self.moves.push(move_);
-                        self.turn = self.turn.opposite();
-                    }
+                    self.moves.push(move_);
+                    self.turn = self.turn.opposite();
                 }
             }
             Message::Quit => exit(0),

@@ -34,11 +34,12 @@ impl TryFrom<&str> for Vertex {
         let mut chars = vertex.chars();
 
         if let Some(ch) = chars.next() {
-            let x = "abcdefghjkl"
+            let y = "abcdefghjkl"
                 .find(ch)
                 .context("the first letter is not a legal char")?;
-            let y = chars.as_str().parse()?;
-            if y < 11 {
+            let mut x = chars.as_str().parse()?;
+            if x < 11 {
+                x = 11 - x;
                 return Ok(Self { x, y });
             }
         }

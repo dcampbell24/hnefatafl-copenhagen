@@ -53,11 +53,11 @@ impl Board {
     pub fn get(&self, move_: &Move) -> anyhow::Result<Space> {
         let column = self
             .spaces
-            .get(move_.from.x)
+            .get(move_.from.y)
             .context("Index is out of bounds.")?;
 
         Ok(column
-            .get(move_.from.y)
+            .get(move_.from.x)
             .context("Index is out of bounds.")?
             .clone())
     }
