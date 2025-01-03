@@ -2,7 +2,7 @@ use std::{fmt, process::exit};
 
 use anyhow::Ok;
 
-use crate::{board::Board, color::Color, message::Message, move_::Move, status::Status};
+use crate::{board::Board, color::Color, message::{Message, COMMANDS}, move_::Move, status::Status};
 
 #[derive(Debug, Default, Clone)]
 pub struct Game {
@@ -27,12 +27,17 @@ impl Game {
     pub fn update(&mut self, message: Message) -> anyhow::Result<()> {
         match message {
             Message::Empty => {}
-            Message::FinalStatus => {
-                match self.status {
-                    Status::BlackWins => print!("= Black wins!\n\n"),
-                    Status::Draw => print!("= It's a draw!\n\n"),
-                    Status::WhiteWins => print!("= White wins!\n\n"),
-                    Status::Ongoing => print!("= The game is ongoing.\n\n"),
+            Message::FinalStatus => match self.status {
+                Status::BlackWins => print!("= Black wins!\n\n"),
+                Status::Draw => print!("= It's a draw!\n\n"),
+                Status::WhiteWins => print!("= White wins!\n\n"),
+                Status::Ongoing => print!("= The game is ongoing.\n\n"),
+            },
+            Message::KnownCommand(command) => {
+                if COMMANDS.contains(&command.as_str()) {
+                    print!("= true\n\n");
+                } else {
+                    print!("= false\n\n");
                 }
             }
             Message::Move(move_) => {
@@ -45,8 +50,11 @@ impl Game {
 
                 print!("=\n\n");
             }
+            Message::Name => print!("= hnefatafl-copenhagen\n\n"),
+            Message::ProtocolVersion => print!("= 1-beta\n\n"),
             Message::Quit => exit(0),
             Message::ShowBoard => print!("=\n{}", self.board),
+            Message::Version => print!("= 0.1.0-beta\n\n"),
         }
 
         Ok(())

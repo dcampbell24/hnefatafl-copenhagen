@@ -104,7 +104,9 @@ impl Board {
     )]
     pub fn move_(&mut self, move_: &Move, status: &Status, turn: &Color) -> anyhow::Result<Status> {
         if *status != Status::Ongoing {
-            return Err(anyhow::Error::msg("move: the game has to be ongoing to move"));
+            return Err(anyhow::Error::msg(
+                "move: the game has to be ongoing to move",
+            ));
         }
 
         let space = self.get(&move_.from)?;
@@ -115,7 +117,9 @@ impl Board {
             let y_diff = move_.from.y as i32 - move_.to.y as i32;
 
             if x_diff != 0 && y_diff != 0 {
-                return Err(anyhow::Error::msg("move: you can only move in a straight line"));
+                return Err(anyhow::Error::msg(
+                    "move: you can only move in a straight line",
+                ));
             }
 
             if x_diff == 0 && y_diff == 0 {
