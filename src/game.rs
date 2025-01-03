@@ -51,8 +51,9 @@ impl Game {
                                 let message = format!("play {vertex_from} {vertex_to}");
                                 let message = Message::try_from(message.as_str())?;
 
+                                let turn = self.turn.clone();
                                 if let Ok(_message) = self.update(message) {
-                                    return Ok(Some(format!("{vertex_from} {vertex_to}")));
+                                    return Ok(Some(format!("{turn:?} {vertex_from} {vertex_to}")));
                                 }
                             }
                         }
