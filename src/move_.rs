@@ -33,7 +33,8 @@ impl TryFrom<&str> for Vertex {
     fn try_from(vertex: &str) -> anyhow::Result<Self> {
         let mut chars = vertex.chars();
 
-        if let Some(ch) = chars.next() {
+        if let Some(mut ch) = chars.next() {
+            ch = ch.to_ascii_lowercase();
             let y = "abcdefghjkl"
                 .find(ch)
                 .context("the first letter is not a legal char")?;
