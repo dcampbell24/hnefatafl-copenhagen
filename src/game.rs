@@ -2,7 +2,13 @@ use std::{fmt, process::exit};
 
 use anyhow::Ok;
 
-use crate::{board::Board, color::Color, message::{Message, COMMANDS}, move_::Move, status::Status};
+use crate::{
+    board::Board,
+    color::Color,
+    message::{Message, COMMANDS},
+    move_::Move,
+    status::Status,
+};
 
 #[derive(Debug, Default, Clone)]
 pub struct Game {
@@ -35,10 +41,17 @@ impl Game {
             },
             Message::KnownCommand(command) => {
                 if COMMANDS.contains(&command.as_str()) {
-                    print!("= true\n\n");
+                    println!("= true\n");
                 } else {
-                    print!("= false\n\n");
+                    println!("= false\n");
                 }
+            }
+            Message::ListCommands => {
+                println!("=");
+                for command in COMMANDS {
+                    println!("{command}");
+                }
+                println!();
             }
             Message::Move(move_) => {
                 let status = self.board.move_(&move_, &self.status, &self.turn)?;
@@ -50,11 +63,11 @@ impl Game {
 
                 print!("=\n\n");
             }
-            Message::Name => print!("= hnefatafl-copenhagen\n\n"),
-            Message::ProtocolVersion => print!("= 1-beta\n\n"),
+            Message::Name => println!("= hnefatafl-copenhagen\n"),
+            Message::ProtocolVersion => println!("= 1-beta\n"),
             Message::Quit => exit(0),
             Message::ShowBoard => print!("=\n{}", self.board),
-            Message::Version => print!("= 0.1.0-beta\n\n"),
+            Message::Version => println!("= 0.1.0-beta\n"),
         }
 
         Ok(())

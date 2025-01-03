@@ -7,6 +7,7 @@ pub enum Message {
     Empty,
     FinalStatus,
     KnownCommand(String),
+    ListCommands,
     Move(Move),
     Name,
     ProtocolVersion,
@@ -15,9 +16,10 @@ pub enum Message {
     Version,
 }
 
-pub static COMMANDS: [&str; 8] = [
+pub static COMMANDS: [&str; 9] = [
     "final_status",
     "known_command",
+    "list_commands",
     "move",
     "name",
     "protocol_version",
@@ -41,8 +43,9 @@ impl TryFrom<&str> for Message {
         match *args.first().unwrap() {
             "final_status" => Ok(Message::FinalStatus),
             "known_command" => Ok(Message::KnownCommand(
-                args.get(1).context("known_command: needs an argument")?.to_string(),
+                (*args.get(1).context("known_command: needs an argument")?).to_string(),
             )),
+            "list_commands" => Ok(Message::ListCommands),
             "move" => {
                 let move_ = Move::try_from(args)?;
                 Ok(Message::Move(move_))
@@ -53,7 +56,7 @@ impl TryFrom<&str> for Message {
             "show_board" => Ok(Message::ShowBoard),
             "version" => Ok(Message::Version),
             text => {
-                if text.trim().len() == 0 {
+                if text.trim().is_empty() {
                     Ok(Message::Empty)
                 } else {
                     Err(anyhow::Error::msg(format!("unrecognized command: {text}")))
