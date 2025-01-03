@@ -81,7 +81,7 @@ impl Board {
 
     /// # Errors
     ///
-    /// If the move is out of bounds.
+    /// If the play is out of bounds.
     pub fn get(&self, vertex: &Vertex) -> anyhow::Result<Space> {
         let column = self
             .spaces
@@ -96,7 +96,7 @@ impl Board {
 
     /// # Errors
     ///
-    /// If the move is illegal.
+    /// If the play is illegal.
     #[allow(
         clippy::cast_possible_truncation,
         clippy::cast_possible_wrap,
@@ -105,7 +105,7 @@ impl Board {
     pub fn play(&mut self, play: &Play, status: &Status, turn: &Color) -> anyhow::Result<Status> {
         if *status != Status::Ongoing {
             return Err(anyhow::Error::msg(
-                "move: the game has to be ongoing to move",
+                "play: the game has to be ongoing to play",
             ));
         }
 
@@ -118,12 +118,12 @@ impl Board {
 
             if x_diff != 0 && y_diff != 0 {
                 return Err(anyhow::Error::msg(
-                    "move: you can only move in a straight line",
+                    "play: you can only play in a straight line",
                 ));
             }
 
             if x_diff == 0 && y_diff == 0 {
-                return Err(anyhow::Error::msg("move: you have to change location"));
+                return Err(anyhow::Error::msg("play: you have to change location"));
             }
 
             if x_diff != 0 {
@@ -137,7 +137,7 @@ impl Board {
                     let space = self.get(&vertex)?;
                     if space != Space::Empty && space != Space::Exit {
                         return Err(anyhow::Error::msg(
-                            "move: you have to move through empty locations",
+                            "play: you have to play through empty locations",
                         ));
                     }
                 }
@@ -151,7 +151,7 @@ impl Board {
                     let space = self.get(&vertex)?;
                     if space != Space::Empty && space != Space::Exit {
                         return Err(anyhow::Error::msg(
-                            "move: you have to move through empty locations",
+                            "play: you have to play through empty locations",
                         ));
                     }
                 }
@@ -167,7 +167,7 @@ impl Board {
             // Check for captures.
             // Check for a draw.
         } else {
-            return Err(anyhow::Error::msg("move: it isn't your turn"));
+            return Err(anyhow::Error::msg("play: it isn't your turn"));
         }
 
         Ok(Status::Ongoing)

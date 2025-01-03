@@ -29,7 +29,7 @@ impl fmt::Display for Game {
 impl Game {
     /// # Errors
     ///
-    /// If the move is illegal.
+    /// If the play is illegal.
     pub fn update(&mut self, message: Message) -> anyhow::Result<()> {
         match message {
             Message::Empty => {}

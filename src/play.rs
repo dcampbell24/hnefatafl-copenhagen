@@ -11,7 +11,7 @@ impl TryFrom<Vec<&str>> for Play {
 
     fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {
         if args.len() != 3 {
-            return Err(anyhow::Error::msg("move: wrong number of arguments"));
+            return Err(anyhow::Error::msg("play: wrong number of arguments"));
         }
 
         Ok(Self {
@@ -37,7 +37,7 @@ impl TryFrom<&str> for Vertex {
             ch = ch.to_ascii_lowercase();
             let y = "abcdefghjkl"
                 .find(ch)
-                .context("move: the first letter is not a legal char")?;
+                .context("play: the first letter is not a legal char")?;
 
             let mut x = chars.as_str().parse()?;
 
@@ -47,6 +47,6 @@ impl TryFrom<&str> for Vertex {
             }
         }
 
-        Err(anyhow::Error::msg("move: invalid coordinate"))
+        Err(anyhow::Error::msg("play: invalid coordinate"))
     }
 }
