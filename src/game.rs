@@ -72,14 +72,17 @@ impl Game {
             Message::ListCommands => Ok(Some(COMMANDS.join("\n"))),
             Message::Name => Ok(Some("hnefatafl-copenhagen".to_string())),
             Message::Play(play) => {
-                let status = self.board.play(&play, &self.status, &self.turn)?;
-                if status == Status::Ongoing {
-                    self.turn = self.turn.opposite();
+                if self.status == Status::Ongoing {
+                    let status = self.board.play(&play, &self.status, &self.turn)?;
+                    if status == Status::Ongoing {
+                        self.turn = self.turn.opposite();
+                    }
+                    self.status = status;
+                    self.plays.push(play);
+                    Ok(Some(String::new()))
+                } else {
+                    Err(anyhow::Error::msg("the game is already over"))
                 }
-                self.status = status;
-                self.plays.push(play);
-
-                Ok(Some(String::new()))
             }
             Message::ProtocolVersion => Ok(Some("1-beta".to_string())),
             Message::Quit => exit(0),
