@@ -2,12 +2,13 @@ use std::{fmt, process::exit};
 
 use anyhow::Ok;
 
-use crate::{board::Board, color::Color, message::Message, move_::Move};
+use crate::{board::Board, color::Color, message::Message, move_::Move, status::Status};
 
 #[derive(Debug, Default, Clone)]
 pub struct Game {
     board: Board,
     pub moves: Vec<Move>,
+    pub status: Status,
     pub turn: Color,
 }
 
@@ -27,9 +28,12 @@ impl Game {
         match message {
             Message::Empty => {}
             Message::Move(move_) => {
-                self.board.move_(&move_, &self.turn)?;
+                let status = self.board.move_(&move_, &self.status, &self.turn)?;
+                if status == Status::Ongoing {
+                    self.turn = self.turn.opposite();
+                }
+                self.status = status;
                 self.moves.push(move_);
-                self.turn = self.turn.opposite();
             }
             Message::Quit => exit(0),
             Message::ShowBoard => print!("{}", self.board),

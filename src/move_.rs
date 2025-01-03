@@ -1,6 +1,6 @@
 use anyhow::Context;
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Move {
     pub from: Vertex,
     pub to: Vertex,
@@ -21,7 +21,7 @@ impl TryFrom<Vec<&str>> for Move {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Vertex {
     pub x: usize,
     pub y: usize,
@@ -44,6 +44,6 @@ impl TryFrom<&str> for Vertex {
             }
         }
 
-        Err(anyhow::Error::msg("You failed!"))
+        Err(anyhow::Error::msg("invalid coordinate"))
     }
 }

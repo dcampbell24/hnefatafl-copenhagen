@@ -10,6 +10,7 @@ use crate::{
     color::Color,
     message::Message,
     move_::{Move, Vertex},
+    status::Status,
 };
 
 use super::space::Space;
@@ -101,7 +102,11 @@ impl Board {
         clippy::cast_possible_wrap,
         clippy::cast_sign_loss
     )]
-    pub fn move_(&mut self, move_: &Move, turn: &Color) -> anyhow::Result<()> {
+    pub fn move_(&mut self, move_: &Move, status: &Status, turn: &Color) -> anyhow::Result<Status> {
+        if *status != Status::Ongoing {
+            return Err(anyhow::Error::msg("the game has to be ongoing to move"));
+        }
+
         let space = self.get(&move_.from)?;
         let color = space.color();
 
@@ -149,14 +154,23 @@ impl Board {
             }
 
             self.set(&move_.from, Space::Empty);
+            if self.get(&move_.to)? == Space::Exit {
+                self.set(&move_.to, space);
+                if *turn == Color::Black {
+                    return Ok(Status::BlackWins);
+                }
+
+                return Ok(Status::WhiteWins);
+            }
             self.set(&move_.to, space);
-            // Check for a win.
+
             // Check for captures.
+            // Check for a draw.
         } else {
             return Err(anyhow::Error::msg("it isn't your turn"));
         }
 
-        Ok(())
+        Ok(Status::Ongoing)
     }
 
     fn new() -> Self {

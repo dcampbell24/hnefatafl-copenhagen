@@ -8,22 +8,25 @@ pub enum Message {
     ShowBoard,
 }
 
-impl From<&str> for Message {
-    fn from(message: &str) -> Self {
+
+impl TryFrom<&str> for Message {
+    type Error = anyhow::Error;
+
+    fn try_from(message: &str) -> anyhow::Result<Self> {
         let args: Vec<&str> = message.split_whitespace().collect();
 
         if args.is_empty() {
-            return Message::Empty;
+            return Ok(Message::Empty);
         }
 
         match *args.first().unwrap() {
             "move" => {
-                let move_ = Move::try_from(args).unwrap();
-                Message::Move(move_)
+                let move_ = Move::try_from(args)?;
+                Ok(Message::Move(move_))
             }
-            "quit" => Message::Quit,
-            "show_board" => Message::ShowBoard,
-            _ => Message::Empty,
+            "quit" => Ok(Message::Quit),
+            "show_board" => Ok(Message::ShowBoard),
+            _ => Ok(Message::Empty),
         }
     }
 }

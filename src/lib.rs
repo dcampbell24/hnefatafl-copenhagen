@@ -4,3 +4,4 @@ pub mod game;
 pub mod message;
 pub mod move_;
 pub mod space;
+pub mod status;
