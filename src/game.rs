@@ -27,6 +27,14 @@ impl Game {
     pub fn update(&mut self, message: Message) -> anyhow::Result<()> {
         match message {
             Message::Empty => {}
+            Message::FinalStatus => {
+                match self.status {
+                    Status::BlackWins => print!("= Black wins!\n\n"),
+                    Status::Draw => print!("= It's a draw!\n\n"),
+                    Status::WhiteWins => print!("= White wins!\n\n"),
+                    Status::Ongoing => print!("= The game is ongoing.\n\n"),
+                }
+            }
             Message::Move(move_) => {
                 let status = self.board.move_(&move_, &self.status, &self.turn)?;
                 if status == Status::Ongoing {
@@ -34,9 +42,11 @@ impl Game {
                 }
                 self.status = status;
                 self.moves.push(move_);
+
+                print!("=\n\n");
             }
             Message::Quit => exit(0),
-            Message::ShowBoard => print!("{}", self.board),
+            Message::ShowBoard => print!("=\n{}", self.board),
         }
 
         Ok(())

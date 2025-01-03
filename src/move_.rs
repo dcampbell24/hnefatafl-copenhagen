@@ -37,7 +37,7 @@ impl TryFrom<&str> for Vertex {
             ch = ch.to_ascii_lowercase();
             let y = "abcdefghjkl"
                 .find(ch)
-                .context("the first letter is not a legal char")?;
+                .context("move: the first letter is not a legal char")?;
 
             let mut x = chars.as_str().parse()?;
 
@@ -47,6 +47,6 @@ impl TryFrom<&str> for Vertex {
             }
         }
 
-        Err(anyhow::Error::msg("invalid coordinate"))
+        Err(anyhow::Error::msg("move: invalid coordinate"))
     }
 }

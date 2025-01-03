@@ -1,6 +1,6 @@
 use std::io;
 
-use hnefatafl_copenhagen::{/* board::Board, */ game::Game, message::Message, status::Status};
+use hnefatafl_copenhagen::{/* board::Board, */ game::Game, message::Message};
 
 fn main() {
     // iced::run("Hnefatafl", Board::update, Board::view)
@@ -10,28 +10,26 @@ fn main() {
 
     let mut game = Game::default();
     loop {
-        println!("{game}");
+        // println!("{game}");
 
         if let Err(error) = stdin.read_line(&mut buffer) {
-            println!("Error: {error}");
+            print!("? {error}\n\n");
+            buffer.clear();
+            continue;
         }
 
-        let status = game.status.clone();
         match Message::try_from(buffer.as_str()) {
-            Err(error) => println!("Error: {error}"),
+            Err(error) => {
+                print!("? {error}\n\n");
+                buffer.clear();
+                continue;
+            }
             Ok(message) => {
                 if let Err(error) = game.update(message) {
-                    println!("Error: {error}");
+                    print!("? {error}\n\n");
+                    buffer.clear();
+                    continue;
                 }
-            }
-        }
-
-        if status != game.status {
-            match game.status {
-                Status::BlackWins => println!("Black wins!"),
-                Status::Draw => println!("It's a draw!"),
-                Status::WhiteWins => println!("White wins!"),
-                Status::Ongoing => unreachable!("The game can't go back to ongoing!"),
             }
         }
 
