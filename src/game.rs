@@ -68,7 +68,7 @@ impl Game {
             Message::Quit => exit(0),
             Message::ResetBoard => {
                 *self = Game::default();
-                println!("=\n")
+                println!("=\n");
             }
             Message::ShowBoard => print!("=\n{}", self.board),
             Message::Version => println!("= 0.1.0-beta\n"),

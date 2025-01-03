@@ -2,13 +2,19 @@
 name = "hnefatafl-copenhagen"
 version = "0.1.0"
 edition = "2021"
+description = "Copenhagen Hnefatafl engine similar to the Go Text Protocol."
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["copenhagan", "hnefatafl"]
+categories = ["game-engine", "games"]
+
 
 [dependencies]
 anyhow = "1"
 iced = "0.13"
 
 [lints.clippy]
-# cargo = "warn"
+cargo = "warn"
 pedantic = "warn"
 
 multiple_crate_versions = { level = "allow", priority = 1 }
