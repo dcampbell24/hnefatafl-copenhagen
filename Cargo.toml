@@ -7,7 +7,7 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 keywords = ["copenhagan", "hnefatafl"]
 categories = ["game-engine", "games"]
-
+repository = "https://github.com/dcampbell24/hnefatafl-copenhagen"
 
 [dependencies]
 anyhow = "1"
