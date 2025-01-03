@@ -6,6 +6,7 @@ use crate::play::Play;
 pub enum Message {
     Empty,
     FinalStatus,
+    GenerateMove,
     KnownCommand(String),
     ListCommands,
     Name,
@@ -17,8 +18,9 @@ pub enum Message {
     Version,
 }
 
-pub static COMMANDS: [&str; 10] = [
+pub static COMMANDS: [&str; 11] = [
     "final_status",
+    "generate_move",
     "known_command",
     "list_commands",
     "name",
@@ -44,6 +46,7 @@ impl TryFrom<&str> for Message {
 
         match *args.first().unwrap() {
             "final_status" => Ok(Message::FinalStatus),
+            "generate_move" => Ok(Message::GenerateMove),
             "known_command" => Ok(Message::KnownCommand(
                 (*args.get(1).context("known_command: needs an argument")?).to_string(),
             )),

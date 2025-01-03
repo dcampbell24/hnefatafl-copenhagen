@@ -19,14 +19,17 @@ fn main() {
         match Message::try_from(buffer.as_str()) {
             Err(error) => {
                 print!("? {error}\n\n");
-                buffer.clear();
-                continue;
             }
             Ok(message) => {
-                if let Err(error) = game.update(message) {
-                    print!("? {error}\n\n");
-                    buffer.clear();
-                    continue;
+                match game.update(message) {
+                    Ok(message) => {
+                        if let Some(message) = message {
+                            print!("= {message}\n\n");
+                        }
+                    }
+                    Err(error) => {
+                        print!("? {error}\n\n");
+                    }
                 }
             }
         }

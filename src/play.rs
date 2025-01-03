@@ -1,5 +1,7 @@
 use anyhow::Context;
 
+pub const BOARD_LETTERS: &str = "abcdefghjkl";
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Play {
     pub from: Vertex,
@@ -35,7 +37,7 @@ impl TryFrom<&str> for Vertex {
 
         if let Some(mut ch) = chars.next() {
             ch = ch.to_ascii_lowercase();
-            let y = "abcdefghjkl"
+            let y = BOARD_LETTERS
                 .find(ch)
                 .context("play: the first letter is not a legal char")?;
 

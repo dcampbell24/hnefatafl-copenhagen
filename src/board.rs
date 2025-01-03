@@ -163,10 +163,10 @@ impl Board {
     #[must_use]
     pub fn show(&self) -> String {
         let mut board = String::new();
-        let letters = "   ABCDEFGHJKL \n";
+        let letters = "   ABCDEFGHJKL";
 
         board.push_str(letters);
-        board.push_str("  ┌");
+        board.push_str("\n  ┌");
         board.push_str(&"─".repeat(11));
         board.push('┐');
         board.push('\n');
@@ -196,7 +196,6 @@ impl Board {
         board.push('┘');
         board.push('\n');
         board.push_str(letters);
-        board.push('\n');
 
         board
     }

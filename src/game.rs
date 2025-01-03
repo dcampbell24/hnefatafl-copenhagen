@@ -1,12 +1,10 @@
 use std::{fmt, process::exit};
 
-use anyhow::Ok;
-
 use crate::{
     board::Board,
     color::Color,
     message::{Message, COMMANDS},
-    play::Play,
+    play::{Play, BOARD_LETTERS},
     status::Status,
 };
 
@@ -30,30 +28,41 @@ impl Game {
     /// # Errors
     ///
     /// If the play is illegal.
-    pub fn update(&mut self, message: Message) -> anyhow::Result<()> {
+    pub fn update(&mut self, message: Message) -> anyhow::Result<Option<String>> {
         match message {
-            Message::Empty => {}
+            Message::Empty => Ok(None),
             Message::FinalStatus => match self.status {
-                Status::BlackWins => print!("= Black wins!\n\n"),
-                Status::Draw => print!("= It's a draw!\n\n"),
-                Status::WhiteWins => print!("= White wins!\n\n"),
-                Status::Ongoing => print!("= The game is ongoing.\n\n"),
+                Status::BlackWins => Ok(Some("Black wins!".to_string())),
+                Status::Draw => Ok(Some("It's a draw!".to_string())),
+                Status::WhiteWins => Ok(Some("White wins!".to_string())),
+                Status::Ongoing => Ok(Some("The game is ongoing".to_string())),
             },
+            Message::GenerateMove => {
+                for letter in BOARD_LETTERS.chars() {
+                    for i in 1..12 {
+                        let mut vertex = letter.to_string();
+                        vertex.push_str(&i.to_string());
+
+                        let message = format!("play {vertex} a1");
+                        let message = Message::try_from(message.as_str())?;
+                        match self.update(message) {
+                            Ok(_message) => return Ok(Some(format!("{vertex} a1"))),
+                            Err(error) => println!("{error}"),
+                        }
+                    }
+                }
+
+                Err(anyhow::Error::msg("unable to generate move"))
+            }
             Message::KnownCommand(command) => {
                 if COMMANDS.contains(&command.as_str()) {
-                    println!("= true\n");
+                    Ok(Some("true".to_string()))
                 } else {
-                    println!("= false\n");
+                    Ok(Some("false".to_string()))
                 }
             }
-            Message::ListCommands => {
-                println!("=");
-                for command in COMMANDS {
-                    println!("{command}");
-                }
-                println!();
-            }
-            Message::Name => println!("= hnefatafl-copenhagen\n"),
+            Message::ListCommands => Ok(Some(COMMANDS.join("\n"))),
+            Message::Name => Ok(Some("hnefatafl-copenhagen".to_string())),
             Message::Play(play) => {
                 let status = self.board.play(&play, &self.status, &self.turn)?;
                 if status == Status::Ongoing {
@@ -62,18 +71,16 @@ impl Game {
                 self.status = status;
                 self.plays.push(play);
 
-                print!("=\n\n");
+                Ok(Some(String::new()))
             }
-            Message::ProtocolVersion => println!("= 1-beta\n"),
+            Message::ProtocolVersion => Ok(Some("1-beta".to_string())),
             Message::Quit => exit(0),
             Message::ResetBoard => {
                 *self = Game::default();
-                println!("=\n");
+                Ok(Some(String::new()))
             }
-            Message::ShowBoard => print!("=\n{}", self.board),
-            Message::Version => println!("= 0.1.0-beta\n"),
+            Message::ShowBoard => Ok(Some(format!("\n{}", self.board))),
+            Message::Version => Ok(Some("0.1.0-beta".to_string())),
         }
-
-        Ok(())
     }
 }
