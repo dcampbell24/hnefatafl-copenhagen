@@ -20,18 +20,16 @@ fn main() {
             Err(error) => {
                 print!("? {error}\n\n");
             }
-            Ok(message) => {
-                match game.update(message) {
-                    Ok(message) => {
-                        if let Some(message) = message {
-                            print!("= {message}\n\n");
-                        }
-                    }
-                    Err(error) => {
-                        print!("? {error}\n\n");
+            Ok(message) => match game.update(message) {
+                Ok(message) => {
+                    if let Some(message) = message {
+                        print!("= {message}\n\n");
                     }
                 }
-            }
+                Err(error) => {
+                    print!("? {error}\n\n");
+                }
+            },
         }
 
         buffer.clear();

@@ -38,16 +38,23 @@ impl Game {
                 Status::Ongoing => Ok(Some("The game is ongoing".to_string())),
             },
             Message::GenerateMove => {
-                for letter in BOARD_LETTERS.chars() {
-                    for i in 1..12 {
-                        let mut vertex = letter.to_string();
-                        vertex.push_str(&i.to_string());
+                for letter_from in BOARD_LETTERS.chars() {
+                    for i_from in 1..12 {
+                        let mut vertex_from = letter_from.to_string();
+                        vertex_from.push_str(&i_from.to_string());
 
-                        let message = format!("play {vertex} a1");
-                        let message = Message::try_from(message.as_str())?;
-                        match self.update(message) {
-                            Ok(_message) => return Ok(Some(format!("{vertex} a1"))),
-                            Err(error) => println!("{error}"),
+                        for letter_to in BOARD_LETTERS.chars() {
+                            for i_to in 1..12 {
+                                let mut vertex_to = letter_to.to_string();
+                                vertex_to.push_str(&i_to.to_string());
+
+                                let message = format!("play {vertex_from} {vertex_to}");
+                                let message = Message::try_from(message.as_str())?;
+
+                                if let Ok(_message) = self.update(message) {
+                                    return Ok(Some(format!("{vertex_from} {vertex_to}")));
+                                }
+                            }
                         }
                     }
                 }
