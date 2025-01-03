@@ -30,15 +30,17 @@ pub struct Vertex {
 impl TryFrom<&str> for Vertex {
     type Error = anyhow::Error;
 
-    fn try_from(vertex: &str) -> Result<Self, Self::Error> {
+    fn try_from(vertex: &str) -> anyhow::Result<Self> {
         let mut chars = vertex.chars();
 
         if let Some(ch) = chars.next() {
             let y = "abcdefghjkl"
                 .find(ch)
                 .context("the first letter is not a legal char")?;
+
             let mut x = chars.as_str().parse()?;
-            if x < 11 {
+
+            if x < 12 {
                 x = 11 - x;
                 return Ok(Self { x, y });
             }
