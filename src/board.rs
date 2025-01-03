@@ -1,14 +1,9 @@
 use std::fmt;
 
 use anyhow::Context;
-use iced::{
-    widget::{button, text, Column, Row},
-    Element,
-};
 
 use crate::{
     color::Color,
-    message::Message,
     play::{Play, Vertex},
     status::Status,
 };
@@ -49,36 +44,6 @@ impl From<Vec<&str>> for Board {
 }
 
 impl Board {
-    fn draw(&self) -> Element<Message> {
-        let mut columns = Row::new();
-
-        for (board_column, spaces_column) in Board::new().spaces.iter().zip(&self.spaces) {
-            let mut row = Column::new();
-            for (_board_row, spaces_row) in board_column.iter().zip(spaces_column) {
-                let button = match spaces_row {
-                    Space::Empty | Space::Exit => button(text("  ")),
-                    Space::Black => button(text("X")),
-                    Space::King => button(text("K")),
-                    Space::White => button(text("o")),
-                };
-                row = row.push(button);
-
-                /*
-                match board_row {
-                    Space::Empty => row = row.push(button),
-                    Space::Exit => row = row.push(button),
-                    Space::Black => row = row.push(button),
-                    Space::King => row = row.push(button),
-                    Space::White => row = row.push(button),
-                }
-                */
-            }
-            columns = columns.push(row);
-        }
-
-        columns.into()
-    }
-
     /// # Errors
     ///
     /// If the play is out of bounds.
@@ -234,10 +199,5 @@ impl Board {
         board.push('\n');
 
         board
-    }
-
-    #[must_use]
-    pub fn view(&self) -> Element<Message> {
-        self.draw()
     }
 }

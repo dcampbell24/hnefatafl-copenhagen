@@ -1,10 +1,8 @@
 use std::io;
 
-use hnefatafl_copenhagen::{/* board::Board, */ game::Game, message::Message};
+use hnefatafl_copenhagen::{game::Game, message::Message};
 
 fn main() {
-    // iced::run("Hnefatafl", Board::update, Board::view)
-
     let mut buffer = String::new();
     let stdin = io::stdin();
 
