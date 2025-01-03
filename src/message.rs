@@ -1,6 +1,6 @@
 use anyhow::Context;
 
-use crate::move_::Move;
+use crate::play::Play;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -8,15 +8,16 @@ pub enum Message {
     FinalStatus,
     KnownCommand(String),
     ListCommands,
-    Move(Move),
     Name,
+    Play(Play),
     ProtocolVersion,
     Quit,
+    ResetBoard,
     ShowBoard,
     Version,
 }
 
-pub static COMMANDS: [&str; 9] = [
+pub static COMMANDS: [&str; 10] = [
     "final_status",
     "known_command",
     "list_commands",
@@ -24,6 +25,7 @@ pub static COMMANDS: [&str; 9] = [
     "name",
     "protocol_version",
     "quit",
+    "reset_board",
     "show_board",
     "version",
 ];
@@ -46,13 +48,14 @@ impl TryFrom<&str> for Message {
                 (*args.get(1).context("known_command: needs an argument")?).to_string(),
             )),
             "list_commands" => Ok(Message::ListCommands),
-            "move" => {
-                let move_ = Move::try_from(args)?;
-                Ok(Message::Move(move_))
-            }
             "name" => Ok(Message::Name),
+            "play" => {
+                let play = Play::try_from(args)?;
+                Ok(Message::Play(play))
+            }
             "protocol_version" => Ok(Message::ProtocolVersion),
             "quit" => Ok(Message::Quit),
+            "reset_board" => Ok(Message::ResetBoard),
             "show_board" => Ok(Message::ShowBoard),
             "version" => Ok(Message::Version),
             text => {

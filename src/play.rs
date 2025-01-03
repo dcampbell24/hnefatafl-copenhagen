@@ -1,12 +1,12 @@
 use anyhow::Context;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Move {
+pub struct Play {
     pub from: Vertex,
     pub to: Vertex,
 }
 
-impl TryFrom<Vec<&str>> for Move {
+impl TryFrom<Vec<&str>> for Play {
     type Error = anyhow::Error;
 
     fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {

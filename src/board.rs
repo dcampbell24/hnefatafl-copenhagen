@@ -9,7 +9,7 @@ use iced::{
 use crate::{
     color::Color,
     message::Message,
-    move_::{Move, Vertex},
+    play::{Play, Vertex},
     status::Status,
 };
 
@@ -102,19 +102,19 @@ impl Board {
         clippy::cast_possible_wrap,
         clippy::cast_sign_loss
     )]
-    pub fn move_(&mut self, move_: &Move, status: &Status, turn: &Color) -> anyhow::Result<Status> {
+    pub fn play(&mut self, play: &Play, status: &Status, turn: &Color) -> anyhow::Result<Status> {
         if *status != Status::Ongoing {
             return Err(anyhow::Error::msg(
                 "move: the game has to be ongoing to move",
             ));
         }
 
-        let space = self.get(&move_.from)?;
+        let space = self.get(&play.from)?;
         let color = space.color();
 
         if *turn == color {
-            let x_diff = move_.from.x as i32 - move_.to.x as i32;
-            let y_diff = move_.from.y as i32 - move_.to.y as i32;
+            let x_diff = play.from.x as i32 - play.to.x as i32;
+            let y_diff = play.from.y as i32 - play.to.y as i32;
 
             if x_diff != 0 && y_diff != 0 {
                 return Err(anyhow::Error::msg(
@@ -130,8 +130,8 @@ impl Board {
                 let x_diff_sign = x_diff.signum();
                 for x_diff in 1..=x_diff.abs() {
                     let vertex = Vertex {
-                        x: (move_.from.x as i32 - (x_diff * x_diff_sign)) as usize,
-                        y: move_.from.y,
+                        x: (play.from.x as i32 - (x_diff * x_diff_sign)) as usize,
+                        y: play.from.y,
                     };
 
                     let space = self.get(&vertex)?;
@@ -145,8 +145,8 @@ impl Board {
                 let y_diff_sign = y_diff.signum();
                 for y_diff in 1..=y_diff.abs() {
                     let vertex = Vertex {
-                        x: move_.from.x,
-                        y: (move_.from.y as i32 - (y_diff * y_diff_sign)) as usize,
+                        x: play.from.x,
+                        y: (play.from.y as i32 - (y_diff * y_diff_sign)) as usize,
                     };
                     let space = self.get(&vertex)?;
                     if space != Space::Empty && space != Space::Exit {
@@ -157,12 +157,12 @@ impl Board {
                 }
             }
 
-            self.set(&move_.from, Space::Empty);
-            if self.get(&move_.to)? == Space::Exit && *turn == Color::White {
-                self.set(&move_.to, space);
+            self.set(&play.from, Space::Empty);
+            if self.get(&play.to)? == Space::Exit && *turn == Color::White {
+                self.set(&play.to, space);
                 return Ok(Status::WhiteWins);
             }
-            self.set(&move_.to, space);
+            self.set(&play.to, space);
 
             // Check for captures.
             // Check for a draw.

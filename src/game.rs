@@ -6,14 +6,14 @@ use crate::{
     board::Board,
     color::Color,
     message::{Message, COMMANDS},
-    move_::Move,
+    play::Play,
     status::Status,
 };
 
 #[derive(Debug, Default, Clone)]
 pub struct Game {
     board: Board,
-    pub moves: Vec<Move>,
+    pub plays: Vec<Play>,
     pub status: Status,
     pub turn: Color,
 }
@@ -21,7 +21,7 @@ pub struct Game {
 impl fmt::Display for Game {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.board)?;
-        writeln!(f, "moves: {:?}", self.moves)?;
+        writeln!(f, "plays: {:?}", self.plays)?;
         writeln!(f, "turn: {:?}", self.turn)
     }
 }
@@ -53,19 +53,23 @@ impl Game {
                 }
                 println!();
             }
-            Message::Move(move_) => {
-                let status = self.board.move_(&move_, &self.status, &self.turn)?;
+            Message::Name => println!("= hnefatafl-copenhagen\n"),
+            Message::Play(play) => {
+                let status = self.board.play(&play, &self.status, &self.turn)?;
                 if status == Status::Ongoing {
                     self.turn = self.turn.opposite();
                 }
                 self.status = status;
-                self.moves.push(move_);
+                self.plays.push(play);
 
                 print!("=\n\n");
             }
-            Message::Name => println!("= hnefatafl-copenhagen\n"),
             Message::ProtocolVersion => println!("= 1-beta\n"),
             Message::Quit => exit(0),
+            Message::ResetBoard => {
+                *self = Game::default();
+                println!("=\n")
+            }
             Message::ShowBoard => print!("=\n{}", self.board),
             Message::Version => println!("= 0.1.0-beta\n"),
         }
