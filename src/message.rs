@@ -8,7 +8,6 @@ pub enum Message {
     ShowBoard,
 }
 
-
 impl TryFrom<&str> for Message {
     type Error = anyhow::Error;
 

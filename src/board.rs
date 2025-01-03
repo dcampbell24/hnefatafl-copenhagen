@@ -154,12 +154,8 @@ impl Board {
             }
 
             self.set(&move_.from, Space::Empty);
-            if self.get(&move_.to)? == Space::Exit {
+            if self.get(&move_.to)? == Space::Exit && *turn == Color::White {
                 self.set(&move_.to, space);
-                if *turn == Color::Black {
-                    return Ok(Status::BlackWins);
-                }
-
                 return Ok(Status::WhiteWins);
             }
             self.set(&move_.to, space);
