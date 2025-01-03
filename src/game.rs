@@ -35,7 +35,7 @@ impl Game {
                 Status::BlackWins => Ok(Some("Black wins!".to_string())),
                 Status::Draw => Ok(Some("It's a draw!".to_string())),
                 Status::WhiteWins => Ok(Some("White wins!".to_string())),
-                Status::Ongoing => Ok(Some("The game is ongoing".to_string())),
+                Status::Ongoing => Ok(Some("The game is ongoing.".to_string())),
             },
             Message::GenerateMove => {
                 for letter_from in BOARD_LETTERS.chars() {
