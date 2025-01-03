@@ -218,12 +218,15 @@ impl Board {
             }
 
             board.push('│');
+            board.push_str(&format!("{i:2}"));
             board.push('\n');
         }
 
         board.push_str("  └");
         board.push_str(&"─".repeat(11));
         board.push('┘');
+        board.push('\n');
+        board.push_str(letters);
         board.push('\n');
 
         board
