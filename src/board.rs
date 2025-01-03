@@ -209,11 +209,11 @@ impl Board {
 
             for space in line {
                 match space {
-                    Space::Black => board.push('X'),
+                    Space::Black => board.push('○'),
                     Space::Empty => board.push('.'),
-                    Space::Exit => board.push('E'),
-                    Space::King => board.push('K'),
-                    Space::White => board.push('O'),
+                    Space::Exit => board.push('■'),
+                    Space::King => board.push('▲'),
+                    Space::White => board.push('●'),
                 }
             }
 
