@@ -203,11 +203,11 @@ impl Board {
             }
 
             self.set(&play.from, Space::Empty);
+            self.set(&play.to, space_from);
+
             if EXIT_SQUARES.contains(&play.to) && *turn == Color::White {
-                self.set(&play.to, space_from);
                 return Ok(Status::WhiteWins);
             }
-            self.set(&play.to, space_from);
 
             self.captures(&play.to, &color_from)?;
 
