@@ -61,6 +61,57 @@ impl From<Vec<&str>> for Board {
 }
 
 impl Board {
+    fn captures(&mut self, play_to: &Vertex, color_from: &Color) -> anyhow::Result<()> {
+        if let Some(up_1) = play_to.up() {
+            if self.get(&up_1)?.color() == color_from.opposite() {
+                if let Some(up_2) = up_1.up() {
+                    if RESTRICTED_SQUARES.contains(&up_2) || self.get(&up_2)?.color() == *color_from
+                    {
+                        self.set(&up_1, Space::Empty);
+                    }
+                }
+            }
+        }
+
+        if let Some(left_1) = play_to.left() {
+            if self.get(&left_1)?.color() == color_from.opposite() {
+                if let Some(left_2) = left_1.left() {
+                    if RESTRICTED_SQUARES.contains(&left_2)
+                        || self.get(&left_2)?.color() == *color_from
+                    {
+                        self.set(&left_1, Space::Empty);
+                    }
+                }
+            }
+        }
+
+        if let Some(down_1) = play_to.down() {
+            if self.get(&down_1)?.color() == color_from.opposite() {
+                if let Some(down_2) = down_1.down() {
+                    if RESTRICTED_SQUARES.contains(&down_2)
+                        || self.get(&down_2)?.color() == *color_from
+                    {
+                        self.set(&down_1, Space::Empty);
+                    }
+                }
+            }
+        }
+
+        if let Some(right_1) = play_to.right() {
+            if self.get(&right_1)?.color() == color_from.opposite() {
+                if let Some(right_2) = right_1.down() {
+                    if RESTRICTED_SQUARES.contains(&right_2)
+                        || self.get(&right_2)?.color() == *color_from
+                    {
+                        self.set(&right_1, Space::Empty);
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     /// # Errors
     ///
     /// If the play is out of bounds.
@@ -150,54 +201,7 @@ impl Board {
             }
             self.set(&play.to, space_from);
 
-            // Check for captures.
-            if let Some(up_1) = play.to.up() {
-                if self.get(&up_1)?.color() == color_from.opposite() {
-                    if let Some(up_2) = up_1.up() {
-                        if RESTRICTED_SQUARES.contains(&up_2)
-                            || self.get(&up_2)?.color() == color_from
-                        {
-                            self.set(&up_1, Space::Empty);
-                        }
-                    }
-                }
-            }
-
-            if let Some(left_1) = play.to.left() {
-                if self.get(&left_1)?.color() == color_from.opposite() {
-                    if let Some(left_2) = left_1.left() {
-                        if RESTRICTED_SQUARES.contains(&left_2)
-                            || self.get(&left_2)?.color() == color_from
-                        {
-                            self.set(&left_1, Space::Empty);
-                        }
-                    }
-                }
-            }
-
-            if let Some(down_1) = play.to.down() {
-                if self.get(&down_1)?.color() == color_from.opposite() {
-                    if let Some(down_2) = down_1.down() {
-                        if RESTRICTED_SQUARES.contains(&down_2)
-                            || self.get(&down_2)?.color() == color_from
-                        {
-                            self.set(&down_1, Space::Empty);
-                        }
-                    }
-                }
-            }
-
-            if let Some(right_1) = play.to.right() {
-                if self.get(&right_1)?.color() == color_from.opposite() {
-                    if let Some(right_2) = right_1.down() {
-                        if RESTRICTED_SQUARES.contains(&right_2)
-                            || self.get(&right_2)?.color() == color_from
-                        {
-                            self.set(&right_1, Space::Empty);
-                        }
-                    }
-                }
-            }
+            self.captures(&play.to, &color_from)?;
 
             // Todo: Check for shield wall.
 
