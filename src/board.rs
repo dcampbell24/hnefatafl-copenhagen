@@ -100,7 +100,7 @@ impl Board {
                     };
 
                     let space = self.get(&vertex)?;
-                    if space != Space::Empty && space != Space::Exit {
+                    if space != Space::Empty {
                         return Err(anyhow::Error::msg(
                             "play: you have to play through empty locations",
                         ));
@@ -114,7 +114,7 @@ impl Board {
                         y: (play.from.y as i32 - (y_diff * y_diff_sign)) as usize,
                     };
                     let space = self.get(&vertex)?;
-                    if space != Space::Empty && space != Space::Exit {
+                    if space != Space::Empty {
                         return Err(anyhow::Error::msg(
                             "play: you have to play through empty locations",
                         ));
@@ -123,7 +123,12 @@ impl Board {
             }
 
             self.set(&play.from, Space::Empty);
-            if self.get(&play.to)? == Space::Exit && *turn == Color::White {
+            if (play.to == Vertex { x: 0, y: 0 }
+                || play.to == Vertex { x: 10, y: 0 }
+                || play.to == Vertex { x: 0, y: 10 }
+                || play.to == Vertex { x: 10, y: 10 })
+                && *turn == Color::White
+            {
                 self.set(&play.to, space);
                 return Ok(Status::WhiteWins);
             }
@@ -140,7 +145,7 @@ impl Board {
 
     fn new() -> Self {
         let spaces = vec![
-            "E  XXXXX  E",
+            "   XXXXX   ",
             "     X     ",
             "           ",
             "X    O    X",
@@ -150,7 +155,7 @@ impl Board {
             "X    O    X",
             "           ",
             "     X     ",
-            "E  XXXXX  E",
+            "   XXXXX   ",
         ];
 
         spaces.into()
@@ -176,13 +181,21 @@ impl Board {
             board.push_str(&format!("{i:2}"));
             board.push('│');
 
-            for space in line {
-                match space {
-                    Space::Black => board.push('○'),
-                    Space::Empty => board.push('.'),
-                    Space::Exit => board.push('■'),
-                    Space::King => board.push('▲'),
-                    Space::White => board.push('●'),
+            for (j, space) in line.iter().enumerate() {
+                if ((i, j) == (0, 0)
+                    || (i, j) == (10, 0)
+                    || (i, j) == (0, 10)
+                    || (i, j) == (10, 10))
+                    && *space == Space::Empty
+                {
+                    board.push('■');
+                } else {
+                    match space {
+                        Space::Black => board.push('○'),
+                        Space::Empty => board.push('.'),
+                        Space::King => board.push('▲'),
+                        Space::White => board.push('●'),
+                    }
                 }
             }
 
