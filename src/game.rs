@@ -1,4 +1,4 @@
-use std::{fmt, process::exit};
+use std::{fmt, process::exit, time::Duration};
 
 use crate::{
     board::Board,
@@ -13,6 +13,7 @@ pub struct Game {
     board: Board,
     pub plays: Vec<Play>,
     pub status: Status,
+    pub time: Option<Duration>,
     pub turn: Color,
 }
 
@@ -91,6 +92,14 @@ impl Game {
                 Ok(Some(String::new()))
             }
             Message::ShowBoard => Ok(Some(format!("\n{}", self.board))),
+            Message::TimeLeft => {
+                if let Some(duration) = self.time {
+                    Ok(Some(duration.as_secs().to_string()))
+                } else {
+                    Ok(Some(String::new()))
+                }
+            }
+            Message::TimeSettings => Ok(),
             Message::Version => Ok(Some("0.1.0-beta".to_string())),
         }
     }

@@ -5,3 +5,4 @@ pub mod message;
 pub mod play;
 pub mod space;
 pub mod status;
+pub mod time;

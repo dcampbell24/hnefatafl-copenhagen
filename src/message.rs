@@ -15,10 +15,12 @@ pub enum Message {
     Quit,
     ResetBoard,
     ShowBoard,
+    TimeLeft,
+    TimeSettings(TimeSettings),
     Version,
 }
 
-pub static COMMANDS: [&str; 11] = [
+pub static COMMANDS: [&str; 13] = [
     "final_status",
     "generate_move",
     "known_command",
@@ -29,6 +31,8 @@ pub static COMMANDS: [&str; 11] = [
     "quit",
     "reset_board",
     "show_board",
+    "time_left",
+    "time_settings",
     "version",
 ];
 
@@ -60,6 +64,11 @@ impl TryFrom<&str> for Message {
             "quit" => Ok(Message::Quit),
             "reset_board" => Ok(Message::ResetBoard),
             "show_board" => Ok(Message::ShowBoard),
+            "time_left" => Ok(Message::TimeLeft),
+            "time_settings" => {
+                let time_settings = TimeSettings::try_from(message)?;
+                Ok(Message::TimeSettings(time_settings))
+            }
             "version" => Ok(Message::Version),
             text => {
                 if text.trim().is_empty() {

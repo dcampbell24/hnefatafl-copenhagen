@@ -11,6 +11,7 @@ repository = "https://github.com/dcampbell24/hnefatafl-copenhagen"
 
 [dependencies]
 anyhow = "1"
+regex = "1.11.1"
 
 [lints.clippy]
 cargo = "warn"
