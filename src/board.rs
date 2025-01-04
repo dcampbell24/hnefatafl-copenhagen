@@ -136,7 +136,6 @@ impl Board {
         clippy::cast_sign_loss
     )]
     pub fn play(&mut self, play: &Play, status: &Status, turn: &Color) -> anyhow::Result<Status> {
-        // Todo: only the king may move onto restricted squares.
         // Todo: The king can't be captured.
         // Todo: the throne is only hostile to defenders when empty.
 
@@ -192,6 +191,12 @@ impl Board {
                         ));
                     }
                 }
+            }
+
+            if space_from != Space::King && RESTRICTED_SQUARES.contains(&play.to) {
+                return Err(anyhow::Error::msg(
+                    "play: only the king may move to a restricted square",
+                ));
             }
 
             self.set(&play.from, Space::Empty);
