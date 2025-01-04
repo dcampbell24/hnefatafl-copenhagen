@@ -10,6 +10,23 @@ use crate::{
 
 use super::space::Space;
 
+const EXIT_SQUARES: [Vertex; 4] = [
+    Vertex { x: 0, y: 0 },
+    Vertex { x: 10, y: 0 },
+    Vertex { x: 0, y: 10 },
+    Vertex { x: 10, y: 10 },
+];
+
+const THRONE: Vertex = Vertex { x: 5, y: 5 };
+
+const RESTRICTED_SQUARES: [Vertex; 5] = [
+    Vertex { x: 0, y: 0 },
+    Vertex { x: 10, y: 0 },
+    Vertex { x: 0, y: 10 },
+    Vertex { x: 10, y: 10 },
+    THRONE,
+];
+
 #[derive(Debug, Clone)]
 pub struct Board {
     pub spaces: Vec<Vec<Space>>,
@@ -51,11 +68,11 @@ impl Board {
         let column = self
             .spaces
             .get(vertex.x)
-            .context("Index is out of bounds.")?;
+            .context("Index is out of x bounds.")?;
 
         Ok(column
             .get(vertex.y)
-            .context("Index is out of bounds.")?
+            .context("Index is out of y bounds.")?
             .clone())
     }
 
@@ -68,16 +85,20 @@ impl Board {
         clippy::cast_sign_loss
     )]
     pub fn play(&mut self, play: &Play, status: &Status, turn: &Color) -> anyhow::Result<Status> {
+        // Todo: only the king may move onto restricted squares.
+        // Todo: The king can't be captured.
+        // Todo: the throne is only hostile to defenders when empty.
+
         if *status != Status::Ongoing {
             return Err(anyhow::Error::msg(
                 "play: the game has to be ongoing to play",
             ));
         }
 
-        let space = self.get(&play.from)?;
-        let color = space.color();
+        let space_from = self.get(&play.from)?;
+        let color_from = space_from.color();
 
-        if *turn == color {
+        if *turn == color_from {
             let x_diff = play.from.x as i32 - play.to.x as i32;
             let y_diff = play.from.y as i32 - play.to.y as i32;
 
@@ -123,17 +144,64 @@ impl Board {
             }
 
             self.set(&play.from, Space::Empty);
-            if white_wins(turn, &play.to) {
-                self.set(&play.to, space);
+            if EXIT_SQUARES.contains(&play.to) && *turn == Color::White {
+                self.set(&play.to, space_from);
                 return Ok(Status::WhiteWins);
             }
-            self.set(&play.to, space);
+            self.set(&play.to, space_from);
 
             // Check for captures.
-            // See if a piece of the opposite color is adjacent to the piece just moved.
-            // If one is see if the next space is the color of the capturing piece.
+            if let Some(up_1) = play.to.up() {
+                if self.get(&up_1)?.color() == color_from.opposite() {
+                    if let Some(up_2) = up_1.up() {
+                        if RESTRICTED_SQUARES.contains(&up_2)
+                            || self.get(&up_2)?.color() == color_from
+                        {
+                            self.set(&up_1, Space::Empty);
+                        }
+                    }
+                }
+            }
 
-            // Check for a draw.
+            if let Some(left_1) = play.to.left() {
+                if self.get(&left_1)?.color() == color_from.opposite() {
+                    if let Some(left_2) = left_1.left() {
+                        if RESTRICTED_SQUARES.contains(&left_2)
+                            || self.get(&left_2)?.color() == color_from
+                        {
+                            self.set(&left_1, Space::Empty);
+                        }
+                    }
+                }
+            }
+
+            if let Some(down_1) = play.to.down() {
+                if self.get(&down_1)?.color() == color_from.opposite() {
+                    if let Some(down_2) = down_1.down() {
+                        if RESTRICTED_SQUARES.contains(&down_2)
+                            || self.get(&down_2)?.color() == color_from
+                        {
+                            self.set(&down_1, Space::Empty);
+                        }
+                    }
+                }
+            }
+
+            if let Some(right_1) = play.to.right() {
+                if self.get(&right_1)?.color() == color_from.opposite() {
+                    if let Some(right_2) = right_1.down() {
+                        if RESTRICTED_SQUARES.contains(&right_2)
+                            || self.get(&right_2)?.color() == color_from
+                        {
+                            self.set(&right_1, Space::Empty);
+                        }
+                    }
+                }
+            }
+
+            // Todo: Check for shield wall.
+
+            // Todo: Check for a draw or black win.
         } else {
             return Err(anyhow::Error::msg("play: it isn't your turn"));
         }
@@ -211,16 +279,4 @@ impl Board {
 
         board
     }
-}
-
-fn white_wins(turn: &Color, play: &Vertex) -> bool {
-    if (*play == Vertex { x: 0, y: 0 }
-        || *play == Vertex { x: 10, y: 0 }
-        || *play == Vertex { x: 0, y: 10 }
-        || *play == Vertex { x: 10, y: 10 })
-        && *turn == Color::White
-    {
-        return true;
-    }
-    false
 }

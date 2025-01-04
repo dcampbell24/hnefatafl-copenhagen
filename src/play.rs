@@ -52,3 +52,53 @@ impl TryFrom<&str> for Vertex {
         Err(anyhow::Error::msg("play: invalid coordinate"))
     }
 }
+
+impl Vertex {
+    #[must_use]
+    pub fn up(&self) -> Option<Vertex> {
+        if self.x > 0 {
+            Some(Vertex {
+                x: self.x - 1,
+                y: self.y,
+            })
+        } else {
+            None
+        }
+    }
+
+    #[must_use]
+    pub fn left(&self) -> Option<Vertex> {
+        if self.y > 0 {
+            Some(Vertex {
+                x: self.x,
+                y: self.y - 1,
+            })
+        } else {
+            None
+        }
+    }
+
+    #[must_use]
+    pub fn down(&self) -> Option<Vertex> {
+        if self.x < 10 {
+            Some(Vertex {
+                x: self.x + 1,
+                y: self.y,
+            })
+        } else {
+            None
+        }
+    }
+
+    #[must_use]
+    pub fn right(&self) -> Option<Vertex> {
+        if self.y < 10 {
+            Some(Vertex {
+                x: self.x,
+                y: self.y + 1,
+            })
+        } else {
+            None
+        }
+    }
+}
