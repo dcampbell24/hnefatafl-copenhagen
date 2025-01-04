@@ -182,10 +182,11 @@ impl Board {
             board.push('│');
 
             for (j, space) in line.iter().enumerate() {
-                if ((i, j) == (0, 0)
-                    || (i, j) == (10, 0)
-                    || (i, j) == (0, 10)
-                    || (i, j) == (10, 10))
+                if ((i, j) == (1, 0)
+                    || (i, j) == (11, 0)
+                    || (i, j) == (1, 10)
+                    || (i, j) == (11, 10)
+                    || (i, j) == (6, 5))
                     && *space == Space::Empty
                 {
                     board.push('■');
