@@ -123,7 +123,7 @@ impl Board {
             }
 
             self.set(&play.from, Space::Empty);
-            if self.white_wins(turn, &play.to) {
+            if white_wins(turn, &play.to) {
                 self.set(&play.to, space);
                 return Ok(Status::WhiteWins);
             }
@@ -211,16 +211,16 @@ impl Board {
 
         board
     }
+}
 
-    fn white_wins(&mut self, turn: &Color, play: &Vertex) -> bool {
-        if (*play == Vertex { x: 0, y: 0 }
-            || *play == Vertex { x: 10, y: 0 }
-            || *play == Vertex { x: 0, y: 10 }
-            || *play == Vertex { x: 10, y: 10 })
-            && *turn == Color::White
-        {
-            return true;
-        }
-        false
+fn white_wins(turn: &Color, play: &Vertex) -> bool {
+    if (*play == Vertex { x: 0, y: 0 }
+        || *play == Vertex { x: 10, y: 0 }
+        || *play == Vertex { x: 0, y: 10 }
+        || *play == Vertex { x: 10, y: 10 })
+        && *turn == Color::White
+    {
+        return true;
     }
+    false
 }
