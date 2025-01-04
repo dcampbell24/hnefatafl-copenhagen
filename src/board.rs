@@ -63,7 +63,8 @@ impl From<Vec<&str>> for Board {
 impl Board {
     fn captures(&mut self, play_to: &Vertex, color_from: &Color) -> anyhow::Result<()> {
         if let Some(up_1) = play_to.up() {
-            if self.get(&up_1)?.color() == color_from.opposite() {
+            let space = self.get(&up_1)?;
+            if space != Space::King && space.color() == color_from.opposite() {
                 if let Some(up_2) = up_1.up() {
                     if RESTRICTED_SQUARES.contains(&up_2) || self.get(&up_2)?.color() == *color_from
                     {
@@ -74,7 +75,8 @@ impl Board {
         }
 
         if let Some(left_1) = play_to.left() {
-            if self.get(&left_1)?.color() == color_from.opposite() {
+            let space = self.get(&left_1)?;
+            if space != Space::King && space.color() == color_from.opposite() {
                 if let Some(left_2) = left_1.left() {
                     if RESTRICTED_SQUARES.contains(&left_2)
                         || self.get(&left_2)?.color() == *color_from
@@ -86,7 +88,8 @@ impl Board {
         }
 
         if let Some(down_1) = play_to.down() {
-            if self.get(&down_1)?.color() == color_from.opposite() {
+            let space = self.get(&down_1)?;
+            if space != Space::King && space.color() == color_from.opposite() {
                 if let Some(down_2) = down_1.down() {
                     if RESTRICTED_SQUARES.contains(&down_2)
                         || self.get(&down_2)?.color() == *color_from
@@ -98,7 +101,8 @@ impl Board {
         }
 
         if let Some(right_1) = play_to.right() {
-            if self.get(&right_1)?.color() == color_from.opposite() {
+            let space = self.get(&right_1)?;
+            if space != Space::King && space.color() == color_from.opposite() {
                 if let Some(right_2) = right_1.down() {
                     if RESTRICTED_SQUARES.contains(&right_2)
                         || self.get(&right_2)?.color() == *color_from
@@ -136,7 +140,6 @@ impl Board {
         clippy::cast_sign_loss
     )]
     pub fn play(&mut self, play: &Play, status: &Status, turn: &Color) -> anyhow::Result<Status> {
-        // Todo: The king can't be captured.
         // Todo: the throne is only hostile to defenders when empty.
 
         if *status != Status::Ongoing {
