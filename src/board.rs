@@ -123,18 +123,16 @@ impl Board {
             }
 
             self.set(&play.from, Space::Empty);
-            if (play.to == Vertex { x: 0, y: 0 }
-                || play.to == Vertex { x: 10, y: 0 }
-                || play.to == Vertex { x: 0, y: 10 }
-                || play.to == Vertex { x: 10, y: 10 })
-                && *turn == Color::White
-            {
+            if self.white_wins(turn, &play.to) {
                 self.set(&play.to, space);
                 return Ok(Status::WhiteWins);
             }
             self.set(&play.to, space);
 
             // Check for captures.
+            // See if a piece of the opposite color is adjacent to the piece just moved.
+            // If one is see if the next space is the color of the capturing piece.
+
             // Check for a draw.
         } else {
             return Err(anyhow::Error::msg("play: it isn't your turn"));
@@ -212,5 +210,17 @@ impl Board {
         board.push_str(letters);
 
         board
+    }
+
+    fn white_wins(&mut self, turn: &Color, play: &Vertex) -> bool {
+        if (*play == Vertex { x: 0, y: 0 }
+            || *play == Vertex { x: 10, y: 0 }
+            || *play == Vertex { x: 0, y: 10 }
+            || *play == Vertex { x: 10, y: 10 })
+            && *turn == Color::White
+        {
+            return true;
+        }
+        false
     }
 }
