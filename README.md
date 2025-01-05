@@ -1,5 +1,14 @@
 # Copenhagan Hnefatafl
 
+[![github]][github-link]&ensp;[![crates-io]][crates-io-link]&ensp;[![docs-rs]][docs-rs-link]
+
+[github]: https://img.shields.io/badge/github-8da0cb?logo=github
+[github-link]: https://github.com/dcampbell24/hnefatafl-copenhagen
+[crates-io]: https://img.shields.io/badge/crates.io-fc8d62?logo=rust
+[crates-io-link]: https://crates.io/crates/hnefatafl-copenhagen
+[docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?logo=docs.rs
+[docs-rs-link]: https://docs.rs/hnefatafl-copenhagen
+
 An engine similar to the [Go Text Protocol].
 
 This engine follows the [Copenhagen Hnefatafl] rules.
@@ -16,3 +25,4 @@ This engine follows the [Copenhagen Hnefatafl] rules.
 * We keep track of whose turn it is.
 * play takes `play vertex_from vertex_to`, the color is whose turn it is
 * showboard -> show_board
+* `time_settings none | time settings fischer MINUTES ADD_SECONDS_AFTER_EACH_MOVE`
