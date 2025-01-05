@@ -25,4 +25,4 @@ This engine follows the [Copenhagen Hnefatafl] rules.
 * We keep track of whose turn it is.
 * play takes `play vertex_from vertex_to`, the color is whose turn it is
 * showboard -> show_board
-* `time_settings none | time settings fischer MINUTES ADD_SECONDS_AFTER_EACH_MOVE`
+* `time_settings none | time_settings fischer MINUTES ADD_SECONDS_AFTER_EACH_MOVE`
