@@ -159,11 +159,13 @@ impl Game {
                 if let Some(time) = time_settings.time_settings.take() {
                     self.black_time = Some(time.clone());
                     self.white_time = Some(time);
+                    self.timer = Some(Instant::now());
                 } else {
                     self.black_time = None;
                     self.white_time = None;
+                    self.timer = None;
                 }
-                self.timer = Some(Instant::now());
+
                 Ok(Some(String::new()))
             }
             Message::Version => Ok(Some("0.1.0-beta".to_string())),
