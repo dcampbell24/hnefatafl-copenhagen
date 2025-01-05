@@ -10,6 +10,20 @@ use crate::{
 
 use super::space::Space;
 
+const STARTING_POSITION: [&str; 11] = [
+    "   XXXXX   ",
+    "     X     ",
+    "           ",
+    "X    O    X",
+    "X   OOO   X",
+    "XX OOKOO XX",
+    "X   OOO   X",
+    "X    O    X",
+    "           ",
+    "     X     ",
+    "   XXXXX   ",
+];
+
 const EXIT_SQUARES: [Vertex; 4] = [
     Vertex { x: 0, y: 0 },
     Vertex { x: 10, y: 0 },
@@ -44,8 +58,8 @@ impl fmt::Display for Board {
     }
 }
 
-impl From<Vec<&str>> for Board {
-    fn from(value: Vec<&str>) -> Self {
+impl From<[&str; 11]> for Board {
+    fn from(value: [&str; 11]) -> Self {
         let mut rows = Vec::new();
 
         for row in value {
@@ -222,21 +236,7 @@ impl Board {
     }
 
     fn new() -> Self {
-        let spaces = vec![
-            "   XXXXX   ",
-            "     X     ",
-            "           ",
-            "X    O    X",
-            "X   OOO   X",
-            "XX OOKOO XX",
-            "X   OOO   X",
-            "X    O    X",
-            "           ",
-            "     X     ",
-            "   XXXXX   ",
-        ];
-
-        spaces.into()
+        STARTING_POSITION.into()
     }
 
     fn set(&mut self, vertex: &Vertex, space: Space) {
