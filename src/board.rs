@@ -10,7 +10,7 @@ use crate::{
 
 use super::space::Space;
 
-const STARTING_POSITION: [&str; 11] = [
+pub const STARTING_POSITION: [&str; 11] = [
     "   XXXXX   ",
     "     X     ",
     "           ",
@@ -41,14 +41,14 @@ const RESTRICTED_SQUARES: [Vertex; 5] = [
     THRONE,
 ];
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Board {
     pub spaces: Vec<Vec<Space>>,
 }
 
 impl Default for Board {
     fn default() -> Self {
-        Board::new()
+        STARTING_POSITION.into()
     }
 }
 
@@ -233,10 +233,6 @@ impl Board {
         }
 
         Ok(Status::Ongoing)
-    }
-
-    fn new() -> Self {
-        STARTING_POSITION.into()
     }
 
     fn set(&mut self, vertex: &Vertex, space: Space) {

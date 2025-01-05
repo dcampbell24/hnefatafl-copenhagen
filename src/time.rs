@@ -2,7 +2,7 @@ use std::{fmt, time::Duration};
 
 use anyhow::Context;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Time {
     pub add_time: Duration,
     pub time_left: Duration,

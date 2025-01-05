@@ -9,9 +9,9 @@ use crate::{
     time::Time,
 };
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
 pub struct Game {
-    board: Board,
+    pub board: Board,
     pub plays: Vec<Play>,
     pub status: Status,
     pub timer: Option<Instant>,
