@@ -49,6 +49,32 @@ impl fmt::Display for Game {
 }
 
 impl Game {
+    fn generate_move(&mut self) -> anyhow::Result<Option<String>> {
+        for letter_from in BOARD_LETTERS.chars() {
+            for i_from in 1..12 {
+                let mut vertex_from = letter_from.to_string();
+                vertex_from.push_str(&i_from.to_string());
+
+                for letter_to in BOARD_LETTERS.chars() {
+                    for i_to in 1..12 {
+                        let mut vertex_to = letter_to.to_string();
+                        vertex_to.push_str(&i_to.to_string());
+
+                        let message = format!("play {vertex_from} {vertex_to}");
+                        let message = Message::try_from(message.as_str())?;
+
+                        let turn = self.turn.clone();
+                        if let Ok(_message) = self.update(message) {
+                            return Ok(Some(format!("{turn:?} {vertex_from} {vertex_to}")));
+                        }
+                    }
+                }
+            }
+        }
+
+        Err(anyhow::Error::msg("unable to generate move"))
+    }
+
     /// # Errors
     ///
     /// If the play is illegal.
@@ -61,31 +87,7 @@ impl Game {
                 Status::WhiteWins => Ok(Some("White wins!".to_string())),
                 Status::Ongoing => Ok(Some("The game is ongoing.".to_string())),
             },
-            Message::GenerateMove => {
-                for letter_from in BOARD_LETTERS.chars() {
-                    for i_from in 1..12 {
-                        let mut vertex_from = letter_from.to_string();
-                        vertex_from.push_str(&i_from.to_string());
-
-                        for letter_to in BOARD_LETTERS.chars() {
-                            for i_to in 1..12 {
-                                let mut vertex_to = letter_to.to_string();
-                                vertex_to.push_str(&i_to.to_string());
-
-                                let message = format!("play {vertex_from} {vertex_to}");
-                                let message = Message::try_from(message.as_str())?;
-
-                                let turn = self.turn.clone();
-                                if let Ok(_message) = self.update(message) {
-                                    return Ok(Some(format!("{turn:?} {vertex_from} {vertex_to}")));
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Err(anyhow::Error::msg("unable to generate move"))
-            }
+            Message::GenerateMove => self.generate_move(),
             Message::KnownCommand(command) => {
                 if COMMANDS.contains(&command.as_str()) {
                     Ok(Some("true".to_string()))
@@ -110,6 +112,8 @@ impl Game {
                                     self.status = Status::WhiteWins;
                                     return Ok(Some(String::new()));
                                 }
+
+                                time.time_left += time.add_time;
                             }
                         }
                         Color::Colorless => {
@@ -126,6 +130,8 @@ impl Game {
                                     self.status = Status::BlackWins;
                                     return Ok(Some(String::new()));
                                 }
+
+                                time.time_left += time.add_time;
                             }
                         }
                     }
