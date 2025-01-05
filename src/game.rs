@@ -95,7 +95,11 @@ impl Game {
                     Ok(Some("false".to_string()))
                 }
             }
-            Message::ListCommands => Ok(Some(COMMANDS.join("\n"))),
+            Message::ListCommands => {
+                let mut commands = "\n".to_string();
+                commands.push_str(&COMMANDS.join("\n"));
+                Ok(Some(commands))
+            }
             Message::Name => Ok(Some("hnefatafl-copenhagen".to_string())),
             #[allow(clippy::used_underscore_binding)]
             Message::Play(play) => {
