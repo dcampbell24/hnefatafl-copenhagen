@@ -14,7 +14,9 @@ pub fn main() {
             continue;
         }
 
-        game.read_line(&buffer);
+        if let Some(string) = game.read_line(&buffer) {
+            print!("{string}");
+        }
 
         buffer.clear();
     }
