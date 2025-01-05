@@ -14,7 +14,7 @@ pub fn main() {
             continue;
         }
 
-        if let Some(string) = game.read_line(&buffer) {
+        if let Some(string) = game.read_line(&mut buffer) {
             print!("{string}");
         }
 

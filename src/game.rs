@@ -75,8 +75,7 @@ impl Game {
         Err(anyhow::Error::msg("unable to generate move"))
     }
 
-    pub fn read_line(&mut self, buffer: &str) -> Option<String> {
-        let mut buffer = buffer.to_string();
+    pub fn read_line(&mut self, buffer: &mut String) -> Option<String> {
         if let Some(comment_offset) = buffer.find('#') {
             buffer.replace_range(comment_offset.., "");
         }
