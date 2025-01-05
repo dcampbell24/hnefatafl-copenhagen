@@ -75,6 +75,29 @@ impl Game {
         Err(anyhow::Error::msg("unable to generate move"))
     }
 
+    pub fn read_line(&mut self, buffer: &str) {
+        let mut buffer = buffer.to_string();
+        if let Some(comment_offset) = buffer.find('#') {
+            buffer.replace_range(comment_offset.., "");
+        }
+
+        match Message::try_from(buffer.as_str()) {
+            Err(error) => {
+                print!("? {error}\n\n");
+            }
+            Ok(message) => match self.update(message) {
+                Ok(message) => {
+                    if let Some(message) = message {
+                        print!("= {message}\n\n");
+                    }
+                }
+                Err(error) => {
+                    print!("? {error}\n\n");
+                }
+            },
+        }
+    }
+
     /// # Errors
     ///
     /// If the play is illegal.
