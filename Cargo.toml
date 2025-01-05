@@ -6,7 +6,7 @@ description = "Copenhagen Hnefatafl engine similar to the Go Text Protocol."
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 keywords = ["copenhagan", "hnefatafl"]
-categories = ["game-engine", "games"]
+categories = ["game-engines", "games"]
 repository = "https://github.com/dcampbell24/hnefatafl-copenhagen"
 
 [dependencies]
