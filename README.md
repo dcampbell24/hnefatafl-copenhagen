@@ -19,10 +19,10 @@ This engine follows the [Copenhagen Hnefatafl] rules.
 ## Differences from the Go Text Protocol
 
 * The character set is UTF-8.
-* clear_board -> reset_board
-* genmove -> generate_move
-* generate_move returns `color vertex_from vertex_to`
+* `clear_board` -> `reset_board`
+* `genmove` -> `generate_move`
+* `generate_move` returns `color vertex_from vertex_to`
 * We keep track of whose turn it is.
 * play takes `play vertex_from vertex_to`, the color is whose turn it is
-* showboard -> show_board
+* `showboard` -> `show_board`
 * `time_settings none` | `time_settings fischer MINUTES ADD_SECONDS_AFTER_EACH_MOVE`
