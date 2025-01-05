@@ -84,13 +84,7 @@ impl Game {
         match Message::try_from(buffer.as_str()) {
             Err(error) => Some(format!("? {error}\n\n")),
             Ok(message) => match self.update(message) {
-                Ok(message) => {
-                    if let Some(message) = message {
-                        Some(format!("= {message}\n\n"))
-                    } else {
-                        None
-                    }
-                }
+                Ok(message) => message.map(|message| format!("= {message}\n\n")),
                 Err(error) => Some(format!("? {error}\n\n")),
             },
         }
