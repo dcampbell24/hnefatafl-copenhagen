@@ -1,3 +1,5 @@
+use std::fmt;
+
 use anyhow::Context;
 
 pub const BOARD_LETTERS: &str = "abcdefghjkl";
@@ -6,6 +8,12 @@ pub const BOARD_LETTERS: &str = "abcdefghjkl";
 pub struct Play {
     pub from: Vertex,
     pub to: Vertex,
+}
+
+impl fmt::Display for Play {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "from {} to {}", self.from, self.to)
+    }
 }
 
 impl TryFrom<Vec<&str>> for Play {
@@ -27,6 +35,17 @@ impl TryFrom<Vec<&str>> for Play {
 pub struct Vertex {
     pub x: usize,
     pub y: usize,
+}
+
+impl fmt::Display for Vertex {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}{}",
+            BOARD_LETTERS.chars().collect::<Vec<_>>()[self.y],
+            11 - self.x
+        )
+    }
 }
 
 impl TryFrom<&str> for Vertex {

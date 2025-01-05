@@ -1,4 +1,4 @@
-use std::{fmt, process::exit, time::Duration};
+use std::{fmt, process::exit, time::Instant};
 
 use crate::{
     board::Board,
@@ -6,6 +6,7 @@ use crate::{
     message::{Message, COMMANDS},
     play::{Play, BOARD_LETTERS},
     status::Status,
+    time::Time,
 };
 
 #[derive(Debug, Default, Clone)]
@@ -13,15 +14,37 @@ pub struct Game {
     board: Board,
     pub plays: Vec<Play>,
     pub status: Status,
-    pub time: Option<Duration>,
+    pub timer: Option<Instant>,
+    pub black_time: Option<Time>,
+    pub white_time: Option<Time>,
     pub turn: Color,
 }
 
 impl fmt::Display for Game {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.board)?;
-        writeln!(f, "plays: {:?}", self.plays)?;
-        writeln!(f, "turn: {:?}", self.turn)
+        writeln!(f, "{}", self.board)?;
+
+        write!(f, "Plays: ")?;
+        for play in &self.plays {
+            write!(f, "{play}, ")?;
+        }
+        writeln!(f)?;
+
+        writeln!(f, "status: {:?}", self.status)?;
+
+        if let Some(time) = &self.black_time {
+            writeln!(f, "black_time: {time}")?;
+        } else {
+            writeln!(f, "black_time: infinite")?;
+        }
+
+        if let Some(time) = &self.white_time {
+            writeln!(f, "white_time: {time}")?;
+        } else {
+            writeln!(f, "white_time: infinite")?;
+        }
+
+        write!(f, "turn: {:?}", self.turn)
     }
 }
 
@@ -72,14 +95,48 @@ impl Game {
             }
             Message::ListCommands => Ok(Some(COMMANDS.join("\n"))),
             Message::Name => Ok(Some("hnefatafl-copenhagen".to_string())),
+            #[allow(clippy::used_underscore_binding)]
             Message::Play(play) => {
                 if self.status == Status::Ongoing {
-                    let status = self.board.play(&play, &self.status, &self.turn)?;
-                    if status == Status::Ongoing {
+                    match self.turn {
+                        Color::Black => {
+                            if let (Some(time), Some(mut _timer)) =
+                                (self.black_time.as_mut(), self.timer.as_mut())
+                            {
+                                time.time_left = time.time_left.saturating_sub(_timer.elapsed());
+                                _timer = &mut Instant::now();
+
+                                if time.time_left.as_secs() == 0 {
+                                    self.status = Status::WhiteWins;
+                                    return Ok(Some(String::new()));
+                                }
+                            }
+                        }
+                        Color::Colorless => {
+                            unreachable!("It is an error to play when it is no ones turn.")
+                        }
+                        Color::White => {
+                            if let (Some(time), Some(mut _timer)) =
+                                (self.white_time.as_mut(), self.timer.as_mut())
+                            {
+                                time.time_left = time.time_left.saturating_sub(_timer.elapsed());
+                                _timer = &mut Instant::now();
+
+                                if time.time_left.as_secs() == 0 {
+                                    self.status = Status::BlackWins;
+                                    return Ok(Some(String::new()));
+                                }
+                            }
+                        }
+                    }
+
+                    self.status = self.board.play(&play, &self.status, &self.turn)?;
+                    self.plays.push(play);
+
+                    if self.status == Status::Ongoing {
                         self.turn = self.turn.opposite();
                     }
-                    self.status = status;
-                    self.plays.push(play);
+
                     Ok(Some(String::new()))
                 } else {
                     Err(anyhow::Error::msg("the game is already over"))
@@ -91,15 +148,18 @@ impl Game {
                 *self = Game::default();
                 Ok(Some(String::new()))
             }
-            Message::ShowBoard => Ok(Some(format!("\n{}", self.board))),
-            Message::TimeLeft => {
-                if let Some(duration) = self.time {
-                    Ok(Some(duration.as_secs().to_string()))
+            Message::ShowBoard => Ok(Some(format!("\n{self}"))),
+            Message::TimeSettings(mut time_settings) => {
+                if let Some(time) = time_settings.time_settings.take() {
+                    self.black_time = Some(time.clone());
+                    self.white_time = Some(time);
                 } else {
-                    Ok(Some(String::new()))
+                    self.black_time = None;
+                    self.white_time = None;
                 }
+                self.timer = Some(Instant::now());
+                Ok(Some(String::new()))
             }
-            Message::TimeSettings => Ok(),
             Message::Version => Ok(Some("0.1.0-beta".to_string())),
         }
     }

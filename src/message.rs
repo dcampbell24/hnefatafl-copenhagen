@@ -1,6 +1,6 @@
 use anyhow::Context;
 
-use crate::play::Play;
+use crate::{play::Play, time};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -15,12 +15,11 @@ pub enum Message {
     Quit,
     ResetBoard,
     ShowBoard,
-    TimeLeft,
-    TimeSettings(TimeSettings),
+    TimeSettings(time::Settings),
     Version,
 }
 
-pub static COMMANDS: [&str; 13] = [
+pub static COMMANDS: [&str; 12] = [
     "final_status",
     "generate_move",
     "known_command",
@@ -31,7 +30,6 @@ pub static COMMANDS: [&str; 13] = [
     "quit",
     "reset_board",
     "show_board",
-    "time_left",
     "time_settings",
     "version",
 ];
@@ -64,9 +62,8 @@ impl TryFrom<&str> for Message {
             "quit" => Ok(Message::Quit),
             "reset_board" => Ok(Message::ResetBoard),
             "show_board" => Ok(Message::ShowBoard),
-            "time_left" => Ok(Message::TimeLeft),
             "time_settings" => {
-                let time_settings = TimeSettings::try_from(message)?;
+                let time_settings = time::Settings::try_from(args)?;
                 Ok(Message::TimeSettings(time_settings))
             }
             "version" => Ok(Message::Version),
