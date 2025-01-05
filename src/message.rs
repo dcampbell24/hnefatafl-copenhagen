@@ -38,8 +38,6 @@ impl TryFrom<&str> for Message {
     type Error = anyhow::Error;
 
     fn try_from(message: &str) -> anyhow::Result<Self> {
-        // Todo: remove comments "#.*\n"
-
         let args: Vec<&str> = message.split_whitespace().collect();
 
         if args.is_empty() {

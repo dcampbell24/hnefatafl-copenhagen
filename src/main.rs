@@ -8,12 +8,14 @@ fn main() {
 
     let mut game = Game::default();
     loop {
-        // println!("{game}");
-
         if let Err(error) = stdin.read_line(&mut buffer) {
             print!("? {error}\n\n");
             buffer.clear();
             continue;
+        }
+
+        if let Some(comment_offset) = buffer.find('#') {
+            buffer.replace_range(comment_offset.., "");
         }
 
         match Message::try_from(buffer.as_str()) {
