@@ -21,7 +21,7 @@ This engine follows the [Copenhagen Hnefatafl] rules.
 * The character set is UTF-8.
 * `clear_board` -> `reset_board`
 * `genmove` -> `generate_move`
-* `generate_move` returns `color vertex_from vertex_to`
+* `generate_move` returns `COLOR VERTEX_FROM VERTEX_TO`
 * We keep track of whose turn it is.
 * play takes `play VERTEX_FROM VERTEX_TO`, the color is whose turn it is
 * `showboard` -> `show_board`
