@@ -232,7 +232,11 @@ impl Board {
 
             // Todo: Check for a draw or black win.
         } else {
-            return Err(anyhow::Error::msg("play: it isn't your turn"));
+            if color_from == Color::Colorless {
+                return Err(anyhow::Error::msg("play: it is no one's turn"));
+            } else {
+                return Err(anyhow::Error::msg("play: it isn't your turn"));
+            }
         }
 
         Ok(Status::Ongoing)
