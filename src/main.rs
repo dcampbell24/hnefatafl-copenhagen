@@ -14,8 +14,13 @@ pub fn main() {
             continue;
         }
 
-        if let Some(string) = game.read_line(&mut buffer) {
-            print!("{string}");
+        match game.read_line(&buffer) {
+            Err(error) => println!("? {error}\n"),
+            Ok(message) => {
+                if let Some(message) = message {
+                    println!("= {message}\n");
+                }
+            }
         }
 
         buffer.clear();

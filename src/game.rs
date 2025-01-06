@@ -1,4 +1,4 @@
-use std::{fmt, process::exit, time::Instant};
+use std::{borrow::Cow, fmt, process::exit, time::Instant};
 
 use crate::{
     board::Board,
@@ -75,18 +75,16 @@ impl Game {
         Err(anyhow::Error::msg("unable to generate move"))
     }
 
-    pub fn read_line(&mut self, buffer: &mut String) -> Option<String> {
+    /// # Errors
+    ///
+    /// If the play is illegal.
+    pub fn read_line(&mut self, buffer: &str) -> anyhow::Result<Option<String>> {
+        let mut buffer = Cow::from(buffer);
         if let Some(comment_offset) = buffer.find('#') {
-            buffer.replace_range(comment_offset.., "");
+            buffer.to_mut().replace_range(comment_offset.., "");
         }
 
-        match Message::try_from(buffer.as_str()) {
-            Err(error) => Some(format!("? {error}\n\n")),
-            Ok(message) => match self.update(message) {
-                Ok(message) => message.map(|message| format!("= {message}\n\n")),
-                Err(error) => Some(format!("? {error}\n\n")),
-            },
-        }
+        self.update(Message::try_from(buffer.as_ref())?)
     }
 
     /// # Errors
