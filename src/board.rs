@@ -137,10 +137,7 @@ impl Board {
             .get(vertex.x)
             .context("Index is out of x bounds.")?;
 
-        Ok(column
-            .get(vertex.y)
-            .context("Index is out of y bounds.")?
-            .clone())
+        Ok(*column.get(vertex.y).context("Index is out of y bounds.")?)
     }
 
     /// # Errors
