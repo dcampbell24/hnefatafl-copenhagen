@@ -172,69 +172,69 @@ impl Board {
             return Err(anyhow::Error::msg("play: you didn't select a color"));
         } else if *turn != color_from {
             return Err(anyhow::Error::msg("play: it isn't your turn"));
-        } else {
-            let x_diff = play.from.x as i32 - play.to.x as i32;
-            let y_diff = play.from.y as i32 - play.to.y as i32;
-
-            if x_diff != 0 && y_diff != 0 {
-                return Err(anyhow::Error::msg(
-                    "play: you can only play in a straight line",
-                ));
-            }
-
-            if x_diff == 0 && y_diff == 0 {
-                return Err(anyhow::Error::msg("play: you have to change location"));
-            }
-
-            if x_diff != 0 {
-                let x_diff_sign = x_diff.signum();
-                for x_diff in 1..=x_diff.abs() {
-                    let vertex = Vertex {
-                        x: (play.from.x as i32 - (x_diff * x_diff_sign)) as usize,
-                        y: play.from.y,
-                    };
-
-                    let space = self.get(&vertex)?;
-                    if space != Space::Empty {
-                        return Err(anyhow::Error::msg(
-                            "play: you have to play through empty locations",
-                        ));
-                    }
-                }
-            } else {
-                let y_diff_sign = y_diff.signum();
-                for y_diff in 1..=y_diff.abs() {
-                    let vertex = Vertex {
-                        x: play.from.x,
-                        y: (play.from.y as i32 - (y_diff * y_diff_sign)) as usize,
-                    };
-                    let space = self.get(&vertex)?;
-                    if space != Space::Empty {
-                        return Err(anyhow::Error::msg(
-                            "play: you have to play through empty locations",
-                        ));
-                    }
-                }
-            }
-
-            if space_from != Space::King && RESTRICTED_SQUARES.contains(&play.to) {
-                return Err(anyhow::Error::msg(
-                    "play: only the king may move to a restricted square",
-                ));
-            }
-
-            self.set(&play.from, Space::Empty);
-            self.set(&play.to, space_from);
-
-            if EXIT_SQUARES.contains(&play.to) && *turn == Color::White {
-                return Ok(Status::WhiteWins);
-            }
-
-            self.captures(&play.to, &color_from)?;
-
-            // Todo: Check for shield wall.
-            // Todo: Check for a draw or black win.
         }
+
+        let x_diff = play.from.x as i32 - play.to.x as i32;
+        let y_diff = play.from.y as i32 - play.to.y as i32;
+
+        if x_diff != 0 && y_diff != 0 {
+            return Err(anyhow::Error::msg(
+                "play: you can only play in a straight line",
+            ));
+        }
+
+        if x_diff == 0 && y_diff == 0 {
+            return Err(anyhow::Error::msg("play: you have to change location"));
+        }
+
+        if x_diff != 0 {
+            let x_diff_sign = x_diff.signum();
+            for x_diff in 1..=x_diff.abs() {
+                let vertex = Vertex {
+                    x: (play.from.x as i32 - (x_diff * x_diff_sign)) as usize,
+                    y: play.from.y,
+                };
+
+                let space = self.get(&vertex)?;
+                if space != Space::Empty {
+                    return Err(anyhow::Error::msg(
+                        "play: you have to play through empty locations",
+                    ));
+                }
+            }
+        } else {
+            let y_diff_sign = y_diff.signum();
+            for y_diff in 1..=y_diff.abs() {
+                let vertex = Vertex {
+                    x: play.from.x,
+                    y: (play.from.y as i32 - (y_diff * y_diff_sign)) as usize,
+                };
+                let space = self.get(&vertex)?;
+                if space != Space::Empty {
+                    return Err(anyhow::Error::msg(
+                        "play: you have to play through empty locations",
+                    ));
+                }
+            }
+        }
+
+        if space_from != Space::King && RESTRICTED_SQUARES.contains(&play.to) {
+            return Err(anyhow::Error::msg(
+                "play: only the king may move to a restricted square",
+            ));
+        }
+
+        self.set(&play.from, Space::Empty);
+        self.set(&play.to, space_from);
+
+        if EXIT_SQUARES.contains(&play.to) && *turn == Color::White {
+            return Ok(Status::WhiteWins);
+        }
+
+        self.captures(&play.to, &color_from)?;
+
+        // Todo: Check for shield wall.
+        // Todo: Check for a draw or black win.
 
         Ok(Status::Ongoing)
     }
