@@ -7,6 +7,7 @@ rust-version =  "1.78"
 description = "Copenhagen Hnefatafl engine similar to the Go Text Protocol."
 documentation = "https://docs.rs/hnefatafl-copenhagen/"
 readme = "README.md"
+# homepage = "https://"
 repository = "https://github.com/dcampbell24/hnefatafl-copenhagen"
 license = "MIT OR Apache-2.0"
 keywords = ["copenhagan", "hnefatafl"]
