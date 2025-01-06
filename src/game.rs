@@ -119,9 +119,7 @@ impl Game {
                     if let (Some(time), Some(mut _timer)) = match self.turn {
                         Color::Black => (self.black_time.as_mut(), self.timer.as_mut()),
                         Color::Colorless => {
-                            return Err(anyhow::Error::msg(
-                                "It is an error to play when it is no one's turn.",
-                            ))
+                            unreachable!("It can't be no one's turn when the game is ongoing!")
                         }
                         Color::White => (self.white_time.as_mut(), self.timer.as_mut()),
                     } {
