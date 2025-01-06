@@ -279,6 +279,130 @@ mod tests {
         assert_eq!(game_4.board, board_4b.try_into()?);
 
         // Todo: finish the rest...
+        let board_5a = [
+            " O         ",
+            "           ",
+            "  X        ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let board_5b = [
+            "  X        ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let mut game_5 = Game {
+            board: board_5a.try_into()?,
+            plays: Vec::new(),
+            status: Status::default(),
+            timer: None,
+            black_time: None,
+            white_time: None,
+            turn: Color::Black,
+        };
+
+        game_5.read_line("play c9 c11")?;
+        assert_eq!(game_5.board, board_5b.try_into()?);
+
+        /*
+        let board_6a = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "     K     ",
+            "     O     ",
+            " X         ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let board_6b = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "     K     ",
+            "     O     ",
+            "     X     ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let mut game_6 = Game {
+            board: board_6a.try_into()?,
+            plays: Vec::new(),
+            status: Status::default(),
+            timer: None,
+            black_time: None,
+            white_time: None,
+            turn: Color::Black,
+        };
+
+        game_6.read_line("play b4 f4")?;
+        assert_eq!(game_6.board, board_6b.try_into()?);
+        */
+
+        let board_7a = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            " O O       ",
+            "           ",
+            "  X        ",
+            "           ",
+            "           ",
+        ];
+
+        let board_7b = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            " OXO       ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let mut game_7 = Game {
+            board: board_7a.try_into()?,
+            plays: Vec::new(),
+            status: Status::default(),
+            timer: None,
+            black_time: None,
+            white_time: None,
+            turn: Color::Black,
+        };
+
+        game_7.read_line("play c3 c5")?;
+        assert_eq!(game_7.board, board_7b.try_into()?);
 
         Ok(())
     }
