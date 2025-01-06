@@ -232,5 +232,46 @@ mod tests {
 
         assert_eq!(game_3.read_line("play c6 c4").is_ok(), true);
         assert_eq!(game_3.board, board_3b.into());
+
+        let board_4a = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "     O     ",
+            "     X     ",
+            " O         ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let board_4b = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "     O     ",
+            "           ",
+            "     O     ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let mut game_4 = Game {
+            board: board_4a.into(),
+            plays: Vec::new(),
+            status: Status::default(),
+            timer: None,
+            black_time: None,
+            white_time: None,
+            turn: Color::White,
+        };
+
+        assert_eq!(game_4.read_line("play b4 f4").is_ok(), true);
+        assert_eq!(game_4.board, board_4b.into());
     }
 }
