@@ -25,7 +25,7 @@ mod tests {
     }
 
     #[test]
-    fn starting_position() -> anyhow::Result<()> {
+    fn starting_position_1() -> anyhow::Result<()> {
         let game = Game::default();
         assert_eq!(game.board, STARTING_POSITION.try_into()?);
 
@@ -33,13 +33,13 @@ mod tests {
     }
 
     #[test]
-    fn first_turn() {
+    fn first_turn_2() {
         let game = Game::default();
         assert_eq!(game.turn, Color::Black);
     }
 
     #[test]
-    fn move_orthogonally() -> anyhow::Result<()> {
+    fn move_orthogonally_3() -> anyhow::Result<()> {
         let board = [
             "           ",
             "           ",
@@ -113,7 +113,7 @@ mod tests {
     }
 
     #[test]
-    fn sandwich_capture() -> anyhow::Result<()> {
+    fn sandwich_capture_4a() -> anyhow::Result<()> {
         let board_1a = [
             "           ",
             "           ",
@@ -284,7 +284,7 @@ mod tests {
     }
 
     #[test]
-    fn kings() -> anyhow::Result<()> {
+    fn kings_5() -> anyhow::Result<()> {
         let mut board = [
             "KK         ",
             "           ",
