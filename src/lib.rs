@@ -87,7 +87,7 @@ mod tests {
 
         result = game.read_line("play d4 d0");
         assert_eq!(result.is_err(), true);
-        assert_error_str(result, "Index is out of x bounds.");
+        assert_error_str(result, "get: index is out of x bounds");
 
         // Don't move:
         result = game.read_line("play d4 d4");

@@ -135,9 +135,11 @@ impl Board {
         let column = self
             .spaces
             .get(vertex.x)
-            .context("Index is out of x bounds.")?;
+            .context("get: index is out of x bounds")?;
 
-        Ok(*column.get(vertex.y).context("Index is out of y bounds.")?)
+        Ok(*column
+            .get(vertex.y)
+            .context("get: index is out of y bounds")?)
     }
 
     /// # Errors
