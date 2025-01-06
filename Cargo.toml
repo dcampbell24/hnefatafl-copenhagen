@@ -1,13 +1,16 @@
 [package]
 name = "hnefatafl-copenhagen"
 version = "0.2.0"
+authors = ["David Campbell <dcampbell24@gmail.com>"]
 edition = "2021"
+rust-version =  "1.78"
 description = "Copenhagen Hnefatafl engine similar to the Go Text Protocol."
-license = "MIT OR Apache-2.0"
+documentation = "https://docs.rs/hnefatafl-copenhagen/"
 readme = "README.md"
+repository = "https://github.com/dcampbell24/hnefatafl-copenhagen"
+license = "MIT OR Apache-2.0"
 keywords = ["copenhagan", "hnefatafl"]
 categories = ["game-engines", "games"]
-repository = "https://github.com/dcampbell24/hnefatafl-copenhagen"
 
 [dependencies]
 anyhow = "1"
