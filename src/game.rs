@@ -116,18 +116,26 @@ impl Game {
             #[allow(clippy::used_underscore_binding)]
             Message::Play(play) => {
                 if self.status == Status::Ongoing {
-                    if let (Some(time), Some(mut _timer)) = match self.turn {
-                        Color::Black => (self.black_time.as_mut(), self.timer.as_mut()),
+                    if let (status, Some(time), Some(mut _timer)) = match self.turn {
+                        Color::Black => (
+                            Status::WhiteWins,
+                            self.black_time.as_mut(),
+                            self.timer.as_mut(),
+                        ),
                         Color::Colorless => {
                             unreachable!("It can't be no one's turn when the game is ongoing!")
                         }
-                        Color::White => (self.white_time.as_mut(), self.timer.as_mut()),
+                        Color::White => (
+                            Status::BlackWins,
+                            self.white_time.as_mut(),
+                            self.timer.as_mut(),
+                        ),
                     } {
                         time.time_left = time.time_left.saturating_sub(_timer.elapsed());
                         _timer = &mut Instant::now();
 
                         if time.time_left.as_secs() == 0 {
-                            self.status = Status::WhiteWins;
+                            self.status = status;
                             return Ok(Some(String::new()));
                         }
 
