@@ -168,7 +168,11 @@ impl Board {
         let space_from = self.get(&play.from)?;
         let color_from = space_from.color();
 
-        if *turn == color_from {
+        if color_from == Color::Colorless {
+            return Err(anyhow::Error::msg("play: you didn't select a color"));
+        } else if *turn != color_from {
+            return Err(anyhow::Error::msg("play: it isn't your turn"));
+        } else {
             let x_diff = play.from.x as i32 - play.to.x as i32;
             let y_diff = play.from.y as i32 - play.to.y as i32;
 
@@ -229,14 +233,7 @@ impl Board {
             self.captures(&play.to, &color_from)?;
 
             // Todo: Check for shield wall.
-
             // Todo: Check for a draw or black win.
-        } else {
-            if color_from == Color::Colorless {
-                return Err(anyhow::Error::msg("play: it is no one's turn"));
-            } else {
-                return Err(anyhow::Error::msg("play: it isn't your turn"));
-            }
         }
 
         Ok(Status::Ongoing)
