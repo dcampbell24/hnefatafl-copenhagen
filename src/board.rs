@@ -121,7 +121,7 @@ impl Board {
         if let Some(right_1) = play_to.right() {
             let space = self.get(&right_1)?;
             if space != Space::King && space.color() == color_from.opposite() {
-                if let Some(right_2) = right_1.down() {
+                if let Some(right_2) = right_1.right() {
                     if RESTRICTED_SQUARES.contains(&right_2)
                         || self.get(&right_2)?.color() == *color_from
                     {
