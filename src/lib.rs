@@ -320,7 +320,6 @@ mod tests {
         game_5.read_line("play c9 c11")?;
         assert_eq!(game_5.board, board_5b.try_into()?);
 
-        /*
         let board_6a = [
             "           ",
             "           ",
@@ -361,7 +360,6 @@ mod tests {
 
         game_6.read_line("play b4 f4")?;
         assert_eq!(game_6.board, board_6b.try_into()?);
-        */
 
         let board_7a = [
             "           ",
