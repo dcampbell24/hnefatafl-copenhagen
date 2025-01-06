@@ -43,7 +43,7 @@ const RESTRICTED_SQUARES: [Vertex; 5] = [
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Board {
-    pub spaces: Vec<Vec<Space>>,
+    pub spaces: [[Space; 11]; 11],
 }
 
 impl Default for Board {
@@ -60,17 +60,15 @@ impl fmt::Display for Board {
 
 impl From<[&str; 11]> for Board {
     fn from(value: [&str; 11]) -> Self {
-        let mut rows = Vec::new();
+        let mut board = [[Space::Empty; 11]; 11];
 
-        for row in value {
-            let mut columns = Vec::new();
-            for ch in row.chars() {
-                columns.push(ch.into());
+        for (y, row) in value.iter().enumerate() {
+            for (x, ch) in row.chars().enumerate() {
+                board[y][x] = ch.into();
             }
-            rows.push(columns);
         }
 
-        Self { spaces: rows }
+        Self { spaces: board }
     }
 }
 
