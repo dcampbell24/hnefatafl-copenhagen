@@ -9,12 +9,20 @@ pub mod time;
 
 #[cfg(test)]
 mod tests {
+    use std::fmt;
+
     use board::STARTING_POSITION;
     use color::Color;
     use game::Game;
     use status::Status;
 
     use super::*;
+
+    fn assert_error_str<T: fmt::Debug>(result: anyhow::Result<T>, string: &str) {
+        if let Err(error) = result {
+            assert_eq!(error.to_string(), string);
+        }
+    }
 
     #[test]
     fn starting_position() {
@@ -55,16 +63,36 @@ mod tests {
         };
 
         // Play a junk move:
-        assert_eq!(game.read_line("play junk d1").is_err(), true);
-        assert_eq!(game.read_line("play d4 junk").is_err(), true);
+        let mut result = game.read_line("play junk d1");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "invalid digit found in string");
+
+        result = game.read_line("play d4 junk");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "invalid digit found in string");
+
         // Diagonal play:
-        assert_eq!(game.read_line("play d4 a3").is_err(), true);
+        result = game.read_line("play d4 a3");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "play: you can only play in a straight line");
+
         // Play out of bounds:
-        assert_eq!(game.read_line("play d4 m4").is_err(), true);
-        assert_eq!(game.read_line("play d4 d12").is_err(), true);
-        assert_eq!(game.read_line("play d4 d0").is_err(), true);
+        result = game.read_line("play d4 m4");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "play: the first letter is not a legal char");
+
+        result = game.read_line("play d4 d12");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "play: invalid coordinate");
+
+        result = game.read_line("play d4 d0");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "Index is out of x bounds.");
+
         // Don't move:
-        assert_eq!(game.read_line("play d4 d4").is_err(), true);
+        result = game.read_line("play d4 d4");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "play: you have to change location");
 
         // Move all the way to the right:
         let mut game_1 = game.clone();
