@@ -116,40 +116,24 @@ impl Game {
             #[allow(clippy::used_underscore_binding)]
             Message::Play(play) => {
                 if self.status == Status::Ongoing {
-                    match self.turn {
-                        Color::Black => {
-                            if let (Some(time), Some(mut _timer)) =
-                                (self.black_time.as_mut(), self.timer.as_mut())
-                            {
-                                time.time_left = time.time_left.saturating_sub(_timer.elapsed());
-                                _timer = &mut Instant::now();
-
-                                if time.time_left.as_secs() == 0 {
-                                    self.status = Status::WhiteWins;
-                                    return Ok(Some(String::new()));
-                                }
-
-                                time.time_left += time.add_time;
-                            }
-                        }
+                    if let (Some(time), Some(mut _timer)) = match self.turn {
+                        Color::Black => (self.black_time.as_mut(), self.timer.as_mut()),
                         Color::Colorless => {
-                            unreachable!("It is an error to play when it is no ones turn.")
+                            return Err(anyhow::Error::msg(
+                                "It is an error to play when it is no one's turn.",
+                            ))
                         }
-                        Color::White => {
-                            if let (Some(time), Some(mut _timer)) =
-                                (self.white_time.as_mut(), self.timer.as_mut())
-                            {
-                                time.time_left = time.time_left.saturating_sub(_timer.elapsed());
-                                _timer = &mut Instant::now();
+                        Color::White => (self.white_time.as_mut(), self.timer.as_mut()),
+                    } {
+                        time.time_left = time.time_left.saturating_sub(_timer.elapsed());
+                        _timer = &mut Instant::now();
 
-                                if time.time_left.as_secs() == 0 {
-                                    self.status = Status::BlackWins;
-                                    return Ok(Some(String::new()));
-                                }
-
-                                time.time_left += time.add_time;
-                            }
+                        if time.time_left.as_secs() == 0 {
+                            self.status = Status::WhiteWins;
+                            return Ok(Some(String::new()));
                         }
+
+                        time.time_left += time.add_time;
                     }
 
                     self.status = self.board.play(&play, &self.status, &self.turn)?;
