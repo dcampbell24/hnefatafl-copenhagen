@@ -113,10 +113,9 @@ impl Game {
                 Ok(Some(commands))
             }
             Message::Name => Ok(Some("hnefatafl-copenhagen".to_string())),
-            #[allow(clippy::used_underscore_binding)]
             Message::Play(play) => {
                 if self.status == Status::Ongoing {
-                    if let (status, Some(time), Some(mut _timer)) = match self.turn {
+                    if let (status, Some(time), Some(timer)) = match self.turn {
                         Color::Black => (
                             Status::WhiteWins,
                             self.black_time.as_mut(),
@@ -131,8 +130,8 @@ impl Game {
                             self.timer.as_mut(),
                         ),
                     } {
-                        time.time_left = time.time_left.saturating_sub(_timer.elapsed());
-                        _timer = &mut Instant::now();
+                        time.time_left = time.time_left.saturating_sub(timer.elapsed());
+                        *timer = Instant::now();
 
                         if time.time_left.as_secs() == 0 {
                             self.status = status;
