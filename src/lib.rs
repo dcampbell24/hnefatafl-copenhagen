@@ -278,6 +278,8 @@ mod tests {
         game_4.read_line("play b4 f4")?;
         assert_eq!(game_4.board, board_4b.try_into()?);
 
+        // Todo: finish the rest...
+
         Ok(())
     }
 
@@ -300,24 +302,6 @@ mod tests {
         let result: anyhow::Result<Board> = board.try_into();
         assert_eq!(result.is_err(), true);
         assert_error_str(result, "You can only have one king!");
-
-        board = [
-            "X          ",
-            "           ",
-            "           ",
-            "           ",
-            "           ",
-            "           ",
-            "           ",
-            "           ",
-            "           ",
-            "           ",
-            "           ",
-        ];
-
-        let result: anyhow::Result<Board> = board.try_into();
-        assert_eq!(result.is_err(), true);
-        assert_error_str(result, "Only the king is allowed on restricted squares!");
 
         board = [
             " X         ",
@@ -365,6 +349,24 @@ mod tests {
         let _board: Board = board.try_into()?;
 
         board = [
+            "X          ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let mut result: anyhow::Result<Board> = board.try_into();
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "Only the king is allowed on restricted squares!");
+
+        board = [
             "          K",
             "           ",
             "           ",
@@ -380,6 +382,24 @@ mod tests {
         let _board: Board = board.try_into()?;
 
         board = [
+            "          X",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        result = board.try_into();
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "Only the king is allowed on restricted squares!");
+
+        board = [
             "           ",
             "           ",
             "           ",
@@ -393,6 +413,24 @@ mod tests {
             "           ",
         ];
         let _board: Board = board.try_into()?;
+
+        board = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "     X     ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        result = board.try_into();
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "Only the king is allowed on restricted squares!");
 
         board = [
             "           ",
@@ -420,10 +458,45 @@ mod tests {
             "           ",
             "           ",
             "           ",
+            "X          ",
+        ];
+
+        result = board.try_into();
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "Only the king is allowed on restricted squares!");
+
+        board = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
             "          K",
         ];
         let _board: Board = board.try_into()?;
 
+        board = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "          X",
+        ];
+
+        result = board.try_into();
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "Only the king is allowed on restricted squares!");
         Ok(())
     }
 }
