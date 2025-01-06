@@ -320,6 +320,36 @@ mod tests {
         assert_error_str(result, "Only the king is allowed on restricted squares!");
 
         board = [
+            " X         ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let mut game = Game {
+            board: board.try_into()?,
+            plays: Vec::new(),
+            status: Status::default(),
+            timer: None,
+            black_time: None,
+            white_time: None,
+            turn: Color::Black,
+        };
+        let result = game.read_line("play b11 a11");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(
+            result,
+            "play: only the king may move to a restricted square",
+        );
+
+        board = [
             "K          ",
             "           ",
             "           ",
