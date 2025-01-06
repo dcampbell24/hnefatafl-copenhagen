@@ -11,7 +11,7 @@ pub mod time;
 mod tests {
     use std::fmt;
 
-    use board::STARTING_POSITION;
+    use board::{Board, STARTING_POSITION};
     use color::Color;
     use game::Game;
     use status::Status;
@@ -25,9 +25,11 @@ mod tests {
     }
 
     #[test]
-    fn starting_position() {
+    fn starting_position() -> anyhow::Result<()> {
         let game = Game::default();
-        assert_eq!(game.board, STARTING_POSITION.into());
+        assert_eq!(game.board, STARTING_POSITION.try_into()?);
+
+        Ok(())
     }
 
     #[test]
@@ -37,7 +39,7 @@ mod tests {
     }
 
     #[test]
-    fn move_orthogonally() {
+    fn move_orthogonally() -> anyhow::Result<()> {
         let board = [
             "           ",
             "           ",
@@ -53,7 +55,7 @@ mod tests {
         ];
 
         let mut game = Game {
-            board: board.into(),
+            board: board.try_into()?,
             plays: Vec::new(),
             status: Status::default(),
             timer: None,
@@ -96,20 +98,22 @@ mod tests {
 
         // Move all the way to the right:
         let mut game_1 = game.clone();
-        assert_eq!(game_1.read_line("play d4 a4").is_err(), false);
+        game_1.read_line("play d4 a4")?;
         // Move all the way to the left:
         let mut game_2 = game.clone();
-        assert_eq!(game_2.read_line("play d4 l4").is_err(), false);
+        game_2.read_line("play d4 l4")?;
         // Move all the way up:
         let mut game_3 = game.clone();
-        assert_eq!(game_3.read_line("play d4 d11").is_err(), false);
+        game_3.read_line("play d4 d11")?;
         // Move all the way down:
         let mut game_4 = game.clone();
-        assert_eq!(game_4.read_line("play d4 d1").is_err(), false);
+        game_4.read_line("play d4 d1")?;
+
+        Ok(())
     }
 
     #[test]
-    fn sandwich_capture() {
+    fn sandwich_capture() -> anyhow::Result<()> {
         let board_1a = [
             "           ",
             "           ",
@@ -139,7 +143,7 @@ mod tests {
         ];
 
         let mut game_1 = Game {
-            board: board_1a.into(),
+            board: board_1a.try_into()?,
             plays: Vec::new(),
             status: Status::default(),
             timer: None,
@@ -148,8 +152,8 @@ mod tests {
             turn: Color::Black,
         };
 
-        assert_eq!(game_1.read_line("play d2 d4").is_ok(), true);
-        assert_eq!(game_1.board, board_1b.into());
+        game_1.read_line("play d2 d4")?;
+        assert_eq!(game_1.board, board_1b.try_into()?);
 
         let board_2a = [
             "           ",
@@ -180,7 +184,7 @@ mod tests {
         ];
 
         let mut game_2 = Game {
-            board: board_2a.into(),
+            board: board_2a.try_into()?,
             plays: Vec::new(),
             status: Status::default(),
             timer: None,
@@ -189,8 +193,8 @@ mod tests {
             turn: Color::Black,
         };
 
-        assert_eq!(game_2.read_line("play b4 f4").is_ok(), true);
-        assert_eq!(game_2.board, board_2b.into());
+        game_2.read_line("play b4 f4")?;
+        assert_eq!(game_2.board, board_2b.try_into()?);
 
         let board_3a = [
             "           ",
@@ -221,7 +225,7 @@ mod tests {
         ];
 
         let mut game_3 = Game {
-            board: board_3a.into(),
+            board: board_3a.try_into()?,
             plays: Vec::new(),
             status: Status::default(),
             timer: None,
@@ -230,8 +234,8 @@ mod tests {
             turn: Color::White,
         };
 
-        assert_eq!(game_3.read_line("play c6 c4").is_ok(), true);
-        assert_eq!(game_3.board, board_3b.into());
+        game_3.read_line("play c6 c4")?;
+        assert_eq!(game_3.board, board_3b.try_into()?);
 
         let board_4a = [
             "           ",
@@ -262,7 +266,7 @@ mod tests {
         ];
 
         let mut game_4 = Game {
-            board: board_4a.into(),
+            board: board_4a.try_into()?,
             plays: Vec::new(),
             status: Status::default(),
             timer: None,
@@ -271,7 +275,125 @@ mod tests {
             turn: Color::White,
         };
 
-        assert_eq!(game_4.read_line("play b4 f4").is_ok(), true);
-        assert_eq!(game_4.board, board_4b.into());
+        game_4.read_line("play b4 f4")?;
+        assert_eq!(game_4.board, board_4b.try_into()?);
+
+        Ok(())
+    }
+
+    #[test]
+    fn kings() -> anyhow::Result<()> {
+        let mut board = [
+            "KK         ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let result: anyhow::Result<Board> = board.try_into();
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "You can only have one king!");
+
+        board = [
+            "X          ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let result: anyhow::Result<Board> = board.try_into();
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "Only the king is allowed on restricted squares!");
+
+        board = [
+            "K          ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+        let _board: Board = board.try_into()?;
+
+        board = [
+            "          K",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+        let _board: Board = board.try_into()?;
+
+        board = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "     K     ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+        let _board: Board = board.try_into()?;
+
+        board = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "K          ",
+        ];
+        let _board: Board = board.try_into()?;
+
+        board = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "          K",
+        ];
+        let _board: Board = board.try_into()?;
+
+        Ok(())
     }
 }

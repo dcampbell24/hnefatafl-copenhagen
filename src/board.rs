@@ -43,12 +43,12 @@ const RESTRICTED_SQUARES: [Vertex; 5] = [
 
 #[derive(Clone, Eq, PartialEq)]
 pub struct Board {
-    pub spaces: [[Space; 11]; 11],
+    spaces: [[Space; 11]; 11],
 }
 
 impl Default for Board {
     fn default() -> Self {
-        STARTING_POSITION.into()
+        STARTING_POSITION.try_into().unwrap()
     }
 }
 
@@ -64,17 +64,39 @@ impl fmt::Display for Board {
     }
 }
 
-impl From<[&str; 11]> for Board {
-    fn from(value: [&str; 11]) -> Self {
+impl TryFrom<[&str; 11]> for Board {
+    type Error = anyhow::Error;
+
+    fn try_from(value: [&str; 11]) -> anyhow::Result<Self> {
         let mut spaces = [[Space::Empty; 11]; 11];
+        let mut kings = 0;
 
         for (y, row) in value.iter().enumerate() {
             for (x, ch) in row.chars().enumerate() {
-                spaces[y][x] = ch.into();
+                let space = ch.try_into()?;
+                match space {
+                    Space::Black | Space::White => {
+                        let vertex = Vertex { x, y };
+                        if RESTRICTED_SQUARES.contains(&vertex) {
+                            return Err(anyhow::Error::msg(
+                                "Only the king is allowed on restricted squares!",
+                            ));
+                        }
+                    }
+                    Space::Empty => {}
+                    Space::King => {
+                        kings += 1;
+                        if kings > 1 {
+                            return Err(anyhow::Error::msg("You can only have one king!"));
+                        }
+                    }
+                }
+
+                spaces[y][x] = space;
             }
         }
 
-        Self { spaces }
+        Ok(Self { spaces })
     }
 }
 

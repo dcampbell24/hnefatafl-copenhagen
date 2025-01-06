@@ -8,14 +8,18 @@ pub enum Space {
     White,
 }
 
-impl From<char> for Space {
-    fn from(value: char) -> Space {
+impl TryFrom<char> for Space {
+    type Error = anyhow::Error;
+
+    fn try_from(value: char) -> anyhow::Result<Self> {
         match value {
-            'X' => Self::Black,
-            'O' => Self::White,
-            ' ' => Self::Empty,
-            'K' => Self::King,
-            ch => panic!("error trying to convert '{ch}' to a Space"),
+            'X' => Ok(Self::Black),
+            'O' => Ok(Self::White),
+            ' ' => Ok(Self::Empty),
+            'K' => Ok(Self::King),
+            ch => Err(anyhow::Error::msg(format!(
+                "Error trying to convert '{ch}' to a Space!"
+            ))),
         }
     }
 }
