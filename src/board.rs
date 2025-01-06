@@ -41,7 +41,7 @@ const RESTRICTED_SQUARES: [Vertex; 5] = [
     THRONE,
 ];
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct Board {
     pub spaces: [[Space; 11]; 11],
 }
@@ -49,6 +49,12 @@ pub struct Board {
 impl Default for Board {
     fn default() -> Self {
         STARTING_POSITION.into()
+    }
+}
+
+impl fmt::Debug for Board {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.show())
     }
 }
 
@@ -241,6 +247,7 @@ impl Board {
         let letters = "   ABCDEFGHJKL";
 
         let mut board = String::new();
+        board.push('\n');
         board.push_str(letters);
         board.push_str("\n  ┌");
         board.push_str(&"─".repeat(11));

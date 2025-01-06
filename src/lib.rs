@@ -107,4 +107,48 @@ mod tests {
         let mut game_4 = game.clone();
         assert_eq!(game_4.read_line("play d4 d1").is_err(), false);
     }
+
+    #[test]
+    fn sandwich_capture() {
+        let board_1a = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "   X       ",
+            "   O       ",
+            " XO OX     ",
+            "           ",
+            "   X       ",
+            "           ",
+        ];
+
+        let board_1b = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "   X       ",
+            "           ",
+            " X X X     ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let mut game_1 = Game {
+            board: board_1a.into(),
+            plays: Vec::new(),
+            status: Status::default(),
+            timer: None,
+            black_time: None,
+            white_time: None,
+            turn: Color::Black,
+        };
+
+        assert_eq!(game_1.read_line("play d2 d4").is_ok(), true);
+        assert_eq!(game_1.board, board_1b.into());
+    }
 }

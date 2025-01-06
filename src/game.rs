@@ -170,7 +170,7 @@ impl Game {
                 *self = Game::default();
                 Ok(Some(String::new()))
             }
-            Message::ShowBoard => Ok(Some(format!("\n{self}"))),
+            Message::ShowBoard => Ok(Some(self.to_string())),
             Message::TimeSettings(mut time_settings) => {
                 if let Some(time) = time_settings.time_settings.take() {
                     self.black_time = Some(time.clone());
