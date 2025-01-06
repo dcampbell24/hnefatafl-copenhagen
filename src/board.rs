@@ -60,15 +60,15 @@ impl fmt::Display for Board {
 
 impl From<[&str; 11]> for Board {
     fn from(value: [&str; 11]) -> Self {
-        let mut board = [[Space::Empty; 11]; 11];
+        let mut spaces = [[Space::Empty; 11]; 11];
 
         for (y, row) in value.iter().enumerate() {
             for (x, ch) in row.chars().enumerate() {
-                board[y][x] = ch.into();
+                spaces[y][x] = ch.into();
             }
         }
 
-        Self { spaces: board }
+        Self { spaces }
     }
 }
 
