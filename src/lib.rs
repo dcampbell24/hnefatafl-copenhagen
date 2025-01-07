@@ -621,4 +621,35 @@ mod tests {
         assert_error_str(result, "Only the king is allowed on restricted squares!");
         Ok(())
     }
+
+    #[test]
+    fn white_wins_6a() -> anyhow::Result<()> {
+        let board = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "     K     ",
+        ];
+
+        let mut game = Game {
+            board: board.try_into()?,
+            plays: Vec::new(),
+            status: Status::default(),
+            timer: None,
+            black_time: None,
+            white_time: None,
+            turn: Color::White,
+        };
+        game.read_line("play f1 l1")?;
+        assert_eq!(game.status, Status::WhiteWins);
+
+        Ok(())
+    }
 }
