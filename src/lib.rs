@@ -346,6 +346,147 @@ mod tests {
     }
 
     #[test]
+    fn shield_wall_4b() -> anyhow::Result<()> {
+        let board_1a = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "  O        ",
+            "   OOO     ",
+            "   XXXO    ",
+        ];
+
+        let board_1b = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "   OOO     ",
+            "  O   O    ",
+        ];
+
+        let mut game_1 = Game::default();
+        game_1.board = board_1a.try_into()?;
+        game_1.turn = Color::White;
+        game_1.read_line("play c3 c1")?;
+        assert_eq!(game_1.board, board_1b.try_into()?);
+
+        let board_2a = [
+            "   XXXO    ",
+            "   OOO     ",
+            "  O        ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let board_2b = [
+            "  O   O    ",
+            "   OOO     ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let mut game_2 = Game::default();
+        game_2.board = board_2a.try_into()?;
+        game_2.turn = Color::White;
+        game_2.read_line("play c9 c11")?;
+        assert_eq!(game_2.board, board_2b.try_into()?);
+
+        let board_3a = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "  O        ",
+            "XO         ",
+            "XO         ",
+            "XO         ",
+            "O          ",
+            "           ",
+            "           ",
+        ];
+
+        let board_3b = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "O          ",
+            " O         ",
+            " O         ",
+            " O         ",
+            "O          ",
+            "           ",
+            "           ",
+        ];
+
+        let mut game_3 = Game::default();
+        game_3.board = board_3a.try_into()?;
+        game_3.turn = Color::White;
+        game_3.read_line("play c7 a7")?;
+        assert_eq!(game_3.board, board_3b.try_into()?);
+
+        let board_4a = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "        O  ",
+            "         OX",
+            "         OX",
+            "         OX",
+            "          O",
+            "           ",
+            "           ",
+        ];
+
+        let board_4b = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "          O",
+            "         O ",
+            "         O ",
+            "         O ",
+            "          O",
+            "           ",
+            "           ",
+        ];
+
+        let mut game_4 = Game::default();
+        game_4.board = board_4a.try_into()?;
+        game_4.turn = Color::White;
+        game_4.read_line("play j7 l7")?;
+        assert_eq!(game_4.board, board_4b.try_into()?);
+
+        Ok(())
+    }
+
+    #[test]
     fn kings_5() -> anyhow::Result<()> {
         let mut board = [
             "KK         ",

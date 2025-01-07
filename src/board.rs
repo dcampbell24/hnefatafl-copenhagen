@@ -157,6 +157,111 @@ impl Board {
         Ok(())
     }
 
+    // y is x, x is y, y counts up going down.
+    fn captures_shield_wall(&mut self, color_from: &Color) -> anyhow::Result<()> {
+        // bottom row
+        for x_1 in 1..11 {
+            let vertex_1 = Vertex { y: x_1, x: 10 };
+            if self.get(&vertex_1)?.color() == *color_from {
+                let mut count = 0;
+                let start = x_1 + 1;
+
+                for x_2 in start..11 {
+                    let vertex_2 = Vertex { y: x_2, x: 10 };
+                    if self.get(&vertex_2)?.color() == color_from.opposite() {
+                        count += 1;
+                    } else {
+                        break;
+                    }
+                }
+
+                let finish = start + count;
+                if count > 0 && self.get(&Vertex { y: finish, x: 10 })?.color() == *color_from {
+                    for x_2 in start..finish {
+                        self.set(&Vertex { y: x_2, x: 10 }, Space::Empty);
+                    }
+                }
+            }
+        }
+
+        // top row
+        for x_1 in 1..11 {
+            let vertex_1 = Vertex { y: x_1, x: 0 };
+            if self.get(&vertex_1)?.color() == *color_from {
+                let mut count = 0;
+                let start = x_1 + 1;
+
+                for x_2 in start..11 {
+                    let vertex_2 = Vertex { y: x_2, x: 0 };
+                    if self.get(&vertex_2)?.color() == color_from.opposite() {
+                        count += 1;
+                    } else {
+                        break;
+                    }
+                }
+
+                let finish = start + count;
+                if count > 0 && self.get(&Vertex { y: finish, x: 0 })?.color() == *color_from {
+                    for x_2 in start..finish {
+                        self.set(&Vertex { y: x_2, x: 0 }, Space::Empty);
+                    }
+                }
+            }
+        }
+
+        // left row
+        for y_1 in 1..11 {
+            let vertex_1 = Vertex { y: 0, x: y_1 };
+            if self.get(&vertex_1)?.color() == *color_from {
+                let mut count = 0;
+                let start = y_1 + 1;
+
+                for y_2 in start..11 {
+                    let vertex_2 = Vertex { y: 0, x: y_2 };
+                    if self.get(&vertex_2)?.color() == color_from.opposite() {
+                        count += 1;
+                    } else {
+                        break;
+                    }
+                }
+
+                let finish = start + count;
+                if count > 0 && self.get(&Vertex { y: 0, x: finish })?.color() == *color_from {
+                    for y_2 in start..finish {
+                        self.set(&Vertex { y: 0, x: y_2 }, Space::Empty);
+                    }
+                }
+            }
+        }
+
+        // right row
+        for y_1 in 1..11 {
+            let vertex_1 = Vertex { y: 10, x: y_1 };
+            if self.get(&vertex_1)?.color() == *color_from {
+                let mut count = 0;
+                let start = y_1 + 1;
+
+                for y_2 in start..11 {
+                    let vertex_2 = Vertex { y: 10, x: y_2 };
+                    if self.get(&vertex_2)?.color() == color_from.opposite() {
+                        count += 1;
+                    } else {
+                        break;
+                    }
+                }
+
+                let finish = start + count;
+                if count > 0 && self.get(&Vertex { y: 10, x: finish })?.color() == *color_from {
+                    for y_2 in start..finish {
+                        self.set(&Vertex { y: 10, x: y_2 }, Space::Empty);
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     /// # Errors
     ///
     /// If the play is out of bounds.
@@ -255,6 +360,7 @@ impl Board {
         }
 
         self.captures(&play.to, &color_from)?;
+        self.captures_shield_wall(&color_from)?;
 
         // Todo: Check for shield wall.
         // Todo: Check for a draw or black win.
