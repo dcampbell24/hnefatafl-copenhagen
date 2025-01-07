@@ -109,7 +109,7 @@ impl Board {
                     if (RESTRICTED_SQUARES.contains(&up_2) && self.get(&up_2)? != Space::King)
                         || self.get(&up_2)?.color() == *color_from
                     {
-                        self.set(&up_1, Space::Empty);
+                        self.set_if_not_king(&up_1, Space::Empty)?;
                     }
                 }
             }
@@ -122,7 +122,7 @@ impl Board {
                     if (RESTRICTED_SQUARES.contains(&left_2) && self.get(&left_2)? != Space::King)
                         || self.get(&left_2)?.color() == *color_from
                     {
-                        self.set(&left_1, Space::Empty);
+                        self.set_if_not_king(&left_1, Space::Empty)?;
                     }
                 }
             }
@@ -135,7 +135,7 @@ impl Board {
                     if (RESTRICTED_SQUARES.contains(&down_2) && self.get(&down_2)? != Space::King)
                         || self.get(&down_2)?.color() == *color_from
                     {
-                        self.set(&down_1, Space::Empty);
+                        self.set_if_not_king(&down_1, Space::Empty)?;
                     }
                 }
             }
@@ -148,7 +148,7 @@ impl Board {
                     if (RESTRICTED_SQUARES.contains(&right_2) && self.get(&right_2)? != Space::King)
                         || self.get(&right_2)?.color() == *color_from
                     {
-                        self.set(&right_1, Space::Empty);
+                        self.set_if_not_king(&right_1, Space::Empty)?;
                     }
                 }
             }
