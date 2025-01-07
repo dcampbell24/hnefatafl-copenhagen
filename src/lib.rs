@@ -54,15 +54,9 @@ mod tests {
             "           ",
         ];
 
-        let mut game = Game {
-            board: board.try_into()?,
-            plays: Vec::new(),
-            status: Status::default(),
-            timer: None,
-            black_time: None,
-            white_time: None,
-            turn: Color::White,
-        };
+        let mut game = Game::default();
+        game.board = board.try_into()?;
+        game.turn = Color::White;
 
         // Play a junk move:
         let mut result = game.read_line("play junk d1");
@@ -142,16 +136,8 @@ mod tests {
             "           ",
         ];
 
-        let mut game_1 = Game {
-            board: board_1a.try_into()?,
-            plays: Vec::new(),
-            status: Status::default(),
-            timer: None,
-            black_time: None,
-            white_time: None,
-            turn: Color::Black,
-        };
-
+        let mut game_1 = Game::default();
+        game_1.board = board_1a.try_into()?;
         game_1.read_line("play d2 d4")?;
         assert_eq!(game_1.board, board_1b.try_into()?);
 
@@ -183,16 +169,8 @@ mod tests {
             "           ",
         ];
 
-        let mut game_2 = Game {
-            board: board_2a.try_into()?,
-            plays: Vec::new(),
-            status: Status::default(),
-            timer: None,
-            black_time: None,
-            white_time: None,
-            turn: Color::Black,
-        };
-
+        let mut game_2 = Game::default();
+        game_2.board = board_2a.try_into()?;
         game_2.read_line("play b4 f4")?;
         assert_eq!(game_2.board, board_2b.try_into()?);
 
@@ -224,16 +202,9 @@ mod tests {
             "           ",
         ];
 
-        let mut game_3 = Game {
-            board: board_3a.try_into()?,
-            plays: Vec::new(),
-            status: Status::default(),
-            timer: None,
-            black_time: None,
-            white_time: None,
-            turn: Color::White,
-        };
-
+        let mut game_3 = Game::default();
+        game_3.board = board_3a.try_into()?;
+        game_3.turn = Color::White;
         game_3.read_line("play c6 c4")?;
         assert_eq!(game_3.board, board_3b.try_into()?);
 
@@ -265,16 +236,9 @@ mod tests {
             "           ",
         ];
 
-        let mut game_4 = Game {
-            board: board_4a.try_into()?,
-            plays: Vec::new(),
-            status: Status::default(),
-            timer: None,
-            black_time: None,
-            white_time: None,
-            turn: Color::White,
-        };
-
+        let mut game_4 = Game::default();
+        game_4.board = board_4a.try_into()?;
+        game_4.turn = Color::White;
         game_4.read_line("play b4 f4")?;
         assert_eq!(game_4.board, board_4b.try_into()?);
 
@@ -307,16 +271,8 @@ mod tests {
             "           ",
         ];
 
-        let mut game_5 = Game {
-            board: board_5a.try_into()?,
-            plays: Vec::new(),
-            status: Status::default(),
-            timer: None,
-            black_time: None,
-            white_time: None,
-            turn: Color::Black,
-        };
-
+        let mut game_5 = Game::default();
+        game_5.board = board_5a.try_into()?;
         game_5.read_line("play c9 c11")?;
         assert_eq!(game_5.board, board_5b.try_into()?);
 
@@ -348,16 +304,8 @@ mod tests {
             "           ",
         ];
 
-        let mut game_6 = Game {
-            board: board_6a.try_into()?,
-            plays: Vec::new(),
-            status: Status::default(),
-            timer: None,
-            black_time: None,
-            white_time: None,
-            turn: Color::Black,
-        };
-
+        let mut game_6 = Game::default();
+        game_6.board = board_6a.try_into()?;
         game_6.read_line("play b4 f4")?;
         assert_eq!(game_6.board, board_6b.try_into()?);
 
@@ -389,16 +337,8 @@ mod tests {
             "           ",
         ];
 
-        let mut game_7 = Game {
-            board: board_7a.try_into()?,
-            plays: Vec::new(),
-            status: Status::default(),
-            timer: None,
-            black_time: None,
-            white_time: None,
-            turn: Color::Black,
-        };
-
+        let mut game_7 = Game::default();
+        game_7.board = board_7a.try_into()?;
         game_7.read_line("play c3 c5")?;
         assert_eq!(game_7.board, board_7b.try_into()?);
 
@@ -439,16 +379,9 @@ mod tests {
             "           ",
         ];
 
-        let mut game = Game {
-            board: board.try_into()?,
-            plays: Vec::new(),
-            status: Status::default(),
-            timer: None,
-            black_time: None,
-            white_time: None,
-            turn: Color::Black,
-        };
-        let result = game.read_line("play b11 a11");
+        let mut game_8 = Game::default();
+        game_8.board = board.try_into()?;
+        let result = game_8.read_line("play b11 a11");
         assert_eq!(result.is_err(), true);
         assert_error_str(
             result,
@@ -638,15 +571,10 @@ mod tests {
             "     K     ",
         ];
 
-        let mut game = Game {
-            board: board.try_into()?,
-            plays: Vec::new(),
-            status: Status::default(),
-            timer: None,
-            black_time: None,
-            white_time: None,
-            turn: Color::White,
-        };
+        let mut game = Game::default();
+        game.board = board.try_into()?;
+        game.turn = Color::White;
+
         game.read_line("play f1 l1")?;
         assert_eq!(game.status, Status::WhiteWins);
 
