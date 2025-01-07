@@ -483,6 +483,8 @@ mod tests {
         game_4.read_line("play j7 l7")?;
         assert_eq!(game_4.board, board_4b.try_into()?);
 
+        // Handle the restricted squares,
+
         Ok(())
     }
 

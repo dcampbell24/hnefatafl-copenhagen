@@ -178,7 +178,7 @@ impl Board {
                 let finish = start + count;
                 if count > 0 && self.get(&Vertex { y: finish, x: 10 })?.color() == *color_from {
                     for x_2 in start..finish {
-                        self.set(&Vertex { y: x_2, x: 10 }, Space::Empty);
+                        self.set_if_not_king(&Vertex { y: x_2, x: 10 }, Space::Empty)?;
                     }
                 }
             }
@@ -203,7 +203,7 @@ impl Board {
                 let finish = start + count;
                 if count > 0 && self.get(&Vertex { y: finish, x: 0 })?.color() == *color_from {
                     for x_2 in start..finish {
-                        self.set(&Vertex { y: x_2, x: 0 }, Space::Empty);
+                        self.set_if_not_king(&Vertex { y: x_2, x: 0 }, Space::Empty)?;
                     }
                 }
             }
@@ -228,7 +228,7 @@ impl Board {
                 let finish = start + count;
                 if count > 0 && self.get(&Vertex { y: 0, x: finish })?.color() == *color_from {
                     for y_2 in start..finish {
-                        self.set(&Vertex { y: 0, x: y_2 }, Space::Empty);
+                        self.set_if_not_king(&Vertex { y: 0, x: y_2 }, Space::Empty)?;
                     }
                 }
             }
@@ -253,7 +253,7 @@ impl Board {
                 let finish = start + count;
                 if count > 0 && self.get(&Vertex { y: 10, x: finish })?.color() == *color_from {
                     for y_2 in start..finish {
-                        self.set(&Vertex { y: 10, x: y_2 }, Space::Empty);
+                        self.set_if_not_king(&Vertex { y: 10, x: y_2 }, Space::Empty)?;
                     }
                 }
             }
@@ -370,6 +370,14 @@ impl Board {
 
     fn set(&mut self, vertex: &Vertex, space: Space) {
         self.spaces[vertex.x][vertex.y] = space;
+    }
+
+    fn set_if_not_king(&mut self, vertex: &Vertex, space: Space) -> anyhow::Result<()> {
+        if self.get(&vertex)? != Space::King {
+            self.set(&vertex, space);
+        }
+
+        Ok(())
     }
 
     #[must_use]
