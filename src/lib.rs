@@ -137,9 +137,43 @@ mod tests {
         ];
 
         let mut game_1 = Game::default();
+
         game_1.board = board_1a.try_into()?;
         game_1.read_line("play d2 d4")?;
         assert_eq!(game_1.board, board_1b.try_into()?);
+
+        let board_1aa = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "   X       ",
+            "   K       ",
+            " XO OX     ",
+            "           ",
+            "   X       ",
+            "           ",
+        ];
+
+        let board_1bb = [
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "           ",
+            "   X       ",
+            "   K       ",
+            " X X X     ",
+            "           ",
+            "           ",
+            "           ",
+        ];
+
+        let mut game_1a = Game::default();
+        game_1a.board = board_1aa.try_into()?;
+        game_1a.read_line("play d2 d4")?;
+        assert_eq!(game_1a.board, board_1bb.try_into()?);
 
         let board_2a = [
             "           ",
