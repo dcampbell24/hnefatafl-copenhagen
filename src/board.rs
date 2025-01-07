@@ -373,8 +373,8 @@ impl Board {
     }
 
     fn set_if_not_king(&mut self, vertex: &Vertex, space: Space) -> anyhow::Result<()> {
-        if self.get(&vertex)? != Space::King {
-            self.set(&vertex, space);
+        if self.get(vertex)? != Space::King {
+            self.set(vertex, space);
         }
 
         Ok(())
