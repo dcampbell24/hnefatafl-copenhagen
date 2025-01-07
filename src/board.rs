@@ -11,17 +11,17 @@ use crate::{
 use super::space::Space;
 
 pub const STARTING_POSITION: [&str; 11] = [
-    "   XXXXX   ",
-    "     X     ",
-    "           ",
-    "X    O    X",
-    "X   OOO   X",
-    "XX OOKOO XX",
-    "X   OOO   X",
-    "X    O    X",
-    "           ",
-    "     X     ",
-    "   XXXXX   ",
+    "...XXXXX...",
+    ".....X.....",
+    "...........",
+    "X....O....X",
+    "X...OOO...X",
+    "XX.OOKOO.XX",
+    "X...OOO...X",
+    "X....O....X",
+    "...........",
+    ".....X.....",
+    "...XXXXX...",
 ];
 
 const EXIT_SQUARES: [Vertex; 4] = [

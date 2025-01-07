@@ -17,7 +17,7 @@ impl TryFrom<char> for Space {
         match value {
             'X' => Ok(Self::Black),
             'O' => Ok(Self::White),
-            ' ' => Ok(Self::Empty),
+            '.' => Ok(Self::Empty),
             'K' => Ok(Self::King),
             ch => Err(anyhow::Error::msg(format!(
                 "Error trying to convert '{ch}' to a Space!"
