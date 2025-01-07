@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::color::Color;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -20,6 +22,17 @@ impl TryFrom<char> for Space {
             ch => Err(anyhow::Error::msg(format!(
                 "Error trying to convert '{ch}' to a Space!"
             ))),
+        }
+    }
+}
+
+impl fmt::Display for Space {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Black => write!(f, "○"),
+            Self::Empty => write!(f, "."),
+            Self::King => write!(f, "▲"),
+            Self::White => write!(f, "●"),
         }
     }
 }

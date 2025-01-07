@@ -54,13 +54,50 @@ impl Default for Board {
 
 impl fmt::Debug for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.show())
+        writeln!(f)?;
+        for line in self.spaces {
+            write!(f, r#"""#)?;
+            for space in line {
+                match space {
+                    Space::Black => write!(f, "X")?,
+                    Space::Empty => write!(f, ".")?,
+                    Space::King => write!(f, "K")?,
+                    Space::White => write!(f, "O")?,
+                }
+            }
+            writeln!(f, r#"""#)?;
+        }
+
+        Ok(())
     }
 }
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.show())
+        let letters = "   ABCDEFGHJKL";
+        let bar = "─".repeat(11);
+
+        writeln!(f, "\n{letters}\n  ┌{bar}┐")?;
+        for (mut i, line) in self.spaces.iter().enumerate() {
+            i = 11 - i;
+
+            write!(f, "{i:2}│")?;
+            for (j, space) in line.iter().enumerate() {
+                if ((i, j) == (1, 0)
+                    || (i, j) == (11, 0)
+                    || (i, j) == (1, 10)
+                    || (i, j) == (11, 10)
+                    || (i, j) == (6, 5))
+                    && *space == Space::Empty
+                {
+                    write!(f, "■")?;
+                } else {
+                    write!(f, "{space}")?;
+                }
+            }
+            writeln!(f, "│{i:2}")?;
+        }
+        write!(f, "  └{bar}┘\n{letters}")
     }
 }
 
@@ -378,55 +415,5 @@ impl Board {
         }
 
         Ok(())
-    }
-
-    #[must_use]
-    pub fn show(&self) -> String {
-        let letters = "   ABCDEFGHJKL";
-
-        let mut board = String::new();
-        board.push('\n');
-        board.push_str(letters);
-        board.push_str("\n  ┌");
-        board.push_str(&"─".repeat(11));
-        board.push('┐');
-        board.push('\n');
-
-        for (mut i, line) in self.spaces.iter().enumerate() {
-            i = 11 - i;
-            board.push_str(&format!("{i:2}"));
-            board.push('│');
-
-            for (j, space) in line.iter().enumerate() {
-                if ((i, j) == (1, 0)
-                    || (i, j) == (11, 0)
-                    || (i, j) == (1, 10)
-                    || (i, j) == (11, 10)
-                    || (i, j) == (6, 5))
-                    && *space == Space::Empty
-                {
-                    board.push('■');
-                } else {
-                    match space {
-                        Space::Black => board.push('○'),
-                        Space::Empty => board.push('.'),
-                        Space::King => board.push('▲'),
-                        Space::White => board.push('●'),
-                    }
-                }
-            }
-
-            board.push('│');
-            board.push_str(&format!("{i:2}"));
-            board.push('\n');
-        }
-
-        board.push_str("  └");
-        board.push_str(&"─".repeat(11));
-        board.push('┘');
-        board.push('\n');
-        board.push_str(letters);
-
-        board
     }
 }
