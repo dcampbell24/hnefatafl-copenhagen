@@ -56,14 +56,13 @@ impl TryFrom<&str> for Vertex {
 
         if let Some(mut ch) = chars.next() {
             ch = ch.to_ascii_lowercase();
-            let y = BOARD_LETTERS
+            let x = BOARD_LETTERS
                 .find(ch)
                 .context("play: the first letter is not a legal char")?;
 
-            let mut x = chars.as_str().parse()?;
-
-            if x < 12 {
-                x = 11 - x;
+            let mut y = chars.as_str().parse()?;
+            if y < 12 {
+                y = 11 - y;
                 return Ok(Self { x, y });
             }
         }
@@ -75,18 +74,6 @@ impl TryFrom<&str> for Vertex {
 impl Vertex {
     #[must_use]
     pub fn up(&self) -> Option<Vertex> {
-        if self.x > 0 {
-            Some(Vertex {
-                x: self.x - 1,
-                y: self.y,
-            })
-        } else {
-            None
-        }
-    }
-
-    #[must_use]
-    pub fn left(&self) -> Option<Vertex> {
         if self.y > 0 {
             Some(Vertex {
                 x: self.x,
@@ -98,10 +85,10 @@ impl Vertex {
     }
 
     #[must_use]
-    pub fn down(&self) -> Option<Vertex> {
-        if self.x < 10 {
+    pub fn left(&self) -> Option<Vertex> {
+        if self.x > 0 {
             Some(Vertex {
-                x: self.x + 1,
+                x: self.x - 1,
                 y: self.y,
             })
         } else {
@@ -110,11 +97,23 @@ impl Vertex {
     }
 
     #[must_use]
-    pub fn right(&self) -> Option<Vertex> {
+    pub fn down(&self) -> Option<Vertex> {
         if self.y < 10 {
             Some(Vertex {
                 x: self.x,
                 y: self.y + 1,
+            })
+        } else {
+            None
+        }
+    }
+
+    #[must_use]
+    pub fn right(&self) -> Option<Vertex> {
+        if self.x < 10 {
+            Some(Vertex {
+                x: self.x + 1,
+                y: self.y,
             })
         } else {
             None

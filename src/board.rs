@@ -194,17 +194,17 @@ impl Board {
         Ok(())
     }
 
-    // y is x, x is y, y counts up going down.
+    // y counts up going down.
     fn captures_shield_wall(&mut self, color_from: &Color) -> anyhow::Result<()> {
         // bottom row
         for x_1 in 1..11 {
-            let vertex_1 = Vertex { y: x_1, x: 10 };
+            let vertex_1 = Vertex { x: x_1, y: 10 };
             if self.get(&vertex_1)?.color() == *color_from {
                 let mut count = 0;
                 let start = x_1 + 1;
 
                 for x_2 in start..11 {
-                    let vertex_2 = Vertex { y: x_2, x: 10 };
+                    let vertex_2 = Vertex { x: x_2, y: 10 };
                     if self.get(&vertex_2)?.color() == color_from.opposite() {
                         count += 1;
                     } else {
@@ -213,9 +213,9 @@ impl Board {
                 }
 
                 let finish = start + count;
-                if count > 0 && self.get(&Vertex { y: finish, x: 10 })?.color() == *color_from {
+                if count > 0 && self.get(&Vertex { x: finish, y: 10 })?.color() == *color_from {
                     for x_2 in start..finish {
-                        self.set_if_not_king(&Vertex { y: x_2, x: 10 }, Space::Empty)?;
+                        self.set_if_not_king(&Vertex { x: x_2, y: 10 }, Space::Empty)?;
                     }
                 }
             }
@@ -223,13 +223,13 @@ impl Board {
 
         // top row
         for x_1 in 1..11 {
-            let vertex_1 = Vertex { y: x_1, x: 0 };
+            let vertex_1 = Vertex { x: x_1, y: 0 };
             if self.get(&vertex_1)?.color() == *color_from {
                 let mut count = 0;
                 let start = x_1 + 1;
 
                 for x_2 in start..11 {
-                    let vertex_2 = Vertex { y: x_2, x: 0 };
+                    let vertex_2 = Vertex { x: x_2, y: 0 };
                     if self.get(&vertex_2)?.color() == color_from.opposite() {
                         count += 1;
                     } else {
@@ -238,9 +238,9 @@ impl Board {
                 }
 
                 let finish = start + count;
-                if count > 0 && self.get(&Vertex { y: finish, x: 0 })?.color() == *color_from {
+                if count > 0 && self.get(&Vertex { x: finish, y: 0 })?.color() == *color_from {
                     for x_2 in start..finish {
-                        self.set_if_not_king(&Vertex { y: x_2, x: 0 }, Space::Empty)?;
+                        self.set_if_not_king(&Vertex { x: x_2, y: 0 }, Space::Empty)?;
                     }
                 }
             }
@@ -248,13 +248,13 @@ impl Board {
 
         // left row
         for y_1 in 1..11 {
-            let vertex_1 = Vertex { y: 0, x: y_1 };
+            let vertex_1 = Vertex { x: 0, y: y_1 };
             if self.get(&vertex_1)?.color() == *color_from {
                 let mut count = 0;
                 let start = y_1 + 1;
 
                 for y_2 in start..11 {
-                    let vertex_2 = Vertex { y: 0, x: y_2 };
+                    let vertex_2 = Vertex { x: 0, y: y_2 };
                     if self.get(&vertex_2)?.color() == color_from.opposite() {
                         count += 1;
                     } else {
@@ -263,9 +263,9 @@ impl Board {
                 }
 
                 let finish = start + count;
-                if count > 0 && self.get(&Vertex { y: 0, x: finish })?.color() == *color_from {
+                if count > 0 && self.get(&Vertex { x: 0, y: finish })?.color() == *color_from {
                     for y_2 in start..finish {
-                        self.set_if_not_king(&Vertex { y: 0, x: y_2 }, Space::Empty)?;
+                        self.set_if_not_king(&Vertex { x: 0, y: y_2 }, Space::Empty)?;
                     }
                 }
             }
@@ -273,13 +273,13 @@ impl Board {
 
         // right row
         for y_1 in 1..11 {
-            let vertex_1 = Vertex { y: 10, x: y_1 };
+            let vertex_1 = Vertex { x: 10, y: y_1 };
             if self.get(&vertex_1)?.color() == *color_from {
                 let mut count = 0;
                 let start = y_1 + 1;
 
                 for y_2 in start..11 {
-                    let vertex_2 = Vertex { y: 10, x: y_2 };
+                    let vertex_2 = Vertex { x: 10, y: y_2 };
                     if self.get(&vertex_2)?.color() == color_from.opposite() {
                         count += 1;
                     } else {
@@ -288,9 +288,9 @@ impl Board {
                 }
 
                 let finish = start + count;
-                if count > 0 && self.get(&Vertex { y: 10, x: finish })?.color() == *color_from {
+                if count > 0 && self.get(&Vertex { x: 10, y: finish })?.color() == *color_from {
                     for y_2 in start..finish {
-                        self.set_if_not_king(&Vertex { y: 10, x: y_2 }, Space::Empty)?;
+                        self.set_if_not_king(&Vertex { x: 10, y: y_2 }, Space::Empty)?;
                     }
                 }
             }
@@ -305,12 +305,12 @@ impl Board {
     pub fn get(&self, vertex: &Vertex) -> anyhow::Result<Space> {
         let column = self
             .spaces
-            .get(vertex.x)
-            .context("get: index is out of x bounds")?;
+            .get(vertex.y)
+            .context("get: index is out of y bounds")?;
 
         Ok(*column
-            .get(vertex.y)
-            .context("get: index is out of y bounds")?)
+            .get(vertex.x)
+            .context("get: index is out of x bounds")?)
     }
 
     /// # Errors
@@ -406,7 +406,7 @@ impl Board {
     }
 
     fn set(&mut self, vertex: &Vertex, space: Space) {
-        self.spaces[vertex.x][vertex.y] = space;
+        self.spaces[vertex.y][vertex.x] = space;
     }
 
     fn set_if_not_king(&mut self, vertex: &Vertex, space: Space) -> anyhow::Result<()> {
