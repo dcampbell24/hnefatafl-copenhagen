@@ -204,11 +204,11 @@ impl Board {
                 let start = x_1 + 1;
 
                 for x_2 in start..11 {
-                    let vertex_2a = Vertex { x: x_2, y: 10 };
-                    let vertex_2b = Vertex { x: x_2, y: 9 };
-                    let color_2a = self.get(&vertex_2a)?.color();
-                    let color_2b = self.get(&vertex_2b)?.color();
-                    if color_2a == color_from.opposite() && color_2b == *color_from {
+                    let vertex_2 = Vertex { x: x_2, y: 10 };
+                    let vertex_3 = Vertex { x: x_2, y: 9 };
+                    let color_2 = self.get(&vertex_2)?.color();
+                    let color_3 = self.get(&vertex_3)?.color();
+                    if color_2 == color_from.opposite() && color_3 == *color_from {
                         count += 1;
                     } else {
                         break;
