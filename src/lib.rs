@@ -41,6 +41,40 @@ mod tests {
     #[test]
     fn move_orthogonally_3() -> anyhow::Result<()> {
         let board = [
+            "...X.......",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "X..O......X",
+            "...........",
+            "...........",
+            "...X.......",
+        ];
+
+        let mut game = Game::default();
+        game.board = board.try_into()?;
+        game.turn = Color::White;
+
+        let mut result = game.read_line("play white d4 d1");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "play: you have to play through empty locations");
+
+        result = game.read_line("play white d4 d11");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "play: you have to play through empty locations");
+
+        result = game.read_line("play white d4 a4");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "play: you have to play through empty locations");
+
+        result = game.read_line("play white d4 l4");
+        assert_eq!(result.is_err(), true);
+        assert_error_str(result, "play: you have to play through empty locations");
+
+        let board = [
             "...........",
             "...........",
             "...........",
