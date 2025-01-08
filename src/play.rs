@@ -23,8 +23,8 @@ impl TryFrom<Vec<&str>> for Play {
     type Error = anyhow::Error;
 
     fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {
-        if args.len() > 3 {
-            return Err(anyhow::Error::msg("play: wrong number of arguments"));
+        if args.len() < 4 {
+            return Err(anyhow::Error::msg("expected: play COLOR FROM TO"));
         }
 
         Ok(Self {
