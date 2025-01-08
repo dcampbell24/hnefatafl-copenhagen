@@ -204,8 +204,11 @@ impl Board {
                 let start = x_1 + 1;
 
                 for x_2 in start..11 {
-                    let vertex_2 = Vertex { x: x_2, y: 10 };
-                    if self.get(&vertex_2)?.color() == color_from.opposite() {
+                    let vertex_2a = Vertex { x: x_2, y: 10 };
+                    let vertex_2b = Vertex { x: x_2, y: 9 };
+                    let color_2a = self.get(&vertex_2a)?.color();
+                    let color_2b = self.get(&vertex_2b)?.color();
+                    if color_2a == color_from.opposite() && color_2b == *color_from {
                         count += 1;
                     } else {
                         break;
@@ -229,8 +232,11 @@ impl Board {
                 let start = x_1 + 1;
 
                 for x_2 in start..11 {
-                    let vertex_2 = Vertex { x: x_2, y: 0 };
-                    if self.get(&vertex_2)?.color() == color_from.opposite() {
+                    let vertex_2a = Vertex { x: x_2, y: 0 };
+                    let vertex_2b = Vertex { x: x_2, y: 1 };
+                    let color_2a = self.get(&vertex_2a)?.color();
+                    let color_2b = self.get(&vertex_2b)?.color();
+                    if color_2a == color_from.opposite() && color_2b == *color_from {
                         count += 1;
                     } else {
                         break;
@@ -254,8 +260,11 @@ impl Board {
                 let start = y_1 + 1;
 
                 for y_2 in start..11 {
-                    let vertex_2 = Vertex { x: 0, y: y_2 };
-                    if self.get(&vertex_2)?.color() == color_from.opposite() {
+                    let vertex_2a = Vertex { x: 0, y: y_2 };
+                    let vertex_2b = Vertex { x: 1, y: y_2 };
+                    let color_2a = self.get(&vertex_2a)?.color();
+                    let color_2b = self.get(&vertex_2b)?.color();
+                    if color_2a == color_from.opposite() && color_2b == *color_from {
                         count += 1;
                     } else {
                         break;
@@ -279,8 +288,11 @@ impl Board {
                 let start = y_1 + 1;
 
                 for y_2 in start..11 {
-                    let vertex_2 = Vertex { x: 10, y: y_2 };
-                    if self.get(&vertex_2)?.color() == color_from.opposite() {
+                    let vertex_2a = Vertex { x: 10, y: y_2 };
+                    let vertex_2b = Vertex { x: 9, y: y_2 };
+                    let color_2a = self.get(&vertex_2a)?.color();
+                    let color_2b = self.get(&vertex_2b)?.color();
+                    if color_2a == color_from.opposite() && color_2b == *color_from {
                         count += 1;
                     } else {
                         break;
