@@ -48,7 +48,7 @@ impl TryFrom<&str> for Message {
             "final_status" => Ok(Message::FinalStatus),
             "generate_move" => Ok(Message::GenerateMove),
             "known_command" => Ok(Message::KnownCommand(
-                (*args.get(1).context("known_command: needs an argument")?).to_string(),
+                (*args.get(1).context("expected: known_command COMMAND")?).to_string(),
             )),
             "list_commands" => Ok(Message::ListCommands),
             "name" => Ok(Message::Name),

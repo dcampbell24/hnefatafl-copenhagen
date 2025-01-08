@@ -26,42 +26,36 @@ pub struct Settings {
 impl TryFrom<Vec<&str>> for Settings {
     type Error = anyhow::Error;
 
-    fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {
-        if let Some(arg_1) = args.get(1) {
-            match *arg_1 {
-                "none" => Ok(Settings {
-                    time_settings: None,
+    fn try_from(args: Vec<&str>) -> anyhow::Result<Self> {
+        let err_msg = "expected: time_settings ('none' | 'fischer') MINUTES ADD_SECONDS";
+
+        if Some("none").as_ref() == args.get(1) {
+            return Ok(Settings {
+                time_settings: None,
+            });
+        }
+
+        if args.len() < 4 {
+            return Err(anyhow::Error::msg(err_msg));
+        }
+
+        if "fischer" == args[1] {
+            let arg_2 = args[2]
+                .parse::<u64>()
+                .context("time_settings: arg 2 is not an integer")?;
+
+            let arg_3 = args[3]
+                .parse::<u64>()
+                .context("time_settings: arg 3 is not an integer")?;
+
+            Ok(Settings {
+                time_settings: Some(Time {
+                    add_time: Duration::from_secs(arg_3),
+                    time_left: Duration::from_secs(arg_2 * 60),
                 }),
-                "fischer" => {
-                    let arg_2 = args
-                        .get(2)
-                        .context("time_settings: wrong number of arguments")?;
-                    let arg_2 = arg_2
-                        .parse::<u64>()
-                        .context("time_settings: arg 2 is not an integer")?;
-
-                    let arg_3 = args
-                        .get(3)
-                        .context("time_settings: wrong number of arguments")?;
-                    let arg_3 = arg_3
-                        .parse::<u64>()
-                        .context("time_settings: arg 3 is not an integer")?;
-
-                    Ok(Settings {
-                        time_settings: Some(Time {
-                            add_time: Duration::from_secs(arg_3),
-                            time_left: Duration::from_secs(arg_2 * 60),
-                        }),
-                    })
-                }
-                _ => Err(anyhow::Error::msg(
-                    "time_settings: the argument is not 'none' or 'fischer'",
-                )),
-            }
+            })
         } else {
-            Err(anyhow::Error::msg(
-                "time_settings: wrong number of arguments",
-            ))
+            Err(anyhow::Error::msg(err_msg))
         }
     }
 }
