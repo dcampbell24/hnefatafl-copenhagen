@@ -2,17 +2,20 @@ use std::fmt;
 
 use anyhow::Context;
 
+use crate::color::Color;
+
 pub const BOARD_LETTERS: &str = "abcdefghjkl";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Play {
+    pub color: Color,
     pub from: Vertex,
     pub to: Vertex,
 }
 
 impl fmt::Display for Play {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "from {} to {}", self.from, self.to)
+        write!(f, "{:?} from {} to {}", self.color, self.from, self.to)
     }
 }
 
@@ -20,13 +23,14 @@ impl TryFrom<Vec<&str>> for Play {
     type Error = anyhow::Error;
 
     fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {
-        if args.len() != 3 {
+        if args.len() != 4 {
             return Err(anyhow::Error::msg("play: wrong number of arguments"));
         }
 
         Ok(Self {
-            from: Vertex::try_from(args[1])?,
-            to: Vertex::try_from(args[2])?,
+            color: Color::try_from(args[1])?,
+            from: Vertex::try_from(args[2])?,
+            to: Vertex::try_from(args[3])?,
         })
     }
 }
@@ -42,8 +46,8 @@ impl fmt::Display for Vertex {
         write!(
             f,
             "{}{}",
-            BOARD_LETTERS.chars().collect::<Vec<_>>()[self.y],
-            11 - self.x
+            BOARD_LETTERS.chars().collect::<Vec<_>>()[self.x],
+            11 - self.y
         )
     }
 }

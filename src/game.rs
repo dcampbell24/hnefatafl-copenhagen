@@ -22,7 +22,7 @@ pub struct Game {
 
 impl fmt::Display for Game {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "{}", self.board)?;
+        writeln!(f, "{}\n", self.board)?;
 
         write!(f, "Plays: ")?;
         for play in &self.plays {
@@ -141,6 +141,12 @@ impl Game {
                         time.time_left += time.add_time;
                     }
 
+                    if self.board.get(&play.from)?.color() != play.color {
+                        return Err(anyhow::Error::msg(
+                            "play: you are trying to move the wrong color",
+                        ));
+                    }
+
                     self.status = self.board.play(&play, &self.status, &self.turn)?;
                     self.plays.push(play);
 
@@ -150,7 +156,7 @@ impl Game {
 
                     Ok(Some(String::new()))
                 } else {
-                    Err(anyhow::Error::msg("the game is already over"))
+                    Err(anyhow::Error::msg("play: the game is already over"))
                 }
             }
             Message::ProtocolVersion => Ok(Some("1-beta".to_string())),
@@ -159,7 +165,7 @@ impl Game {
                 *self = Game::default();
                 Ok(Some(String::new()))
             }
-            Message::ShowBoard => Ok(Some(self.to_string())),
+            Message::ShowBoard => Ok(Some(self.board.to_string())),
             Message::TimeSettings(mut time_settings) => {
                 if let Some(time) = time_settings.time_settings.take() {
                     self.black_time = Some(time.clone());

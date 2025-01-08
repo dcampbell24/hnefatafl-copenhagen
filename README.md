@@ -26,6 +26,6 @@ This engine follows the [Copenhagen Hnefatafl] rules.
 * `genmove` -> `generate_move`
 * `generate_move` returns `COLOR VERTEX_FROM VERTEX_TO`
 * We keep track of whose turn it is.
-* play takes `play VERTEX_FROM VERTEX_TO`, the color is whose turn it is
+* play takes `play COLOR VERTEX_FROM VERTEX_TO`, the color is whose turn it is
 * `showboard` -> `show_board`
 * `time_settings none` | `time_settings fischer MINUTES ADD_SECONDS_AFTER_EACH_MOVE`
