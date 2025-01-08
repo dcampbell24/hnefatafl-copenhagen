@@ -232,11 +232,11 @@ impl Board {
                 let start = x_1 + 1;
 
                 for x_2 in start..11 {
-                    let vertex_2a = Vertex { x: x_2, y: 0 };
-                    let vertex_2b = Vertex { x: x_2, y: 1 };
-                    let color_2a = self.get(&vertex_2a)?.color();
-                    let color_2b = self.get(&vertex_2b)?.color();
-                    if color_2a == color_from.opposite() && color_2b == *color_from {
+                    let vertex_2 = Vertex { x: x_2, y: 0 };
+                    let vertex_3 = Vertex { x: x_2, y: 1 };
+                    let color_2 = self.get(&vertex_2)?.color();
+                    let color_3 = self.get(&vertex_3)?.color();
+                    if color_2 == color_from.opposite() && color_3 == *color_from {
                         count += 1;
                     } else {
                         break;
@@ -260,11 +260,11 @@ impl Board {
                 let start = y_1 + 1;
 
                 for y_2 in start..11 {
-                    let vertex_2a = Vertex { x: 0, y: y_2 };
-                    let vertex_2b = Vertex { x: 1, y: y_2 };
-                    let color_2a = self.get(&vertex_2a)?.color();
-                    let color_2b = self.get(&vertex_2b)?.color();
-                    if color_2a == color_from.opposite() && color_2b == *color_from {
+                    let vertex_2 = Vertex { x: 0, y: y_2 };
+                    let vertex_3 = Vertex { x: 1, y: y_2 };
+                    let color_2 = self.get(&vertex_2)?.color();
+                    let color_3 = self.get(&vertex_3)?.color();
+                    if color_2 == color_from.opposite() && color_3 == *color_from {
                         count += 1;
                     } else {
                         break;
@@ -288,11 +288,11 @@ impl Board {
                 let start = y_1 + 1;
 
                 for y_2 in start..11 {
-                    let vertex_2a = Vertex { x: 10, y: y_2 };
-                    let vertex_2b = Vertex { x: 9, y: y_2 };
-                    let color_2a = self.get(&vertex_2a)?.color();
-                    let color_2b = self.get(&vertex_2b)?.color();
-                    if color_2a == color_from.opposite() && color_2b == *color_from {
+                    let vertex_2 = Vertex { x: 10, y: y_2 };
+                    let vertex_3 = Vertex { x: 9, y: y_2 };
+                    let color_2 = self.get(&vertex_2)?.color();
+                    let color_3 = self.get(&vertex_3)?.color();
+                    if color_2 == color_from.opposite() && color_3 == *color_from {
                         count += 1;
                     } else {
                         break;
