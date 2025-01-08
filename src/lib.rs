@@ -59,49 +59,49 @@ mod tests {
         game.turn = Color::White;
 
         // Play a junk move:
-        let mut result = game.read_line("play junk d1");
+        let mut result = game.read_line("play white junk d1");
         assert_eq!(result.is_err(), true);
         assert_error_str(result, "invalid digit found in string");
 
-        result = game.read_line("play d4 junk");
+        result = game.read_line("play white d4 junk");
         assert_eq!(result.is_err(), true);
         assert_error_str(result, "invalid digit found in string");
 
         // Diagonal play:
-        result = game.read_line("play d4 a3");
+        result = game.read_line("play white d4 a3");
         assert_eq!(result.is_err(), true);
         assert_error_str(result, "play: you can only play in a straight line");
 
         // Play out of bounds:
-        result = game.read_line("play d4 m4");
+        result = game.read_line("play white d4 m4");
         assert_eq!(result.is_err(), true);
         assert_error_str(result, "play: the first letter is not a legal char");
 
-        result = game.read_line("play d4 d12");
+        result = game.read_line("play white d4 d12");
         assert_eq!(result.is_err(), true);
         assert_error_str(result, "play: invalid coordinate");
 
-        result = game.read_line("play d4 d0");
+        result = game.read_line("play white d4 d0");
         assert_eq!(result.is_err(), true);
         assert_error_str(result, "get: index is out of y bounds");
 
         // Don't move:
-        result = game.read_line("play d4 d4");
+        result = game.read_line("play white d4 d4");
         assert_eq!(result.is_err(), true);
         assert_error_str(result, "play: you have to change location");
 
         // Move all the way to the right:
         let mut game_1 = game.clone();
-        game_1.read_line("play d4 a4")?;
+        game_1.read_line("play white d4 a4")?;
         // Move all the way to the left:
         let mut game_2 = game.clone();
-        game_2.read_line("play d4 l4")?;
+        game_2.read_line("play white d4 l4")?;
         // Move all the way up:
         let mut game_3 = game.clone();
-        game_3.read_line("play d4 d11")?;
+        game_3.read_line("play white d4 d11")?;
         // Move all the way down:
         let mut game_4 = game.clone();
-        game_4.read_line("play d4 d1")?;
+        game_4.read_line("play white d4 d1")?;
 
         Ok(())
     }
@@ -139,7 +139,7 @@ mod tests {
         let mut game_1 = Game::default();
 
         game_1.board = board_1a.try_into()?;
-        game_1.read_line("play d2 d4")?;
+        game_1.read_line("play black d2 d4")?;
         assert_eq!(game_1.board, board_1b.try_into()?);
 
         let board_1aa = [
@@ -172,7 +172,7 @@ mod tests {
 
         let mut game_1a = Game::default();
         game_1a.board = board_1aa.try_into()?;
-        game_1a.read_line("play d2 d4")?;
+        game_1a.read_line("play black d2 d4")?;
         assert_eq!(game_1a.board, board_1bb.try_into()?);
 
         let board_2a = [
@@ -205,7 +205,7 @@ mod tests {
 
         let mut game_2 = Game::default();
         game_2.board = board_2a.try_into()?;
-        game_2.read_line("play b4 f4")?;
+        game_2.read_line("play black b4 f4")?;
         assert_eq!(game_2.board, board_2b.try_into()?);
 
         let board_3a = [
@@ -239,7 +239,7 @@ mod tests {
         let mut game_3 = Game::default();
         game_3.board = board_3a.try_into()?;
         game_3.turn = Color::White;
-        game_3.read_line("play c6 c4")?;
+        game_3.read_line("play white c6 c4")?;
         assert_eq!(game_3.board, board_3b.try_into()?);
 
         let board_4a = [
@@ -273,7 +273,7 @@ mod tests {
         let mut game_4 = Game::default();
         game_4.board = board_4a.try_into()?;
         game_4.turn = Color::White;
-        game_4.read_line("play b4 f4")?;
+        game_4.read_line("play white b4 f4")?;
         assert_eq!(game_4.board, board_4b.try_into()?);
 
         // Todo: finish the rest...
@@ -307,7 +307,7 @@ mod tests {
 
         let mut game_5 = Game::default();
         game_5.board = board_5a.try_into()?;
-        game_5.read_line("play c9 c11")?;
+        game_5.read_line("play black c9 c11")?;
         assert_eq!(game_5.board, board_5b.try_into()?);
 
         let board_6a = [
@@ -340,7 +340,7 @@ mod tests {
 
         let mut game_6 = Game::default();
         game_6.board = board_6a.try_into()?;
-        game_6.read_line("play b4 f4")?;
+        game_6.read_line("play black b4 f4")?;
         assert_eq!(game_6.board, board_6b.try_into()?);
 
         let board_7a = [
@@ -373,7 +373,7 @@ mod tests {
 
         let mut game_7 = Game::default();
         game_7.board = board_7a.try_into()?;
-        game_7.read_line("play c3 c5")?;
+        game_7.read_line("play black c3 c5")?;
         assert_eq!(game_7.board, board_7b.try_into()?);
 
         Ok(())
@@ -412,7 +412,7 @@ mod tests {
         let mut game_1 = Game::default();
         game_1.board = board_1a.try_into()?;
         game_1.turn = Color::White;
-        game_1.read_line("play c3 c1")?;
+        game_1.read_line("play white c3 c1")?;
         assert_eq!(game_1.board, board_1b.try_into()?);
 
         let board_2a = [
@@ -446,7 +446,7 @@ mod tests {
         let mut game_2 = Game::default();
         game_2.board = board_2a.try_into()?;
         game_2.turn = Color::White;
-        game_2.read_line("play c9 c11")?;
+        game_2.read_line("play white c9 c11")?;
         assert_eq!(game_2.board, board_2b.try_into()?);
 
         let board_3a = [
@@ -480,7 +480,7 @@ mod tests {
         let mut game_3 = Game::default();
         game_3.board = board_3a.try_into()?;
         game_3.turn = Color::White;
-        game_3.read_line("play c7 a7")?;
+        game_3.read_line("play white c7 a7")?;
         assert_eq!(game_3.board, board_3b.try_into()?);
 
         let board_4a = [
@@ -514,7 +514,7 @@ mod tests {
         let mut game_4 = Game::default();
         game_4.board = board_4a.try_into()?;
         game_4.turn = Color::White;
-        game_4.read_line("play j7 l7")?;
+        game_4.read_line("play white j7 l7")?;
         assert_eq!(game_4.board, board_4b.try_into()?);
 
         let board_5a = [
@@ -547,7 +547,7 @@ mod tests {
 
         let mut game_5 = Game::default();
         game_5.board = board_5a.try_into()?;
-        game_5.read_line("play f1 h1")?;
+        game_5.read_line("play black f1 h1")?;
         assert_eq!(game_5.board, board_5b.try_into()?);
 
         let board_6a = [
@@ -580,7 +580,7 @@ mod tests {
 
         let mut game_6 = Game::default();
         game_6.board = board_6a.try_into()?;
-        game_6.read_line("play f11 h11")?;
+        game_6.read_line("play black f11 h11")?;
         assert_eq!(game_6.board, board_6b.try_into()?);
 
         Ok(())
@@ -622,7 +622,7 @@ mod tests {
 
         let mut game_8 = Game::default();
         game_8.board = board.try_into()?;
-        let result = game_8.read_line("play b11 a11");
+        let result = game_8.read_line("play black b11 a11");
         assert_eq!(result.is_err(), true);
         assert_error_str(
             result,
@@ -816,7 +816,7 @@ mod tests {
         game.board = board.try_into()?;
         game.turn = Color::White;
 
-        game.read_line("play f1 l1")?;
+        game.read_line("play white f1 l1")?;
         assert_eq!(game.status, Status::WhiteWins);
 
         Ok(())
