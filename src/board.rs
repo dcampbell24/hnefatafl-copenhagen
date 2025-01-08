@@ -195,6 +195,7 @@ impl Board {
     }
 
     // y counts up going down.
+    #[allow(clippy::too_many_lines)]
     fn captures_shield_wall(&mut self, color_from: &Color) -> anyhow::Result<()> {
         // bottom row
         for x_1 in 1..11 {
@@ -216,7 +217,9 @@ impl Board {
                 }
 
                 let finish = start + count;
-                if count > 0 && self.get(&Vertex { x: finish, y: 10 })?.color() == *color_from {
+                let vertex = Vertex { x: finish, y: 10 };
+                let color = self.get(&vertex)?.color();
+                if count > 0 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for x_2 in start..finish {
                         self.set_if_not_king(&Vertex { x: x_2, y: 10 }, Space::Empty)?;
                     }
@@ -244,7 +247,9 @@ impl Board {
                 }
 
                 let finish = start + count;
-                if count > 0 && self.get(&Vertex { x: finish, y: 0 })?.color() == *color_from {
+                let vertex = Vertex { x: finish, y: 0 };
+                let color = self.get(&vertex)?.color();
+                if count > 0 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for x_2 in start..finish {
                         self.set_if_not_king(&Vertex { x: x_2, y: 0 }, Space::Empty)?;
                     }
