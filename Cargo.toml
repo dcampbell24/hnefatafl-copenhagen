@@ -17,7 +17,7 @@ categories = ["game-engines", "games"]
 anyhow = "1"
 
 [lints.clippy]
-cargo = "warn"
-pedantic = "warn"
+cargo = "deny"
+pedantic = "deny"
 
 multiple_crate_versions = { level = "allow", priority = 1 }
