@@ -30,7 +30,7 @@ impl fmt::Display for Game {
         }
         writeln!(f)?;
 
-        writeln!(f, "status: {:?}", self.status)?;
+        writeln!(f, "status: {}", self.status)?;
 
         if let Some(time) = &self.black_time {
             writeln!(f, "black_time: {time}")?;
@@ -93,12 +93,7 @@ impl Game {
     pub fn update(&mut self, message: Message) -> anyhow::Result<Option<String>> {
         match message {
             Message::Empty => Ok(None),
-            Message::FinalStatus => match self.status {
-                Status::BlackWins => Ok(Some("Black wins!".to_string())),
-                Status::Draw => Ok(Some("It's a draw!".to_string())),
-                Status::WhiteWins => Ok(Some("White wins!".to_string())),
-                Status::Ongoing => Ok(Some("The game is ongoing.".to_string())),
-            },
+            Message::FinalStatus => Ok(Some(format!("{}", self.status))),
             Message::GenerateMove => self.generate_move(),
             Message::KnownCommand(command) => {
                 if COMMANDS.contains(&command.as_str()) {
