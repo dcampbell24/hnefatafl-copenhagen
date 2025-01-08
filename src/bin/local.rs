@@ -10,6 +10,7 @@ pub fn main() {
     let stdin = io::stdin();
     let mut game = Game::default();
 
+    #[cfg(any(target_family = "unix", target_family = "windows"))]
     clear_screen().unwrap();
     println!("{game}\n");
 
