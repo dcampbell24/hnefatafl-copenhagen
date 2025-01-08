@@ -37,10 +37,10 @@ pub fn main() {
 }
 
 fn clear_screen() -> anyhow::Result<ExitStatus> {
-    #[cfg(target_os = "windows")]
+    #[cfg(target_family = "windows")]
     let exit_status = Command::new("cls").status()?;
 
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(target_family = "unix")]
     let exit_status = Command::new("clear").status()?;
 
     Ok(exit_status)
