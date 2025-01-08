@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub enum Color {
     #[default]
@@ -13,6 +15,16 @@ impl Color {
             Self::Black => Self::White,
             Self::White => Self::Black,
             Self::Colorless => Self::Colorless,
+        }
+    }
+}
+
+impl fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Black => write!(f, "black"),
+            Self::Colorless => write!(f, "colorless"),
+            Self::White => write!(f, "white"),
         }
     }
 }

@@ -24,7 +24,7 @@ impl fmt::Display for Game {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "{}\n", self.board)?;
 
-        write!(f, "Plays: ")?;
+        write!(f, "plays: ")?;
         for play in &self.plays {
             write!(f, "{play}, ")?;
         }
@@ -44,7 +44,7 @@ impl fmt::Display for Game {
             writeln!(f, "white_time: infinite")?;
         }
 
-        write!(f, "turn: {:?}", self.turn)
+        write!(f, "turn: {}", self.turn)
     }
 }
 
@@ -60,12 +60,12 @@ impl Game {
                         let mut vertex_to = letter_to.to_string();
                         vertex_to.push_str(&i_to.to_string());
 
-                        let message = format!("play {vertex_from} {vertex_to}");
+                        let message = format!("play {} {vertex_from} {vertex_to}", self.turn);
                         let message = Message::try_from(message.as_str())?;
 
                         let turn = self.turn.clone();
                         if let Ok(_message) = self.update(message) {
-                            return Ok(Some(format!("{turn:?} {vertex_from} {vertex_to}")));
+                            return Ok(Some(format!("{turn} {vertex_from} {vertex_to}")));
                         }
                     }
                 }
