@@ -584,7 +584,6 @@ mod tests {
         game_5.read_line("play black f1 h1")?;
         assert_eq!(game_5.board, board_5b.try_into()?);
 
-        /*
         let board_5c = [
             "...........",
             "...........",
@@ -613,11 +612,10 @@ mod tests {
             ".K.X.......",
         ];
 
-        let mut game_5 = Game::default();
+        game_5 = Game::default();
         game_5.board = board_5c.try_into()?;
         game_5.read_line("play black f1 d1")?;
         assert_eq!(game_5.board, board_5d.try_into()?);
-        */
 
         let board_6a = [
             ".....X..OK.",
@@ -652,6 +650,39 @@ mod tests {
         game_6.read_line("play black f11 h11")?;
         assert_eq!(game_6.board, board_6b.try_into()?);
 
+        let board_6c = [
+            ".KO..X.....",
+            ".XX........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        let board_6d = [
+            ".K.X.......",
+            ".XX........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        game_6 = Game::default();
+        game_6.board = board_6c.try_into()?;
+        game_6.read_line("play black f11 d11")?;
+        assert_eq!(game_6.board, board_6d.try_into()?);
+
         let board_7a = [
             "...........",
             "...........",
@@ -685,6 +716,39 @@ mod tests {
         game_7.read_line("play black a6 a4")?;
         assert_eq!(game_7.board, board_7b.try_into()?);
 
+        let board_7c = [
+            "...........",
+            "KX.........",
+            "OX.........",
+            "...........",
+            "...........",
+            "X..........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        let board_7d = [
+            "...........",
+            "KX.........",
+            ".X.........",
+            "X..........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        game_7 = Game::default();
+        game_7.board = board_7c.try_into()?;
+        game_7.read_line("play black a6 a8")?;
+        assert_eq!(game_7.board, board_7d.try_into()?);
+
         let board_8a = [
             "...........",
             "...........",
@@ -717,6 +781,39 @@ mod tests {
         game_8.board = board_8a.try_into()?;
         game_8.read_line("play black l6 l4")?;
         assert_eq!(game_8.board, board_8b.try_into()?);
+
+        let board_8c = [
+            "...........",
+            ".........XK",
+            ".........XO",
+            "...........",
+            "...........",
+            "..........X",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        let board_8d = [
+            "...........",
+            ".........XK",
+            ".........X.",
+            "..........X",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        game_8 = Game::default();
+        game_8.board = board_8c.try_into()?;
+        game_8.read_line("play black l6 l8")?;
+        assert_eq!(game_8.board, board_8d.try_into()?);
 
         Ok(())
     }

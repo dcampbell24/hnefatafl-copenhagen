@@ -198,10 +198,15 @@ impl Board {
     #[allow(clippy::too_many_lines)]
     fn captures_shield_wall(&mut self, color_from: &Color) -> anyhow::Result<()> {
         // bottom row
-        for x_1 in 1..11 {
+        for x_1 in 0..11 {
             let vertex_1 = Vertex { x: x_1, y: 10 };
-            if self.get(&vertex_1)?.color() == *color_from {
+            if self.get(&vertex_1)?.color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
+            {
                 let mut count = 0;
+
+                if x_1 == 10 {
+                    break;
+                }
                 let start = x_1 + 1;
 
                 for x_2 in start..11 {
@@ -228,10 +233,15 @@ impl Board {
         }
 
         // top row
-        for x_1 in 1..11 {
+        for x_1 in 0..11 {
             let vertex_1 = Vertex { x: x_1, y: 0 };
-            if self.get(&vertex_1)?.color() == *color_from {
+            if self.get(&vertex_1)?.color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
+            {
                 let mut count = 0;
+
+                if x_1 == 10 {
+                    break;
+                }
                 let start = x_1 + 1;
 
                 for x_2 in start..11 {
@@ -258,10 +268,15 @@ impl Board {
         }
 
         // left row
-        for y_1 in 1..11 {
+        for y_1 in 0..11 {
             let vertex_1 = Vertex { x: 0, y: y_1 };
-            if self.get(&vertex_1)?.color() == *color_from {
+            if self.get(&vertex_1)?.color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
+            {
                 let mut count = 0;
+
+                if y_1 == 10 {
+                    break;
+                }
                 let start = y_1 + 1;
 
                 for y_2 in start..11 {
@@ -288,10 +303,15 @@ impl Board {
         }
 
         // right row
-        for y_1 in 1..11 {
+        for y_1 in 0..11 {
             let vertex_1 = Vertex { x: 10, y: y_1 };
-            if self.get(&vertex_1)?.color() == *color_from {
+            if self.get(&vertex_1)?.color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
+            {
                 let mut count = 0;
+
+                if y_1 == 10 {
+                    break;
+                }
                 let start = y_1 + 1;
 
                 for y_2 in start..11 {
