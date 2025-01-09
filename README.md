@@ -167,7 +167,7 @@ with a shield wall, the attack will capture the defenders but not the king.
    ABCDEFGHJKL   ABCDEFGHJKL
 ```
 
-## 5. Restricted squares
+## 5. Restricted Squares
 
 Restricted squares may only be occupied by the king. The central restricted
 square is called the throne. It is allowed for the king to re-enter the throne,
