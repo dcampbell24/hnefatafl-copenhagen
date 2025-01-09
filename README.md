@@ -14,10 +14,7 @@ nor has it been thoroughly tested yet.
 
 An engine similar to the [Go Text Protocol].
 
-This engine follows the [Copenhagen Hnefatafl] rules.
-
 [Go Text Protocol]: https://www.lysator.liu.se/~gunnar/gtp/gtp2-spec-draft2/gtp2-spec.html
-[Copenhagen Hnefatafl]: https://aagenielsen.dk/copenhagen_rules.php
 
 ## Differences from the Go Text Protocol
 
@@ -33,6 +30,8 @@ This engine follows the [Copenhagen Hnefatafl] rules.
 
 ## Rules
 
+From [Copenhagen Hnefatafl] with minor changes.
+
 `X`: attacker  
 `x`: captured attacker  
 `K`: king  
@@ -40,6 +39,8 @@ This engine follows the [Copenhagen Hnefatafl] rules.
 `O`: defender  
 `o`: captured defender  
 `R`: restricted space  
+
+[Copenhagen Hnefatafl]: https://aagenielsen.dk/copenhagen_rules.php
 
 ### 1. Starting Board Position
 
