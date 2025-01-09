@@ -32,6 +32,13 @@ An engine similar to the [Go Text Protocol].
 
 From [Copenhagen Hnefatafl] with minor changes.
 
+The Copenhagen rules were outlined 2012 by Aage Nielsen (Denmark), Adam Bartley
+(Norway) and Tim Millar (UK). English text and diagrams: Adam Bartley (Norway)
+
+Based on the version that was last updated 21.12.2024.
+
+Copyright © 1998-2025 Aage Nielsen, All Rights Reserved;
+
 `X`: attacker  
 `x`: captured attacker  
 `K`: king  
