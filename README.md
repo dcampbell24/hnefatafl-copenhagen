@@ -93,7 +93,7 @@ You can move to the edge of the board or another piece orthogonally:
    ABCDEFGHJKL
 ```
 
-## 4. Capture
+### 4. Capture
 
 All pieces except the king are captured if sandwiched between two enemy
 pieces, or between an enemy piece and a restricted square. A piece is only
@@ -101,7 +101,7 @@ captured if the trap is closed by the aggressor's move, it is therefore
 permitted to move in between two enemy pieces. The king may take part in
 captures.
 
-### Captures
+#### Captures
 
 ```plain
   ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐
@@ -120,7 +120,7 @@ captures.
    ABCDEFGHJKL   ABCDEFGHJKL   ABCDEFGHJKL   ABCDEFGHJKL
 ```
 
-### Doesn't Capture
+#### Doesn't Capture
 
 ```plain
   ┌───────────┐ ┌───────────┐
@@ -139,7 +139,7 @@ captures.
    ABCDEFGHJKL   ABCDEFGHJKL
 ```
 
-### Shield Wall
+#### Shield Wall
 
 A row of two or more taflmen along the board edge may be captured together, by
 bracketing the whole group at both ends, as long as every member of the row has
@@ -167,7 +167,7 @@ with a shield wall, the attack will capture the defenders but not the king.
    ABCDEFGHJKL   ABCDEFGHJKL
 ```
 
-## 5. Restricted Squares
+### 5. Restricted Squares
 
 Restricted squares may only be occupied by the king. The central restricted
 square is called the throne. It is allowed for the king to re-enter the throne,
@@ -197,7 +197,7 @@ The board edge is _NOT_ hostile.
    ABCDEFGHJKL
 ```
 
-## 6. King's Side Win (Defenders)
+### 6. King's Side Win (Defenders)
 
 If the king reaches any corner square, the king has escaped and his side wins.
 
@@ -222,7 +222,7 @@ NOT IMPLEMENTED YET BELOW THIS LINE
 
 ---
 
-### Exit Forts
+#### Exit Forts
 
 The defenders also win if the king has contact with the board edge, is able to
 move, and it is impossible for the attackers to break the fort.
@@ -244,7 +244,7 @@ move, and it is impossible for the attackers to break the fort.
    ABCDEFGHJKL   ABCDEFGHJKL
 ```
 
-## 7. Attackers Win
+### 7. Attackers Win
 
 The attackers win if they can capture the king.
 
@@ -256,7 +256,7 @@ squares around him.
 
 The king cannot be captured on the board edge.
 
-### The King is Captured
+#### The King is Captured
 
 ```plain
   ┌───────────┐ ┌───────────┐ ┌───────────┐
@@ -295,7 +295,7 @@ unbroken ring, then they win, as they have prevented the king from escaping.
    ABCDEFGHJKL
 ```
 
-### The King is Not Captured
+#### The King is Not Captured
 
 ```plain
   ┌───────────┐ ┌───────────┐
@@ -314,20 +314,20 @@ unbroken ring, then they win, as they have prevented the king from escaping.
    ABCDEFGHJKL   ABCDEFGHJKL
 ```
 
-## 8. Perpetual Repetitions
+### 8. Perpetual Repetitions
 
 Perpetual repetitions are forbidden. Any perpetual repetition results in a loss
 for white.
 
-### Added Rule
+#### Added Rule
 
 If a move would repeat a board position it is not allowed.
 
-## 9. Automatic Loss
+### 9. Automatic Loss
 
 If a player cannot move, he loses the game.
 
-## 10. Draw
+### 10. Draw
 
 If it is not possible to end the game, for example because both sides have too
 few pieces left, it is a draw.
