@@ -70,7 +70,7 @@ Copyright © 1998-2025 Aage Nielsen, All Rights Reserved;
 
 ### 2. First Turn
 
-The attackers move first.
+The attackers (black) move first.
 
 ### 3. Movement
 
