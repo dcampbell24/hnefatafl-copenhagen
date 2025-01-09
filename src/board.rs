@@ -277,7 +277,9 @@ impl Board {
                 }
 
                 let finish = start + count;
-                if count > 0 && self.get(&Vertex { x: 0, y: finish })?.color() == *color_from {
+                let vertex = Vertex { x: 0, y: finish };
+                let color = self.get(&vertex)?.color();
+                if count > 0 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for y_2 in start..finish {
                         self.set_if_not_king(&Vertex { x: 0, y: y_2 }, Space::Empty)?;
                     }
@@ -305,7 +307,9 @@ impl Board {
                 }
 
                 let finish = start + count;
-                if count > 0 && self.get(&Vertex { x: 10, y: finish })?.color() == *color_from {
+                let vertex = Vertex { x: 10, y: finish };
+                let color = self.get(&vertex)?.color();
+                if count > 0 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for y_2 in start..finish {
                         self.set_if_not_king(&Vertex { x: 10, y: y_2 }, Space::Empty)?;
                     }
