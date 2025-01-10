@@ -17,13 +17,13 @@ categories = ["game-engines", "games"]
 anyhow = "1"
 
 [lints.clippy]
-cargo = "deny"
-complexity = "deny"
-correctness = "deny"
-pedantic = "deny"
-perf = "deny"
+cargo = "forbid"
+complexity = "forbid"
+correctness = "forbid"
+pedantic = "forbid"
+perf = "forbid"
 # restriction = "warn"
-style = "deny"
-suspicious = "deny"
+style = "forbid"
+suspicious = "forbid"
 
 multiple_crate_versions = { level = "allow", priority = 1 }
