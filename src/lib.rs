@@ -711,8 +711,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game_7 = Game::default();
-        game_7.board = board_7a.try_into()?;
+        let mut game_7 = game::Game {
+            board: board_7a.try_into()?,
+            ..Default::default()
+        };
+
         game_7.read_line("play black a6 a4")?;
         assert_eq!(game_7.board, board_7b.try_into()?);
 
@@ -777,8 +780,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game_8 = Game::default();
-        game_8.board = board_8a.try_into()?;
+        let mut game_8 = game::Game {
+            board: board_8a.try_into()?,
+            ..Default::default()
+        };
+
         game_8.read_line("play black l6 l4")?;
         assert_eq!(game_8.board, board_8b.try_into()?);
 
@@ -852,8 +858,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game_8 = Game::default();
-        game_8.board = board.try_into()?;
+        let mut game_8 = game::Game {
+            board: board.try_into()?,
+            ..Default::default()
+        };
+
         let result = game_8.read_line("play black b11 a11");
         assert!(result.is_err());
         assert_error_str(
