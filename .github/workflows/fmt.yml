@@ -2,7 +2,7 @@ on: push
 name: cargo fmt
 
 jobs:
-  clippy_check:
+  cargo_fmt:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
