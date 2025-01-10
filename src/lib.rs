@@ -1029,7 +1029,7 @@ mod tests {
     }
 
     #[test]
-    fn white_wins_6() -> anyhow::Result<()> {
+    fn white_wins_6a_exit() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1082,6 +1082,11 @@ mod tests {
         game_2.read_line("play white f11 a11")?;
         assert_eq!(game_2.status, Status::WhiteWins);
 
+        Ok(())
+    }
+
+    #[test]
+    fn white_wins_6b_escape_fort() -> anyhow::Result<()> {
         let board = [
             "....O.O....",
             "....OKO....",
