@@ -28,22 +28,28 @@ mod tests {
         }
     }
 
+    // One
+
     #[test]
-    fn starting_position_1() -> anyhow::Result<()> {
+    fn starting_position() -> anyhow::Result<()> {
         let game = Game::default();
         assert_eq!(game.board, STARTING_POSITION.try_into()?);
 
         Ok(())
     }
 
+    // Two
+
     #[test]
-    fn first_turn_2() {
+    fn first_turn() {
         let game = Game::default();
         assert_eq!(game.turn, Color::Black);
     }
 
+    // Three
+
     #[test]
-    fn move_orthogonally_3() -> anyhow::Result<()> {
+    fn move_orthogonally() -> anyhow::Result<()> {
         let board = [
             "...X.......",
             "...........",
@@ -58,9 +64,11 @@ mod tests {
             "...X.......",
         ];
 
-        let mut game = Game::default();
-        game.board = board.try_into()?;
-        game.turn = Color::White;
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
 
         let mut result = game.read_line("play white d4 d1");
         assert!(result.is_err());
@@ -144,8 +152,10 @@ mod tests {
         Ok(())
     }
 
+    // Four
+
     #[test]
-    fn sandwich_capture_4a() -> anyhow::Result<()> {
+    fn sandwich_capture() -> anyhow::Result<()> {
         let board_1a = [
             "...........",
             "...........",
@@ -418,7 +428,7 @@ mod tests {
     }
 
     #[test]
-    fn shield_wall_4b() -> anyhow::Result<()> {
+    fn shield_wall() -> anyhow::Result<()> {
         let board_1a = [
             "...........",
             "...........",
@@ -828,8 +838,10 @@ mod tests {
         Ok(())
     }
 
+    // Five
+
     #[test]
-    fn kings_5() -> anyhow::Result<()> {
+    fn kings() -> anyhow::Result<()> {
         let mut board = [
             "KK.........",
             "...........",
@@ -1041,8 +1053,10 @@ mod tests {
         Ok(())
     }
 
+    // Six
+
     #[test]
-    fn white_wins_6a_exit() -> anyhow::Result<()> {
+    fn white_wins_exit() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1099,7 +1113,7 @@ mod tests {
     }
 
     #[test]
-    fn white_wins_6b_escape_fort() -> anyhow::Result<()> {
+    fn white_wins_escape_fort() -> anyhow::Result<()> {
         let board = [
             "....O.O....",
             "....OKO....",
