@@ -1,5 +1,5 @@
 on: push
-name: Clippy check
+name: clippy check
 
 # Make sure CI fails on all warnings, including Clippy lints
 env:
@@ -13,5 +13,5 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Run Clippy
+      - name: Run clippy
         run: cargo clippy --all-targets --all-features
