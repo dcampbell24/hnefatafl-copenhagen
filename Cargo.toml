@@ -23,7 +23,7 @@ correctness = "forbid"
 pedantic = "deny"
 perf = "forbid"
 # restriction = "warn"
-style = "forbid"
+style = "deny"
 suspicious = "forbid"
 
 multiple_crate_versions = { level = "allow", priority = 1 }
