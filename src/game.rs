@@ -107,7 +107,10 @@ impl Game {
                 commands.push_str(&COMMANDS.join("\n"));
                 Ok(Some(commands))
             }
-            Message::Name => Ok(Some("hnefatafl-copenhagen".to_string())),
+            Message::Name => {
+                let name = env!("CARGO_PKG_NAME");
+                Ok(Some(name.to_string()))
+            }
             Message::Play(play) => {
                 if self.status == Status::Ongoing {
                     if let (status, Some(time), Some(timer)) = match self.turn {
@@ -174,7 +177,10 @@ impl Game {
 
                 Ok(Some(String::new()))
             }
-            Message::Version => Ok(Some("0.1.0-beta".to_string())),
+            Message::Version => {
+                let version = env!("CARGO_PKG_VERSION");
+                Ok(Some(version.to_string()))
+            }
         }
     }
 }
