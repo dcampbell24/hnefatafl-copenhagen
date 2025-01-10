@@ -1044,9 +1044,11 @@ mod tests {
             ".....K.....",
         ];
 
-        let mut game_1 = Game::default();
-        game_1.board = board.try_into()?;
-        game_1.turn = Color::White;
+        let mut game_1 = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
         let mut game_2 = game_1.clone();
 
         game_1.read_line("play white f1 l1")?;
@@ -1068,9 +1070,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game_1 = Game::default();
-        game_1.board = board.try_into()?;
-        game_1.turn = Color::White;
+        let mut game_1 = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
         let mut game_2 = game_1.clone();
 
         game_1.read_line("play white f11 l11")?;
@@ -1092,9 +1096,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board.try_into()?;
-        game.turn = Color::White;
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
 
         game.read_line("play white f10 f11")?;
         assert_eq!(game.status, Status::WhiteWins);
@@ -1113,10 +1119,11 @@ mod tests {
             "....O.O....",
         ];
 
-        let mut game = Game::default();
-        game.board = board.try_into()?;
-        game.turn = Color::White;
-
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
         game.read_line("play white f10 f11")?;
         assert_eq!(game.status, Status::WhiteWins);
 
@@ -1134,10 +1141,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board.try_into()?;
-        game.turn = Color::White;
-
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
         game.read_line("play white b6 a6")?;
         assert_eq!(game.status, Status::WhiteWins);
 
@@ -1155,9 +1163,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board.try_into()?;
-        game.turn = Color::White;
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
 
         game.read_line("play white k6 l6")?;
         assert_eq!(game.status, Status::WhiteWins);
