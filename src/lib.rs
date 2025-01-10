@@ -161,7 +161,7 @@ mod tests {
 
     #[test]
     fn sandwich_capture_1() -> anyhow::Result<()> {
-        let board_1a = [
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -175,7 +175,7 @@ mod tests {
             "...........",
         ];
 
-        let board_1b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -189,13 +189,18 @@ mod tests {
             "...........",
         ];
 
-        let mut game_1 = Game::default();
+        let mut game = Game::default();
 
-        game_1.board = board_1a.try_into()?;
-        game_1.read_line("play black d2 d4")?;
-        assert_eq!(game_1.board, board_1b.try_into()?);
+        game.board = board_1.try_into()?;
+        game.read_line("play black d2 d4")?;
+        assert_eq!(game.board, board_2.try_into()?);
 
-        let board_1aa = [
+        Ok(())
+    }
+
+    #[test]
+    fn sandwich_capture_2() -> anyhow::Result<()> {
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -209,7 +214,7 @@ mod tests {
             "...........",
         ];
 
-        let board_1bb = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -223,12 +228,17 @@ mod tests {
             "...........",
         ];
 
-        let mut game_1a = Game::default();
-        game_1a.board = board_1aa.try_into()?;
-        game_1a.read_line("play black d2 d4")?;
-        assert_eq!(game_1a.board, board_1bb.try_into()?);
+        let mut game = Game::default();
+        game.board = board_1.try_into()?;
+        game.read_line("play black d2 d4")?;
+        assert_eq!(game.board, board_2.try_into()?);
 
-        let board_2a = [
+        Ok(())
+    }
+
+    #[test]
+    fn sandwich_capture_3() -> anyhow::Result<()> {
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -242,7 +252,7 @@ mod tests {
             "...........",
         ];
 
-        let board_2b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -256,12 +266,17 @@ mod tests {
             "...........",
         ];
 
-        let mut game_2 = Game::default();
-        game_2.board = board_2a.try_into()?;
-        game_2.read_line("play black b4 f4")?;
-        assert_eq!(game_2.board, board_2b.try_into()?);
+        let mut game = Game::default();
+        game.board = board_1.try_into()?;
+        game.read_line("play black b4 f4")?;
+        assert_eq!(game.board, board_2.try_into()?);
 
-        let board_3a = [
+        Ok(())
+    }
+
+    #[test]
+    fn sandwich_capture_4() -> anyhow::Result<()> {
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -275,7 +290,7 @@ mod tests {
             "...........",
         ];
 
-        let board_3b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -289,13 +304,18 @@ mod tests {
             "...........",
         ];
 
-        let mut game_3 = Game::default();
-        game_3.board = board_3a.try_into()?;
-        game_3.turn = Color::White;
-        game_3.read_line("play white c6 c4")?;
-        assert_eq!(game_3.board, board_3b.try_into()?);
+        let mut game = Game::default();
+        game.board = board_1.try_into()?;
+        game.turn = Color::White;
+        game.read_line("play white c6 c4")?;
+        assert_eq!(game.board, board_2.try_into()?);
 
-        let board_4a = [
+        Ok(())
+    }
+
+    #[test]
+    fn sandwich_capture_5() -> anyhow::Result<()> {
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -309,7 +329,7 @@ mod tests {
             "...........",
         ];
 
-        let board_4b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -323,14 +343,18 @@ mod tests {
             "...........",
         ];
 
-        let mut game_4 = Game::default();
-        game_4.board = board_4a.try_into()?;
-        game_4.turn = Color::White;
-        game_4.read_line("play white b4 f4")?;
-        assert_eq!(game_4.board, board_4b.try_into()?);
+        let mut game = Game::default();
+        game.board = board_1.try_into()?;
+        game.turn = Color::White;
+        game.read_line("play white b4 f4")?;
+        assert_eq!(game.board, board_2.try_into()?);
 
-        // Todo: finish the rest...
-        let board_5a = [
+        Ok(())
+    }
+
+    #[test]
+    fn sandwich_capture_6() -> anyhow::Result<()> {
+        let board_1 = [
             ".O.........",
             "...........",
             "..X........",
@@ -344,7 +368,7 @@ mod tests {
             "...........",
         ];
 
-        let board_5b = [
+        let board_2 = [
             "..X........",
             "...........",
             "...........",
@@ -358,12 +382,17 @@ mod tests {
             "...........",
         ];
 
-        let mut game_5 = Game::default();
-        game_5.board = board_5a.try_into()?;
-        game_5.read_line("play black c9 c11")?;
-        assert_eq!(game_5.board, board_5b.try_into()?);
+        let mut game = Game::default();
+        game.board = board_1.try_into()?;
+        game.read_line("play black c9 c11")?;
+        assert_eq!(game.board, board_2.try_into()?);
 
-        let board_6a = [
+        Ok(())
+    }
+
+    #[test]
+    fn sandwich_capture_7() -> anyhow::Result<()> {
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -377,7 +406,7 @@ mod tests {
             "...........",
         ];
 
-        let board_6b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -391,12 +420,17 @@ mod tests {
             "...........",
         ];
 
-        let mut game_6 = Game::default();
-        game_6.board = board_6a.try_into()?;
-        game_6.read_line("play black b4 f4")?;
-        assert_eq!(game_6.board, board_6b.try_into()?);
+        let mut game = Game::default();
+        game.board = board_1.try_into()?;
+        game.read_line("play black b4 f4")?;
+        assert_eq!(game.board, board_2.try_into()?);
 
-        let board_7a = [
+        Ok(())
+    }
+
+    #[test]
+    fn sandwich_capture_8() -> anyhow::Result<()> {
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -410,7 +444,7 @@ mod tests {
             "...........",
         ];
 
-        let board_7b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -424,10 +458,10 @@ mod tests {
             "...........",
         ];
 
-        let mut game_7 = Game::default();
-        game_7.board = board_7a.try_into()?;
-        game_7.read_line("play black c3 c5")?;
-        assert_eq!(game_7.board, board_7b.try_into()?);
+        let mut game = Game::default();
+        game.board = board_1.try_into()?;
+        game.read_line("play black c3 c5")?;
+        assert_eq!(game.board, board_2.try_into()?);
 
         Ok(())
     }
