@@ -1,3 +1,8 @@
+#![allow(clippy::field_reassign_with_default)]
+#![allow(clippy::too_many_lines)]
+#![allow(clippy::similar_names)]
+#![allow(clippy::missing_panics_doc)]
+
 pub mod board;
 pub mod color;
 pub mod game;

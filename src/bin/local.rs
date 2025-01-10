@@ -5,13 +5,16 @@ use std::{
 
 use hnefatafl_copenhagen::game::Game;
 
-pub fn main() {
+/// # Errors
+///
+/// If the command `clear_screen()` fails.
+pub fn main() -> anyhow::Result<()> {
     let mut buffer = String::new();
     let stdin = io::stdin();
     let mut game = Game::default();
 
     #[cfg(any(target_family = "unix", target_family = "windows"))]
-    clear_screen().unwrap();
+    clear_screen()?;
     println!("{game}\n");
 
     loop {
@@ -23,7 +26,7 @@ pub fn main() {
         let result = game.read_line(&buffer);
 
         #[cfg(any(target_family = "unix", target_family = "windows"))]
-        clear_screen().unwrap();
+        clear_screen()?;
 
         println!("{game}\n");
         match result {
