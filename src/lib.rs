@@ -160,7 +160,7 @@ mod tests {
     // Four
 
     #[test]
-    fn sandwich_capture() -> anyhow::Result<()> {
+    fn sandwich_capture_1() -> anyhow::Result<()> {
         let board_1a = [
             "...........",
             "...........",
@@ -433,7 +433,7 @@ mod tests {
     }
 
     #[test]
-    fn shield_wall() -> anyhow::Result<()> {
+    fn shield_wall_1() -> anyhow::Result<()> {
         let board_1a = [
             "...........",
             "...........",
@@ -502,6 +502,11 @@ mod tests {
         game_2.read_line("play white c9 c11")?;
         assert_eq!(game_2.board, board_2b.try_into()?);
 
+        Ok(())
+    }
+
+    #[test]
+    fn shield_wall_2() -> anyhow::Result<()> {
         let board_3a = [
             "...........",
             "...........",
@@ -570,6 +575,11 @@ mod tests {
         game_4.read_line("play white j7 l7")?;
         assert_eq!(game_4.board, board_4b.try_into()?);
 
+        Ok(())
+    }
+
+    #[test]
+    fn shield_wall_3() -> anyhow::Result<()> {
         let board_5a = [
             "...........",
             "...........",
@@ -636,6 +646,11 @@ mod tests {
         game_5.read_line("play black f1 d1")?;
         assert_eq!(game_5.board, board_5d.try_into()?);
 
+        Ok(())
+    }
+
+    #[test]
+    fn shield_wall_4() -> anyhow::Result<()> {
         let board_6a = [
             ".....X..OK.",
             "........XX.",
@@ -702,6 +717,11 @@ mod tests {
         game_6.read_line("play black f11 d11")?;
         assert_eq!(game_6.board, board_6d.try_into()?);
 
+        Ok(())
+    }
+
+    #[test]
+    fn shield_wall_5() -> anyhow::Result<()> {
         let board_7a = [
             "...........",
             "...........",
@@ -771,6 +791,11 @@ mod tests {
         game_7.read_line("play black a6 a8")?;
         assert_eq!(game_7.board, board_7d.try_into()?);
 
+        Ok(())
+    }
+
+    #[test]
+    fn shield_wall_6() -> anyhow::Result<()> {
         let board_8a = [
             "...........",
             "...........",
@@ -1055,6 +1080,7 @@ mod tests {
         result = board.try_into();
         assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
+
         Ok(())
     }
 
