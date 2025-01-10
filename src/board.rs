@@ -138,6 +138,34 @@ impl TryFrom<[&str; 11]> for Board {
 }
 
 impl Board {
+    fn able_to_move(&self, play_from: &Vertex) -> anyhow::Result<bool> {
+        if let Some(vertex) = play_from.up() {
+            if self.get(&vertex)? == Space::Empty {
+                return Ok(true);
+            }
+        }
+
+        if let Some(vertex) = play_from.left() {
+            if self.get(&vertex)? == Space::Empty {
+                return Ok(true);
+            }
+        }
+
+        if let Some(vertex) = play_from.down() {
+            if self.get(&vertex)? == Space::Empty {
+                return Ok(true);
+            }
+        }
+
+        if let Some(vertex) = play_from.right() {
+            if self.get(&vertex)? == Space::Empty {
+                return Ok(true);
+            }
+        }
+
+        Ok(false)
+    }
+
     fn captures(&mut self, play_to: &Vertex, color_from: &Color) -> anyhow::Result<()> {
         if let Some(up_1) = play_to.up() {
             let space = self.get(&up_1)?;
@@ -340,6 +368,33 @@ impl Board {
         Ok(())
     }
 
+    fn exit_forts(&self) -> anyhow::Result<bool> {
+        let mut vertex = Vertex { x: 100, y: 100 };
+        'outer: for y in 0..11 {
+            for x in 0..11 {
+                let v = Vertex { x, y };
+                if self.get(&v)? == Space::King {
+                    vertex = v;
+                    break 'outer;
+                }
+            }
+        }
+
+        if !vertex.touches_wall() || !self.able_to_move(&vertex)? {
+            return Ok(false);
+        }
+
+        println!("found the king at {vertex}");
+
+        // Todo:
+        // all the surrounding pieces are white or empty
+        // black return false
+        // 2. the king is surrounded by white
+        // 3. there are not any black pieces inside
+
+        Ok(false)
+    }
+
     /// # Errors
     ///
     /// If the play is out of bounds.
@@ -434,6 +489,10 @@ impl Board {
         self.set(&play.to, space_from);
 
         if EXIT_SQUARES.contains(&play.to) && *turn == Color::White {
+            return Ok(Status::WhiteWins);
+        }
+
+        if self.exit_forts()? {
             return Ok(Status::WhiteWins);
         }
 

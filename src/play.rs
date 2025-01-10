@@ -123,4 +123,9 @@ impl Vertex {
             None
         }
     }
+
+    #[must_use]
+    pub fn touches_wall(&self) -> bool {
+        self.x == 0 || self.x == 10 || self.y == 0 || self.y == 10
+    }
 }

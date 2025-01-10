@@ -1029,7 +1029,7 @@ mod tests {
     }
 
     #[test]
-    fn white_wins_6a() -> anyhow::Result<()> {
+    fn white_wins_6() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1044,11 +1044,122 @@ mod tests {
             ".....K.....",
         ];
 
+        let mut game_1 = Game::default();
+        game_1.board = board.try_into()?;
+        game_1.turn = Color::White;
+        let mut game_2 = game_1.clone();
+
+        game_1.read_line("play white f1 l1")?;
+        assert_eq!(game_1.status, Status::WhiteWins);
+        game_2.read_line("play white f1 a1")?;
+        assert_eq!(game_2.status, Status::WhiteWins);
+
+        let board = [
+            ".....K.....",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        let mut game_1 = Game::default();
+        game_1.board = board.try_into()?;
+        game_1.turn = Color::White;
+        let mut game_2 = game_1.clone();
+
+        game_1.read_line("play white f11 l11")?;
+        assert_eq!(game_1.status, Status::WhiteWins);
+        game_2.read_line("play white f11 a11")?;
+        assert_eq!(game_2.status, Status::WhiteWins);
+
+        let board = [
+            "....O.O....",
+            "....OKO....",
+            ".....O.....",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
         let mut game = Game::default();
         game.board = board.try_into()?;
         game.turn = Color::White;
 
-        game.read_line("play white f1 l1")?;
+        game.read_line("play white f10 f11")?;
+        assert_eq!(game.status, Status::WhiteWins);
+
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            ".....O.....",
+            "....OKO....",
+            "....O.O....",
+        ];
+
+        let mut game = Game::default();
+        game.board = board.try_into()?;
+        game.turn = Color::White;
+
+        game.read_line("play white f10 f11")?;
+        assert_eq!(game.status, Status::WhiteWins);
+
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "OO.........",
+            ".KO........",
+            "OO.........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        let mut game = Game::default();
+        game.board = board.try_into()?;
+        game.turn = Color::White;
+
+        game.read_line("play white b6 a6")?;
+        assert_eq!(game.status, Status::WhiteWins);
+
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            ".........OO",
+            "........OK.",
+            ".........OO",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        let mut game = Game::default();
+        game.board = board.try_into()?;
+        game.turn = Color::White;
+
+        game.read_line("play white k6 l6")?;
         assert_eq!(game.status, Status::WhiteWins);
 
         Ok(())

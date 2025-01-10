@@ -18,6 +18,12 @@ anyhow = "1"
 
 [lints.clippy]
 cargo = "deny"
+complexity = "deny"
+correctness = "deny"
 pedantic = "deny"
+perf = "deny"
+# restriction = "warn"
+style = "deny"
+suspicious = "deny"
 
 multiple_crate_versions = { level = "allow", priority = 1 }
