@@ -49,7 +49,7 @@ mod tests {
     // Three
 
     #[test]
-    fn move_orthogonally() -> anyhow::Result<()> {
+    fn move_orthogonally_1() -> anyhow::Result<()> {
         let board = [
             "...X.......",
             "...........",
@@ -86,6 +86,11 @@ mod tests {
         assert!(result.is_err());
         assert_error_str(result, "play: you have to play through empty locations");
 
+        Ok(())
+    }
+
+    #[test]
+    fn move_orthogonally_2() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
