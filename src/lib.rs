@@ -1,5 +1,4 @@
 #![allow(clippy::field_reassign_with_default)] // Fix me first!
-#![allow(clippy::too_many_lines)]
 #![allow(clippy::similar_names)]
 
 pub mod board;
@@ -905,8 +904,8 @@ mod tests {
     // Five
 
     #[test]
-    fn kings() -> anyhow::Result<()> {
-        let mut board = [
+    fn kings_1() {
+        let board = [
             "KK.........",
             "...........",
             "...........",
@@ -923,8 +922,11 @@ mod tests {
         let result: anyhow::Result<Board> = board.try_into();
         assert!(result.is_err());
         assert_error_str(result, "You can only have one king!");
+    }
 
-        board = [
+    #[test]
+    fn kings_2() -> anyhow::Result<()> {
+        let board = [
             ".X.........",
             "...........",
             "...........",
@@ -938,19 +940,24 @@ mod tests {
             "...........",
         ];
 
-        let mut game_8 = game::Game {
+        let mut game = game::Game {
             board: board.try_into()?,
             ..Default::default()
         };
 
-        let result = game_8.read_line("play black b11 a11");
+        let result = game.read_line("play black b11 a11");
         assert!(result.is_err());
         assert_error_str(
             result,
             "play: only the king may move to a restricted square",
         );
 
-        board = [
+        Ok(())
+    }
+
+    #[test]
+    fn kings_3() -> anyhow::Result<()> {
+        let board_1 = [
             "K..........",
             "...........",
             "...........",
@@ -963,9 +970,9 @@ mod tests {
             "...........",
             "...........",
         ];
-        let _board: Board = board.try_into()?;
+        let _board: Board = board_1.try_into()?;
 
-        board = [
+        let board_2 = [
             "X..........",
             "...........",
             "...........",
@@ -979,11 +986,16 @@ mod tests {
             "...........",
         ];
 
-        let mut result: anyhow::Result<Board> = board.try_into();
+        let result: anyhow::Result<Board> = board_2.try_into();
         assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
 
-        board = [
+        Ok(())
+    }
+
+    #[test]
+    fn kings_4() -> anyhow::Result<()> {
+        let board_1 = [
             "..........K",
             "...........",
             "...........",
@@ -996,9 +1008,9 @@ mod tests {
             "...........",
             "...........",
         ];
-        let _board: Board = board.try_into()?;
+        let _board: Board = board_1.try_into()?;
 
-        board = [
+        let board_2 = [
             "..........X",
             "...........",
             "...........",
@@ -1012,11 +1024,16 @@ mod tests {
             "...........",
         ];
 
-        result = board.try_into();
+        let result: anyhow::Result<Board> = board_2.try_into();
         assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
 
-        board = [
+        Ok(())
+    }
+
+    #[test]
+    fn kings_5() -> anyhow::Result<()> {
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -1029,9 +1046,9 @@ mod tests {
             "...........",
             "...........",
         ];
-        let _board: Board = board.try_into()?;
+        let _board: Board = board_1.try_into()?;
 
-        board = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -1045,11 +1062,16 @@ mod tests {
             "...........",
         ];
 
-        result = board.try_into();
+        let result: anyhow::Result<Board> = board_2.try_into();
         assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
 
-        board = [
+        Ok(())
+    }
+
+    #[test]
+    fn kings_6() -> anyhow::Result<()> {
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -1062,9 +1084,9 @@ mod tests {
             "...........",
             "K..........",
         ];
-        let _board: Board = board.try_into()?;
+        let _board: Board = board_1.try_into()?;
 
-        board = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -1078,11 +1100,16 @@ mod tests {
             "X..........",
         ];
 
-        result = board.try_into();
+        let result: anyhow::Result<Board> = board_2.try_into();
         assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
 
-        board = [
+        Ok(())
+    }
+
+    #[test]
+    fn kings_7() -> anyhow::Result<()> {
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -1095,9 +1122,9 @@ mod tests {
             "...........",
             "..........K",
         ];
-        let _board: Board = board.try_into()?;
+        let _board: Board = board_1.try_into()?;
 
-        board = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -1111,7 +1138,7 @@ mod tests {
             "..........X",
         ];
 
-        result = board.try_into();
+        let result: anyhow::Result<Board> = board_2.try_into();
         assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
 
