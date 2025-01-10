@@ -1,5 +1,4 @@
-#![allow(clippy::field_reassign_with_default)] // Fix me first!
-#![allow(clippy::similar_names)]
+#![allow(clippy::field_reassign_with_default)]
 
 pub mod board;
 pub mod color;
@@ -467,7 +466,7 @@ mod tests {
 
     #[test]
     fn shield_wall_1() -> anyhow::Result<()> {
-        let board_1a = [
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -481,7 +480,7 @@ mod tests {
             "...XXXO....",
         ];
 
-        let board_1b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -496,12 +495,12 @@ mod tests {
         ];
 
         let mut game_1 = Game::default();
-        game_1.board = board_1a.try_into()?;
+        game_1.board = board_1.try_into()?;
         game_1.turn = Color::White;
         game_1.read_line("play white c3 c1")?;
-        assert_eq!(game_1.board, board_1b.try_into()?);
+        assert_eq!(game_1.board, board_2.try_into()?);
 
-        let board_2a = [
+        let board_3 = [
             "...XXXO....",
             "...OOO.....",
             "..O........",
@@ -515,7 +514,7 @@ mod tests {
             "...........",
         ];
 
-        let board_2b = [
+        let board_4 = [
             "..O...O....",
             "...OOO.....",
             "...........",
@@ -530,17 +529,17 @@ mod tests {
         ];
 
         let mut game_2 = Game::default();
-        game_2.board = board_2a.try_into()?;
+        game_2.board = board_3.try_into()?;
         game_2.turn = Color::White;
         game_2.read_line("play white c9 c11")?;
-        assert_eq!(game_2.board, board_2b.try_into()?);
+        assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
     }
 
     #[test]
     fn shield_wall_2() -> anyhow::Result<()> {
-        let board_3a = [
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -554,7 +553,7 @@ mod tests {
             "...........",
         ];
 
-        let board_3b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -569,12 +568,12 @@ mod tests {
         ];
 
         let mut game_3 = Game::default();
-        game_3.board = board_3a.try_into()?;
+        game_3.board = board_1.try_into()?;
         game_3.turn = Color::White;
         game_3.read_line("play white c7 a7")?;
-        assert_eq!(game_3.board, board_3b.try_into()?);
+        assert_eq!(game_3.board, board_2.try_into()?);
 
-        let board_4a = [
+        let board_3 = [
             "...........",
             "...........",
             "...........",
@@ -588,7 +587,7 @@ mod tests {
             "...........",
         ];
 
-        let board_4b = [
+        let board_4 = [
             "...........",
             "...........",
             "...........",
@@ -603,17 +602,17 @@ mod tests {
         ];
 
         let mut game_4 = Game::default();
-        game_4.board = board_4a.try_into()?;
+        game_4.board = board_3.try_into()?;
         game_4.turn = Color::White;
         game_4.read_line("play white j7 l7")?;
-        assert_eq!(game_4.board, board_4b.try_into()?);
+        assert_eq!(game_4.board, board_4.try_into()?);
 
         Ok(())
     }
 
     #[test]
     fn shield_wall_3() -> anyhow::Result<()> {
-        let board_5a = [
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -627,7 +626,7 @@ mod tests {
             ".....X..OK.",
         ];
 
-        let board_5b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -642,11 +641,11 @@ mod tests {
         ];
 
         let mut game_5 = Game::default();
-        game_5.board = board_5a.try_into()?;
+        game_5.board = board_1.try_into()?;
         game_5.read_line("play black f1 h1")?;
-        assert_eq!(game_5.board, board_5b.try_into()?);
+        assert_eq!(game_5.board, board_2.try_into()?);
 
-        let board_5c = [
+        let board_3 = [
             "...........",
             "...........",
             "...........",
@@ -660,7 +659,7 @@ mod tests {
             ".KO..X.....",
         ];
 
-        let board_5d = [
+        let board_4 = [
             "...........",
             "...........",
             "...........",
@@ -675,16 +674,16 @@ mod tests {
         ];
 
         game_5 = Game::default();
-        game_5.board = board_5c.try_into()?;
+        game_5.board = board_3.try_into()?;
         game_5.read_line("play black f1 d1")?;
-        assert_eq!(game_5.board, board_5d.try_into()?);
+        assert_eq!(game_5.board, board_4.try_into()?);
 
         Ok(())
     }
 
     #[test]
     fn shield_wall_4() -> anyhow::Result<()> {
-        let board_6a = [
+        let board_1 = [
             ".....X..OK.",
             "........XX.",
             "...........",
@@ -698,7 +697,7 @@ mod tests {
             "...........",
         ];
 
-        let board_6b = [
+        let board_2 = [
             ".......X.K.",
             "........XX.",
             "...........",
@@ -713,11 +712,11 @@ mod tests {
         ];
 
         let mut game_6 = Game::default();
-        game_6.board = board_6a.try_into()?;
+        game_6.board = board_1.try_into()?;
         game_6.read_line("play black f11 h11")?;
-        assert_eq!(game_6.board, board_6b.try_into()?);
+        assert_eq!(game_6.board, board_2.try_into()?);
 
-        let board_6c = [
+        let board_3 = [
             ".KO..X.....",
             ".XX........",
             "...........",
@@ -731,7 +730,7 @@ mod tests {
             "...........",
         ];
 
-        let board_6d = [
+        let board_4 = [
             ".K.X.......",
             ".XX........",
             "...........",
@@ -746,16 +745,16 @@ mod tests {
         ];
 
         game_6 = Game::default();
-        game_6.board = board_6c.try_into()?;
+        game_6.board = board_3.try_into()?;
         game_6.read_line("play black f11 d11")?;
-        assert_eq!(game_6.board, board_6d.try_into()?);
+        assert_eq!(game_6.board, board_4.try_into()?);
 
         Ok(())
     }
 
     #[test]
     fn shield_wall_5() -> anyhow::Result<()> {
-        let board_7a = [
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -769,7 +768,7 @@ mod tests {
             "...........",
         ];
 
-        let board_7b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -784,14 +783,14 @@ mod tests {
         ];
 
         let mut game_7 = game::Game {
-            board: board_7a.try_into()?,
+            board: board_1.try_into()?,
             ..Default::default()
         };
 
         game_7.read_line("play black a6 a4")?;
-        assert_eq!(game_7.board, board_7b.try_into()?);
+        assert_eq!(game_7.board, board_2.try_into()?);
 
-        let board_7c = [
+        let board_3 = [
             "...........",
             "KX.........",
             "OX.........",
@@ -805,7 +804,7 @@ mod tests {
             "...........",
         ];
 
-        let board_7d = [
+        let board_4 = [
             "...........",
             "KX.........",
             ".X.........",
@@ -820,16 +819,16 @@ mod tests {
         ];
 
         game_7 = Game::default();
-        game_7.board = board_7c.try_into()?;
+        game_7.board = board_3.try_into()?;
         game_7.read_line("play black a6 a8")?;
-        assert_eq!(game_7.board, board_7d.try_into()?);
+        assert_eq!(game_7.board, board_4.try_into()?);
 
         Ok(())
     }
 
     #[test]
     fn shield_wall_6() -> anyhow::Result<()> {
-        let board_8a = [
+        let board_1 = [
             "...........",
             "...........",
             "...........",
@@ -843,7 +842,7 @@ mod tests {
             "...........",
         ];
 
-        let board_8b = [
+        let board_2 = [
             "...........",
             "...........",
             "...........",
@@ -858,14 +857,14 @@ mod tests {
         ];
 
         let mut game_8 = game::Game {
-            board: board_8a.try_into()?,
+            board: board_1.try_into()?,
             ..Default::default()
         };
 
         game_8.read_line("play black l6 l4")?;
-        assert_eq!(game_8.board, board_8b.try_into()?);
+        assert_eq!(game_8.board, board_2.try_into()?);
 
-        let board_8c = [
+        let board_3 = [
             "...........",
             ".........XK",
             ".........XO",
@@ -879,7 +878,7 @@ mod tests {
             "...........",
         ];
 
-        let board_8d = [
+        let board_4 = [
             "...........",
             ".........XK",
             ".........X.",
@@ -894,9 +893,9 @@ mod tests {
         ];
 
         game_8 = Game::default();
-        game_8.board = board_8c.try_into()?;
+        game_8.board = board_3.try_into()?;
         game_8.read_line("play black l6 l8")?;
-        assert_eq!(game_8.board, board_8d.try_into()?);
+        assert_eq!(game_8.board, board_4.try_into()?);
 
         Ok(())
     }
