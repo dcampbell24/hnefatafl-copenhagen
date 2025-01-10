@@ -59,19 +59,19 @@ mod tests {
         game.turn = Color::White;
 
         let mut result = game.read_line("play white d4 d1");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "play: you have to play through empty locations");
 
         result = game.read_line("play white d4 d11");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "play: you have to play through empty locations");
 
         result = game.read_line("play white d4 a4");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "play: you have to play through empty locations");
 
         result = game.read_line("play white d4 l4");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "play: you have to play through empty locations");
 
         let board = [
@@ -94,34 +94,34 @@ mod tests {
 
         // Play a junk move:
         let mut result = game.read_line("play white junk d1");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "invalid digit found in string");
 
         result = game.read_line("play white d4 junk");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "invalid digit found in string");
 
         // Diagonal play:
         result = game.read_line("play white d4 a3");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "play: you can only play in a straight line");
 
         // Play out of bounds:
         result = game.read_line("play white d4 m4");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "play: the first letter is not a legal char");
 
         result = game.read_line("play white d4 d12");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "play: invalid coordinate");
 
         result = game.read_line("play white d4 d0");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "get: index is out of y bounds");
 
         // Don't move:
         result = game.read_line("play white d4 d4");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "play: you have to change location");
 
         // Move all the way to the right:
@@ -835,7 +835,7 @@ mod tests {
         ];
 
         let result: anyhow::Result<Board> = board.try_into();
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "You can only have one king!");
 
         board = [
@@ -855,7 +855,7 @@ mod tests {
         let mut game_8 = Game::default();
         game_8.board = board.try_into()?;
         let result = game_8.read_line("play black b11 a11");
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(
             result,
             "play: only the king may move to a restricted square",
@@ -891,7 +891,7 @@ mod tests {
         ];
 
         let mut result: anyhow::Result<Board> = board.try_into();
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
 
         board = [
@@ -924,7 +924,7 @@ mod tests {
         ];
 
         result = board.try_into();
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
 
         board = [
@@ -957,7 +957,7 @@ mod tests {
         ];
 
         result = board.try_into();
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
 
         board = [
@@ -990,7 +990,7 @@ mod tests {
         ];
 
         result = board.try_into();
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
 
         board = [
@@ -1023,7 +1023,7 @@ mod tests {
         ];
 
         result = board.try_into();
-        assert_eq!(result.is_err(), true);
+        assert!(result.is_err());
         assert_error_str(result, "Only the king is allowed on restricted squares!");
         Ok(())
     }
