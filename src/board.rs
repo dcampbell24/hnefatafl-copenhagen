@@ -473,8 +473,6 @@ impl Board {
         clippy::cast_sign_loss
     )]
     pub fn play(&mut self, play: &Play, status: &Status, turn: &Color) -> anyhow::Result<Status> {
-        // Todo: the throne is only hostile to defenders when empty.
-
         if *status != Status::Ongoing {
             return Err(anyhow::Error::msg(
                 "play: the game has to be ongoing to play",
