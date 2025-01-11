@@ -418,6 +418,8 @@ impl Board {
                 return Ok(false);
             }
 
+            // Todo: handle loose surrounding of the king!
+
             Ok(true)
         } else {
             Ok(false)
