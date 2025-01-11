@@ -240,10 +240,6 @@ move, and it is impossible for the attackers to break the fort.
    ABCDEFGHJKL   ABCDEFGHJKL
 ```
 
-NOT IMPLEMENTED YET BELOW THIS LINE
-
----
-
 ### 7. Attackers Win
 
 The attackers win if they can capture the king.
@@ -313,6 +309,10 @@ unbroken ring, then they win, as they have prevented the king from escaping.
   └───────────┘ └───────────┘
    ABCDEFGHJKL   ABCDEFGHJKL
 ```
+
+NOT IMPLEMENTED YET BELOW THIS LINE
+
+---
 
 ### 8. Perpetual Repetitions
 
