@@ -1407,4 +1407,85 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn kings_captured_1() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            ".....X.....",
+            "...........",
+            "....XKX....",
+            ".....X.....",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        let mut game = game::Game {
+            board: board.try_into()?,
+            ..Default::default()
+        };
+
+        game.read_line("play black f8 f7")?;
+        assert_eq!(game.status, Status::BlackWins);
+
+        Ok(())
+    }
+
+    #[test]
+    fn kings_captured_2() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "....XKX....",
+            "...........",
+            ".....X.....",
+            "...........",
+            "...........",
+        ];
+
+        let mut game = game::Game {
+            board: board.try_into()?,
+            ..Default::default()
+        };
+
+        game.read_line("play black f3 f4")?;
+        assert_eq!(game.status, Status::BlackWins);
+
+        Ok(())
+    }
+
+    #[test]
+    fn kings_captured_3() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "....X......",
+            "...XKX.....",
+            "...........",
+            "....X......",
+        ];
+
+        let mut game = game::Game {
+            board: board.try_into()?,
+            ..Default::default()
+        };
+
+        game.read_line("play black e1 e2")?;
+        assert_eq!(game.status, Status::BlackWins);
+
+        Ok(())
+    }
 }

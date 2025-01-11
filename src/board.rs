@@ -371,26 +371,75 @@ impl Board {
     /// # Errors
     ///
     /// If the vertex is out of bounds.
-    fn exit_forts(&self) -> anyhow::Result<bool> {
-        let mut kings_vertex = Vertex { x: 100, y: 100 };
-        'outer: for y in 0..11 {
+    fn find_the_king(&self) -> anyhow::Result<Option<Vertex>> {
+        for y in 0..11 {
             for x in 0..11 {
                 let v = Vertex { x, y };
                 if self.get(&v)? == Space::King {
-                    kings_vertex = v;
-                    break 'outer;
+                    return Ok(Some(v));
                 }
             }
         }
 
-        if !kings_vertex.touches_wall()
-            || !self.able_to_move(&kings_vertex)?
-            || !self.flood_fill(&Color::White, &kings_vertex)?
-        {
-            return Ok(false);
-        }
+        Ok(None)
+    }
 
-        Ok(true)
+    fn capture_the_king(&self) -> anyhow::Result<bool> {
+        if let Some(kings_vertex) = self.find_the_king()? {
+            if let Some(vertex) = kings_vertex.up() {
+                if vertex != THRONE && self.get(&vertex)? != Space::Black {
+                    return Ok(false);
+                }
+            } else {
+                return Ok(false);
+            }
+
+            if let Some(vertex) = kings_vertex.left() {
+                if vertex != THRONE && self.get(&vertex)? != Space::Black {
+                    return Ok(false);
+                }
+            } else {
+                return Ok(false);
+            }
+
+            if let Some(vertex) = kings_vertex.down() {
+                if vertex != THRONE && self.get(&vertex)? != Space::Black {
+                    return Ok(false);
+                }
+            } else {
+                return Ok(false);
+            }
+
+            if let Some(vertex) = kings_vertex.right() {
+                if vertex != THRONE && self.get(&vertex)? != Space::Black {
+                    return Ok(false);
+                }
+            } else {
+                return Ok(false);
+            }
+
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    /// # Errors
+    ///
+    /// If the vertex is out of bounds.
+    fn exit_forts(&self) -> anyhow::Result<bool> {
+        if let Some(kings_vertex) = self.find_the_king()? {
+            if !kings_vertex.touches_wall()
+                || !self.able_to_move(&kings_vertex)?
+                || !self.flood_fill(&Color::White, &kings_vertex)?
+            {
+                return Ok(false);
+            }
+
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 
     /// # Errors
@@ -541,12 +590,12 @@ impl Board {
         self.set(&play.from, Space::Empty);
         self.set(&play.to, space_from);
 
-        if EXIT_SQUARES.contains(&play.to) && *turn == Color::White {
+        if EXIT_SQUARES.contains(&play.to) || self.exit_forts()? {
             return Ok(Status::WhiteWins);
         }
 
-        if self.exit_forts()? {
-            return Ok(Status::WhiteWins);
+        if self.capture_the_king()? {
+            return Ok(Status::BlackWins);
         }
 
         self.captures(&play.to, &color_from)?;
