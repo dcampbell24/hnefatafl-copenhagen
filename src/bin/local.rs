@@ -16,6 +16,7 @@ pub fn main() -> anyhow::Result<()> {
     #[cfg(any(target_family = "unix", target_family = "windows"))]
     clear_screen()?;
     println!("{game}\n");
+    println!("Enter 'list_commands' for a list of commands.");
 
     loop {
         if let Err(error) = stdin.read_line(&mut buffer) {
