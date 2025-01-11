@@ -139,10 +139,12 @@ impl Game {
                         time.time_left += time.add_time;
                     }
 
-                    if self.board.get(&play.from)?.color() != play.color {
-                        return Err(anyhow::Error::msg(
-                            "play: you are trying to move the wrong color",
-                        ));
+                    let piece_color = self.board.get(&play.from)?.color();
+                    if piece_color != play.color {
+                        return Err(anyhow::Error::msg(format!(
+                            "play: you are trying to move {piece_color}, but it's {}'s turn",
+                            play.color
+                        )));
                     }
 
                     self.status = self.board.play(&play, &self.status, &self.turn)?;

@@ -35,7 +35,7 @@ impl TryFrom<Vec<&str>> for Play {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Vertex {
     pub x: usize,
     pub y: usize,

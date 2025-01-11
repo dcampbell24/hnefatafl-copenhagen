@@ -218,10 +218,6 @@ If the king reaches any corner square, the king has escaped and his side wins.
    ABCDEFGHJKL
 ```
 
-NOT IMPLEMENTED YET BELOW THIS LINE
-
----
-
 #### Exit Forts
 
 The defenders also win if the king has contact with the board edge, is able to
@@ -243,6 +239,10 @@ move, and it is impossible for the attackers to break the fort.
   └───────────┘ └───────────┘
    ABCDEFGHJKL   ABCDEFGHJKL
 ```
+
+NOT IMPLEMENTED YET BELOW THIS LINE
+
+---
 
 ### 7. Attackers Win
 

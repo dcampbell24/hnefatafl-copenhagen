@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{collections::HashSet, fmt};
 
 use anyhow::Context;
 
@@ -368,31 +368,86 @@ impl Board {
         Ok(())
     }
 
+    /// # Errors
+    ///
+    /// If the vertex is out of bounds.
     fn exit_forts(&self) -> anyhow::Result<bool> {
-        let mut vertex = Vertex { x: 100, y: 100 };
+        let mut kings_vertex = Vertex { x: 100, y: 100 };
         'outer: for y in 0..11 {
             for x in 0..11 {
                 let v = Vertex { x, y };
                 if self.get(&v)? == Space::King {
-                    vertex = v;
+                    kings_vertex = v;
                     break 'outer;
                 }
             }
         }
 
-        if !vertex.touches_wall() || !self.able_to_move(&vertex)? {
+        if !kings_vertex.touches_wall()
+            || !self.able_to_move(&kings_vertex)?
+            || !self.flood_fill(&Color::White, &kings_vertex)?
+        {
             return Ok(false);
         }
 
-        println!("found the king at {vertex}");
+        Ok(true)
+    }
 
-        // Todo:
-        // all the surrounding pieces are white or empty
-        // black return false
-        // 2. the king is surrounded by white
-        // 3. there are not any black pieces inside
+    /// # Errors
+    ///
+    /// If the vertex is out of bounds.
+    pub fn flood_fill(&self, color: &Color, vertex: &Vertex) -> anyhow::Result<bool> {
+        let mut already_checked = HashSet::new();
+        let mut stack = Vec::new();
 
-        Ok(false)
+        if let Some(vertex) = vertex.up() {
+            stack.push(vertex);
+        }
+        if let Some(vertex) = vertex.left() {
+            stack.push(vertex);
+        }
+        if let Some(vertex) = vertex.down() {
+            stack.push(vertex);
+        }
+        if let Some(vertex) = vertex.right() {
+            stack.push(vertex);
+        }
+
+        while !stack.is_empty() {
+            if let Some(vertex) = stack.pop() {
+                let space = self.get(&vertex)?;
+                if space == Space::Empty {
+                    if let Some(vertex) = vertex.up() {
+                        if !already_checked.contains(&vertex) {
+                            stack.push(vertex.clone());
+                            already_checked.insert(vertex);
+                        }
+                    }
+                    if let Some(vertex) = vertex.left() {
+                        if !already_checked.contains(&vertex) {
+                            stack.push(vertex.clone());
+                            already_checked.insert(vertex);
+                        }
+                    }
+                    if let Some(vertex) = vertex.down() {
+                        if !already_checked.contains(&vertex) {
+                            stack.push(vertex.clone());
+                            already_checked.insert(vertex);
+                        }
+                    }
+                    if let Some(vertex) = vertex.right() {
+                        if !already_checked.contains(&vertex) {
+                            stack.push(vertex.clone());
+                            already_checked.insert(vertex);
+                        }
+                    }
+                } else if space.color() == color.opposite() {
+                    return Ok(false);
+                }
+            }
+        }
+
+        Ok(true)
     }
 
     /// # Errors

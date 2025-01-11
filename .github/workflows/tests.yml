@@ -1,0 +1,13 @@
+on: push
+name: cargo test
+
+jobs:
+  cargo_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            persist-credentials: false
+
+      - name: Run cargo test
+        run: cargo test --all-targets --all-features

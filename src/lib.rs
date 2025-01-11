@@ -16,6 +16,7 @@ mod tests {
     use board::{Board, STARTING_POSITION};
     use color::Color;
     use game::Game;
+    use play::Vertex;
     use status::Status;
 
     use super::*;
@@ -24,6 +25,62 @@ mod tests {
         if let Err(error) = result {
             assert_eq!(error.to_string(), string);
         }
+    }
+
+    #[test]
+    fn flood_fill_1() -> anyhow::Result<()> {
+        let board_1 = [
+            "...........",
+            ".........X.",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            ".....O.....",
+            "....O.O....",
+            "....O.O....",
+            "....OKO....",
+        ];
+
+        let game = game::Game {
+            board: board_1.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        let vertex = Vertex::try_from("f1")?;
+        assert!(game.board.flood_fill(&Color::White, &vertex)?);
+
+        Ok(())
+    }
+
+    #[test]
+    fn flood_fill_2() -> anyhow::Result<()> {
+        let board_1 = [
+            "...........",
+            ".........X.",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            ".....O.....",
+            "....O......",
+            "....O.O....",
+            "....OKO....",
+        ];
+
+        let game = game::Game {
+            board: board_1.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        let vertex = Vertex::try_from("f1")?;
+        assert!(!game.board.flood_fill(&Color::White, &vertex)?);
+
+        Ok(())
     }
 
     // One
@@ -1209,7 +1266,7 @@ mod tests {
             "....O.O....",
             "....OKO....",
             ".....O.....",
-            "...........",
+            ".....X.....",
             "...........",
             "...........",
             "...........",
@@ -1236,7 +1293,7 @@ mod tests {
             "...........",
             "...........",
             "...........",
-            "...........",
+            ".....X.....",
             ".....O.....",
             "....OKO....",
             "....O.O....",
@@ -1247,7 +1304,7 @@ mod tests {
             turn: Color::White,
             ..Default::default()
         };
-        game.read_line("play white f10 f11")?;
+        game.read_line("play white f2 f1")?;
         assert_eq!(game.status, Status::WhiteWins);
 
         let board = [
@@ -1256,7 +1313,7 @@ mod tests {
             "...........",
             "...........",
             "OO.........",
-            ".KO........",
+            ".KOX.......",
             "OO.........",
             "...........",
             "...........",
@@ -1278,7 +1335,7 @@ mod tests {
             "...........",
             "...........",
             ".........OO",
-            "........OK.",
+            ".......XOK.",
             ".........OO",
             "...........",
             "...........",
