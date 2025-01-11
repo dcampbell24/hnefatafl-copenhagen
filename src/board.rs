@@ -433,7 +433,7 @@ impl Board {
         if let Some(kings_vertex) = self.find_the_king()? {
             if !kings_vertex.touches_wall()
                 || !self.able_to_move(&kings_vertex)?
-                || !self.flood_fill(&Color::White, &kings_vertex)?
+                || !self.flood_fill_white_wins(&kings_vertex)?
             {
                 return Ok(false);
             }
@@ -447,7 +447,63 @@ impl Board {
     /// # Errors
     ///
     /// If the vertex is out of bounds.
-    pub fn flood_fill(&self, color: &Color, vertex: &Vertex) -> anyhow::Result<bool> {
+    fn flood_fill_black_wins(&self) -> anyhow::Result<bool> {
+        if let Some(kings_vertex) = self.find_the_king()? {
+            let mut already_checked = HashSet::new();
+            already_checked.insert(kings_vertex.clone());
+            let mut stack = Vec::new();
+            stack.push(kings_vertex);
+
+            while !stack.is_empty() {
+                if let Some(vertex) = stack.pop() {
+                    let space = self.get(&vertex)?;
+                    if space == Space::Empty || space == Space::White || space == Space::King {
+                        if let Some(vertex) = vertex.up() {
+                            if !already_checked.contains(&vertex) {
+                                stack.push(vertex.clone());
+                                already_checked.insert(vertex);
+                            }
+                        } else {
+                            return Ok(false);
+                        }
+                        if let Some(vertex) = vertex.left() {
+                            if !already_checked.contains(&vertex) {
+                                stack.push(vertex.clone());
+                                already_checked.insert(vertex);
+                            }
+                        } else {
+                            return Ok(false);
+                        }
+                        if let Some(vertex) = vertex.down() {
+                            if !already_checked.contains(&vertex) {
+                                stack.push(vertex.clone());
+                                already_checked.insert(vertex);
+                            }
+                        } else {
+                            return Ok(false);
+                        }
+                        if let Some(vertex) = vertex.right() {
+                            if !already_checked.contains(&vertex) {
+                                stack.push(vertex.clone());
+                                already_checked.insert(vertex);
+                            }
+                        } else {
+                            return Ok(false);
+                        }
+                    }
+                }
+            }
+
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    /// # Errors
+    ///
+    /// If the vertex is out of bounds.
+    pub fn flood_fill_white_wins(&self, vertex: &Vertex) -> anyhow::Result<bool> {
         let mut already_checked = HashSet::new();
         let mut stack = Vec::new();
 
@@ -492,7 +548,7 @@ impl Board {
                             already_checked.insert(vertex);
                         }
                     }
-                } else if space.color() == color.opposite() {
+                } else if space.color() == Color::Black {
                     return Ok(false);
                 }
             }
@@ -596,14 +652,14 @@ impl Board {
             return Ok(Status::WhiteWins);
         }
 
-        if self.capture_the_king()? {
+        if self.capture_the_king()? || self.flood_fill_black_wins()? {
             return Ok(Status::BlackWins);
         }
 
         self.captures(&play.to, &color_from)?;
         self.captures_shield_wall(&color_from)?;
 
-        // Todo: Check for a draw or black win.
+        // Todo: Check for a draw.
 
         Ok(Status::Ongoing)
     }

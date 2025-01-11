@@ -48,7 +48,7 @@ mod tests {
         };
 
         let vertex = Vertex::try_from("f1")?;
-        assert!(game.board.flood_fill(&Color::White, &vertex)?);
+        assert!(game.board.flood_fill_white_wins(&vertex)?);
 
         Ok(())
     }
@@ -76,7 +76,7 @@ mod tests {
         };
 
         let vertex = Vertex::try_from("f1")?;
-        assert!(!game.board.flood_fill(&Color::White, &vertex)?);
+        assert!(!game.board.flood_fill_white_wins(&vertex)?);
 
         Ok(())
     }
@@ -1408,6 +1408,8 @@ mod tests {
         Ok(())
     }
 
+    // Seven
+
     #[test]
     fn kings_captured_1() -> anyhow::Result<()> {
         let board = [
@@ -1484,6 +1486,37 @@ mod tests {
         };
 
         game.read_line("play black e1 e2")?;
+        assert_eq!(game.status, Status::BlackWins);
+
+        Ok(())
+    }
+
+    #[test]
+    fn kings_captured_surround() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            ".....XXX...",
+            "....X...XX.",
+            ".X...O....X",
+            "..X.......X",
+            ".X.O...O..X",
+            ".X..OK...X.",
+            "..X...O.X..",
+            "...XXX.X...",
+            "......X....",
+        ];
+
+        let mut game = game::Game {
+            board: board.try_into()?,
+            ..Default::default()
+        };
+
+        game.read_line("play black b7 c7")?;
+        assert_eq!(game.status, Status::Ongoing);
+        game.read_line("play white f7 g7")?;
+        assert_eq!(game.status, Status::Ongoing);
+        game.read_line("play black c7 d7")?;
         assert_eq!(game.status, Status::BlackWins);
 
         Ok(())
