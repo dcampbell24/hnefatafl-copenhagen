@@ -19,7 +19,6 @@ An engine similar to the [Go Text Protocol].
 ## Differences from the Go Text Protocol
 
 * The character set is UTF-8.
-* `boardsize` -> `board_size`
 * `clear_board` -> `reset_board`
 * `genmove` -> `generate_move`
 * `generate_move` returns `COLOR VERTEX_FROM VERTEX_TO`
