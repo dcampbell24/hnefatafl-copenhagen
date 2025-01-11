@@ -41,33 +41,33 @@ impl TryFrom<&str> for Message {
         let args: Vec<&str> = message.split_whitespace().collect();
 
         if args.is_empty() {
-            return Ok(Message::Empty);
+            return Ok(Self::Empty);
         }
 
         match *args.first().unwrap() {
-            "final_status" => Ok(Message::FinalStatus),
-            "generate_move" => Ok(Message::GenerateMove),
-            "known_command" => Ok(Message::KnownCommand(
+            "final_status" => Ok(Self::FinalStatus),
+            "generate_move" => Ok(Self::GenerateMove),
+            "known_command" => Ok(Self::KnownCommand(
                 (*args.get(1).context("expected: known_command COMMAND")?).to_string(),
             )),
-            "list_commands" => Ok(Message::ListCommands),
-            "name" => Ok(Message::Name),
+            "list_commands" => Ok(Self::ListCommands),
+            "name" => Ok(Self::Name),
             "play" => {
                 let play = Play::try_from(args)?;
-                Ok(Message::Play(play))
+                Ok(Self::Play(play))
             }
-            "protocol_version" => Ok(Message::ProtocolVersion),
-            "quit" => Ok(Message::Quit),
-            "reset_board" => Ok(Message::ResetBoard),
-            "show_board" => Ok(Message::ShowBoard),
+            "protocol_version" => Ok(Self::ProtocolVersion),
+            "quit" => Ok(Self::Quit),
+            "reset_board" => Ok(Self::ResetBoard),
+            "show_board" => Ok(Self::ShowBoard),
             "time_settings" => {
                 let time_settings = time::Settings::try_from(args)?;
-                Ok(Message::TimeSettings(time_settings))
+                Ok(Self::TimeSettings(time_settings))
             }
-            "version" => Ok(Message::Version),
+            "version" => Ok(Self::Version),
             text => {
                 if text.trim().is_empty() {
-                    Ok(Message::Empty)
+                    Ok(Self::Empty)
                 } else {
                     Err(anyhow::Error::msg(format!("unrecognized command: {text}")))
                 }
