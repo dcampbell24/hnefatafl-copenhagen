@@ -77,7 +77,7 @@ impl Game {
 
     /// # Errors
     ///
-    /// If the play is illegal.
+    /// If the command is illegal or invalid.
     pub fn read_line(&mut self, buffer: &str) -> anyhow::Result<Option<String>> {
         let mut buffer = Cow::from(buffer);
         if let Some(comment_offset) = buffer.find('#') {
@@ -89,7 +89,7 @@ impl Game {
 
     /// # Errors
     ///
-    /// If the play is illegal.
+    /// If the command is illegal or invalid.
     pub fn update(&mut self, message: Message) -> anyhow::Result<Option<String>> {
         match message {
             Message::Empty => Ok(None),
