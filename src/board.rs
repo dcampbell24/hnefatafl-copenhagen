@@ -418,8 +418,6 @@ impl Board {
                 return Ok(false);
             }
 
-            // Todo: handle loose surrounding of the king!
-
             Ok(true)
         } else {
             Ok(false)
@@ -457,7 +455,7 @@ impl Board {
             while !stack.is_empty() {
                 if let Some(vertex) = stack.pop() {
                     let space = self.get(&vertex)?;
-                    if space == Space::Empty || space == Space::White || space == Space::King {
+                    if space == Space::Empty || space.color() == Color::White {
                         if let Some(vertex) = vertex.up() {
                             if !already_checked.contains(&vertex) {
                                 stack.push(vertex.clone());
@@ -490,6 +488,17 @@ impl Board {
                         } else {
                             return Ok(false);
                         }
+                    }
+                }
+            }
+
+            for y in 0..11 {
+                for x in 0..11 {
+                    let vertex = Vertex { x, y };
+                    if self.get(&vertex)?.color() == Color::White
+                        && !already_checked.contains(&vertex)
+                    {
+                        return Ok(false);
                     }
                 }
             }

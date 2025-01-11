@@ -1492,7 +1492,7 @@ mod tests {
     }
 
     #[test]
-    fn kings_captured_surround() -> anyhow::Result<()> {
+    fn kings_captured_surround_1() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1518,6 +1518,33 @@ mod tests {
         assert_eq!(game.status, Status::Ongoing);
         game.read_line("play black c7 d7")?;
         assert_eq!(game.status, Status::BlackWins);
+
+        Ok(())
+    }
+
+    #[test]
+    fn kings_captured_surround_2() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...O.......",
+            ".....XXX...",
+            "....X...XX.",
+            "..X..O....X",
+            "..X.......X",
+            ".X.O...O..X",
+            ".X..OK...X.",
+            "..X...O.X..",
+            "...XXX.X...",
+            "......X....",
+        ];
+
+        let mut game = game::Game {
+            board: board.try_into()?,
+            ..Default::default()
+        };
+
+        game.read_line("play black c7 d7")?;
+        assert_eq!(game.status, Status::Ongoing);
 
         Ok(())
     }
