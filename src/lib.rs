@@ -1,5 +1,3 @@
-#![allow(clippy::field_reassign_with_default)]
-
 pub mod board;
 pub mod color;
 pub mod game;
@@ -160,9 +158,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board.try_into()?;
-        game.turn = Color::White;
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
 
         // Play a junk move:
         let mut result = game.read_line("play white junk d1");
@@ -244,9 +244,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
+        let mut game = game::Game {
+            board: board_1.try_into()?,
+            ..Default::default()
+        };
 
-        game.board = board_1.try_into()?;
         game.read_line("play black d2 d4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
@@ -283,8 +285,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board_1.try_into()?;
+        let mut game = game::Game {
+            board: board_1.try_into()?,
+            ..Default::default()
+        };
+
         game.read_line("play black d2 d4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
@@ -321,8 +326,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board_1.try_into()?;
+        let mut game = game::Game {
+            board: board_1.try_into()?,
+            ..Default::default()
+        };
+
         game.read_line("play black b4 f4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
@@ -359,9 +367,12 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board_1.try_into()?;
-        game.turn = Color::White;
+        let mut game = game::Game {
+            board: board_1.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
         game.read_line("play white c6 c4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
@@ -398,9 +409,12 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board_1.try_into()?;
-        game.turn = Color::White;
+        let mut game = game::Game {
+            board: board_1.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
         game.read_line("play white b4 f4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
@@ -437,8 +451,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board_1.try_into()?;
+        let mut game = game::Game {
+            board: board_1.try_into()?,
+            ..Default::default()
+        };
+
         game.read_line("play black c9 c11")?;
         assert_eq!(game.board, board_2.try_into()?);
 
@@ -475,8 +492,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board_1.try_into()?;
+        let mut game = game::Game {
+            board: board_1.try_into()?,
+            ..Default::default()
+        };
+
         game.read_line("play black b4 f4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
@@ -513,8 +533,11 @@ mod tests {
             "...........",
         ];
 
-        let mut game = Game::default();
-        game.board = board_1.try_into()?;
+        let mut game = game::Game {
+            board: board_1.try_into()?,
+            ..Default::default()
+        };
+
         game.read_line("play black c3 c5")?;
         assert_eq!(game.board, board_2.try_into()?);
 
@@ -551,9 +574,12 @@ mod tests {
             "..O...O....",
         ];
 
-        let mut game_1 = Game::default();
-        game_1.board = board_1.try_into()?;
-        game_1.turn = Color::White;
+        let mut game_1 = game::Game {
+            board: board_1.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
         game_1.read_line("play white c3 c1")?;
         assert_eq!(game_1.board, board_2.try_into()?);
 
@@ -585,9 +611,12 @@ mod tests {
             "...........",
         ];
 
-        let mut game_2 = Game::default();
-        game_2.board = board_3.try_into()?;
-        game_2.turn = Color::White;
+        let mut game_2 = game::Game {
+            board: board_3.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
         game_2.read_line("play white c9 c11")?;
         assert_eq!(game_2.board, board_4.try_into()?);
 
@@ -624,11 +653,14 @@ mod tests {
             "...........",
         ];
 
-        let mut game_3 = Game::default();
-        game_3.board = board_1.try_into()?;
-        game_3.turn = Color::White;
-        game_3.read_line("play white c7 a7")?;
-        assert_eq!(game_3.board, board_2.try_into()?);
+        let mut game_1 = game::Game {
+            board: board_1.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        game_1.read_line("play white c7 a7")?;
+        assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
             "...........",
@@ -658,11 +690,14 @@ mod tests {
             "...........",
         ];
 
-        let mut game_4 = Game::default();
-        game_4.board = board_3.try_into()?;
-        game_4.turn = Color::White;
-        game_4.read_line("play white j7 l7")?;
-        assert_eq!(game_4.board, board_4.try_into()?);
+        let mut game_2 = game::Game {
+            board: board_3.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        game_2.read_line("play white j7 l7")?;
+        assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
     }
@@ -697,10 +732,13 @@ mod tests {
             ".......X.K.",
         ];
 
-        let mut game_5 = Game::default();
-        game_5.board = board_1.try_into()?;
-        game_5.read_line("play black f1 h1")?;
-        assert_eq!(game_5.board, board_2.try_into()?);
+        let mut game_1 = game::Game {
+            board: board_1.try_into()?,
+            ..Default::default()
+        };
+
+        game_1.read_line("play black f1 h1")?;
+        assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
             "...........",
@@ -730,10 +768,13 @@ mod tests {
             ".K.X.......",
         ];
 
-        game_5 = Game::default();
-        game_5.board = board_3.try_into()?;
-        game_5.read_line("play black f1 d1")?;
-        assert_eq!(game_5.board, board_4.try_into()?);
+        let mut game_2 = game::Game {
+            board: board_3.try_into()?,
+            ..Default::default()
+        };
+
+        game_2.read_line("play black f1 d1")?;
+        assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
     }
@@ -768,10 +809,13 @@ mod tests {
             "...........",
         ];
 
-        let mut game_6 = Game::default();
-        game_6.board = board_1.try_into()?;
-        game_6.read_line("play black f11 h11")?;
-        assert_eq!(game_6.board, board_2.try_into()?);
+        let mut game_1 = game::Game {
+            board: board_1.try_into()?,
+            ..Default::default()
+        };
+
+        game_1.read_line("play black f11 h11")?;
+        assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
             ".KO..X.....",
@@ -801,10 +845,13 @@ mod tests {
             "...........",
         ];
 
-        game_6 = Game::default();
-        game_6.board = board_3.try_into()?;
-        game_6.read_line("play black f11 d11")?;
-        assert_eq!(game_6.board, board_4.try_into()?);
+        let mut game_2 = game::Game {
+            board: board_3.try_into()?,
+            ..Default::default()
+        };
+
+        game_2.read_line("play black f11 d11")?;
+        assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
     }
@@ -839,13 +886,13 @@ mod tests {
             "...........",
         ];
 
-        let mut game_7 = game::Game {
+        let mut game_1 = game::Game {
             board: board_1.try_into()?,
             ..Default::default()
         };
 
-        game_7.read_line("play black a6 a4")?;
-        assert_eq!(game_7.board, board_2.try_into()?);
+        game_1.read_line("play black a6 a4")?;
+        assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
             "...........",
@@ -875,10 +922,13 @@ mod tests {
             "...........",
         ];
 
-        game_7 = Game::default();
-        game_7.board = board_3.try_into()?;
-        game_7.read_line("play black a6 a8")?;
-        assert_eq!(game_7.board, board_4.try_into()?);
+        let mut game_2 = game::Game {
+            board: board_3.try_into()?,
+            ..Default::default()
+        };
+
+        game_2.read_line("play black a6 a8")?;
+        assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
     }
@@ -913,13 +963,13 @@ mod tests {
             "...........",
         ];
 
-        let mut game_8 = game::Game {
+        let mut game_1 = game::Game {
             board: board_1.try_into()?,
             ..Default::default()
         };
 
-        game_8.read_line("play black l6 l4")?;
-        assert_eq!(game_8.board, board_2.try_into()?);
+        game_1.read_line("play black l6 l4")?;
+        assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
             "...........",
@@ -949,10 +999,13 @@ mod tests {
             "...........",
         ];
 
-        game_8 = Game::default();
-        game_8.board = board_3.try_into()?;
-        game_8.read_line("play black l6 l8")?;
-        assert_eq!(game_8.board, board_4.try_into()?);
+        let mut game_2 = game::Game {
+            board: board_3.try_into()?,
+            ..Default::default()
+        };
+
+        game_2.read_line("play black l6 l8")?;
+        assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
     }
