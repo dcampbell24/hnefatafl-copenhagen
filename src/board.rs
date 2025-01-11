@@ -554,7 +554,6 @@ impl Board {
         self.captures(&play.to, &color_from)?;
         self.captures_shield_wall(&color_from)?;
 
-        // Todo: Check for shield wall.
         // Todo: Check for a draw or black win.
 
         Ok(Status::Ongoing)
