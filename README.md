@@ -321,7 +321,7 @@ for white.
 
 #### Added Rule
 
-If a move would repeat a board position it is not allowed.
+If a move would repeat a board position, it is not allowed.
 
 ### 9. Automatic Loss
 
