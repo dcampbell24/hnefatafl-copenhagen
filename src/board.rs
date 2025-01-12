@@ -167,6 +167,62 @@ impl Board {
         Ok(false)
     }
 
+    /// The stack can overflow when this is run!
+    ///
+    /// # Errors
+    ///
+    /// If the vertex is out of bounds.
+    pub fn all_legal_moves(
+        &self,
+        status: &Status,
+        turn: &Color,
+        previous_boards: &mut PreviousBoards,
+    ) -> anyhow::Result<Vec<LegalMoves>> {
+        let mut legal_moves_all = Vec::new();
+        let mut possible_vertexes = Vec::new();
+
+        for y in 0..11 {
+            for x in 0..11 {
+                let vertex = Vertex { x, y };
+                if self.get(&vertex)?.color() == *turn {
+                    possible_vertexes.push(vertex);
+                }
+            }
+        }
+
+        for vertex_from in possible_vertexes {
+            let mut vertexes_to = Vec::new();
+
+            for y in 0..11 {
+                for x in 0..11 {
+                    let vertex_to = Vertex { x, y };
+                    let play = Play {
+                        color: turn.clone(),
+                        from: vertex_from.clone(),
+                        to: vertex_to.clone(),
+                    };
+
+                    let mut board = self.clone();
+                    if let Ok(_status) = board.play(&play, status, turn, previous_boards) {
+                        vertexes_to.push(vertex_to);
+                    }
+                }
+            }
+
+            if !vertexes_to.is_empty() {
+                let legal_moves = LegalMoves {
+                    color: turn.clone(),
+                    from: vertex_from,
+                    to: vertexes_to,
+                };
+
+                legal_moves_all.push(legal_moves);
+            }
+        }
+
+        Ok(legal_moves_all)
+    }
+
     fn captures(&mut self, play_to: &Vertex, color_from: &Color) -> anyhow::Result<()> {
         if let Some(up_1) = play_to.up() {
             let space = self.get(&up_1)?;
@@ -707,6 +763,17 @@ impl Board {
 
         // Todo: Test when there are no moves left to play (because you already played them)
         // or you only have a trapped king.
+        // Fixme: The stack overflows!
+        /*
+        let legal_move = self.all_legal_moves(&status, &turn, previous_boards)?;
+        if !legal_move.is_empty() {
+            if *turn == Color::White {
+                return Ok(Status::BlackWins);
+            } else {
+                return Ok(Status::WhiteWins);
+            }
+        }
+        */
 
         // Todo: Is a draw possible, how?
 
@@ -724,4 +791,11 @@ impl Board {
 
         Ok(())
     }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct LegalMoves {
+    pub color: Color,
+    pub from: Vertex,
+    pub to: Vec<Vertex>,
 }

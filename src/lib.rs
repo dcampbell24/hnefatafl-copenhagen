@@ -1596,7 +1596,6 @@ mod tests {
         Ok(())
     }
 
-    /*
     #[test]
     fn white_automatically_loses() -> anyhow::Result<()> {
         let board = [
@@ -1608,21 +1607,33 @@ mod tests {
             "...........",
             "...........",
             "...........",
-            "...........",
-            ".X.........",
-            ".KX...X....",
+            ".....X.....",
+            "....X.X....",
+            ".X..XKX....",
         ];
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            // turn: Color::White,
             ..Default::default()
         };
 
+        game.read_line("play black b1 b2")?;
         game.read_line("play white f1 f2")?;
-        assert_eq!(game.status, Status::WhiteWins);
+        game.read_line("play black b2 b1")?;
+        game.read_line("play white f2 f1")?;
+
+        let result = game.read_line("play black b1 b2");
+        assert!(result.is_err());
+        assert_error_str(result, "play: you already reached that position");
+
+        // println!("{:#?}", game.board.all_legal_moves(&game.status, &Color::White, &mut game.previous_boards));
+        assert!(game
+            .board
+            .all_legal_moves(&game.status, &Color::White, &mut game.previous_boards)?
+            .is_empty());
+        // assert_eq!(game.status, Status::BlackWins);
 
         Ok(())
     }
-    */
 }
