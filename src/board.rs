@@ -690,8 +690,6 @@ impl Board {
         self.set(&play.from, Space::Empty);
         self.set(&play.to, space_from);
 
-        // Todo: Test when there are no moves left to play (because you already played them)
-
         if EXIT_SQUARES.contains(&play.to) || self.exit_forts()? {
             return Ok(Status::WhiteWins);
         }
@@ -707,7 +705,10 @@ impl Board {
             return Ok(Status::WhiteWins);
         }
 
-        // Todo: Check for a draw.
+        // Todo: Test when there are no moves left to play (because you already played them)
+        // or you only have a trapped king.
+
+        // Todo: is a draw possible, how?
 
         Ok(Status::Ongoing)
     }
