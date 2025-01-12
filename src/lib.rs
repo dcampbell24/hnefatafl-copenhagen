@@ -1548,4 +1548,34 @@ mod tests {
 
         Ok(())
     }
+
+    // Nine
+
+    #[test]
+    fn black_automatically_loses() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            ".....K.....",
+            ".....X.....",
+            "...........",
+            ".....O.....",
+        ];
+
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        game.read_line("play white f1 f2")?;
+        assert_eq!(game.status, Status::WhiteWins);
+
+        Ok(())
+    }
 }

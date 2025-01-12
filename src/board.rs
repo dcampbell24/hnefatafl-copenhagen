@@ -582,6 +582,22 @@ impl Board {
 
     /// # Errors
     ///
+    /// If the play is out of bounds.
+    fn no_black_pieces_left(&self) -> anyhow::Result<bool> {
+        for y in 0..11 {
+            for x in 0..11 {
+                let v = Vertex { x, y };
+                if self.get(&v)?.color() == Color::Black {
+                    return Ok(false);
+                }
+            }
+        }
+
+        Ok(true)
+    }
+
+    /// # Errors
+    ///
     /// If the play is illegal.
     #[allow(
         clippy::cast_possible_truncation,
@@ -667,6 +683,10 @@ impl Board {
 
         self.captures(&play.to, &color_from)?;
         self.captures_shield_wall(&color_from)?;
+
+        if self.no_black_pieces_left()? {
+            return Ok(Status::WhiteWins);
+        }
 
         // Todo: Check for a draw.
 
