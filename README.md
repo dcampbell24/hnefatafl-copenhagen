@@ -319,13 +319,13 @@ for white.
 
 If a move would repeat a board position, it is not allowed.
 
-NOT IMPLEMENTED YET BELOW THIS LINE
-
----
-
 ### 9. Automatic Loss
 
 If a player cannot move, he loses the game.
+
+NOT IMPLEMENTED YET BELOW THIS LINE
+
+---
 
 ### 10. Draw (not possible?)
 

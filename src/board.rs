@@ -176,7 +176,7 @@ impl Board {
         &self,
         status: &Status,
         turn: &Color,
-        previous_boards: &mut PreviousBoards,
+        previous_boards: &PreviousBoards,
     ) -> anyhow::Result<Vec<LegalMoves>> {
         let mut legal_moves_all = Vec::new();
         let mut possible_vertexes = Vec::new();
@@ -203,7 +203,10 @@ impl Board {
                     };
 
                     let mut board = self.clone();
-                    if let Ok(_status) = board.play(&play, status, turn, previous_boards) {
+                    // Fixme: recurses here!
+                    if let Ok(_status) =
+                        board.play_internal(&play, status, turn, &mut previous_boards.clone())
+                    {
                         vertexes_to.push(vertex_to);
                     }
                 }
@@ -656,12 +659,35 @@ impl Board {
     /// # Errors
     ///
     /// If the play is illegal.
+    pub fn play(
+        &mut self,
+        play: &Play,
+        status: &Status,
+        turn: &Color,
+        previous_boards: &mut PreviousBoards,
+    ) -> anyhow::Result<Status> {
+        let result = self.play_internal(play, status, turn, previous_boards);
+        if let Ok(Status::Ongoing) = result {
+            let legal_move = self.all_legal_moves(status, &turn.opposite(), previous_boards)?;
+
+            if legal_move.is_empty() {
+                if turn.opposite() == Color::White {
+                    return Ok(Status::BlackWins);
+                }
+
+                return Ok(Status::WhiteWins);
+            }
+        }
+
+        result
+    }
+
     #[allow(
         clippy::cast_possible_truncation,
         clippy::cast_possible_wrap,
         clippy::cast_sign_loss
     )]
-    pub fn play(
+    fn play_internal(
         &mut self,
         play: &Play,
         status: &Status,
@@ -760,20 +786,6 @@ impl Board {
         if self.no_black_pieces_left()? {
             return Ok(Status::WhiteWins);
         }
-
-        // Todo: Test when there are no moves left to play (because you already played them)
-        // or you only have a trapped king.
-        // Fixme: The stack overflows!
-        /*
-        let legal_move = self.all_legal_moves(&status, &turn, previous_boards)?;
-        if !legal_move.is_empty() {
-            if *turn == Color::White {
-                return Ok(Status::BlackWins);
-            } else {
-                return Ok(Status::WhiteWins);
-            }
-        }
-        */
 
         // Todo: Is a draw possible, how?
 

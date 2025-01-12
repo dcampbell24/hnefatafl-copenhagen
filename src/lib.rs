@@ -1597,7 +1597,7 @@ mod tests {
     }
 
     #[test]
-    fn white_automatically_loses() -> anyhow::Result<()> {
+    fn white_automatically_loses_1() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1618,12 +1618,40 @@ mod tests {
         };
 
         game.read_line("play black b1 b2")?;
-        // println!("{:#?}", game.board.all_legal_moves(&game.status, &Color::White, &mut game.previous_boards));
-        assert!(game
-            .board
-            .all_legal_moves(&game.status, &Color::White, &mut game.previous_boards)?
-            .is_empty());
-        // assert_eq!(game.status, Status::BlackWins);
+
+        assert_eq!(game.status, Status::BlackWins);
+
+        Ok(())
+    }
+
+    #[test]
+    fn white_automatically_loses_2() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            ".....X.....",
+            "....X.X....",
+            ".X..XKX....",
+        ];
+
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        game.read_line("play white f1 f2")?;
+        game.read_line("play black b1 b2")?;
+        game.read_line("play white f2 f1")?;
+        game.read_line("play black b2 b1")?;
+
+        assert_eq!(game.status, Status::BlackWins);
 
         Ok(())
     }
