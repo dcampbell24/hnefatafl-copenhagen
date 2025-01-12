@@ -708,7 +708,7 @@ impl Board {
         // Todo: Test when there are no moves left to play (because you already played them)
         // or you only have a trapped king.
 
-        // Todo: is a draw possible, how?
+        // Todo: Is a draw possible, how?
 
         Ok(Status::Ongoing)
     }
