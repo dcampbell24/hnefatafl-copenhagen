@@ -4,6 +4,7 @@ use anyhow::Context;
 
 use crate::{
     color::Color,
+    game::PreviousBoards,
     play::{Play, Vertex},
     status::Status,
 };
@@ -41,7 +42,7 @@ const RESTRICTED_SQUARES: [Vertex; 5] = [
     THRONE,
 ];
 
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, Hash, PartialEq)]
 pub struct Board {
     spaces: [[Space; 11]; 11],
 }
@@ -604,7 +605,13 @@ impl Board {
         clippy::cast_possible_wrap,
         clippy::cast_sign_loss
     )]
-    pub fn play(&mut self, play: &Play, status: &Status, turn: &Color) -> anyhow::Result<Status> {
+    pub fn play(
+        &mut self,
+        play: &Play,
+        status: &Status,
+        turn: &Color,
+        previous_boards: &mut PreviousBoards,
+    ) -> anyhow::Result<Status> {
         if *status != Status::Ongoing {
             return Err(anyhow::Error::msg(
                 "play: the game has to be ongoing to play",
@@ -670,8 +677,20 @@ impl Board {
             ));
         }
 
+        let mut board = self.clone();
+        board.set(&play.from, Space::Empty);
+        board.set(&play.to, space_from);
+        if previous_boards.0.contains(&board) {
+            return Err(anyhow::Error::msg(
+                "play: you already reached that position",
+            ));
+        }
+
+        previous_boards.0.insert(board);
         self.set(&play.from, Space::Empty);
         self.set(&play.to, space_from);
+
+        // Todo: Test when there are no moves left to play (because you already played them)
 
         if EXIT_SQUARES.contains(&play.to) || self.exit_forts()? {
             return Ok(Status::WhiteWins);

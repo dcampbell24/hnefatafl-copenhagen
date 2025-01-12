@@ -310,10 +310,6 @@ unbroken ring, then they win, as they have prevented the king from escaping.
    ABCDEFGHJKL   ABCDEFGHJKL
 ```
 
-NOT IMPLEMENTED YET BELOW THIS LINE
-
----
-
 ### 8. Perpetual Repetitions
 
 Perpetual repetitions are forbidden. Any perpetual repetition results in a loss
@@ -323,11 +319,15 @@ for white.
 
 If a move would repeat a board position, it is not allowed.
 
+NOT IMPLEMENTED YET BELOW THIS LINE
+
+---
+
 ### 9. Automatic Loss
 
 If a player cannot move, he loses the game.
 
-### 10. Draw
+### 10. Draw (not possible?)
 
 If it is not possible to end the game, for example because both sides have too
 few pieces left, it is a draw.

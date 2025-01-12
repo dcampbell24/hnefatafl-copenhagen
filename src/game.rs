@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt, process::exit, time::Instant};
+use std::{borrow::Cow, collections::HashSet, fmt, process::exit, time::Instant};
 
 use crate::{
     board::Board,
@@ -13,11 +13,24 @@ use crate::{
 pub struct Game {
     pub board: Board,
     pub plays: Vec<Play>,
+    pub previous_boards: PreviousBoards,
     pub status: Status,
     pub timer: Option<Instant>,
     pub black_time: Option<Time>,
     pub white_time: Option<Time>,
     pub turn: Color,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct PreviousBoards(pub HashSet<Board>);
+
+impl Default for PreviousBoards {
+    fn default() -> Self {
+        let mut boards = HashSet::new();
+
+        boards.insert(Board::default());
+        Self(boards)
+    }
 }
 
 impl fmt::Display for Game {
@@ -147,7 +160,12 @@ impl Game {
                         )));
                     }
 
-                    self.status = self.board.play(&play, &self.status, &self.turn)?;
+                    self.status = self.board.play(
+                        &play,
+                        &self.status,
+                        &self.turn,
+                        &mut self.previous_boards,
+                    )?;
                     self.plays.push(play);
 
                     if self.status == Status::Ongoing {

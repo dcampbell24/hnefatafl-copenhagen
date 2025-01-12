@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::color::Color;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Space {
     Empty,
     Black,

@@ -1549,6 +1549,23 @@ mod tests {
         Ok(())
     }
 
+    // Eight
+
+    #[test]
+    fn can_not_repeat_moves() -> anyhow::Result<()> {
+        let mut game = Game::default();
+
+        game.read_line("play black f2 f3")?;
+        game.read_line("play white f4 g4")?;
+        game.read_line("play black f3 f2")?;
+
+        let result = game.read_line("play white g4 f4");
+        assert!(result.is_err());
+        assert_error_str(result, "play: you already reached that position");
+
+        Ok(())
+    }
+
     // Nine
 
     #[test]
