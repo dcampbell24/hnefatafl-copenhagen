@@ -5,6 +5,7 @@ use anyhow::Context;
 use crate::color::Color;
 
 pub const BOARD_LETTERS: &str = "abcdefghjkl";
+pub const BOARD_LETTERS_: &str = "abcdefghijk";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Play {
@@ -76,6 +77,29 @@ impl TryFrom<&str> for Vertex {
 }
 
 impl Vertex {
+    /// # Errors
+    ///
+    /// If you try to convert an illegal character.
+    pub fn try_from_(vertex: &str) -> anyhow::Result<Self> {
+        let vertex: Vec<_> = vertex.split_terminator('x').collect();
+        let mut chars = vertex[0].chars();
+
+        if let Some(mut ch) = chars.next() {
+            ch = ch.to_ascii_lowercase();
+            let x = BOARD_LETTERS_
+                .find(ch)
+                .context("play: the first letter is not a legal char")?;
+
+            let mut y = chars.as_str().parse()?;
+            if y < 12 {
+                y = 11 - y;
+                return Ok(Self { x, y });
+            }
+        }
+
+        Err(anyhow::Error::msg("play: invalid coordinate"))
+    }
+
     #[must_use]
     pub fn up(&self) -> Option<Vertex> {
         if self.y > 0 {

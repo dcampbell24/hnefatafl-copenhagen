@@ -19,3 +19,17 @@ impl fmt::Display for Status {
         }
     }
 }
+
+impl TryFrom<&str> for Status {
+    type Error = anyhow::Error;
+
+    fn try_from(value: &str) -> anyhow::Result<Self> {
+        match value {
+            "Black" => Ok(Self::BlackWins),
+            "Draw" => Ok(Self::Draw),
+            "Ongoing" => Ok(Self::Ongoing),
+            "White" => Ok(Self::WhiteWins),
+            _ => Err(anyhow::Error::msg("invalid status")),
+        }
+    }
+}
