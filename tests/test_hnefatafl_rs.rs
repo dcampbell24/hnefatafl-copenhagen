@@ -18,6 +18,7 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
 
     let results: Vec<_> = records
         .clone()
+        // .into_iter()
         .into_par_iter()
         .enumerate()
         .map(|(i, record)| {

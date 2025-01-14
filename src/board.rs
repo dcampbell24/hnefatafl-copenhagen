@@ -167,8 +167,53 @@ impl Board {
         Ok(false)
     }
 
-    /// The stack can overflow when this is run!
+    /// # Errors
     ///
+    /// If the vertex is out of bounds.
+    pub fn a_legal_move_exists(
+        &self,
+        status: &Status,
+        turn: &Color,
+        previous_boards: &PreviousBoards,
+    ) -> anyhow::Result<bool> {
+        let mut possible_vertexes = Vec::new();
+
+        for y in 0..11 {
+            for x in 0..11 {
+                let vertex = Vertex { x, y };
+                if self.get(&vertex)?.color() == *turn {
+                    possible_vertexes.push(vertex);
+                }
+            }
+        }
+
+        if possible_vertexes.is_empty() {
+            return Ok(false);
+        }
+
+        for vertex_from in possible_vertexes {
+            for y in 0..11 {
+                for x in 0..11 {
+                    let vertex_to = Vertex { x, y };
+                    let play = Play {
+                        color: turn.clone(),
+                        from: vertex_from.clone(),
+                        to: vertex_to,
+                    };
+
+                    let mut board = self.clone();
+                    if let Ok(_status) =
+                        board.play_internal(&play, status, turn, &mut previous_boards.clone())
+                    {
+                        return Ok(true);
+                    }
+                }
+            }
+        }
+
+        Ok(false)
+    }
+
     /// # Errors
     ///
     /// If the vertex is out of bounds.
@@ -203,7 +248,6 @@ impl Board {
                     };
 
                     let mut board = self.clone();
-                    // Fixme: recurses here!
                     if let Ok(_status) =
                         board.play_internal(&play, status, turn, &mut previous_boards.clone())
                     {
@@ -671,10 +715,9 @@ impl Board {
         previous_boards: &mut PreviousBoards,
     ) -> anyhow::Result<Status> {
         let result = self.play_internal(play, status, turn, previous_boards);
-        if let Ok(Status::Ongoing) = result {
-            let legal_move = self.all_legal_moves(status, &turn.opposite(), previous_boards)?;
 
-            if legal_move.is_empty() {
+        if let Ok(Status::Ongoing) = result {
+            if !self.a_legal_move_exists(status, &turn.opposite(), previous_boards)? {
                 if turn.opposite() == Color::White {
                     return Ok(Status::BlackWins);
                 }
