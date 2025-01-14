@@ -14,7 +14,7 @@ struct Record {
     status: String,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct GameRecord {
     pub plays: Vec<Play>,
     pub status: Status,
