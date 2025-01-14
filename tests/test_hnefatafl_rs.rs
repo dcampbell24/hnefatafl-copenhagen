@@ -16,6 +16,54 @@ struct Record {
     status: String,
 }
 
+#[derive(Debug)]
+struct GameRecord {
+    plays: Vec<Play>,
+    status: Status,
+}
+
+fn game_records_from_path(path: &Path) -> anyhow::Result<Vec<GameRecord>> {
+    let mut game_records = Vec::new();
+    let mut rdr = csv::ReaderBuilder::new()
+        .has_headers(false)
+        .from_path(path)?;
+
+    for result in rdr.deserialize() {
+        let record: Record = result?;
+        let mut color = Color::White;
+        let mut plays = Vec::new();
+
+        for play in record.moves.split_ascii_whitespace() {
+            color = color.opposite();
+
+            if play.contains('-') {
+                let vertexes: Vec<_> = play.split_terminator('-').collect();
+
+                if let (Ok(from), Ok(to)) = (
+                    Vertex::try_from_(vertexes[0]),
+                    Vertex::try_from_(vertexes[1]),
+                ) {
+                    let play = Play {
+                        color: color.clone(),
+                        from,
+                        to,
+                    };
+                    plays.push(play);
+                }
+            }
+        }
+
+        let game_record = GameRecord {
+            plays,
+            status: Status::try_from(record.status.as_str())?,
+        };
+
+        game_records.push(game_record);
+    }
+
+    Ok(game_records)
+}
+
 #[test]
 #[ignore = "it takes too long"]
 fn hnefatafl_rs() -> anyhow::Result<()> {
@@ -26,42 +74,15 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
         let mut errors = 0;
         let mut index = 0;
 
-        let mut rdr = csv::ReaderBuilder::new()
-            .has_headers(false)
-            .from_path(copenhagen_csv)?;
-
-        for result in rdr.deserialize() {
-            let record: Record = result?;
-            let mut color = Color::White;
-            let mut plays = Vec::new();
-
-            for play in record.moves.split_ascii_whitespace() {
-                color = color.opposite();
-
-                if play.contains('-') {
-                    let vertexes: Vec<_> = play.split_terminator('-').collect();
-
-                    if let (Ok(from), Ok(to)) = (
-                        Vertex::try_from_(vertexes[0]),
-                        Vertex::try_from_(vertexes[1]),
-                    ) {
-                        let play = Play {
-                            color: color.clone(),
-                            from,
-                            to,
-                        };
-                        plays.push(play);
-                    }
-                }
-            }
-
+        let records = game_records_from_path(copenhagen_csv)?;
+        for record in records {
             let mut game = Game::default();
             index += 1;
             if index >= 161 {
                 break;
             }
 
-            for play in plays {
+            for play in record.plays {
                 count += 1;
                 let message = Message::Play(play);
 
@@ -85,7 +106,7 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
             }
 
             if game.status != Status::Ongoing {
-                assert_eq!(game.status, Status::try_from(record.status.as_str())?);
+                assert_eq!(game.status, record.status);
             }
         }
 
