@@ -7,7 +7,7 @@ use hnefatafl_copenhagen::{
 #[test]
 #[ignore = "it takes too long"]
 fn hnefatafl_rs() -> anyhow::Result<()> {
-    let copenhagen_csv = Path::new("../hnefatafl-rs/resources/test/games/copenhagen.csv");
+    let copenhagen_csv = Path::new("tests/copenhagen.csv");
 
     let mut count = 0;
     let mut errors = 0;
