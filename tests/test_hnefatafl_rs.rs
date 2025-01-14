@@ -12,18 +12,16 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
     if exists(copenhagen_csv)? {
         let mut count = 0;
         let mut errors = 0;
-        let mut index = 0;
 
         let records = game_records_from_path(copenhagen_csv)?;
         for record in records {
             let mut game = Game::default();
-            index += 1;
-            if index >= 161 {
+            count += 1;
+            if count >= 161 {
                 break;
             }
 
             for play in record.plays {
-                count += 1;
                 let message = Message::Play(play);
 
                 match game.update(message) {
@@ -38,7 +36,7 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
                         }
 
                         println!("{game}");
-                        println!("{index}");
+                        println!("{count}");
                         return Err(error);
                     }
                     _ => {}
