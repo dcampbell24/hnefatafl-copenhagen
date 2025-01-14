@@ -312,7 +312,7 @@ impl Board {
                 let finish = start + count;
                 let vertex = Vertex { x: finish, y: 10 };
                 let color = self.get(&vertex)?.color();
-                if count > 0 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
+                if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for x_2 in start..finish {
                         self.set_if_not_king(&Vertex { x: x_2, y: 10 }, Space::Empty)?;
                     }
@@ -347,7 +347,7 @@ impl Board {
                 let finish = start + count;
                 let vertex = Vertex { x: finish, y: 0 };
                 let color = self.get(&vertex)?.color();
-                if count > 0 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
+                if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for x_2 in start..finish {
                         self.set_if_not_king(&Vertex { x: x_2, y: 0 }, Space::Empty)?;
                     }
@@ -382,7 +382,7 @@ impl Board {
                 let finish = start + count;
                 let vertex = Vertex { x: 0, y: finish };
                 let color = self.get(&vertex)?.color();
-                if count > 0 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
+                if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for y_2 in start..finish {
                         self.set_if_not_king(&Vertex { x: 0, y: y_2 }, Space::Empty)?;
                     }
@@ -417,7 +417,7 @@ impl Board {
                 let finish = start + count;
                 let vertex = Vertex { x: 10, y: finish };
                 let color = self.get(&vertex)?.color();
-                if count > 0 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
+                if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for y_2 in start..finish {
                         self.set_if_not_king(&Vertex { x: 10, y: y_2 }, Space::Empty)?;
                     }
