@@ -22,22 +22,18 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
     let copenhagen_csv = Path::new("../hnefatafl-rs/resources/test/games/copenhagen.csv");
 
     if exists(copenhagen_csv)? {
+        let mut count = 0;
+        let mut errors = 0;
+        let mut index = 0;
+
         let mut rdr = csv::ReaderBuilder::new()
             .has_headers(false)
             .from_path(copenhagen_csv)?;
 
-        let mut index = 0;
         for result in rdr.deserialize() {
             let record: Record = result?;
             let mut color = Color::White;
             let mut plays = Vec::new();
-
-            index += 1;
-
-            // Error: play: you already reached that position
-            if index == 77 || index == 124 || index == 146 || index >= 158 {
-                continue;
-            }
 
             for play in record.moves.split_ascii_whitespace() {
                 color = color.opposite();
@@ -60,12 +56,27 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
             }
 
             let mut game = Game::default();
+            index += 1;
+            if index >= 161 {
+                break;
+            }
+
             for play in plays {
+                count += 1;
                 let message = Message::Play(play);
 
                 match game.update(message) {
                     Ok(Some(captures)) => print!("{captures}"),
                     Err(error) => {
+                        if error.to_string()
+                            == anyhow::Error::msg("play: you already reached that position")
+                                .to_string()
+                        {
+                            errors += 1;
+                            break;
+                        }
+
+                        println!("{game}");
                         println!("{index}");
                         return Err(error);
                     }
@@ -77,6 +88,11 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
                 assert_eq!(game.status, Status::try_from(record.status.as_str())?);
             }
         }
+
+        println!(
+            "\"play: you already reached that position\": {:02}",
+            f64::from(errors) / f64::from(count)
+        );
     }
 
     Ok(())

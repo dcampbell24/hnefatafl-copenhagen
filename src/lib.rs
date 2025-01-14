@@ -1391,12 +1391,12 @@ mod tests {
     }
 
     #[test]
-    fn white_wins_escape_fort() -> anyhow::Result<()> {
+    fn white_wins_escape_fort_1() -> anyhow::Result<()> {
         let board = [
             "....O.O....",
             "....OKO....",
-            ".....O.....",
-            ".....X.....",
+            "....OO.....",
+            "....XX.....",
             "...........",
             "...........",
             "...........",
@@ -1423,8 +1423,8 @@ mod tests {
             "...........",
             "...........",
             "...........",
-            ".....X.....",
-            ".....O.....",
+            "....XX.....",
+            "....OO.....",
             "....OKO....",
             "....O.O....",
         ];
@@ -1442,7 +1442,7 @@ mod tests {
             "...........",
             "...........",
             "...........",
-            "OO.........",
+            "OOOX.......",
             ".KOX.......",
             "OO.........",
             "...........",
@@ -1464,8 +1464,61 @@ mod tests {
             "...........",
             "...........",
             "...........",
-            ".........OO",
+            ".......XOOO",
             ".......XOK.",
+            ".........OO",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        game.read_line("play white k6 l6")?;
+        assert_eq!(game.status, Status::WhiteWins);
+
+        Ok(())
+    }
+
+    #[test]
+    fn white_wins_escape_fort_2() -> anyhow::Result<()> {
+        /*
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "........XOO",
+            "........OK.",
+            ".......X.OO",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        game.read_line("play white k6 l6")?;
+        assert_eq!(game.status, Status::Ongoing);
+        */
+
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "........XOO",
+            "........OK.",
             ".........OO",
             "...........",
             "...........",
