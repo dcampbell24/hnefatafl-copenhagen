@@ -619,6 +619,10 @@ impl Board {
                     }
                 } else if space.color() == Color::Black {
                     return Ok(false);
+                } else {
+                    // Todo:
+                    // for up or down check that left or right is White
+                    // for right or left check up or down is White
                 }
             }
         }
