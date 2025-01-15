@@ -6,13 +6,12 @@ use hnefatafl_copenhagen::{
 use rayon::iter::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
 
 #[test]
-#[ignore = "it takes too long"]
 #[allow(clippy::cast_precision_loss)]
 fn hnefatafl_rs() -> anyhow::Result<()> {
     let copenhagen_csv = Path::new("tests/copenhagen.csv");
 
     let mut count = 0;
-    let mut errors = 0;
+    let mut errors_already = 0;
 
     let records = game_records_from_path(copenhagen_csv)?;
 
@@ -36,6 +35,7 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
         })
         .collect();
 
+    let mut errors = Vec::new();
     for result in results {
         match result {
             Ok((i, game)) => {
@@ -50,11 +50,9 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
                 if error.to_string()
                     == anyhow::Error::msg("play: you already reached that position").to_string()
                 {
-                    errors += 1;
+                    errors_already += 1;
                 } else {
-                    println!("{}", i + 1);
-                    println!("{game}");
-                    return Err(error);
+                    errors.push((i, game, error));
                 }
 
                 if i > count {
@@ -64,9 +62,15 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
         }
     }
 
+    for (i, game, error) in errors.into_iter().take(5) {
+        println!("{i}");
+        println!("{game}");
+        println!("{error}");
+    }
+
     println!(
         "\"play: you already reached that position\": {:.4}",
-        f64::from(errors) / count as f64
+        f64::from(errors_already) / count as f64
     );
 
     Ok(())
