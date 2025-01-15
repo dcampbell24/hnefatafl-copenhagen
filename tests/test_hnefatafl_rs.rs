@@ -62,11 +62,13 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
         }
     }
 
-    for (i, game, error) in errors.into_iter().take(5) {
+    for (i, game, error) in errors.iter().take(5) {
         println!("{i}");
         println!("{game}");
         println!("{error}");
     }
+
+    println!("errors: {:.4}", errors.len() as f64 / count as f64);
 
     println!(
         "\"play: you already reached that position\": {:.4}",
