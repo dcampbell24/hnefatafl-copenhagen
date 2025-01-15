@@ -53,6 +53,18 @@ impl fmt::Display for Vertex {
     }
 }
 
+pub struct Captures(pub Vec<Vertex>);
+
+impl fmt::Display for Captures {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for vertex in &self.0 {
+            write!(f, "{vertex} ")?;
+        }
+
+        Ok(())
+    }
+}
+
 impl TryFrom<&str> for Vertex {
     type Error = anyhow::Error;
 

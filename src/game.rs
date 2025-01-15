@@ -4,7 +4,7 @@ use crate::{
     board::Board,
     color::Color,
     message::{Message, COMMANDS},
-    play::{Play, BOARD_LETTERS},
+    play::{Captures, Play, BOARD_LETTERS},
     status::Status,
     time::Time,
 };
@@ -160,19 +160,21 @@ impl Game {
                         )));
                     }
 
-                    self.status = self.board.play(
+                    let (captures, status) = self.board.play(
                         &play,
                         &self.status,
                         &self.turn,
                         &mut self.previous_boards,
                     )?;
+                    self.status = status;
                     self.plays.push(play);
 
                     if self.status == Status::Ongoing {
                         self.turn = self.turn.opposite();
                     }
 
-                    Ok(Some(String::new()))
+                    let captures = Captures(captures);
+                    Ok(Some(format!("{captures}")))
                 } else {
                     Err(anyhow::Error::msg("play: the game is already over"))
                 }

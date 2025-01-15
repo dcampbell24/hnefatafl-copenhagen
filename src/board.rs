@@ -270,7 +270,13 @@ impl Board {
         Ok(legal_moves_all)
     }
 
-    fn captures(&mut self, play_to: &Vertex, color_from: &Color) -> anyhow::Result<()> {
+    #[allow(clippy::collapsible_if)]
+    fn captures(
+        &mut self,
+        play_to: &Vertex,
+        color_from: &Color,
+        captures: &mut Vec<Vertex>,
+    ) -> anyhow::Result<()> {
         if let Some(up_1) = play_to.up() {
             let space = self.get(&up_1)?;
             if space != Space::King && space.color() == color_from.opposite() {
@@ -278,7 +284,9 @@ impl Board {
                     if (RESTRICTED_SQUARES.contains(&up_2) && self.get(&up_2)? != Space::King)
                         || self.get(&up_2)?.color() == *color_from
                     {
-                        self.set_if_not_king(&up_1, Space::Empty)?;
+                        if self.set_if_not_king(&up_1, Space::Empty)? {
+                            captures.push(up_1);
+                        }
                     }
                 }
             }
@@ -291,7 +299,9 @@ impl Board {
                     if (RESTRICTED_SQUARES.contains(&left_2) && self.get(&left_2)? != Space::King)
                         || self.get(&left_2)?.color() == *color_from
                     {
-                        self.set_if_not_king(&left_1, Space::Empty)?;
+                        if self.set_if_not_king(&left_1, Space::Empty)? {
+                            captures.push(left_1);
+                        }
                     }
                 }
             }
@@ -304,7 +314,9 @@ impl Board {
                     if (RESTRICTED_SQUARES.contains(&down_2) && self.get(&down_2)? != Space::King)
                         || self.get(&down_2)?.color() == *color_from
                     {
-                        self.set_if_not_king(&down_1, Space::Empty)?;
+                        if self.set_if_not_king(&down_1, Space::Empty)? {
+                            captures.push(down_1);
+                        }
                     }
                 }
             }
@@ -317,7 +329,9 @@ impl Board {
                     if (RESTRICTED_SQUARES.contains(&right_2) && self.get(&right_2)? != Space::King)
                         || self.get(&right_2)?.color() == *color_from
                     {
-                        self.set_if_not_king(&right_1, Space::Empty)?;
+                        if self.set_if_not_king(&right_1, Space::Empty)? {
+                            captures.push(right_1);
+                        }
                     }
                 }
             }
@@ -328,7 +342,11 @@ impl Board {
 
     // y counts up going down.
     #[allow(clippy::too_many_lines)]
-    fn captures_shield_wall(&mut self, color_from: &Color) -> anyhow::Result<()> {
+    fn captures_shield_wall(
+        &mut self,
+        color_from: &Color,
+        captures: &mut Vec<Vertex>,
+    ) -> anyhow::Result<()> {
         // bottom row
         for x_1 in 0..11 {
             let vertex_1 = Vertex { x: x_1, y: 10 };
@@ -358,7 +376,10 @@ impl Board {
                 let color = self.get(&vertex)?.color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for x_2 in start..finish {
-                        self.set_if_not_king(&Vertex { x: x_2, y: 10 }, Space::Empty)?;
+                        let vertex = Vertex { x: x_2, y: 10 };
+                        if self.set_if_not_king(&vertex, Space::Empty)? {
+                            captures.push(vertex);
+                        }
                     }
                 }
             }
@@ -393,7 +414,10 @@ impl Board {
                 let color = self.get(&vertex)?.color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for x_2 in start..finish {
-                        self.set_if_not_king(&Vertex { x: x_2, y: 0 }, Space::Empty)?;
+                        let vertex = Vertex { x: x_2, y: 0 };
+                        if self.set_if_not_king(&vertex, Space::Empty)? {
+                            captures.push(vertex);
+                        }
                     }
                 }
             }
@@ -428,7 +452,10 @@ impl Board {
                 let color = self.get(&vertex)?.color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for y_2 in start..finish {
-                        self.set_if_not_king(&Vertex { x: 0, y: y_2 }, Space::Empty)?;
+                        let vertex = Vertex { x: 0, y: y_2 };
+                        if self.set_if_not_king(&vertex, Space::Empty)? {
+                            captures.push(vertex);
+                        }
                     }
                 }
             }
@@ -463,7 +490,10 @@ impl Board {
                 let color = self.get(&vertex)?.color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     for y_2 in start..finish {
-                        self.set_if_not_king(&Vertex { x: 10, y: y_2 }, Space::Empty)?;
+                        let vertex = Vertex { x: 10, y: y_2 };
+                        if self.set_if_not_king(&vertex, Space::Empty)? {
+                            captures.push(vertex);
+                        }
                     }
                 }
             }
@@ -488,7 +518,7 @@ impl Board {
         Ok(None)
     }
 
-    fn capture_the_king(&self) -> anyhow::Result<bool> {
+    fn capture_the_king(&self, captures: &mut Vec<Vertex>) -> anyhow::Result<bool> {
         if let Some(kings_vertex) = self.find_the_king()? {
             if let Some(vertex) = kings_vertex.up() {
                 if vertex != THRONE && self.get(&vertex)? != Space::Black {
@@ -522,6 +552,7 @@ impl Board {
                 return Ok(false);
             }
 
+            captures.push(kings_vertex);
             Ok(true)
         } else {
             Ok(false)
@@ -755,26 +786,28 @@ impl Board {
     /// # Errors
     ///
     /// If the play is illegal.
+    #[allow(clippy::if_not_else)]
     pub fn play(
         &mut self,
         play: &Play,
         status: &Status,
         turn: &Color,
         previous_boards: &mut PreviousBoards,
-    ) -> anyhow::Result<Status> {
-        let result = self.play_internal(play, status, turn, previous_boards);
+    ) -> anyhow::Result<(Vec<Vertex>, Status)> {
+        match self.play_internal(play, status, turn, previous_boards) {
+            Ok((captures, Status::Ongoing)) => {
+                if !self.a_legal_move_exists(status, &turn.opposite(), previous_boards)? {
+                    if turn.opposite() == Color::White {
+                        return Ok((captures, Status::BlackWins));
+                    }
 
-        if let Ok(Status::Ongoing) = result {
-            if !self.a_legal_move_exists(status, &turn.opposite(), previous_boards)? {
-                if turn.opposite() == Color::White {
-                    return Ok(Status::BlackWins);
+                    Ok((captures, Status::WhiteWins))
+                } else {
+                    Ok((captures, Status::Ongoing))
                 }
-
-                return Ok(Status::WhiteWins);
             }
+            result => result,
         }
-
-        result
     }
 
     #[allow(
@@ -788,7 +821,7 @@ impl Board {
         status: &Status,
         turn: &Color,
         previous_boards: &mut PreviousBoards,
-    ) -> anyhow::Result<Status> {
+    ) -> anyhow::Result<(Vec<Vertex>, Status)> {
         if *status != Status::Ongoing {
             return Err(anyhow::Error::msg(
                 "play: the game has to be ongoing to play",
@@ -867,36 +900,39 @@ impl Board {
         self.set(&play.from, Space::Empty);
         self.set(&play.to, space_from);
 
+        let mut captures = Vec::new();
+
         if EXIT_SQUARES.contains(&play.to) || self.exit_forts()? {
-            return Ok(Status::WhiteWins);
+            return Ok((captures, Status::WhiteWins));
         }
 
-        if self.capture_the_king()? || self.flood_fill_black_wins()? {
-            return Ok(Status::BlackWins);
+        if self.capture_the_king(&mut captures)? || self.flood_fill_black_wins()? {
+            return Ok((captures, Status::BlackWins));
         }
 
-        self.captures(&play.to, &color_from)?;
-        self.captures_shield_wall(&color_from)?;
+        self.captures(&play.to, &color_from, &mut captures)?;
+        self.captures_shield_wall(&color_from, &mut captures)?;
 
         if self.no_black_pieces_left()? {
-            return Ok(Status::WhiteWins);
+            return Ok((captures, Status::WhiteWins));
         }
 
         // Todo: Is a draw possible, how?
 
-        Ok(Status::Ongoing)
+        Ok((captures, Status::Ongoing))
     }
 
     fn set(&mut self, vertex: &Vertex, space: Space) {
         self.spaces[vertex.y][vertex.x] = space;
     }
 
-    fn set_if_not_king(&mut self, vertex: &Vertex, space: Space) -> anyhow::Result<()> {
-        if self.get(vertex)? != Space::King {
+    fn set_if_not_king(&mut self, vertex: &Vertex, space: Space) -> anyhow::Result<bool> {
+        if self.get(vertex)? == Space::King {
+            Ok(false)
+        } else {
             self.set(vertex, space);
+            Ok(true)
         }
-
-        Ok(())
     }
 }
 
