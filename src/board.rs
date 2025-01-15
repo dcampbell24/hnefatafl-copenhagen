@@ -617,56 +617,104 @@ impl Board {
     ///
     /// If the vertex is out of bounds.
     pub fn flood_fill_white_wins(&self, vertex: &Vertex) -> anyhow::Result<bool> {
+        let mut black_has_enough_pieces = false;
+        let mut count = 0;
+        'outer: for y in 0..11 {
+            for x in 0..11 {
+                let vertex = Vertex { x, y };
+                if self.get(&vertex)?.color() == Color::Black {
+                    count += 1;
+                }
+
+                if count > 1 {
+                    black_has_enough_pieces = true;
+                    break 'outer;
+                }
+            }
+        }
+
         let mut already_checked = HashSet::new();
         let mut stack = Vec::new();
 
         if let Some(vertex) = vertex.up() {
-            stack.push(vertex);
+            stack.push((vertex, Direction::LeftRight));
         }
         if let Some(vertex) = vertex.left() {
-            stack.push(vertex);
+            stack.push((vertex, Direction::UpDown));
         }
         if let Some(vertex) = vertex.down() {
-            stack.push(vertex);
+            stack.push((vertex, Direction::LeftRight));
         }
         if let Some(vertex) = vertex.right() {
-            stack.push(vertex);
+            stack.push((vertex, Direction::UpDown));
         }
 
         while !stack.is_empty() {
-            if let Some(vertex) = stack.pop() {
+            if let Some((vertex, direction)) = stack.pop() {
                 let space = self.get(&vertex)?;
                 if space == Space::Empty {
                     if let Some(vertex) = vertex.up() {
                         if !already_checked.contains(&vertex) {
-                            stack.push(vertex.clone());
+                            stack.push((vertex.clone(), Direction::LeftRight));
                             already_checked.insert(vertex);
                         }
                     }
                     if let Some(vertex) = vertex.left() {
                         if !already_checked.contains(&vertex) {
-                            stack.push(vertex.clone());
+                            stack.push((vertex.clone(), Direction::UpDown));
                             already_checked.insert(vertex);
                         }
                     }
                     if let Some(vertex) = vertex.down() {
                         if !already_checked.contains(&vertex) {
-                            stack.push(vertex.clone());
+                            stack.push((vertex.clone(), Direction::LeftRight));
                             already_checked.insert(vertex);
                         }
                     }
                     if let Some(vertex) = vertex.right() {
                         if !already_checked.contains(&vertex) {
-                            stack.push(vertex.clone());
+                            stack.push((vertex.clone(), Direction::UpDown));
                             already_checked.insert(vertex);
                         }
                     }
                 } else if space.color() == Color::Black {
                     return Ok(false);
+                } else if direction == Direction::UpDown {
+                    let mut vertex_1 = false;
+                    let mut vertex_2 = false;
+
+                    if let Some(vertex) = vertex.up() {
+                        if self.get(&vertex)?.color() == Color::White {
+                            vertex_1 = true;
+                        }
+                    }
+                    if let Some(vertex) = vertex.down() {
+                        if self.get(&vertex)?.color() == Color::White {
+                            vertex_2 = true;
+                        }
+                    }
+
+                    if !vertex_1 && !vertex_2 && black_has_enough_pieces {
+                        return Ok(false);
+                    }
                 } else {
-                    // Todo:
-                    // for up or down check that left or right is White
-                    // for right or left check up or down is White
+                    let mut vertex_1 = false;
+                    let mut vertex_2 = false;
+
+                    if let Some(vertex) = vertex.right() {
+                        if self.get(&vertex)?.color() == Color::White {
+                            vertex_1 = true;
+                        }
+                    }
+                    if let Some(vertex) = vertex.left() {
+                        if self.get(&vertex)?.color() == Color::White {
+                            vertex_2 = true;
+                        }
+                    }
+
+                    if !vertex_1 && !vertex_2 && black_has_enough_pieces {
+                        return Ok(false);
+                    }
                 }
             }
         }
@@ -850,6 +898,12 @@ impl Board {
 
         Ok(())
     }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+enum Direction {
+    LeftRight,
+    UpDown,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

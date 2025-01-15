@@ -64,7 +64,7 @@ mod tests {
             "...........",
             "...........",
             "...........",
-            ".....O.....",
+            "....OO.....",
             "....O......",
             "....O.O....",
             "....OKO....",
@@ -1488,7 +1488,6 @@ mod tests {
 
     #[test]
     fn white_wins_escape_fort_2() -> anyhow::Result<()> {
-        /* Todo:
         let board = [
             "...........",
             "...........",
@@ -1511,7 +1510,6 @@ mod tests {
 
         game.read_line("play white k6 l6")?;
         assert_eq!(game.status, Status::Ongoing);
-        */
 
         let board = [
             "...........",
