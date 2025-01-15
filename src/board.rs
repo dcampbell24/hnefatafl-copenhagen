@@ -786,7 +786,6 @@ impl Board {
     /// # Errors
     ///
     /// If the play is illegal.
-    #[allow(clippy::if_not_else)]
     pub fn play(
         &mut self,
         play: &Play,
@@ -796,14 +795,14 @@ impl Board {
     ) -> anyhow::Result<(Vec<Vertex>, Status)> {
         match self.play_internal(play, status, turn, previous_boards) {
             Ok((captures, Status::Ongoing)) => {
-                if !self.a_legal_move_exists(status, &turn.opposite(), previous_boards)? {
+                if self.a_legal_move_exists(status, &turn.opposite(), previous_boards)? {
+                    Ok((captures, Status::Ongoing))
+                } else {
                     if turn.opposite() == Color::White {
                         return Ok((captures, Status::BlackWins));
                     }
 
                     Ok((captures, Status::WhiteWins))
-                } else {
-                    Ok((captures, Status::Ongoing))
                 }
             }
             result => result,
