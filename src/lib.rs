@@ -1784,4 +1784,13 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn someone_wins() {
+        let mut game = Game::default();
+
+        while game.generate_move().is_ok() {}
+
+        println!("{game}");
+    }
 }

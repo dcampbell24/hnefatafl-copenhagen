@@ -62,7 +62,10 @@ impl fmt::Display for Game {
 }
 
 impl Game {
-    fn generate_move(&mut self) -> anyhow::Result<Option<String>> {
+    /// # Errors
+    ///
+    /// If you are unable to generate a move.
+    pub fn generate_move(&mut self) -> anyhow::Result<Option<String>> {
         for letter_from in BOARD_LETTERS.chars() {
             for i_from in 1..12 {
                 let mut vertex_from = letter_from.to_string();
