@@ -202,9 +202,8 @@ impl Board {
                         to: vertex_to,
                     };
 
-                    let mut board = self.clone();
-                    if let Ok(_status) =
-                        board.play_internal(&play, status, turn, &mut previous_boards.clone())
+                    if let Ok(_board_captures_status) =
+                        self.play_internal(&play, status, turn, previous_boards)
                     {
                         return Ok(true);
                     }
@@ -248,9 +247,8 @@ impl Board {
                         to: vertex_to.clone(),
                     };
 
-                    let mut board = self.clone();
-                    if let Ok(_status) =
-                        board.play_internal(&play, status, turn, &mut previous_boards.clone())
+                    if let Ok(_board_captures_status) =
+                        self.play_internal(&play, status, turn, previous_boards)
                     {
                         vertexes_to.push(vertex_to);
                     }
@@ -795,18 +793,25 @@ impl Board {
         previous_boards: &mut PreviousBoards,
     ) -> anyhow::Result<(Vec<Vertex>, Status)> {
         match self.play_internal(play, status, turn, previous_boards) {
-            Ok((captures, Status::Ongoing)) => {
-                if self.a_legal_move_exists(status, &turn.opposite(), previous_boards)? {
-                    Ok((captures, Status::Ongoing))
-                } else {
-                    if turn.opposite() == Color::White {
-                        return Ok((captures, Status::BlackWins));
-                    }
+            Ok((board, captures, status)) => {
+                previous_boards.0.insert(board.clone());
+                *self = board;
 
-                    Ok((captures, Status::WhiteWins))
+                let mut new_status = status.clone();
+                if status == Status::Ongoing
+                    && !self.a_legal_move_exists(&status, &turn.opposite(), previous_boards)?
+                {
+                    if turn.opposite() == Color::White {
+                        new_status = Status::BlackWins;
+                    } else {
+                        new_status = Status::WhiteWins;
+                    }
                 }
+
+                Ok((captures, new_status))
             }
-            result => result,
+
+            Err(error) => Err(error),
         }
     }
 
@@ -816,12 +821,12 @@ impl Board {
         clippy::cast_sign_loss
     )]
     fn play_internal(
-        &mut self,
+        &self,
         play: &Play,
         status: &Status,
         turn: &Color,
-        previous_boards: &mut PreviousBoards,
-    ) -> anyhow::Result<(Vec<Vertex>, Status)> {
+        previous_boards: &PreviousBoards,
+    ) -> anyhow::Result<(Board, Vec<Vertex>, Status)> {
         if *status != Status::Ongoing {
             return Err(anyhow::Error::msg(
                 "play: the game has to be ongoing to play",
@@ -890,36 +895,33 @@ impl Board {
         let mut board = self.clone();
         board.set(&play.from, Space::Empty);
         board.set(&play.to, space_from);
+
         if previous_boards.0.contains(&board) {
             return Err(anyhow::Error::msg(
                 "play: you already reached that position",
             ));
         }
 
-        previous_boards.0.insert(board);
-        self.set(&play.from, Space::Empty);
-        self.set(&play.to, space_from);
-
         let mut captures = Vec::new();
 
-        if EXIT_SQUARES.contains(&play.to) || self.exit_forts()? {
-            return Ok((captures, Status::WhiteWins));
+        if EXIT_SQUARES.contains(&play.to) || board.exit_forts()? {
+            return Ok((board, captures, Status::WhiteWins));
         }
 
-        if self.capture_the_king(&mut captures)? || self.flood_fill_black_wins()? {
-            return Ok((captures, Status::BlackWins));
+        if board.capture_the_king(&mut captures)? || board.flood_fill_black_wins()? {
+            return Ok((board, captures, Status::BlackWins));
         }
 
-        self.captures(&play.to, &color_from, &mut captures)?;
-        self.captures_shield_wall(&color_from, &mut captures)?;
+        board.captures(&play.to, &color_from, &mut captures)?;
+        board.captures_shield_wall(&color_from, &mut captures)?;
 
-        if self.no_black_pieces_left()? {
-            return Ok((captures, Status::WhiteWins));
+        if board.no_black_pieces_left()? {
+            return Ok((board, captures, Status::WhiteWins));
         }
 
         // Todo: Is a draw possible, how?
 
-        Ok((captures, Status::Ongoing))
+        Ok((board, captures, Status::Ongoing))
     }
 
     fn set(&mut self, vertex: &Vertex, space: Space) {
