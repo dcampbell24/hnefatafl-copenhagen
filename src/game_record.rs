@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{fmt, path::Path};
 
 use crate::{
     color::Color,
@@ -14,9 +14,22 @@ struct Record {
     status: String,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Captures(pub Vec<Vertex>);
+
+impl fmt::Display for Captures {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for vertex in &self.0 {
+            write!(f, "{vertex} ")?;
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct GameRecord {
-    pub plays: Vec<Play>,
+    pub plays: Vec<(Play, Option<Captures>)>,
     pub status: Status,
 }
 
@@ -38,18 +51,33 @@ pub fn game_records_from_path(path: &Path) -> anyhow::Result<Vec<GameRecord>> {
             color = color.opposite();
 
             if play.contains('-') {
-                let vertexes: Vec<_> = play.split_terminator('-').collect();
+                let vertexes: Vec<_> = play.split('-').collect();
+                let vertex_1_captures: Vec<_> = vertexes[1].split('x').collect();
 
                 if let (Ok(from), Ok(to)) = (
                     Vertex::try_from_(vertexes[0]),
-                    Vertex::try_from_(vertexes[1]),
+                    Vertex::try_from_(vertex_1_captures[0]),
                 ) {
                     let play = Play {
                         color: color.clone(),
                         from,
                         to,
                     };
-                    plays.push(play);
+
+                    if vertex_1_captures.get(1).is_some() {
+                        let mut captures = Vec::new();
+                        for capture in vertex_1_captures.into_iter().skip(1) {
+                            let vertex = Vertex::try_from_(capture)?;
+                            if !captures.contains(&vertex) {
+                                captures.push(vertex);
+                            }
+                        }
+
+                        captures.sort();
+                        plays.push((play, Some(Captures(captures))));
+                    } else {
+                        plays.push((play, None));
+                    }
                 }
             }
         }

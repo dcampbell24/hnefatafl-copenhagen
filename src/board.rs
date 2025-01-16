@@ -504,7 +504,7 @@ impl Board {
     /// # Errors
     ///
     /// If the vertex is out of bounds.
-    fn find_the_king(&self) -> anyhow::Result<Option<Vertex>> {
+    pub fn find_the_king(&self) -> anyhow::Result<Option<Vertex>> {
         for y in 0..11 {
             for x in 0..11 {
                 let v = Vertex { x, y };
@@ -908,12 +908,12 @@ impl Board {
             return Ok((board, captures, Status::WhiteWins));
         }
 
+        board.captures(&play.to, &color_from, &mut captures)?;
+        board.captures_shield_wall(&color_from, &mut captures)?;
+
         if board.capture_the_king(&mut captures)? || board.flood_fill_black_wins()? {
             return Ok((board, captures, Status::BlackWins));
         }
-
-        board.captures(&play.to, &color_from, &mut captures)?;
-        board.captures_shield_wall(&color_from, &mut captures)?;
 
         if board.no_black_pieces_left()? {
             return Ok((board, captures, Status::WhiteWins));
