@@ -903,13 +903,12 @@ impl Board {
         }
 
         let mut captures = Vec::new();
+        board.captures(&play.to, &color_from, &mut captures)?;
+        board.captures_shield_wall(&color_from, &mut captures)?;
 
         if EXIT_SQUARES.contains(&play.to) || board.exit_forts()? {
             return Ok((board, captures, Status::WhiteWins));
         }
-
-        board.captures(&play.to, &color_from, &mut captures)?;
-        board.captures_shield_wall(&color_from, &mut captures)?;
 
         if board.capture_the_king(&mut captures)? || board.flood_fill_black_wins()? {
             return Ok((board, captures, Status::BlackWins));
