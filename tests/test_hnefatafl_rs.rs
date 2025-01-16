@@ -10,7 +10,6 @@ use hnefatafl_copenhagen::{
 use rayon::iter::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
 
 #[test]
-#[ignore]
 #[allow(clippy::cast_precision_loss)]
 fn hnefatafl_rs() -> anyhow::Result<()> {
     let copenhagen_csv = Path::new("tests/copenhagen.csv");
@@ -22,17 +21,18 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
 
     let results: Vec<_> = records
         .clone()
-        .into_iter()
-        // .into_par_iter()
+        // .into_iter()
+        .into_par_iter()
         .enumerate()
         .map(|(i, record)| {
-            // println!("{record:#?}");
             let mut game = Game::default();
 
             for (play, captures_1) in record.plays {
+                /*
                 if let Some(captures) = captures_1.as_ref() {
-                    //println!("{captures}");
+                    println!("{captures}");
                 }
+                */
 
                 let mut captures_2_set = HashSet::new();
                 let mut captures_2 = Vec::new();
@@ -54,7 +54,7 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
                         let captures_2 = Captures(captures_2);
 
                         if let Some(captures_1) = captures_1 {
-                            if i != 338 {
+                            if i != 1005 {
                                 if captures_1 != captures_2 {
                                     println!("count: {i}");
                                     println!("{}", game.board);
@@ -63,10 +63,13 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
                                 }
                                 assert_eq!(captures_1, captures_2);
                             }
+                        } else if !captures_2.0.is_empty() {
+                            return Err(anyhow::Error::msg(
+                                "The engine reports captures, but the record says there are none.",
+                            ));
                         }
                     }
                     Ok(None) => {}
-                    // Err(error) => return Err((i, game, error)),
                     Err(error) => {
                         return Err(error);
                     }
@@ -82,7 +85,6 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
         match result {
             Ok((i, game)) => {
                 if game.status != Status::Ongoing {
-                    // let message = messages[i]
                     assert_eq!(game.status, records[i].status);
                 }
                 if i > count {
@@ -97,19 +99,11 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
                 } else {
                     errors.push(error);
                 }
-
-                /*
-                if i > count {
-                    count = i;
-                }
-                */
             }
         }
     }
 
-    for (/*i, game,*/ error) in errors.iter().take(5) {
-        // println!("{i}");
-        // println!("{game}");
+    for error in &errors {
         println!("{error}");
     }
 
