@@ -1,4 +1,6 @@
-use std::{borrow::Cow, collections::HashSet, fmt, process::exit, time::Instant};
+use std::{borrow::Cow, fmt, process::exit, time::Instant};
+
+use rustc_hash::FxHashSet;
 
 use crate::{
     board::Board,
@@ -22,11 +24,11 @@ pub struct Game {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct PreviousBoards(pub HashSet<Board>);
+pub struct PreviousBoards(pub FxHashSet<Board>);
 
 impl Default for PreviousBoards {
     fn default() -> Self {
-        let mut boards = HashSet::new();
+        let mut boards = FxHashSet::default();
 
         boards.insert(Board::default());
         Self(boards)
