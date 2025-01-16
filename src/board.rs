@@ -341,9 +341,11 @@ impl Board {
 
     // y counts up going down.
     #[allow(clippy::too_many_lines)]
+    #[allow(clippy::collapsible_if)]
     fn captures_shield_wall(
         &mut self,
         color_from: &Color,
+        vertex_to: &Vertex,
         captures: &mut Vec<Vertex>,
     ) -> anyhow::Result<()> {
         // bottom row
@@ -374,10 +376,18 @@ impl Board {
                 let vertex = Vertex { x: finish, y: 10 };
                 let color = self.get(&vertex)?.color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
-                    for x_2 in start..finish {
-                        let vertex = Vertex { x: x_2, y: 10 };
-                        if self.set_if_not_king(&vertex, Space::Empty)? {
-                            captures.push(vertex);
+                    if vertex_to
+                        == &(Vertex {
+                            x: start - 1,
+                            y: 10,
+                        })
+                        || vertex_to == &(Vertex { x: finish, y: 10 })
+                    {
+                        for x_2 in start..finish {
+                            let vertex = Vertex { x: x_2, y: 10 };
+                            if self.set_if_not_king(&vertex, Space::Empty)? {
+                                captures.push(vertex);
+                            }
                         }
                     }
                 }
@@ -412,10 +422,14 @@ impl Board {
                 let vertex = Vertex { x: finish, y: 0 };
                 let color = self.get(&vertex)?.color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
-                    for x_2 in start..finish {
-                        let vertex = Vertex { x: x_2, y: 0 };
-                        if self.set_if_not_king(&vertex, Space::Empty)? {
-                            captures.push(vertex);
+                    if vertex_to == &(Vertex { x: start - 1, y: 0 })
+                        || vertex_to == &(Vertex { x: finish, y: 0 })
+                    {
+                        for x_2 in start..finish {
+                            let vertex = Vertex { x: x_2, y: 0 };
+                            if self.set_if_not_king(&vertex, Space::Empty)? {
+                                captures.push(vertex);
+                            }
                         }
                     }
                 }
@@ -450,10 +464,14 @@ impl Board {
                 let vertex = Vertex { x: 0, y: finish };
                 let color = self.get(&vertex)?.color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
-                    for y_2 in start..finish {
-                        let vertex = Vertex { x: 0, y: y_2 };
-                        if self.set_if_not_king(&vertex, Space::Empty)? {
-                            captures.push(vertex);
+                    if vertex_to == &(Vertex { x: 0, y: start - 1 })
+                        || vertex_to == &(Vertex { x: 0, y: finish })
+                    {
+                        for y_2 in start..finish {
+                            let vertex = Vertex { x: 0, y: y_2 };
+                            if self.set_if_not_king(&vertex, Space::Empty)? {
+                                captures.push(vertex);
+                            }
                         }
                     }
                 }
@@ -488,10 +506,18 @@ impl Board {
                 let vertex = Vertex { x: 10, y: finish };
                 let color = self.get(&vertex)?.color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
-                    for y_2 in start..finish {
-                        let vertex = Vertex { x: 10, y: y_2 };
-                        if self.set_if_not_king(&vertex, Space::Empty)? {
-                            captures.push(vertex);
+                    if vertex_to
+                        == &(Vertex {
+                            x: 10,
+                            y: start - 1,
+                        })
+                        || vertex_to == &(Vertex { x: 10, y: finish })
+                    {
+                        for y_2 in start..finish {
+                            let vertex = Vertex { x: 10, y: y_2 };
+                            if self.set_if_not_king(&vertex, Space::Empty)? {
+                                captures.push(vertex);
+                            }
                         }
                     }
                 }
@@ -517,9 +543,19 @@ impl Board {
         Ok(None)
     }
 
-    fn capture_the_king(&self, captures: &mut Vec<Vertex>) -> anyhow::Result<bool> {
+    fn capture_the_king(
+        &self,
+        play_to: &Vertex,
+        captures: &mut Vec<Vertex>,
+    ) -> anyhow::Result<bool> {
+        let mut played_to_capture = false;
+
         if let Some(kings_vertex) = self.find_the_king()? {
             if let Some(vertex) = kings_vertex.up() {
+                if play_to == &vertex {
+                    played_to_capture = true;
+                }
+
                 if vertex != THRONE && self.get(&vertex)? != Space::Black {
                     return Ok(false);
                 }
@@ -528,6 +564,10 @@ impl Board {
             }
 
             if let Some(vertex) = kings_vertex.left() {
+                if play_to == &vertex {
+                    played_to_capture = true;
+                }
+
                 if vertex != THRONE && self.get(&vertex)? != Space::Black {
                     return Ok(false);
                 }
@@ -536,6 +576,10 @@ impl Board {
             }
 
             if let Some(vertex) = kings_vertex.down() {
+                if play_to == &vertex {
+                    played_to_capture = true;
+                }
+
                 if vertex != THRONE && self.get(&vertex)? != Space::Black {
                     return Ok(false);
                 }
@@ -544,6 +588,10 @@ impl Board {
             }
 
             if let Some(vertex) = kings_vertex.right() {
+                if play_to == &vertex {
+                    played_to_capture = true;
+                }
+
                 if vertex != THRONE && self.get(&vertex)? != Space::Black {
                     return Ok(false);
                 }
@@ -551,8 +599,12 @@ impl Board {
                 return Ok(false);
             }
 
-            captures.push(kings_vertex);
-            Ok(true)
+            if played_to_capture {
+                captures.push(kings_vertex);
+                return Ok(true);
+            }
+
+            Ok(false)
         } else {
             Ok(false)
         }
@@ -904,13 +956,13 @@ impl Board {
 
         let mut captures = Vec::new();
         board.captures(&play.to, &color_from, &mut captures)?;
-        board.captures_shield_wall(&color_from, &mut captures)?;
+        board.captures_shield_wall(&color_from, &play.to, &mut captures)?;
 
         if EXIT_SQUARES.contains(&play.to) || board.exit_forts()? {
             return Ok((board, captures, Status::WhiteWins));
         }
 
-        if board.capture_the_king(&mut captures)? || board.flood_fill_black_wins()? {
+        if board.capture_the_king(&play.to, &mut captures)? || board.flood_fill_black_wins()? {
             return Ok((board, captures, Status::BlackWins));
         }
 

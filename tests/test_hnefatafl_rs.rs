@@ -16,6 +16,7 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
 
     let mut count = 0;
     let mut errors_already = 0;
+    let mut errors = Vec::new();
 
     let records = game_records_from_path(copenhagen_csv)?;
 
@@ -28,12 +29,6 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
             let mut game = Game::default();
 
             for (play, captures_1) in record.plays {
-                /*
-                if let Some(captures) = captures_1.as_ref() {
-                    println!("{captures}");
-                }
-                */
-
                 let mut captures_2_set = HashSet::new();
                 let mut captures_2 = Vec::new();
                 let message = Message::Play(play);
@@ -54,15 +49,7 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
                         let captures_2 = Captures(captures_2);
 
                         if let Some(captures_1) = captures_1 {
-                            if i != 1005 {
-                                if captures_1 != captures_2 {
-                                    println!("count: {i}");
-                                    println!("{}", game.board);
-                                    println!("{}", game.plays.last().unwrap());
-                                    println!("{captures_1} != {captures_2}");
-                                }
-                                assert_eq!(captures_1, captures_2);
-                            }
+                            assert_eq!(captures_1, captures_2);
                         } else if !captures_2.0.is_empty() {
                             return Err(anyhow::Error::msg(
                                 "The engine reports captures, but the record says there are none.",
@@ -80,7 +67,6 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
         })
         .collect();
 
-    let mut errors = Vec::new();
     for result in results {
         match result {
             Ok((i, game)) => {
