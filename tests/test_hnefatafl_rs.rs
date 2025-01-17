@@ -16,7 +16,6 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
 
     let mut count = 0;
     let mut errors_already = 0;
-    let mut errors = Vec::new();
 
     let records = game_records_from_path(copenhagen_csv)?;
 
@@ -83,17 +82,11 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
                 {
                     errors_already += 1;
                 } else {
-                    errors.push(error);
+                    return Err(error);
                 }
             }
         }
     }
-
-    for error in &errors {
-        println!("{error}");
-    }
-
-    println!("errors: {:.4}", errors.len() as f64 / count as f64);
 
     println!(
         "\"play: you already reached that position\": {:.4}",
