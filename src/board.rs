@@ -45,7 +45,7 @@ const RESTRICTED_SQUARES: [Vertex; 5] = [
 
 #[derive(Clone, Eq, Hash, PartialEq)]
 pub struct Board {
-    spaces: [[Space; 11]; 11],
+    spaces: [Space; 11 * 11],
 }
 
 impl Default for Board {
@@ -57,10 +57,10 @@ impl Default for Board {
 impl fmt::Debug for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f)?;
-        for line in self.spaces {
+        for y in 0..11 {
             write!(f, r#"""#)?;
-            for space in line {
-                match space {
+            for x in 0..11 {
+                match self.spaces[y * 11 + x] {
                     Space::Black => write!(f, "X")?,
                     Space::Empty => write!(f, ".")?,
                     Space::King => write!(f, "K")?,
@@ -80,24 +80,23 @@ impl fmt::Display for Board {
         let bar = "─".repeat(11);
 
         writeln!(f, "\n{letters}\n  ┌{bar}┐")?;
-        for (mut i, line) in self.spaces.iter().enumerate() {
-            i = 11 - i;
+        for y in 0..11 {
+            write!(f, "{y:2}│")?;
 
-            write!(f, "{i:2}│")?;
-            for (j, space) in line.iter().enumerate() {
-                if ((i, j) == (1, 0)
-                    || (i, j) == (11, 0)
-                    || (i, j) == (1, 10)
-                    || (i, j) == (11, 10)
-                    || (i, j) == (6, 5))
-                    && *space == Space::Empty
+            for x in 0..11 {
+                if ((y, x) == (1, 0)
+                    || (y, x) == (11, 0)
+                    || (y, x) == (1, 10)
+                    || (y, x) == (11, 10)
+                    || (y, x) == (6, 5))
+                    && self.spaces[y * 11 + x] == Space::Empty
                 {
                     write!(f, "■")?;
                 } else {
-                    write!(f, "{space}")?;
+                    write!(f, "{}", self.spaces[y * 11 + x])?;
                 }
             }
-            writeln!(f, "│{i:2}")?;
+            writeln!(f, "│{y:2}")?;
         }
         write!(f, "  └{bar}┘\n{letters}")
     }
@@ -107,7 +106,7 @@ impl TryFrom<[&str; 11]> for Board {
     type Error = anyhow::Error;
 
     fn try_from(value: [&str; 11]) -> anyhow::Result<Self> {
-        let mut spaces = [[Space::Empty; 11]; 11];
+        let mut spaces = [Space::Empty; 11 * 11];
         let mut kings = 0;
 
         for (y, row) in value.iter().enumerate() {
@@ -131,7 +130,7 @@ impl TryFrom<[&str; 11]> for Board {
                     }
                 }
 
-                spaces[y][x] = space;
+                spaces[y * 11 + x] = space;
             }
         }
 
@@ -808,14 +807,12 @@ impl Board {
     ///
     /// If the play is out of bounds.
     pub fn get(&self, vertex: &Vertex) -> anyhow::Result<Space> {
-        let column = self
+        let space = self
             .spaces
-            .get(vertex.y)
-            .context("get: index is out of y bounds")?;
+            .get(vertex.y * 11 + vertex.x)
+            .context("get: index is out of bounds")?;
 
-        Ok(*column
-            .get(vertex.x)
-            .context("get: index is out of x bounds")?)
+        Ok(*space)
     }
 
     /// # Errors
@@ -976,7 +973,7 @@ impl Board {
     }
 
     fn set(&mut self, vertex: &Vertex, space: Space) {
-        self.spaces[vertex.y][vertex.x] = space;
+        self.spaces[vertex.y * 11 + vertex.x] = space;
     }
 
     fn set_if_not_king(&mut self, vertex: &Vertex, space: Space) -> anyhow::Result<bool> {
