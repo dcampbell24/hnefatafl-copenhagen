@@ -6,7 +6,7 @@ use crate::{
     board::Board,
     color::Color,
     message::{Message, COMMANDS},
-    play::{Captures, Play, BOARD_LETTERS},
+    play::{Captures, Play, Play_, BOARD_LETTERS},
     status::Status,
     time::Time,
 };
@@ -108,6 +108,7 @@ impl Game {
     /// # Errors
     ///
     /// If the command is illegal or invalid.
+    #[allow(clippy::too_many_lines)]
     pub fn update(&mut self, message: Message) -> anyhow::Result<Option<String>> {
         match message {
             Message::Empty => Ok(None),
@@ -157,29 +158,41 @@ impl Game {
                         time.time_left += time.add_time;
                     }
 
-                    let piece_color = self.board.get(&play.from)?.color();
-                    if piece_color != play.color {
-                        return Err(anyhow::Error::msg(format!(
+                    match play {
+                        Play_::BlackResigns => {
+                            self.status = Status::WhiteWins;
+                            Ok(Some(String::new()))
+                        }
+                        Play_::WhiteResigns => {
+                            self.status = Status::BlackWins;
+                            Ok(Some(String::new()))
+                        }
+                        Play_::Play(play) => {
+                            let piece_color = self.board.get(&play.from)?.color();
+                            if piece_color != play.color {
+                                return Err(anyhow::Error::msg(format!(
                             "play: you are trying to move {piece_color}, but it's {}'s turn",
                             play.color
                         )));
+                            }
+
+                            let (captures, status) = self.board.play(
+                                &play,
+                                &self.status,
+                                &self.turn,
+                                &mut self.previous_boards,
+                            )?;
+                            self.status = status;
+                            self.plays.push(play);
+
+                            if self.status == Status::Ongoing {
+                                self.turn = self.turn.opposite();
+                            }
+
+                            let captures = Captures(captures);
+                            Ok(Some(format!("{captures}")))
+                        }
                     }
-
-                    let (captures, status) = self.board.play(
-                        &play,
-                        &self.status,
-                        &self.turn,
-                        &mut self.previous_boards,
-                    )?;
-                    self.status = status;
-                    self.plays.push(play);
-
-                    if self.status == Status::Ongoing {
-                        self.turn = self.turn.opposite();
-                    }
-
-                    let captures = Captures(captures);
-                    Ok(Some(format!("{captures}")))
                 } else {
                     Err(anyhow::Error::msg("play: the game is already over"))
                 }

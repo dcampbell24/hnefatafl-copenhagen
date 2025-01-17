@@ -58,9 +58,11 @@ impl fmt::Debug for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f)?;
         for y in 0..11 {
+            let y = 10 - y;
             write!(f, r#"""#)?;
+
             for x in 0..11 {
-                match self.spaces[y * 11 + x] {
+                match self.spaces[(y * 10) + x] {
                     Space::Black => write!(f, "X")?,
                     Space::Empty => write!(f, ".")?,
                     Space::King => write!(f, "K")?,
@@ -81,22 +83,23 @@ impl fmt::Display for Board {
 
         writeln!(f, "\n{letters}\n  ┌{bar}┐")?;
         for y in 0..11 {
-            write!(f, "{y:2}│")?;
+            let y = 10 - y;
+            write!(f, "{:2}│", y + 1)?;
 
             for x in 0..11 {
-                if ((y, x) == (1, 0)
-                    || (y, x) == (11, 0)
-                    || (y, x) == (1, 10)
-                    || (y, x) == (11, 10)
-                    || (y, x) == (6, 5))
-                    && self.spaces[y * 11 + x] == Space::Empty
+                if ((y, x) == (0, 0)
+                    || (y, x) == (10, 0)
+                    || (y, x) == (0, 10)
+                    || (y, x) == (10, 10)
+                    || (y, x) == (5, 5))
+                    && self.spaces[(y * 10) + x] == Space::Empty
                 {
                     write!(f, "■")?;
                 } else {
                     write!(f, "{}", self.spaces[y * 11 + x])?;
                 }
             }
-            writeln!(f, "│{y:2}")?;
+            writeln!(f, "│{:2}", y + 1)?;
         }
         write!(f, "  └{bar}┘\n{letters}")
     }

@@ -8,6 +8,13 @@ pub const BOARD_LETTERS: &str = "abcdefghjkl";
 pub const BOARD_LETTERS_: &str = "abcdefghijk";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub enum Play_ {
+    Play(Play),
+    BlackResigns,
+    WhiteResigns,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Play {
     pub color: Color,
     pub from: Vertex,
@@ -20,19 +27,32 @@ impl fmt::Display for Play {
     }
 }
 
-impl TryFrom<Vec<&str>> for Play {
+impl TryFrom<Vec<&str>> for Play_ {
     type Error = anyhow::Error;
 
     fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {
-        if args.len() < 4 {
-            return Err(anyhow::Error::msg("expected: play COLOR FROM TO"));
+        let error_str = "expected: 'play COLOR FROM TO' or 'play COLOR resign'";
+
+        if args.len() == 3 {
+            let color = Color::try_from(args[1])?;
+            if args[2] == "resigns" {
+                if color == Color::White {
+                    return Ok(Self::WhiteResigns);
+                }
+
+                return Ok(Self::BlackResigns);
+            }
         }
 
-        Ok(Self {
+        if args.len() < 4 {
+            return Err(anyhow::Error::msg(error_str));
+        }
+
+        Ok(Self::Play(Play {
             color: Color::try_from(args[1])?,
             from: Vertex::try_from(args[2])?,
             to: Vertex::try_from(args[3])?,
-        })
+        }))
     }
 }
 

@@ -36,7 +36,6 @@ impl TryFrom<&str> for Color {
         match color {
             "black" => Ok(Self::Black),
             "white" => Ok(Self::White),
-            "colorless" => Ok(Self::Colorless),
             _ => Err(anyhow::Error::msg("a color is expected")),
         }
     }
