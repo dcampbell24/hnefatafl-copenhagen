@@ -645,36 +645,16 @@ impl Board {
                 if let Some(vertex) = stack.pop() {
                     let space = self.get(&vertex)?;
                     if space == Space::Empty || space.color() == Color::White {
-                        if let Some(vertex) = vertex.up() {
-                            if !already_checked.contains(&vertex) {
-                                stack.push(vertex.clone());
-                                already_checked.insert(vertex);
-                            }
-                        } else {
+                        if !expand_flood_fill(vertex.up(), &mut already_checked, &mut stack) {
                             return Ok(false);
                         }
-                        if let Some(vertex) = vertex.left() {
-                            if !already_checked.contains(&vertex) {
-                                stack.push(vertex.clone());
-                                already_checked.insert(vertex);
-                            }
-                        } else {
+                        if !expand_flood_fill(vertex.left(), &mut already_checked, &mut stack) {
                             return Ok(false);
                         }
-                        if let Some(vertex) = vertex.down() {
-                            if !already_checked.contains(&vertex) {
-                                stack.push(vertex.clone());
-                                already_checked.insert(vertex);
-                            }
-                        } else {
+                        if !expand_flood_fill(vertex.down(), &mut already_checked, &mut stack) {
                             return Ok(false);
                         }
-                        if let Some(vertex) = vertex.right() {
-                            if !already_checked.contains(&vertex) {
-                                stack.push(vertex.clone());
-                                already_checked.insert(vertex);
-                            }
-                        } else {
+                        if !expand_flood_fill(vertex.right(), &mut already_checked, &mut stack) {
                             return Ok(false);
                         }
                     }
@@ -959,11 +939,18 @@ impl Board {
         board.captures(&play.to, &color_from, &mut captures)?;
         board.captures_shield_wall(&color_from, &play.to, &mut captures)?;
 
-        if EXIT_SQUARES.contains(&play.to) || board.exit_forts()? {
+        if EXIT_SQUARES.contains(&play.to) {
             return Ok((board, captures, Status::WhiteWins));
         }
 
-        if board.capture_the_king(&play.to, &mut captures)? || board.flood_fill_black_wins()? {
+        if board.capture_the_king(&play.to, &mut captures)? {
+            return Ok((board, captures, Status::BlackWins));
+        }
+
+        if board.exit_forts()? {
+            return Ok((board, captures, Status::WhiteWins));
+        }
+        if board.flood_fill_black_wins()? {
             return Ok((board, captures, Status::BlackWins));
         }
 
@@ -1001,4 +988,21 @@ pub struct LegalMoves {
     pub color: Color,
     pub from: Vertex,
     pub to: Vec<Vertex>,
+}
+
+fn expand_flood_fill(
+    vertex: Option<Vertex>,
+    already_checked: &mut FxHashSet<Vertex>,
+    stack: &mut Vec<Vertex>,
+) -> bool {
+    if let Some(vertex) = vertex {
+        if !already_checked.contains(&vertex) {
+            stack.push(vertex.clone());
+            already_checked.insert(vertex);
+        }
+
+        true
+    } else {
+        false
+    }
 }
