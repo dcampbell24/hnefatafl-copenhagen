@@ -4,7 +4,7 @@ use hnefatafl_copenhagen::{
     game::Game,
     game_record::{game_records_from_path, Captures},
     message::Message,
-    play::{Plaz, Vertex},
+    play::{Plae, Vertex},
     status::Status,
 };
 use rayon::iter::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
@@ -31,7 +31,7 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
             for (play, captures_1) in record.plays {
                 let mut captures_2_set = HashSet::new();
                 let mut captures_2 = Vec::new();
-                let message = Message::Play(Plaz::Play(play));
+                let message = Message::Play(Plae::Play(play));
 
                 match game.update(message) {
                     Ok(Some(message)) => {

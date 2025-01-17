@@ -6,7 +6,7 @@ use crate::{
     board::Board,
     color::Color,
     message::{Message, COMMANDS},
-    play::{Captures, Play, Plaz, BOARD_LETTERS},
+    play::{Captures, Plae, Play, BOARD_LETTERS},
     status::Status,
     time::Time,
 };
@@ -159,15 +159,15 @@ impl Game {
                     }
 
                     match play {
-                        Plaz::BlackResigns => {
+                        Plae::BlackResigns => {
                             self.status = Status::WhiteWins;
                             Ok(Some(String::new()))
                         }
-                        Plaz::WhiteResigns => {
+                        Plae::WhiteResigns => {
                             self.status = Status::BlackWins;
                             Ok(Some(String::new()))
                         }
-                        Plaz::Play(play) => {
+                        Plae::Play(play) => {
                             let piece_color = self.board.get(&play.from)?.color();
                             if piece_color != play.color {
                                 return Err(anyhow::Error::msg(format!(
