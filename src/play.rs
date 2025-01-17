@@ -8,7 +8,7 @@ pub const BOARD_LETTERS: &str = "abcdefghjkl";
 pub const BOARD_LETTERS_: &str = "abcdefghijk";
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum Play_ {
+pub enum Plaz {
     Play(Play),
     BlackResigns,
     WhiteResigns,
@@ -27,7 +27,7 @@ impl fmt::Display for Play {
     }
 }
 
-impl TryFrom<Vec<&str>> for Play_ {
+impl TryFrom<Vec<&str>> for Plaz {
     type Error = anyhow::Error;
 
     fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {

@@ -1,6 +1,6 @@
 use anyhow::Context;
 
-use crate::{play::Play_, time};
+use crate::{play::Plaz, time};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -10,7 +10,7 @@ pub enum Message {
     KnownCommand(String),
     ListCommands,
     Name,
-    Play(Play_),
+    Play(Plaz),
     ProtocolVersion,
     Quit,
     ResetBoard,
@@ -53,7 +53,7 @@ impl TryFrom<&str> for Message {
             "list_commands" => Ok(Self::ListCommands),
             "name" => Ok(Self::Name),
             "play" => {
-                let play = Play_::try_from(args)?;
+                let play = Plaz::try_from(args)?;
                 Ok(Self::Play(play))
             }
             "protocol_version" => Ok(Self::ProtocolVersion),
