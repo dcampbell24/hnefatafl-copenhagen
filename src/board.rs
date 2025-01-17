@@ -1,7 +1,7 @@
 use std::fmt;
 
 use anyhow::Context;
-use rustc_hash::FxHashSet;
+use rustc_hash::{FxBuildHasher, FxHashSet};
 
 use crate::{
     color::Color,
@@ -634,7 +634,9 @@ impl Board {
     /// If the vertex is out of bounds.
     fn flood_fill_black_wins(&self) -> anyhow::Result<bool> {
         if let Some(kings_vertex) = self.find_the_king()? {
-            let mut already_checked = FxHashSet::default();
+            let hasher = FxBuildHasher;
+            let mut already_checked = FxHashSet::with_capacity_and_hasher(11 * 11, hasher);
+
             already_checked.insert(kings_vertex.clone());
             let mut stack = Vec::new();
             stack.push(kings_vertex);
