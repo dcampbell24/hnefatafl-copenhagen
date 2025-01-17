@@ -20,8 +20,9 @@ An engine similar to the [Go Text Protocol].
 * `genmove` -> `generate_move`
 * `generate_move` returns `COLOR VERTEX_FROM VERTEX_TO`
 * We keep track of whose turn it is.
-* play takes `play COLOR VERTEX_FROM VERTEX_TO` and returns `= CAPTURES`, where
-  `CAPTURES` has the format `a2 c2 ...`. The color is whose turn it is.
+* play takes `play COLOR VERTEX_FROM VERTEX_TO` or `play COLOR resigns` and
+  returns `= CAPTURES`, where `CAPTURES` has the format `a2 c2 ...`. The color
+  is whose turn it is.
 * `showboard` -> `show_board`
 * `time_settings none` | `time_settings fischer MINUTES ADD_SECONDS_AFTER_EACH_MOVE`
 * `final_status_list` -> `final_status` = `black_wins` | `draw` | `ongoing` | `white_wins`
