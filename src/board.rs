@@ -990,6 +990,7 @@ pub struct LegalMoves {
     pub to: Vec<Vertex>,
 }
 
+#[must_use]
 fn expand_flood_fill(
     vertex: Option<Vertex>,
     already_checked: &mut FxHashSet<Vertex>,
