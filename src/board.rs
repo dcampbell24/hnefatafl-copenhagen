@@ -58,7 +58,6 @@ impl fmt::Debug for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f)?;
         for y in 0..11 {
-            let y = 10 - y;
             write!(f, r#"""#)?;
 
             for x in 0..11 {
@@ -83,8 +82,8 @@ impl fmt::Display for Board {
 
         writeln!(f, "\n{letters}\n  ┌{bar}┐")?;
         for y in 0..11 {
-            let y = 10 - y;
-            write!(f, "{:2}│", y + 1)?;
+            let y_label = 11 - y;
+            write!(f, "{y_label:2}│",)?;
 
             for x in 0..11 {
                 if ((y, x) == (0, 0)
@@ -99,7 +98,7 @@ impl fmt::Display for Board {
                     write!(f, "{}", self.spaces[y * 11 + x])?;
                 }
             }
-            writeln!(f, "│{:2}", y + 1)?;
+            writeln!(f, "│{y_label:2}")?;
         }
         write!(f, "  └{bar}┘\n{letters}")
     }
