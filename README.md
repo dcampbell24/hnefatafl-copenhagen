@@ -9,9 +9,6 @@
 [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?logo=docs.rs
 [docs-rs-link]: https://docs.rs/hnefatafl-copenhagen
 
-**WARNING: THIS IS A WORK IN PROGESS** all the rules have not been implemented
-nor has it been thoroughly tested yet.
-
 An engine similar to the [Go Text Protocol].
 
 [Go Text Protocol]: https://www.lysator.liu.se/~gunnar/gtp/gtp2-spec-draft2/gtp2-spec.html
