@@ -83,22 +83,19 @@ fn start(address: &str, setup_commands: &[String]) -> anyhow::Result<()> {
     let mut players = Vec::new();
 
     for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
-                if players.is_empty() {
-                    players.push(stream);
-                } else {
-                    let mut game = Htp {
-                        black_connection: players.pop().unwrap(),
-                        white_connection: stream,
-                    };
-                    let setup_commands = setup_commands.to_owned();
-                    thread::spawn(move || {
-                        game.start(setup_commands.clone()).unwrap();
-                    });
-                }
-            }
-            Err(_e) => { /* connection failed */ }
+        let stream = stream?;
+
+        if players.is_empty() {
+            players.push(stream);
+        } else {
+            let mut game = Htp {
+                black_connection: players.pop().unwrap(),
+                white_connection: stream,
+            };
+            let setup_commands = setup_commands.to_owned();
+            thread::spawn(move || {
+                game.start(setup_commands.clone()).unwrap();
+            });
         }
     }
 
