@@ -93,8 +93,9 @@ fn start(address: &str, setup_commands: &[String]) -> anyhow::Result<()> {
                 white_connection: stream,
             };
             let setup_commands = setup_commands.to_owned();
+            game.start(setup_commands)?;
             thread::spawn(move || {
-                game.start(setup_commands.clone()).unwrap();
+                game;
             });
         }
     }
