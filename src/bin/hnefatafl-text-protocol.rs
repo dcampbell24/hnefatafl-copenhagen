@@ -7,7 +7,7 @@ use std::{
 use clap::command;
 use clap::{self, Parser};
 
-use hnefatafl_copenhagen::{game::Game, read_response, write_command};
+use hnefatafl_copenhagen::{game::Game, read_response, status::Status, write_command};
 
 /// Hnefatafl Copenhagen
 ///
@@ -35,7 +35,7 @@ fn main() -> anyhow::Result<()> {
         let mut reader = BufReader::new(stream.try_clone()?);
         let mut game = Game::default();
 
-        for i in 1..11 {
+        for i in 1..10_000 {
             println!("\n*** turn {i} ***");
 
             let message = read_response(&mut reader)?;
@@ -57,6 +57,10 @@ fn main() -> anyhow::Result<()> {
                     }
                     _ => unreachable!("You can't get here!"),
                 }
+            }
+
+            if game.status != Status::Ongoing {
+                break;
             }
         }
 

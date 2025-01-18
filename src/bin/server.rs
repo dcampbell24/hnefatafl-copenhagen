@@ -14,6 +14,8 @@ use std::thread;
 use clap::command;
 use clap::{self, Parser};
 
+use hnefatafl_copenhagen::game::Game;
+use hnefatafl_copenhagen::status::Status;
 use hnefatafl_copenhagen::{read_response, write_command};
 
 /// A Hnefatafl Copenhagen Server
@@ -52,20 +54,26 @@ impl Htp {
         }
         */
 
-        for i in 1..1_000 {
+        let mut game = Game::default();
+
+        for i in 1..10_000 {
             println!("\n*** turn {} ***", 2 * i - 1);
             write_command("generate_move black\n", &mut self.black_connection)?;
             let black_move = read_response(&mut black_reader)?;
 
+            game.read_line(&black_move)?;
             write_command(&black_move, &mut self.white_connection)?;
+            if game.status != Status::Ongoing {
+                break;
+            }
 
             println!("\n*** turn {} ***", 2 * i);
             write_command("generate_move white\n", &mut self.white_connection)?;
             let white_move = read_response(&mut white_reader)?;
 
+            game.read_line(&white_move)?;
             write_command(&white_move, &mut self.black_connection)?;
-
-            if black_move == "= pass\n" && white_move == "= pass\n" {
+            if game.status != Status::Ongoing {
                 break;
             }
         }
