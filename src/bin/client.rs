@@ -6,9 +6,6 @@ use hnefatafl_copenhagen::{read_response, write_command};
 
 fn main() -> anyhow::Result<()> {
     let mut stream = TcpStream::connect("localhost:8000")?;
-
-    let mut buf = String::new();
-
     let mut reader = BufReader::new(stream.try_clone()?);
     let mut game = Game::default();
 
@@ -35,8 +32,6 @@ fn main() -> anyhow::Result<()> {
                 _ => unreachable!("You can't get here!"),
             }
         }
-
-        buf.clear();
     }
 
     Ok(())
