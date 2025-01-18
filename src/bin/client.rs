@@ -9,8 +9,8 @@ fn main() -> anyhow::Result<()> {
     let mut reader = BufReader::new(stream.try_clone()?);
     let mut game = Game::default();
 
-    for i in 0..10 {
-        println!("\n*** turn {} ***", i + 1);
+    for i in 1..11 {
+        println!("\n*** turn {i} ***");
 
         let message = read_response(&mut reader)?;
 
