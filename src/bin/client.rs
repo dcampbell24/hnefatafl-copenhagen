@@ -25,11 +25,9 @@ fn main() -> anyhow::Result<()> {
         {
             match *word {
                 "play" => {
-                    println!("word: {word}");
                     game.read_line(&message)?;
                 }
                 "generate_move" => {
-                    println!("word: {word}");
                     if let Some(message) = game.read_line(&message)? {
                         write_command(&format!("play {message}\n"), &mut stream)?;
                     }
@@ -43,21 +41,3 @@ fn main() -> anyhow::Result<()> {
 
     Ok(())
 }
-
-/*
-fn send_command(
-    command: &str,
-    writer: &mut TcpStream,
-    // reader: &mut BufReader<TcpStream>,
-) -> anyhow::Result<()> /* -> String */ {
-    print!("-> {command}");
-    writer.write_all(command.as_bytes())?;
-
-    Ok(())
-    // let mut reply = String::new();
-    // reader.read_line(&mut reply).unwrap();
-    // reader.read_line(&mut reply).unwrap();
-    // print!("<- {}", &reply);
-    // reply
-}
-*/
