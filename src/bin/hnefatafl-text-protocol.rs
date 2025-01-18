@@ -24,10 +24,7 @@ struct Args {
     tcp: Option<String>,
 }
 
-/// # Errors
-///
-/// If the command `clear_screen()` fails.
-pub fn main() -> anyhow::Result<()> {
+fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
     if let Some(tcp) = args.tcp {
