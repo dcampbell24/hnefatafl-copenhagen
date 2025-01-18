@@ -11,7 +11,7 @@ use hnefatafl_copenhagen::{game::Game, read_response, write_command};
 
 /// Hnefatafl Copenhagen
 ///
-/// This plays the game locally using the Hnefatafl Text Protocol.
+/// This plays the game using the Hnefatafl Text Protocol.
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Args {
