@@ -1,12 +1,13 @@
 use std::{
-    io,
+    io::{self, BufReader},
+    net::TcpStream,
     process::{Command, ExitStatus},
 };
 
 use clap::command;
 use clap::{self, Parser};
 
-use hnefatafl_copenhagen::game::Game;
+use hnefatafl_copenhagen::{game::Game, read_response, write_command};
 
 /// Hnefatafl Copenhagen
 ///
@@ -17,6 +18,10 @@ struct Args {
     /// Displays the game
     #[arg(default_value_t = false, long)]
     display_game: bool,
+
+    /// Listen for HTP drivers on host and port
+    #[arg(long, value_name = "host:port")]
+    tcp: Option<String>,
 }
 
 /// # Errors
@@ -24,6 +29,42 @@ struct Args {
 /// If the command `clear_screen()` fails.
 pub fn main() -> anyhow::Result<()> {
     let args = Args::parse();
+
+    if let Some(tcp) = args.tcp {
+        let address = tcp.as_str();
+        let mut stream = TcpStream::connect(address)?;
+        println!("connected to {address} ...");
+
+        let mut reader = BufReader::new(stream.try_clone()?);
+        let mut game = Game::default();
+
+        for i in 1..11 {
+            println!("\n*** turn {i} ***");
+
+            let message = read_response(&mut reader)?;
+
+            if let Some(word) = message
+                .as_str()
+                .split_ascii_whitespace()
+                .collect::<Vec<_>>()
+                .first()
+            {
+                match *word {
+                    "play" => {
+                        game.read_line(&message)?;
+                    }
+                    "generate_move" => {
+                        if let Some(message) = game.read_line(&message)? {
+                            write_command(&format!("play {message}\n"), &mut stream)?;
+                        }
+                    }
+                    _ => unreachable!("You can't get here!"),
+                }
+            }
+        }
+
+        return Ok(());
+    }
 
     let mut buffer = String::new();
     let stdin = io::stdin();
