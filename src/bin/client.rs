@@ -10,7 +10,7 @@ fn main() -> anyhow::Result<()> {
     let mut game = Game::default();
 
     for i in 0..10 {
-        println!("{i}");
+        println!("\n*** turn {} ***", i + 1);
 
         let message = read_response(&mut reader)?;
 

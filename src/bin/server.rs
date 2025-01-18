@@ -52,13 +52,13 @@ impl Htp {
         */
 
         for i in 1..1_000 {
-            println!("*** turn {:04} ***", 2 * i - 1);
+            println!("\n*** turn {} ***", 2 * i - 1);
             write_command("generate_move black\n", &mut self.black_connection)?;
             let black_move = read_response(&mut black_reader)?;
 
             write_command(&black_move, &mut self.white_connection)?;
 
-            println!("*** turn {:04} ***", 2 * i);
+            println!("\n*** turn {} ***", 2 * i);
             write_command("generate_move white\n", &mut self.white_connection)?;
             let white_move = read_response(&mut white_reader)?;
 
