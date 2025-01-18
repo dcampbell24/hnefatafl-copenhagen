@@ -1,3 +1,8 @@
+use std::{
+    io::{BufRead, BufReader, Write},
+    net::TcpStream,
+};
+
 pub mod board;
 pub mod color;
 pub mod game;
@@ -7,6 +12,25 @@ pub mod play;
 pub mod space;
 pub mod status;
 pub mod time;
+
+/// # Errors
+///
+/// If read fails.
+pub fn read_response(reader: &mut BufReader<TcpStream>) -> anyhow::Result<String> {
+    let mut reply = String::new();
+    reader.read_line(&mut reply)?;
+    print!("<- {reply}");
+    Ok(reply)
+}
+
+/// # Errors
+///
+/// If write fails.
+pub fn write_command(command: &str, writer: &mut TcpStream) -> anyhow::Result<()> {
+    print!("-> {command}");
+    writer.write_all(command.as_bytes())?;
+    Ok(())
+}
 
 #[cfg(test)]
 mod tests {

@@ -15,19 +15,20 @@ categories = ["game-engines", "games"]
 
 [dependencies]
 anyhow = "1"
+clap = { version ="4", features = ["derive"] }
 csv = "1"
 rayon = "1"
 rustc-hash = "2"
 serde = { version = "1", features = ["derive"] }
 
 [lints.clippy]
-cargo = "forbid"
-complexity = "forbid"
-correctness = "forbid"
+cargo = "deny"
+complexity = "deny"
+correctness = "deny"
 pedantic = "deny"
-perf = "forbid"
+perf = "deny"
 # restriction = "warn"
 style = "deny"
-suspicious = "forbid"
+suspicious = "deny"
 
 multiple_crate_versions = { level = "allow", priority = 1 }
