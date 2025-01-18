@@ -13,6 +13,7 @@ use std::thread;
 
 use clap::command;
 use clap::{self, Parser};
+
 use hnefatafl_copenhagen::{read_response, write_command};
 
 /// A Hnefatafl Copenhagen Server
