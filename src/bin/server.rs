@@ -95,7 +95,7 @@ fn start(address: &str, setup_commands: &[String]) -> anyhow::Result<()> {
             let setup_commands = setup_commands.to_owned();
             game.start(setup_commands)?;
             thread::spawn(move || {
-                game;
+                drop(game);
             });
         }
     }
