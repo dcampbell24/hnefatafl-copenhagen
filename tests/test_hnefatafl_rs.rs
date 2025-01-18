@@ -7,7 +7,6 @@ use hnefatafl_copenhagen::{
     play::{Plae, Vertex},
     status::Status,
 };
-use rayon::iter::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
 
 #[test]
 #[allow(clippy::cast_precision_loss)]
@@ -21,8 +20,7 @@ fn hnefatafl_rs() -> anyhow::Result<()> {
 
     let results: Vec<_> = records
         .clone()
-        // .into_iter()
-        .into_par_iter()
+        .into_iter()
         .enumerate()
         .map(|(i, record)| {
             let mut game = Game::default();
