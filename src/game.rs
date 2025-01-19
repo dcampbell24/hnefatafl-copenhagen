@@ -93,6 +93,82 @@ impl Game {
         Err(anyhow::Error::msg("unable to generate move"))
     }
 
+    fn play(&mut self, play: Plae) -> anyhow::Result<Option<String>> {
+        if self.status == Status::Ongoing {
+            if let (status, Some(time), Some(timer)) = match self.turn {
+                Color::Black => (
+                    Status::WhiteWins,
+                    self.black_time.as_mut(),
+                    self.timer.as_mut(),
+                ),
+                Color::Colorless => {
+                    unreachable!("It can't be no one's turn when the game is ongoing!")
+                }
+                Color::White => (
+                    Status::BlackWins,
+                    self.white_time.as_mut(),
+                    self.timer.as_mut(),
+                ),
+            } {
+                time.time_left = time.time_left.saturating_sub(timer.elapsed());
+                *timer = Instant::now();
+
+                if time.time_left.as_secs() == 0 {
+                    self.status = status;
+                    return Ok(Some(String::new()));
+                }
+
+                time.time_left += time.add_time;
+            }
+
+            match play {
+                Plae::BlackResigns => {
+                    if self.turn == Color::Black {
+                        self.status = Status::WhiteWins;
+                        Ok(Some(String::new()))
+                    } else {
+                        Err(anyhow::Error::msg("You can't resign for the other player."))
+                    }
+                }
+                Plae::WhiteResigns => {
+                    if self.turn == Color::White {
+                        self.status = Status::BlackWins;
+                        Ok(Some(String::new()))
+                    } else {
+                        Err(anyhow::Error::msg("You can't resign for the other player."))
+                    }
+                }
+                Plae::Play(play) => {
+                    let piece_color = self.board.get(&play.from)?.color();
+                    if piece_color != play.color {
+                        return Err(anyhow::Error::msg(format!(
+                            "play: you are trying to move {piece_color}, but it's {}'s turn",
+                            play.color
+                        )));
+                    }
+
+                    let (captures, status) = self.board.play(
+                        &Plae::Play(play.clone()),
+                        &self.status,
+                        &self.turn,
+                        &mut self.previous_boards,
+                    )?;
+                    self.status = status;
+                    self.plays.push(play);
+
+                    if self.status == Status::Ongoing {
+                        self.turn = self.turn.opposite();
+                    }
+
+                    let captures = Captures(captures);
+                    Ok(Some(format!("{captures}")))
+                }
+            }
+        } else {
+            Err(anyhow::Error::msg("play: the game is already over"))
+        }
+    }
+
     /// # Errors
     ///
     /// If the command is illegal or invalid.
@@ -108,7 +184,6 @@ impl Game {
     /// # Errors
     ///
     /// If the command is illegal or invalid.
-    #[allow(clippy::too_many_lines)]
     pub fn update(&mut self, message: Message) -> anyhow::Result<Option<String>> {
         match message {
             Message::Empty => Ok(None),
@@ -130,81 +205,7 @@ impl Game {
                 let name = env!("CARGO_PKG_NAME");
                 Ok(Some(name.to_string()))
             }
-            Message::Play(play) => {
-                if self.status == Status::Ongoing {
-                    if let (status, Some(time), Some(timer)) = match self.turn {
-                        Color::Black => (
-                            Status::WhiteWins,
-                            self.black_time.as_mut(),
-                            self.timer.as_mut(),
-                        ),
-                        Color::Colorless => {
-                            unreachable!("It can't be no one's turn when the game is ongoing!")
-                        }
-                        Color::White => (
-                            Status::BlackWins,
-                            self.white_time.as_mut(),
-                            self.timer.as_mut(),
-                        ),
-                    } {
-                        time.time_left = time.time_left.saturating_sub(timer.elapsed());
-                        *timer = Instant::now();
-
-                        if time.time_left.as_secs() == 0 {
-                            self.status = status;
-                            return Ok(Some(String::new()));
-                        }
-
-                        time.time_left += time.add_time;
-                    }
-
-                    match play {
-                        Plae::BlackResigns => {
-                            if self.turn == Color::Black {
-                                self.status = Status::WhiteWins;
-                                Ok(Some(String::new()))
-                            } else {
-                                Err(anyhow::Error::msg("You can't resign for the other player."))
-                            }
-                        }
-                        Plae::WhiteResigns => {
-                            if self.turn == Color::White {
-                                self.status = Status::BlackWins;
-                                Ok(Some(String::new()))
-                            } else {
-                                Err(anyhow::Error::msg("You can't resign for the other player."))
-                            }
-                        }
-                        Plae::Play(play) => {
-                            let piece_color = self.board.get(&play.from)?.color();
-                            if piece_color != play.color {
-                                return Err(anyhow::Error::msg(format!(
-                            "play: you are trying to move {piece_color}, but it's {}'s turn",
-                            play.color
-                        )));
-                            }
-
-                            let (captures, status) = self.board.play(
-                                &Plae::Play(play.clone()),
-                                &self.status,
-                                &self.turn,
-                                &mut self.previous_boards,
-                            )?;
-                            self.status = status;
-                            self.plays.push(play);
-
-                            if self.status == Status::Ongoing {
-                                self.turn = self.turn.opposite();
-                            }
-
-                            let captures = Captures(captures);
-                            Ok(Some(format!("{captures}")))
-                        }
-                    }
-                } else {
-                    Err(anyhow::Error::msg("play: the game is already over"))
-                }
-            }
+            Message::Play(play) => self.play(play),
             Message::ProtocolVersion => Ok(Some("1-beta".to_string())),
             Message::Quit => exit(0),
             Message::ResetBoard => {
