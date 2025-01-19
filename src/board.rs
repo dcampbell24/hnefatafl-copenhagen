@@ -6,7 +6,7 @@ use rustc_hash::{FxBuildHasher, FxHashSet};
 use crate::{
     color::Color,
     game::PreviousBoards,
-    play::{Play, Vertex},
+    play::{Plae, Play, Vertex},
     status::Status,
 };
 
@@ -204,7 +204,7 @@ impl Board {
                     };
 
                     if let Ok(_board_captures_status) =
-                        self.play_internal(&play, status, turn, previous_boards)
+                        self.play_internal(&Plae::Play(play), status, turn, previous_boards)
                     {
                         return Ok(true);
                     }
@@ -249,7 +249,7 @@ impl Board {
                     };
 
                     if let Ok(_board_captures_status) =
-                        self.play_internal(&play, status, turn, previous_boards)
+                        self.play_internal(&Plae::Play(play), status, turn, previous_boards)
                     {
                         vertexes_to.push(vertex_to);
                     }
@@ -820,7 +820,7 @@ impl Board {
     /// If the play is illegal.
     pub fn play(
         &mut self,
-        play: &Play,
+        play: &Plae,
         status: &Status,
         turn: &Color,
         previous_boards: &mut PreviousBoards,
@@ -830,21 +830,28 @@ impl Board {
                 previous_boards.0.insert(board.clone());
                 *self = board;
 
-                let mut new_status = status.clone();
-                if status == Status::Ongoing
-                    && !self.a_legal_move_exists(&status, &turn.opposite(), previous_boards)?
+                Ok((captures, status))
+            }
+
+            Err(error) => {
+                if &error.to_string() == "play: you already reached that position"
+                    && !self.a_legal_move_exists(status, turn, previous_boards)?
                 {
-                    if turn.opposite() == Color::White {
-                        new_status = Status::BlackWins;
-                    } else {
-                        new_status = Status::WhiteWins;
+                    if turn == &Color::White {
+                        let (board, captures, status) =
+                            self.play_internal(&Plae::WhiteResigns, status, turn, previous_boards)?;
+                        *self = board;
+                        return Ok((captures, status));
+                    } else if turn == &Color::Black {
+                        let (board, captures, status) =
+                            self.play_internal(&Plae::BlackResigns, status, turn, previous_boards)?;
+                        *self = board;
+                        return Ok((captures, status));
                     }
                 }
 
-                Ok((captures, new_status))
+                Err(error)
             }
-
-            Err(error) => Err(error),
         }
     }
 
@@ -855,7 +862,7 @@ impl Board {
     )]
     fn play_internal(
         &self,
-        play: &Play,
+        play: &Plae,
         status: &Status,
         turn: &Color,
         previous_boards: &PreviousBoards,
@@ -865,6 +872,12 @@ impl Board {
                 "play: the game has to be ongoing to play",
             ));
         }
+
+        let play = match play {
+            Plae::BlackResigns => return Ok((self.clone(), Vec::new(), Status::WhiteWins)),
+            Plae::WhiteResigns => return Ok((self.clone(), Vec::new(), Status::BlackWins)),
+            Plae::Play(play) => play,
+        };
 
         let space_from = self.get(&play.from)?;
         let color_from = space_from.color();

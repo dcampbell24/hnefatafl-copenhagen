@@ -1812,6 +1812,7 @@ mod tests {
         };
 
         game.read_line("play black b1 b2")?;
+        game.read_line("play white resigns")?;
 
         assert_eq!(game.status, Status::BlackWins);
 
@@ -1844,6 +1845,7 @@ mod tests {
         game.read_line("play black b1 b2")?;
         game.read_line("play white f2 f1")?;
         game.read_line("play black b2 b1")?;
+        game.read_line("play white f1 f2")?;
 
         assert_eq!(game.status, Status::BlackWins);
 

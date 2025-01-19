@@ -177,7 +177,7 @@ impl Game {
                             }
 
                             let (captures, status) = self.board.play(
-                                &play,
+                                &Plae::Play(play.clone()),
                                 &self.status,
                                 &self.turn,
                                 &mut self.previous_boards,
