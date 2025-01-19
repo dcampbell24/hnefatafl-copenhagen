@@ -160,12 +160,20 @@ impl Game {
 
                     match play {
                         Plae::BlackResigns => {
-                            self.status = Status::WhiteWins;
-                            Ok(Some(String::new()))
+                            if self.turn == Color::Black {
+                                self.status = Status::WhiteWins;
+                                Ok(Some(String::new()))
+                            } else {
+                                Err(anyhow::Error::msg("You can't resign for the other player."))
+                            }
                         }
                         Plae::WhiteResigns => {
-                            self.status = Status::BlackWins;
-                            Ok(Some(String::new()))
+                            if self.turn == Color::White {
+                                self.status = Status::BlackWins;
+                                Ok(Some(String::new()))
+                            } else {
+                                Err(anyhow::Error::msg("You can't resign for the other player."))
+                            }
                         }
                         Plae::Play(play) => {
                             let piece_color = self.board.get(&play.from)?.color();
