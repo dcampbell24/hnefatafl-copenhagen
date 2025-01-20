@@ -44,7 +44,7 @@ fn main() -> anyhow::Result<()> {
 
     thread::spawn(move || server.handle_login(&rx));
 
-    for (index, stream) in listener.incoming().enumerate() {
+    for (index, stream) in (0..).zip(listener.incoming()) {
         let stream = stream?;
         let tx = tx.clone();
         thread::spawn(move || login(index, &stream, &tx));
@@ -53,7 +53,7 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn login(index: usize, stream: &TcpStream, tx: &mpsc::Sender<String>) -> anyhow::Result<()> {
+fn login(index: u128, stream: &TcpStream, tx: &mpsc::Sender<String>) -> anyhow::Result<()> {
     let mut reader = BufReader::new(stream.try_clone()?);
 
     let mut buf = String::new();
@@ -73,8 +73,8 @@ fn login(index: usize, stream: &TcpStream, tx: &mpsc::Sender<String>) -> anyhow:
 
 #[derive(Default)]
 struct Server {
-    usernames: HashMap<String, Option<u64>>,
-    _game_ids: HashSet<u64>,
+    usernames: HashMap<String, Option<u128>>,
+    _game_ids: HashSet<u128>,
     _games: Vec<ServerGame>,
 }
 
@@ -96,12 +96,12 @@ impl Server {
                             if let Some(index_database) = index_database {
                                 println!("{username} failed to login, {index_database} is active");
                             // The username is in the database, but not logged in yet.
-                            } else if let Ok(index_supplied) = index_supplied.parse::<u64>() {
+                            } else if let Ok(index_supplied) = index_supplied.parse::<u128>() {
                                 println!("{index_supplied} {username} logged in");
                                 *index_database = Some(index_supplied);
                             }
                         // The username is not in the database.
-                        } else if let Ok(index_supplied) = index_supplied.parse::<u64>() {
+                        } else if let Ok(index_supplied) = index_supplied.parse::<u128>() {
                             println!("{index_supplied} {username} created new user account");
                             self.usernames
                                 .insert((*username).to_string(), Some(index_supplied));
@@ -111,7 +111,7 @@ impl Server {
                         // The username is in the database and already logged in.
                         if let Some(index_database_option) = self.usernames.get_mut(*username) {
                             if let Some(index_database) = index_database_option {
-                                if let Ok(index_supplied) = index_supplied.parse::<u64>() {
+                                if let Ok(index_supplied) = index_supplied.parse::<u128>() {
                                     if *index_database == index_supplied {
                                         println!("{index_supplied} {username} logged out");
                                         *index_database_option = None;
@@ -133,7 +133,7 @@ pub struct LoggedIn {
 }
 
 struct ServerGame {
-    _id: u64,
+    _id: u128,
     _attacker: String,
     _defender: String,
     _game: Game,
