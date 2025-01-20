@@ -32,8 +32,8 @@ struct Args {
 }
 
 fn main() -> anyhow::Result<()> {
-    // Accept TCP connections.
-    // Get a login.
+    // X Accept TCP connections.
+    // X Get a login.
     // Wait for a message such as
     //     new_game,
     //     join_game,
