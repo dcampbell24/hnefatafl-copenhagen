@@ -5,9 +5,8 @@ fn main() -> anyhow::Result<()> {
     let mut stream = TcpStream::connect(&address)?;
     println!("connected to {address} ...");
 
-    let username = b"foobar";
+    let username = b"foobar\n";
     stream.write_all(username)?;
-    stream.write_all(b"\n")?;
 
     sleep(Duration::from_secs(10));
     // let mut game = Game::default();
