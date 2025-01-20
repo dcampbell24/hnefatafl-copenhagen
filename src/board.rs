@@ -1,16 +1,14 @@
 use std::fmt;
 
-use anyhow::Context;
 use rustc_hash::{FxBuildHasher, FxHashSet};
 
 use crate::{
     color::Color,
     game::PreviousBoards,
     play::{Plae, Play, Vertex},
+    space::Space,
     status::Status,
 };
-
-use super::space::Space;
 
 pub const STARTING_POSITION: [&str; 11] = [
     "...XXXXX...",
@@ -141,32 +139,32 @@ impl TryFrom<[&str; 11]> for Board {
 }
 
 impl Board {
-    fn able_to_move(&self, play_from: &Vertex) -> anyhow::Result<bool> {
+    fn able_to_move(&self, play_from: &Vertex) -> bool {
         if let Some(vertex) = play_from.up() {
-            if self.get(&vertex)? == Space::Empty {
-                return Ok(true);
+            if self.get(&vertex) == Space::Empty {
+                return true;
             }
         }
 
         if let Some(vertex) = play_from.left() {
-            if self.get(&vertex)? == Space::Empty {
-                return Ok(true);
+            if self.get(&vertex) == Space::Empty {
+                return true;
             }
         }
 
         if let Some(vertex) = play_from.down() {
-            if self.get(&vertex)? == Space::Empty {
-                return Ok(true);
+            if self.get(&vertex) == Space::Empty {
+                return true;
             }
         }
 
         if let Some(vertex) = play_from.right() {
-            if self.get(&vertex)? == Space::Empty {
-                return Ok(true);
+            if self.get(&vertex) == Space::Empty {
+                return true;
             }
         }
 
-        Ok(false)
+        false
     }
 
     /// # Errors
@@ -183,7 +181,7 @@ impl Board {
         for y in 0..11 {
             for x in 0..11 {
                 let vertex = Vertex { x, y };
-                if self.get(&vertex)?.color() == *turn {
+                if self.get(&vertex).color() == *turn {
                     possible_vertexes.push(vertex);
                 }
             }
@@ -230,7 +228,7 @@ impl Board {
         for y in 0..11 {
             for x in 0..11 {
                 let vertex = Vertex { x, y };
-                if self.get(&vertex)?.color() == *turn {
+                if self.get(&vertex).color() == *turn {
                     possible_vertexes.push(vertex);
                 }
             }
@@ -271,20 +269,15 @@ impl Board {
     }
 
     #[allow(clippy::collapsible_if)]
-    fn captures(
-        &mut self,
-        play_to: &Vertex,
-        color_from: &Color,
-        captures: &mut Vec<Vertex>,
-    ) -> anyhow::Result<()> {
+    fn captures(&mut self, play_to: &Vertex, color_from: &Color, captures: &mut Vec<Vertex>) {
         if let Some(up_1) = play_to.up() {
-            let space = self.get(&up_1)?;
+            let space = self.get(&up_1);
             if space != Space::King && space.color() == color_from.opposite() {
                 if let Some(up_2) = up_1.up() {
-                    if (RESTRICTED_SQUARES.contains(&up_2) && self.get(&up_2)? != Space::King)
-                        || self.get(&up_2)?.color() == *color_from
+                    if (RESTRICTED_SQUARES.contains(&up_2) && self.get(&up_2) != Space::King)
+                        || self.get(&up_2).color() == *color_from
                     {
-                        if self.set_if_not_king(&up_1, Space::Empty)? {
+                        if self.set_if_not_king(&up_1, Space::Empty) {
                             captures.push(up_1);
                         }
                     }
@@ -293,13 +286,13 @@ impl Board {
         }
 
         if let Some(left_1) = play_to.left() {
-            let space = self.get(&left_1)?;
+            let space = self.get(&left_1);
             if space != Space::King && space.color() == color_from.opposite() {
                 if let Some(left_2) = left_1.left() {
-                    if (RESTRICTED_SQUARES.contains(&left_2) && self.get(&left_2)? != Space::King)
-                        || self.get(&left_2)?.color() == *color_from
+                    if (RESTRICTED_SQUARES.contains(&left_2) && self.get(&left_2) != Space::King)
+                        || self.get(&left_2).color() == *color_from
                     {
-                        if self.set_if_not_king(&left_1, Space::Empty)? {
+                        if self.set_if_not_king(&left_1, Space::Empty) {
                             captures.push(left_1);
                         }
                     }
@@ -308,13 +301,13 @@ impl Board {
         }
 
         if let Some(down_1) = play_to.down() {
-            let space = self.get(&down_1)?;
+            let space = self.get(&down_1);
             if space != Space::King && space.color() == color_from.opposite() {
                 if let Some(down_2) = down_1.down() {
-                    if (RESTRICTED_SQUARES.contains(&down_2) && self.get(&down_2)? != Space::King)
-                        || self.get(&down_2)?.color() == *color_from
+                    if (RESTRICTED_SQUARES.contains(&down_2) && self.get(&down_2) != Space::King)
+                        || self.get(&down_2).color() == *color_from
                     {
-                        if self.set_if_not_king(&down_1, Space::Empty)? {
+                        if self.set_if_not_king(&down_1, Space::Empty) {
                             captures.push(down_1);
                         }
                     }
@@ -323,21 +316,19 @@ impl Board {
         }
 
         if let Some(right_1) = play_to.right() {
-            let space = self.get(&right_1)?;
+            let space = self.get(&right_1);
             if space != Space::King && space.color() == color_from.opposite() {
                 if let Some(right_2) = right_1.right() {
-                    if (RESTRICTED_SQUARES.contains(&right_2) && self.get(&right_2)? != Space::King)
-                        || self.get(&right_2)?.color() == *color_from
+                    if (RESTRICTED_SQUARES.contains(&right_2) && self.get(&right_2) != Space::King)
+                        || self.get(&right_2).color() == *color_from
                     {
-                        if self.set_if_not_king(&right_1, Space::Empty)? {
+                        if self.set_if_not_king(&right_1, Space::Empty) {
                             captures.push(right_1);
                         }
                     }
                 }
             }
         }
-
-        Ok(())
     }
 
     // y counts up going down.
@@ -348,11 +339,11 @@ impl Board {
         color_from: &Color,
         vertex_to: &Vertex,
         captures: &mut Vec<Vertex>,
-    ) -> anyhow::Result<()> {
+    ) {
         // bottom row
         for x_1 in 0..11 {
             let vertex_1 = Vertex { x: x_1, y: 10 };
-            if self.get(&vertex_1)?.color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
+            if self.get(&vertex_1).color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
             {
                 let mut count = 0;
 
@@ -364,8 +355,8 @@ impl Board {
                 for x_2 in start..11 {
                     let vertex_2 = Vertex { x: x_2, y: 10 };
                     let vertex_3 = Vertex { x: x_2, y: 9 };
-                    let color_2 = self.get(&vertex_2)?.color();
-                    let color_3 = self.get(&vertex_3)?.color();
+                    let color_2 = self.get(&vertex_2).color();
+                    let color_3 = self.get(&vertex_3).color();
                     if color_2 == color_from.opposite() && color_3 == *color_from {
                         count += 1;
                     } else {
@@ -375,7 +366,7 @@ impl Board {
 
                 let finish = start + count;
                 let vertex = Vertex { x: finish, y: 10 };
-                let color = self.get(&vertex)?.color();
+                let color = self.get(&vertex).color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     if vertex_to
                         == &(Vertex {
@@ -386,7 +377,7 @@ impl Board {
                     {
                         for x_2 in start..finish {
                             let vertex = Vertex { x: x_2, y: 10 };
-                            if self.set_if_not_king(&vertex, Space::Empty)? {
+                            if self.set_if_not_king(&vertex, Space::Empty) {
                                 captures.push(vertex);
                             }
                         }
@@ -398,7 +389,7 @@ impl Board {
         // top row
         for x_1 in 0..11 {
             let vertex_1 = Vertex { x: x_1, y: 0 };
-            if self.get(&vertex_1)?.color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
+            if self.get(&vertex_1).color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
             {
                 let mut count = 0;
 
@@ -410,8 +401,8 @@ impl Board {
                 for x_2 in start..11 {
                     let vertex_2 = Vertex { x: x_2, y: 0 };
                     let vertex_3 = Vertex { x: x_2, y: 1 };
-                    let color_2 = self.get(&vertex_2)?.color();
-                    let color_3 = self.get(&vertex_3)?.color();
+                    let color_2 = self.get(&vertex_2).color();
+                    let color_3 = self.get(&vertex_3).color();
                     if color_2 == color_from.opposite() && color_3 == *color_from {
                         count += 1;
                     } else {
@@ -421,14 +412,14 @@ impl Board {
 
                 let finish = start + count;
                 let vertex = Vertex { x: finish, y: 0 };
-                let color = self.get(&vertex)?.color();
+                let color = self.get(&vertex).color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     if vertex_to == &(Vertex { x: start - 1, y: 0 })
                         || vertex_to == &(Vertex { x: finish, y: 0 })
                     {
                         for x_2 in start..finish {
                             let vertex = Vertex { x: x_2, y: 0 };
-                            if self.set_if_not_king(&vertex, Space::Empty)? {
+                            if self.set_if_not_king(&vertex, Space::Empty) {
                                 captures.push(vertex);
                             }
                         }
@@ -440,7 +431,7 @@ impl Board {
         // left row
         for y_1 in 0..11 {
             let vertex_1 = Vertex { x: 0, y: y_1 };
-            if self.get(&vertex_1)?.color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
+            if self.get(&vertex_1).color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
             {
                 let mut count = 0;
 
@@ -452,8 +443,8 @@ impl Board {
                 for y_2 in start..11 {
                     let vertex_2 = Vertex { x: 0, y: y_2 };
                     let vertex_3 = Vertex { x: 1, y: y_2 };
-                    let color_2 = self.get(&vertex_2)?.color();
-                    let color_3 = self.get(&vertex_3)?.color();
+                    let color_2 = self.get(&vertex_2).color();
+                    let color_3 = self.get(&vertex_3).color();
                     if color_2 == color_from.opposite() && color_3 == *color_from {
                         count += 1;
                     } else {
@@ -463,14 +454,14 @@ impl Board {
 
                 let finish = start + count;
                 let vertex = Vertex { x: 0, y: finish };
-                let color = self.get(&vertex)?.color();
+                let color = self.get(&vertex).color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     if vertex_to == &(Vertex { x: 0, y: start - 1 })
                         || vertex_to == &(Vertex { x: 0, y: finish })
                     {
                         for y_2 in start..finish {
                             let vertex = Vertex { x: 0, y: y_2 };
-                            if self.set_if_not_king(&vertex, Space::Empty)? {
+                            if self.set_if_not_king(&vertex, Space::Empty) {
                                 captures.push(vertex);
                             }
                         }
@@ -482,7 +473,7 @@ impl Board {
         // right row
         for y_1 in 0..11 {
             let vertex_1 = Vertex { x: 10, y: y_1 };
-            if self.get(&vertex_1)?.color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
+            if self.get(&vertex_1).color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
             {
                 let mut count = 0;
 
@@ -494,8 +485,8 @@ impl Board {
                 for y_2 in start..11 {
                     let vertex_2 = Vertex { x: 10, y: y_2 };
                     let vertex_3 = Vertex { x: 9, y: y_2 };
-                    let color_2 = self.get(&vertex_2)?.color();
-                    let color_3 = self.get(&vertex_3)?.color();
+                    let color_2 = self.get(&vertex_2).color();
+                    let color_3 = self.get(&vertex_3).color();
                     if color_2 == color_from.opposite() && color_3 == *color_from {
                         count += 1;
                     } else {
@@ -505,7 +496,7 @@ impl Board {
 
                 let finish = start + count;
                 let vertex = Vertex { x: 10, y: finish };
-                let color = self.get(&vertex)?.color();
+                let color = self.get(&vertex).color();
                 if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     if vertex_to
                         == &(Vertex {
@@ -516,7 +507,7 @@ impl Board {
                     {
                         for y_2 in start..finish {
                             let vertex = Vertex { x: 10, y: y_2 };
-                            if self.set_if_not_king(&vertex, Space::Empty)? {
+                            if self.set_if_not_king(&vertex, Space::Empty) {
                                 captures.push(vertex);
                             }
                         }
@@ -524,8 +515,6 @@ impl Board {
                 }
             }
         }
-
-        Ok(())
     }
 
     /// # Errors
@@ -535,7 +524,7 @@ impl Board {
         for y in 0..11 {
             for x in 0..11 {
                 let v = Vertex { x, y };
-                if self.get(&v)? == Space::King {
+                if self.get(&v) == Space::King {
                     return Ok(Some(v));
                 }
             }
@@ -557,7 +546,7 @@ impl Board {
                     played_to_capture = true;
                 }
 
-                if vertex != THRONE && self.get(&vertex)? != Space::Black {
+                if vertex != THRONE && self.get(&vertex) != Space::Black {
                     return Ok(false);
                 }
             } else {
@@ -569,7 +558,7 @@ impl Board {
                     played_to_capture = true;
                 }
 
-                if vertex != THRONE && self.get(&vertex)? != Space::Black {
+                if vertex != THRONE && self.get(&vertex) != Space::Black {
                     return Ok(false);
                 }
             } else {
@@ -581,7 +570,7 @@ impl Board {
                     played_to_capture = true;
                 }
 
-                if vertex != THRONE && self.get(&vertex)? != Space::Black {
+                if vertex != THRONE && self.get(&vertex) != Space::Black {
                     return Ok(false);
                 }
             } else {
@@ -593,7 +582,7 @@ impl Board {
                     played_to_capture = true;
                 }
 
-                if vertex != THRONE && self.get(&vertex)? != Space::Black {
+                if vertex != THRONE && self.get(&vertex) != Space::Black {
                     return Ok(false);
                 }
             } else {
@@ -617,7 +606,7 @@ impl Board {
     fn exit_forts(&self) -> anyhow::Result<bool> {
         if let Some(kings_vertex) = self.find_the_king()? {
             if !kings_vertex.touches_wall()
-                || !self.able_to_move(&kings_vertex)?
+                || !self.able_to_move(&kings_vertex)
                 || !self.flood_fill_white_wins(&kings_vertex)?
             {
                 return Ok(false);
@@ -643,7 +632,7 @@ impl Board {
 
             while !stack.is_empty() {
                 if let Some(vertex) = stack.pop() {
-                    let space = self.get(&vertex)?;
+                    let space = self.get(&vertex);
                     if space == Space::Empty || space.color() == Color::White {
                         if !expand_flood_fill(vertex.up(), &mut already_checked, &mut stack) {
                             return Ok(false);
@@ -664,7 +653,7 @@ impl Board {
             for y in 0..11 {
                 for x in 0..11 {
                     let vertex = Vertex { x, y };
-                    if self.get(&vertex)?.color() == Color::White
+                    if self.get(&vertex).color() == Color::White
                         && !already_checked.contains(&vertex)
                     {
                         return Ok(false);
@@ -687,7 +676,7 @@ impl Board {
         'outer: for y in 0..11 {
             for x in 0..11 {
                 let vertex = Vertex { x, y };
-                if self.get(&vertex)?.color() == Color::Black {
+                if self.get(&vertex).color() == Color::Black {
                     count += 1;
                 }
 
@@ -716,7 +705,7 @@ impl Board {
 
         while !stack.is_empty() {
             if let Some((vertex, direction)) = stack.pop() {
-                let space = self.get(&vertex)?;
+                let space = self.get(&vertex);
                 if space == Space::Empty {
                     if let Some(vertex) = vertex.up() {
                         if !already_checked.contains(&vertex) {
@@ -749,12 +738,12 @@ impl Board {
                     let mut vertex_2 = false;
 
                     if let Some(vertex) = vertex.up() {
-                        if self.get(&vertex)?.color() == Color::White {
+                        if self.get(&vertex).color() == Color::White {
                             vertex_1 = true;
                         }
                     }
                     if let Some(vertex) = vertex.down() {
-                        if self.get(&vertex)?.color() == Color::White {
+                        if self.get(&vertex).color() == Color::White {
                             vertex_2 = true;
                         }
                     }
@@ -767,12 +756,12 @@ impl Board {
                     let mut vertex_2 = false;
 
                     if let Some(vertex) = vertex.right() {
-                        if self.get(&vertex)?.color() == Color::White {
+                        if self.get(&vertex).color() == Color::White {
                             vertex_1 = true;
                         }
                     }
                     if let Some(vertex) = vertex.left() {
-                        if self.get(&vertex)?.color() == Color::White {
+                        if self.get(&vertex).color() == Color::White {
                             vertex_2 = true;
                         }
                     }
@@ -787,32 +776,23 @@ impl Board {
         Ok(true)
     }
 
-    /// # Errors
-    ///
-    /// If the play is out of bounds.
-    pub fn get(&self, vertex: &Vertex) -> anyhow::Result<Space> {
-        let space = self
-            .spaces
-            .get(vertex.y * 11 + vertex.x)
-            .context("get: index is out of bounds")?;
-
-        Ok(*space)
+    #[must_use]
+    pub fn get(&self, vertex: &Vertex) -> Space {
+        self.spaces[vertex.y * 11 + vertex.x]
     }
 
-    /// # Errors
-    ///
-    /// If the play is out of bounds.
-    fn no_black_pieces_left(&self) -> anyhow::Result<bool> {
+    #[must_use]
+    fn no_black_pieces_left(&self) -> bool {
         for y in 0..11 {
             for x in 0..11 {
                 let v = Vertex { x, y };
-                if self.get(&v)?.color() == Color::Black {
-                    return Ok(false);
+                if self.get(&v).color() == Color::Black {
+                    return false;
                 }
             }
         }
 
-        Ok(true)
+        true
     }
 
     /// # Errors
@@ -879,7 +859,7 @@ impl Board {
             Plae::Play(play) => play,
         };
 
-        let space_from = self.get(&play.from)?;
+        let space_from = self.get(&play.from);
         let color_from = space_from.color();
 
         if color_from == Color::Colorless {
@@ -909,7 +889,7 @@ impl Board {
                     y: play.from.y,
                 };
 
-                let space = self.get(&vertex)?;
+                let space = self.get(&vertex);
                 if space != Space::Empty {
                     return Err(anyhow::Error::msg(
                         "play: you have to play through empty locations",
@@ -923,7 +903,7 @@ impl Board {
                     x: play.from.x,
                     y: (play.from.y as i32 - (y_diff * y_diff_sign)) as usize,
                 };
-                let space = self.get(&vertex)?;
+                let space = self.get(&vertex);
                 if space != Space::Empty {
                     return Err(anyhow::Error::msg(
                         "play: you have to play through empty locations",
@@ -949,8 +929,8 @@ impl Board {
         }
 
         let mut captures = Vec::new();
-        board.captures(&play.to, &color_from, &mut captures)?;
-        board.captures_shield_wall(&color_from, &play.to, &mut captures)?;
+        board.captures(&play.to, &color_from, &mut captures);
+        board.captures_shield_wall(&color_from, &play.to, &mut captures);
 
         if EXIT_SQUARES.contains(&play.to) {
             return Ok((board, captures, Status::WhiteWins));
@@ -967,7 +947,7 @@ impl Board {
             return Ok((board, captures, Status::BlackWins));
         }
 
-        if board.no_black_pieces_left()? {
+        if board.no_black_pieces_left() {
             return Ok((board, captures, Status::WhiteWins));
         }
 
@@ -980,12 +960,13 @@ impl Board {
         self.spaces[vertex.y * 11 + vertex.x] = space;
     }
 
-    fn set_if_not_king(&mut self, vertex: &Vertex, space: Space) -> anyhow::Result<bool> {
-        if self.get(vertex)? == Space::King {
-            Ok(false)
+    #[must_use]
+    fn set_if_not_king(&mut self, vertex: &Vertex, space: Space) -> bool {
+        if self.get(vertex) == Space::King {
+            false
         } else {
             self.set(vertex, space);
-            Ok(true)
+            true
         }
     }
 }

@@ -139,7 +139,7 @@ impl Game {
                     }
                 }
                 Plae::Play(play) => {
-                    let piece_color = self.board.get(&play.from)?.color();
+                    let piece_color = self.board.get(&play.from).color();
                     if piece_color != play.color {
                         return Err(anyhow::Error::msg(format!(
                             "play: you are trying to move {piece_color}, but it's {}'s turn",

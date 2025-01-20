@@ -98,7 +98,7 @@ impl TryFrom<&str> for Vertex {
                 .context("play: the first letter is not a legal char")?;
 
             let mut y = chars.as_str().parse()?;
-            if y < 12 {
+            if y > 0 && y < 12 {
                 y = 11 - y;
                 return Ok(Self { x, y });
             }
@@ -123,7 +123,7 @@ impl Vertex {
                 .context("play: the first letter is not a legal char")?;
 
             let mut y = chars.as_str().parse()?;
-            if y < 12 {
+            if y > 0 && y < 12 {
                 y = 11 - y;
                 return Ok(Self { x, y });
             }

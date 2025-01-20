@@ -312,9 +312,10 @@ mod tests {
         assert!(result.is_err());
         assert_error_str(result, "play: invalid coordinate");
 
+        // Broken!
         result = game.read_line("play white d4 d0");
         assert!(result.is_err());
-        assert_error_str(result, "get: index is out of bounds");
+        assert_error_str(result, "play: invalid coordinate");
 
         // Don't move:
         result = game.read_line("play white d4 d4");
