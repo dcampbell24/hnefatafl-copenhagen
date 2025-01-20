@@ -126,9 +126,9 @@ pub fn read_response(reader: &mut BufReader<TcpStream>) -> anyhow::Result<String
 /// # Errors
 ///
 /// If write fails.
-pub fn write_command(command: &str, writer: &mut TcpStream) -> anyhow::Result<()> {
+pub fn write_command(command: &str, stream: &mut TcpStream) -> anyhow::Result<()> {
     print!("-> {command}");
-    writer.write_all(command.as_bytes())?;
+    stream.write_all(command.as_bytes())?;
     Ok(())
 }
 
