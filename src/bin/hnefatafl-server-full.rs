@@ -44,6 +44,7 @@ fn main() -> anyhow::Result<()> {
     //         there is a general chat you join when logged on
     //         an in game chat you join when you join a game
 
+    let mut server = Server::default();
     let args = Args::parse();
     let address = &args.host_port;
     let listener = TcpListener::bind(address)?;
@@ -51,7 +52,7 @@ fn main() -> anyhow::Result<()> {
 
     let (tx, rx) = mpsc::channel();
 
-    thread::spawn(move || handle_login(&rx));
+    thread::spawn(move || server.handle_login(&rx));
 
     for stream in listener.incoming() {
         let stream = stream?;
@@ -81,39 +82,47 @@ fn login(stream: &TcpStream, tx: &mpsc::Sender<String>) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn handle_login(rx: &mpsc::Receiver<String>) -> anyhow::Result<()> {
-    let mut server = Server::default();
+#[derive(Default)]
+struct Server {
+    usernames: HashMap<String, u64>,
+    _game_ids: HashSet<u64>,
+    _games: Vec<ServerGame>,
+}
 
-    loop {
-        let command_username = rx.recv()?;
-        let command_username: Vec<_> = command_username.split_ascii_whitespace().collect();
-        if let (Some(command), Some(username)) = (command_username.first(), command_username.get(1))
-        {
-            match *command {
-                "enter" => {
-                    if let Some(active) = server.usernames.get_mut(*username) {
-                        *active += 1;
-                        if *active == 1 {
-                            println!("{username} successfully logged in");
+impl Server {
+    fn handle_login(&mut self, rx: &mpsc::Receiver<String>) -> anyhow::Result<()> {
+        loop {
+            let command_username = rx.recv()?;
+            let command_username: Vec<_> = command_username.split_ascii_whitespace().collect();
+            if let (Some(command), Some(username)) =
+                (command_username.first(), command_username.get(1))
+            {
+                match *command {
+                    "enter" => {
+                        if let Some(active) = self.usernames.get_mut(*username) {
+                            *active += 1;
+                            if *active == 1 {
+                                println!("{username} successfully logged in");
+                            } else {
+                                println!("{username} failed to login");
+                            }
                         } else {
-                            println!("{username} failed to login");
-                        }
-                    } else {
-                        println!("created new user account: {username}");
-                        server.usernames.insert((*username).to_string(), 1);
-                    }
-                }
-                "leave" => {
-                    if let Some(active) = server.usernames.get_mut(*username) {
-                        *active -= 1;
-                        if *active == 0 {
-                            println!("{username} left");
-                        } else {
-                            println!("{username} failed to leave");
+                            println!("created new user account: {username}");
+                            self.usernames.insert((*username).to_string(), 1);
                         }
                     }
+                    "leave" => {
+                        if let Some(active) = self.usernames.get_mut(*username) {
+                            *active -= 1;
+                            if *active == 0 {
+                                println!("{username} left");
+                            } else {
+                                println!("{username} failed to leave");
+                            }
+                        }
+                    }
+                    _ => {}
                 }
-                _ => {}
             }
         }
     }
@@ -122,13 +131,6 @@ fn handle_login(rx: &mpsc::Receiver<String>) -> anyhow::Result<()> {
 pub struct LoggedIn {
     _username: String,
     _game_open: Option<Game>,
-}
-
-#[derive(Default)]
-struct Server {
-    usernames: HashMap<String, u64>,
-    _game_ids: HashSet<u64>,
-    _games: Vec<ServerGame>,
 }
 
 struct ServerGame {
