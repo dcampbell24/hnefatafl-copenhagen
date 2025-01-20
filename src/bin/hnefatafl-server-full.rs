@@ -54,36 +54,36 @@ fn main() -> anyhow::Result<()> {
 
     thread::spawn(move || server.handle_login(&rx));
 
-    for stream in listener.incoming() {
+    for (index, stream) in listener.incoming().enumerate() {
         let stream = stream?;
         let tx = tx.clone();
-        thread::spawn(move || login(&stream, &tx));
+        thread::spawn(move || login(index, &stream, &tx));
     }
 
     Ok(())
 }
 
-fn login(stream: &TcpStream, tx: &mpsc::Sender<String>) -> anyhow::Result<()> {
+fn login(index: usize, stream: &TcpStream, tx: &mpsc::Sender<String>) -> anyhow::Result<()> {
     let mut reader = BufReader::new(stream.try_clone()?);
 
     let mut buf = String::new();
     reader.read_line(&mut buf)?;
     let username = buf.to_string();
 
-    tx.send(format!("enter {username}"))?;
+    tx.send(format!("{index} enter {username}"))?;
 
     for _ in 0..1_000_000 {
         reader.read_line(&mut buf)?;
     }
 
-    tx.send(format!("leave {username}"))?;
+    tx.send(format!("{index} leave {username}"))?;
 
     Ok(())
 }
 
 #[derive(Default)]
 struct Server {
-    usernames: HashMap<String, bool>,
+    usernames: HashMap<String, Option<u64>>,
     _game_ids: HashSet<u64>,
     _games: Vec<ServerGame>,
 }
@@ -91,32 +91,42 @@ struct Server {
 impl Server {
     fn handle_login(&mut self, rx: &mpsc::Receiver<String>) -> anyhow::Result<()> {
         loop {
-            let command_username = rx.recv()?;
-            let command_username: Vec<_> = command_username.split_ascii_whitespace().collect();
-            if let (Some(command), Some(username)) =
-                (command_username.first(), command_username.get(1))
-            {
+            let index_command_username = rx.recv()?;
+            let index_command_username: Vec<_> =
+                index_command_username.split_ascii_whitespace().collect();
+            if let (Some(index_supplied), Some(command), Some(username)) = (
+                index_command_username.first(),
+                index_command_username.get(1),
+                index_command_username.get(2),
+            ) {
                 match *command {
                     "enter" => {
-                        if let Some(active) = self.usernames.get_mut(*username) {
-                            if *active {
-                                println!("{username} failed to login");
-                            } else {
-                                *active = true;
-                                println!("{username} successfully logged in");
+                        if let Some(index_database) = self.usernames.get_mut(*username) {
+                            // The username is in the database and already logged in.
+                            if let Some(index_database) = index_database {
+                                println!("{username} failed to login, {index_database} is active");
+                            // The username is in the database, but not logged in yet.
+                            } else if let Ok(index_supplied) = index_supplied.parse::<u64>() {
+                                println!("{index_supplied} {username} logged in");
+                                *index_database = Some(index_supplied);
                             }
-                        } else {
-                            println!("created new user account: {username}");
-                            self.usernames.insert((*username).to_string(), true);
+                        // The username is not in the database.
+                        } else if let Ok(index_supplied) = index_supplied.parse::<u64>() {
+                            println!("{index_supplied} {username} created new user account");
+                            self.usernames
+                                .insert((*username).to_string(), Some(index_supplied));
                         }
                     }
                     "leave" => {
-                        if let Some(active) = self.usernames.get_mut(*username) {
-                            if *active {
-                                *active = false;
-                                println!("{username} left");
-                            } else {
-                                println!("{username} failed to leave");
+                        // The username is in the database and already logged in.
+                        if let Some(index_database_option) = self.usernames.get_mut(*username) {
+                            if let Some(index_database) = index_database_option {
+                                if let Ok(index_supplied) = index_supplied.parse::<u64>() {
+                                    if *index_database == index_supplied {
+                                        println!("{index_supplied} {username} logged out");
+                                        *index_database_option = None;
+                                    }
+                                }
                             }
                         }
                     }
