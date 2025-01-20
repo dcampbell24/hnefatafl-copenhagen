@@ -66,7 +66,6 @@ fn main() -> anyhow::Result<()> {
 fn login(stream: &TcpStream, tx: &mpsc::Sender<String>) -> anyhow::Result<()> {
     let mut reader = BufReader::new(stream.try_clone()?);
 
-    println!("login username:");
     let mut buf = String::new();
     reader.read_line(&mut buf)?;
     let username = buf.to_string();
@@ -84,7 +83,7 @@ fn login(stream: &TcpStream, tx: &mpsc::Sender<String>) -> anyhow::Result<()> {
 
 #[derive(Default)]
 struct Server {
-    usernames: HashMap<String, u64>,
+    usernames: HashMap<String, bool>,
     _game_ids: HashSet<u64>,
     _games: Vec<ServerGame>,
 }
@@ -100,21 +99,21 @@ impl Server {
                 match *command {
                     "enter" => {
                         if let Some(active) = self.usernames.get_mut(*username) {
-                            *active += 1;
-                            if *active == 1 {
-                                println!("{username} successfully logged in");
-                            } else {
+                            if *active {
                                 println!("{username} failed to login");
+                            } else {
+                                *active = true;
+                                println!("{username} successfully logged in");
                             }
                         } else {
                             println!("created new user account: {username}");
-                            self.usernames.insert((*username).to_string(), 1);
+                            self.usernames.insert((*username).to_string(), true);
                         }
                     }
                     "leave" => {
                         if let Some(active) = self.usernames.get_mut(*username) {
-                            *active -= 1;
-                            if *active == 0 {
+                            if *active {
+                                *active = false;
                                 println!("{username} left");
                             } else {
                                 println!("{username} failed to leave");
