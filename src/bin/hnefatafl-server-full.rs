@@ -62,23 +62,30 @@ fn login(
 
     let mut buf = String::new();
     reader.read_line(&mut buf)?;
-    let username = buf.to_string();
 
-    let (client_tx, client_rx) = mpsc::channel();
-    tx.send((format!("{index} enter {username}"), Some(client_tx)))?;
+    if let Some(username) = buf.split_ascii_whitespace().next() {
+        let (client_tx, client_rx) = mpsc::channel();
+        tx.send((format!("{index} {username} enter"), Some(client_tx)))?;
 
-    let message = client_rx.recv()?;
-    if "ok" != message.as_str() {
-        stream.write_all(b"error\n")?;
-        return Ok(());
+        let message = client_rx.recv()?;
+        if "ok" != message.as_str() {
+            stream.write_all(b"error\n")?;
+            return Ok(());
+        }
+        stream.write_all(b"ok\n")?;
+
+        let mut buf = String::new();
+        for _ in 0..1_000_000 {
+            reader.read_line(&mut buf)?;
+            tx.send((format!("{index} {username} {}", buf.trim()), None))?;
+            buf.clear();
+
+            let message = client_rx.recv()?;
+            stream.write_all(format!("{message}\n").as_bytes())?;
+        }
+
+        tx.send((format!("{index} {username} leave"), None))?;
     }
-    stream.write_all(b"ok\n")?;
-
-    for _ in 0..1_000_000 {
-        reader.read_line(&mut buf)?;
-    }
-
-    tx.send((format!("{index} leave {username}"), None))?;
 
     Ok(())
 }
@@ -97,14 +104,19 @@ impl Server {
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
     ) -> anyhow::Result<()> {
         loop {
-            let (index_command_username, option_tx) = rx.recv()?;
-            let index_command_username: Vec<_> =
-                index_command_username.split_ascii_whitespace().collect();
-            if let (Some(index_supplied), Some(command), Some(username)) = (
-                index_command_username.first(),
-                index_command_username.get(1),
-                index_command_username.get(2),
+            let (message, option_tx) = rx.recv()?;
+
+            let index_username_command: Vec<_> = message.split_ascii_whitespace().collect();
+
+            println!("{message}");
+
+            if let (Some(index_supplied), Some(username), Some(command)) = (
+                index_username_command.first(),
+                index_username_command.get(1),
+                index_username_command.get(2),
             ) {
+                let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
+                let the_rest = the_rest.join(" ");
                 match *command {
                     "enter" => {
                         if let Some(tx) = option_tx {
@@ -149,7 +161,21 @@ impl Server {
                             }
                         }
                     }
-                    _ => {}
+                    "text" => {
+                        println!("sending text... {the_rest}");
+
+                        let index = index_supplied.parse::<usize>()?;
+                        self.clients[index].send("ok".to_string())?;
+
+                        // This isn't working right.
+                        for tx in &mut self.clients {
+                            tx.send("ok".to_string())?;
+                        }
+                    }
+                    _ => {
+                        let index = index_supplied.parse::<usize>()?;
+                        self.clients[index].send("ok".to_string())?;
+                    }
                 }
             }
         }

@@ -1,19 +1,31 @@
-use std::{io::BufReader, net::TcpStream, thread::sleep, time::Duration};
+use std::{
+    io::{stdin, BufRead, BufReader},
+    net::TcpStream,
+    thread,
+};
 
 use hnefatafl_copenhagen::{read_response, write_command};
 
 fn main() -> anyhow::Result<()> {
     let address = "localhost:8000".to_string();
     let mut stream = TcpStream::connect(&address)?;
-    let mut reader = BufReader::new(stream.try_clone()?);
+    let reader = BufReader::new(stream.try_clone()?);
     println!("connected to {address} ...");
 
-    let username = "foobar\n";
-    write_command(username, &mut stream)?;
-    let _message = read_response(&mut reader)?;
+    let mut stdin = stdin().lock();
 
-    sleep(Duration::from_secs(10));
-    // let mut game = Game::default();
+    thread::spawn(move || reading_and_printing(reader));
 
-    Ok(())
+    loop {
+        let mut buf = String::new();
+        stdin.read_line(&mut buf)?;
+
+        write_command(buf.as_str(), &mut stream)?;
+    }
+}
+
+fn reading_and_printing(mut reader: BufReader<TcpStream>) -> anyhow::Result<()> {
+    loop {
+        let _message = read_response(&mut reader)?;
+    }
 }
