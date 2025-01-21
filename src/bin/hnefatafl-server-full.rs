@@ -1,13 +1,17 @@
 use std::{
     collections::{HashMap, HashSet},
+    env,
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     sync::mpsc::{self, Receiver},
     thread,
 };
 
+use chrono::Local;
 use clap::{command, Parser};
+use env_logger::Builder;
 use hnefatafl_copenhagen::game::Game;
+use log::{info, LevelFilter};
 
 /// A Hnefatafl Copenhagen Server
 ///
@@ -34,11 +38,13 @@ fn main() -> anyhow::Result<()> {
     //         X there is a general chat you join when logged on
     //         an in game chat you join when you join a game
 
+    init_logger();
+
     let mut server = Server::default();
     let args = Args::parse();
     let address = &args.host_port;
     let listener = TcpListener::bind(address)?;
-    println!("listening on {address} ...");
+    info!("listening on {address} ...");
 
     let (tx, rx) = mpsc::channel();
 
@@ -129,13 +135,13 @@ impl Server {
                             if let Some(index_database) = self.usernames.get_mut(*username) {
                                 // The username is in the database and already logged in.
                                 if let Some(index_database) = index_database {
-                                    println!(
+                                    info!(
                                         "{index_supplied} {username} login failed, {index_database} is logged in"
                                     );
                                     tx.send("error".to_string())?;
                                 // The username is in the database, but not logged in yet.
                                 } else if let Ok(index_supplied) = index_supplied.parse::<u128>() {
-                                    println!("{index_supplied} {username} logged in");
+                                    info!("{index_supplied} {username} logged in");
                                     *index_database = Some(index_supplied);
                                     tx.send("ok".to_string())?;
                                 } else {
@@ -143,7 +149,7 @@ impl Server {
                                 }
                             // The username is not in the database.
                             } else if let Ok(index_supplied) = index_supplied.parse::<u128>() {
-                                println!("{index_supplied} {username} created user account");
+                                info!("{index_supplied} {username} created user account");
                                 self.usernames
                                     .insert((*username).to_string(), Some(index_supplied));
                                 tx.send("ok".to_string())?;
@@ -160,7 +166,7 @@ impl Server {
                             if let Some(index_database) = index_database_option {
                                 if let Ok(index_supplied) = index_supplied.parse::<u128>() {
                                     if *index_database == index_supplied {
-                                        println!("{index_supplied} {username} logged out");
+                                        info!("{index_supplied} {username} logged out");
                                         *index_database_option = None;
                                     }
                                 }
@@ -168,7 +174,7 @@ impl Server {
                         }
                     }
                     "text" => {
-                        println!("{index_supplied} {username} text {the_rest}");
+                        info!("{index_supplied} {username} text {the_rest}");
                         for tx in &mut self.clients {
                             tx.send(format!("text {the_rest}"))?;
                         }
@@ -193,4 +199,28 @@ struct ServerGame {
     _attacker: String,
     _defender: String,
     _game: Game,
+}
+
+fn init_logger() {
+    let mut builder = Builder::new();
+
+    builder.format(|formatter, record| {
+        writeln!(
+            formatter,
+            "{} [{}] ({}): {}",
+            Local::now().format("%Y-%m-%d %H:%M:%S"),
+            record.level(),
+            record.target(),
+            record.args()
+        )
+    });
+
+    if let Ok(var) = env::var("RUST_LOG") {
+        builder.parse_filters(&var);
+    } else {
+        // if no RUST_LOG provided, default to logging at the Info level
+        builder.filter(None, LevelFilter::Info);
+    }
+
+    builder.init();
 }
