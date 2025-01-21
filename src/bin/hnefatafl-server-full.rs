@@ -65,7 +65,7 @@ fn login(
 
     if let Some(username) = buf.split_ascii_whitespace().next() {
         let (client_tx, client_rx) = mpsc::channel();
-        tx.send((format!("{index} {username} enter"), Some(client_tx)))?;
+        tx.send((format!("{index} {username} login"), Some(client_tx)))?;
 
         let message = client_rx.recv()?;
         if "ok" != message.as_str() {
@@ -83,7 +83,7 @@ fn login(
             buf.clear();
         }
 
-        tx.send((format!("{index} {username} leave"), None))?;
+        tx.send((format!("{index} {username} logout"), None))?;
     }
 
     Ok(())
@@ -124,13 +124,13 @@ impl Server {
                 let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
                 let the_rest = the_rest.join(" ");
                 match *command {
-                    "enter" => {
+                    "login" => {
                         if let Some(tx) = option_tx {
                             if let Some(index_database) = self.usernames.get_mut(*username) {
                                 // The username is in the database and already logged in.
                                 if let Some(index_database) = index_database {
                                     println!(
-                                        "{index_supplied} {username} failed to login, {index_database} is active"
+                                        "{index_supplied} {username} login failed, {index_database} is logged in"
                                     );
                                     tx.send("error".to_string())?;
                                 // The username is in the database, but not logged in yet.
@@ -143,7 +143,7 @@ impl Server {
                                 }
                             // The username is not in the database.
                             } else if let Ok(index_supplied) = index_supplied.parse::<u128>() {
-                                println!("{index_supplied} {username} created new user account");
+                                println!("{index_supplied} {username} created user account");
                                 self.usernames
                                     .insert((*username).to_string(), Some(index_supplied));
                                 tx.send("ok".to_string())?;
@@ -154,7 +154,7 @@ impl Server {
                             self.clients.push(tx);
                         }
                     }
-                    "leave" => {
+                    "logout" => {
                         // The username is in the database and already logged in.
                         if let Some(index_database_option) = self.usernames.get_mut(*username) {
                             if let Some(index_database) = index_database_option {
@@ -168,8 +168,9 @@ impl Server {
                         }
                     }
                     "text" => {
+                        println!("{index_supplied} {username} text {the_rest}");
                         for tx in &mut self.clients {
-                            tx.send(format!("ok {the_rest}"))?;
+                            tx.send(format!("text {the_rest}"))?;
                         }
                     }
                     _ => {
