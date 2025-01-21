@@ -2,7 +2,7 @@ use std::{
     collections::{HashMap, HashSet},
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
-    sync::mpsc,
+    sync::mpsc::{self, Receiver},
     thread,
 };
 
@@ -31,7 +31,7 @@ fn main() -> anyhow::Result<()> {
     //     list_active_games,
     //     list_archived_games,
     //     send_message
-    //         there is a general chat you join when logged on
+    //         X there is a general chat you join when logged on
     //         an in game chat you join when you join a game
 
     let mut server = Server::default();
@@ -47,7 +47,7 @@ fn main() -> anyhow::Result<()> {
     for (index, stream) in (0..).zip(listener.incoming()) {
         let stream = stream?;
         let tx = tx.clone();
-        thread::spawn(move || login(index, &stream, &tx));
+        thread::spawn(move || login(index, stream, &tx));
     }
 
     Ok(())
@@ -55,7 +55,7 @@ fn main() -> anyhow::Result<()> {
 
 fn login(
     index: u128,
-    mut stream: &TcpStream,
+    mut stream: TcpStream,
     tx: &mpsc::Sender<(String, Option<mpsc::Sender<String>>)>,
 ) -> anyhow::Result<()> {
     let mut reader = BufReader::new(stream.try_clone()?);
@@ -74,20 +74,29 @@ fn login(
         }
         stream.write_all(b"ok\n")?;
 
+        thread::spawn(move || receiving_and_writing(stream, &client_rx));
+
         let mut buf = String::new();
         for _ in 0..1_000_000 {
             reader.read_line(&mut buf)?;
             tx.send((format!("{index} {username} {}", buf.trim()), None))?;
             buf.clear();
-
-            let message = client_rx.recv()?;
-            stream.write_all(format!("{message}\n").as_bytes())?;
         }
 
         tx.send((format!("{index} {username} leave"), None))?;
     }
 
     Ok(())
+}
+
+fn receiving_and_writing(
+    mut stream: TcpStream,
+    client_rx: &Receiver<String>,
+) -> anyhow::Result<()> {
+    loop {
+        let message = client_rx.recv()?;
+        stream.write_all(format!("{message}\n").as_bytes())?;
+    }
 }
 
 #[derive(Default)]
@@ -162,19 +171,13 @@ impl Server {
                         }
                     }
                     "text" => {
-                        println!("sending text... {the_rest}");
-
-                        let index = index_supplied.parse::<usize>()?;
-                        self.clients[index].send("ok".to_string())?;
-
-                        // This isn't working right.
                         for tx in &mut self.clients {
-                            tx.send("ok".to_string())?;
+                            tx.send(format!("ok {the_rest}"))?;
                         }
                     }
                     _ => {
                         let index = index_supplied.parse::<usize>()?;
-                        self.clients[index].send("ok".to_string())?;
+                        self.clients[index].send("error".to_string())?;
                     }
                 }
             }
