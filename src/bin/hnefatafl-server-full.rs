@@ -114,10 +114,7 @@ impl Server {
     ) -> anyhow::Result<()> {
         loop {
             let (message, option_tx) = rx.recv()?;
-
             let index_username_command: Vec<_> = message.split_ascii_whitespace().collect();
-
-            println!("{message}");
 
             if let (Some(index_supplied), Some(username), Some(command)) = (
                 index_username_command.first(),
@@ -133,7 +130,7 @@ impl Server {
                                 // The username is in the database and already logged in.
                                 if let Some(index_database) = index_database {
                                     println!(
-                                        "{username} failed to login, {index_database} is active"
+                                        "{index_supplied} {username} failed to login, {index_database} is active"
                                     );
                                     tx.send("error".to_string())?;
                                 // The username is in the database, but not logged in yet.
