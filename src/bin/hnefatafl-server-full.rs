@@ -7,7 +7,7 @@ use std::{
     thread,
 };
 
-use chrono::Local;
+use chrono::Utc;
 use clap::{command, Parser};
 use env_logger::Builder;
 use hnefatafl_copenhagen::game::Game;
@@ -208,7 +208,7 @@ fn init_logger() {
         writeln!(
             formatter,
             "{} [{}] ({}): {}",
-            Local::now().format("%Y-%m-%d %H:%M:%S"),
+            Utc::now().format("%Y-%m-%d %H:%M:%S %z"),
             record.level(),
             record.target(),
             record.args()
