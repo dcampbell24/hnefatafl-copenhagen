@@ -1,65 +1,61 @@
 use std::{
     io::{BufRead, BufReader, Write},
     net::TcpStream,
+    sync::mpsc,
     thread,
 };
 
 use hnefatafl_copenhagen::{game::Game, message, play::Vertex, space::Space};
-use iced::widget::{button, row, text, text_input, Column, Row};
+use iced::{
+    futures::{channel::mpsc::Sender, SinkExt, Stream},
+    stream,
+    widget::{button, row, text, text_input, Column, Row},
+    Subscription,
+};
+
+const ADDRESS: &str = "localhost:8000";
 
 fn main() -> anyhow::Result<()> {
-    iced::run("Hnefatafl Copenhagen", Client::update, Client::view)?;
+    iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
+        .subscription(Client::pass_messages)
+        .run()?;
+
     Ok(())
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct Client {
     game: Game,
-    tcp_stream: TcpStream,
+    tx: Option<mpsc::Sender<String>>,
     texts: Vec<String>,
     text_input: String,
 }
 
-impl Default for Client {
-    fn default() -> Self {
-        let address = "localhost:8000".to_string();
-        let tcp_stream = TcpStream::connect(&address).unwrap();
-        println!("connected to {address} ...");
-
-        // Read a line from the server.
-        let mut reader = BufReader::new(tcp_stream.try_clone().unwrap());
-        let mut buffer = String::new();
-        thread::spawn(move || loop {
-            reader.read_line(&mut buffer).unwrap();
-            print!("<- {buffer}");
-            buffer.clear();
-        });
-
-        Client {
-            game: Game::default(),
-            tcp_stream,
-            texts: Vec::new(),
-            text_input: String::new(),
-        }
-    }
-}
-
 impl Client {
+    fn pass_messages(_self: &Self) -> Subscription<Message> {
+        Subscription::run(pass_messages)
+    }
+
     pub fn update(&mut self, message: Message) {
         match message {
             Message::_Game(message) => {
                 let _result = self.game.update(message);
             }
+            Message::TcpConnected(tx) => {
+                println!("TCP connected...");
+                self.tx = Some(tx);
+            }
             Message::TextChanged(string) => {
                 self.text_input = string;
             }
+            Message::TextReceived(string) => {
+                print!("-> {string}, we made it!");
+            }
             Message::TextSend => {
-                self.text_input.push('\n');
-                print!("-> {}", &self.text_input);
-                self.tcp_stream
-                    .write_all(self.text_input.as_bytes())
-                    .unwrap();
-
+                if let Some(tx) = &self.tx {
+                    self.text_input.push('\n');
+                    tx.send(self.text_input.clone()).unwrap();
+                }
                 self.text_input.clear();
             }
         }
@@ -102,7 +98,36 @@ impl Client {
 #[derive(Clone, Debug)]
 enum Message {
     _Game(message::Message),
-    // TextReceive(String),
+    TcpConnected(mpsc::Sender<String>),
     TextChanged(String),
+    TextReceived(String),
     TextSend,
+}
+
+fn pass_messages() -> impl Stream<Item = Message> {
+    stream::channel(100, |mut sender| async move {
+        let mut tcp_stream = TcpStream::connect(ADDRESS).unwrap();
+        let reader = BufReader::new(tcp_stream.try_clone().unwrap());
+        println!("connected to {ADDRESS} ...");
+
+        let (tx, rx) = mpsc::channel();
+        let _ = sender.send(Message::TcpConnected(tx)).await;
+        thread::spawn(move || loop {
+            let message = rx.recv().unwrap();
+            print!("<- {}", &message);
+            tcp_stream.write_all(message.as_bytes()).unwrap();
+        });
+
+        thread::spawn(move || send_messages(reader, sender));
+    })
+}
+
+async fn send_messages(mut reader: BufReader<TcpStream>, mut sender: Sender<Message>) {
+    loop {
+        let mut buffer = String::new();
+        reader.read_line(&mut buffer).unwrap();
+        print!("-> {buffer}");
+
+        let _ = sender.send(Message::TextReceived(buffer)).await;
+    }
 }
