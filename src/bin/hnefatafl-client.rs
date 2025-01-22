@@ -1,11 +1,11 @@
 use std::{
-    io::{stdin, BufRead, BufReader, Write},
+    io::{BufRead, BufReader, Write},
     net::TcpStream,
     thread,
 };
 
 use hnefatafl_copenhagen::{game::Game, message, play::Vertex, space::Space};
-use iced::widget::{button, row, text, Column, Row};
+use iced::widget::{button, row, text, text_input, Column, Row};
 
 fn main() -> anyhow::Result<()> {
     iced::run("Hnefatafl Copenhagen", Client::update, Client::view)?;
@@ -15,17 +15,19 @@ fn main() -> anyhow::Result<()> {
 #[derive(Debug)]
 struct Client {
     game: Game,
+    tcp_stream: TcpStream,
     texts: Vec<String>,
+    text_input: String,
 }
 
 impl Default for Client {
     fn default() -> Self {
         let address = "localhost:8000".to_string();
-        let mut stream = TcpStream::connect(&address).unwrap();
+        let tcp_stream = TcpStream::connect(&address).unwrap();
         println!("connected to {address} ...");
 
         // Read a line from the server.
-        let mut reader = BufReader::new(stream.try_clone().unwrap());
+        let mut reader = BufReader::new(tcp_stream.try_clone().unwrap());
         let mut buffer = String::new();
         thread::spawn(move || loop {
             reader.read_line(&mut buffer).unwrap();
@@ -33,19 +35,11 @@ impl Default for Client {
             buffer.clear();
         });
 
-        // Read a line from stdin and write to the server.
-        let stdin = stdin();
-        let mut buffer = String::new();
-        thread::spawn(move || loop {
-            stdin.read_line(&mut buffer).unwrap();
-            print!("-> {buffer}");
-            stream.write_all(buffer.as_bytes()).unwrap();
-            buffer.clear();
-        });
-
         Client {
             game: Game::default(),
+            tcp_stream,
             texts: Vec::new(),
+            text_input: String::new(),
         }
     }
 }
@@ -55,11 +49,19 @@ impl Client {
         match message {
             Message::_Game(message) => {
                 let _result = self.game.update(message);
-            } /*
-              Message::TextReceive(string) => {
-                  self.reader.read_line(&mut self.read_buffer).unwrap();
-              }
-              */
+            }
+            Message::TextChanged(string) => {
+                self.text_input = string;
+            }
+            Message::TextSend => {
+                self.text_input.push('\n');
+                print!("-> {}", &self.text_input);
+                self.tcp_stream
+                    .write_all(self.text_input.as_bytes())
+                    .unwrap();
+
+                self.text_input.clear();
+            }
         }
     }
 
@@ -83,6 +85,11 @@ impl Client {
 
         let mut column = Column::new();
         column = column.push("Texts:");
+        column = column.push(
+            text_input("", &self.text_input)
+                .on_input(Message::TextChanged)
+                .on_submit(Message::TextSend),
+        );
 
         for message in &self.texts {
             column = column.push(text(message));
@@ -96,5 +103,6 @@ impl Client {
 enum Message {
     _Game(message::Message),
     // TextReceive(String),
-    // TextSend(String),
+    TextChanged(String),
+    TextSend,
 }
