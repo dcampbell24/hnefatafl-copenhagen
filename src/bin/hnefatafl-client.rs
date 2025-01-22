@@ -1,31 +1,100 @@
 use std::{
-    io::{stdin, BufRead, BufReader},
+    io::{stdin, BufRead, BufReader, Write},
     net::TcpStream,
     thread,
 };
 
-use hnefatafl_copenhagen::{read_response, write_command};
+use hnefatafl_copenhagen::{game::Game, message, play::Vertex, space::Space};
+use iced::widget::{button, row, text, Column, Row};
 
 fn main() -> anyhow::Result<()> {
-    let address = "localhost:8000".to_string();
-    let mut stream = TcpStream::connect(&address)?;
-    let reader = BufReader::new(stream.try_clone()?);
-    println!("connected to {address} ...");
+    iced::run("Hnefatafl Copenhagen", Client::update, Client::view)?;
+    Ok(())
+}
 
-    let mut stdin = stdin().lock();
+#[derive(Debug)]
+struct Client {
+    game: Game,
+    texts: Vec<String>,
+}
 
-    thread::spawn(move || reading_and_printing(reader));
+impl Default for Client {
+    fn default() -> Self {
+        let address = "localhost:8000".to_string();
+        let mut stream = TcpStream::connect(&address).unwrap();
+        println!("connected to {address} ...");
 
-    loop {
-        let mut buf = String::new();
-        stdin.read_line(&mut buf)?;
+        // Read a line from the server.
+        let mut reader = BufReader::new(stream.try_clone().unwrap());
+        let mut buffer = String::new();
+        thread::spawn(move || loop {
+            reader.read_line(&mut buffer).unwrap();
+            print!("<- {buffer}");
+            buffer.clear();
+        });
 
-        write_command(buf.as_str(), &mut stream)?;
+        // Read a line from stdin and write to the server.
+        let stdin = stdin();
+        let mut buffer = String::new();
+        thread::spawn(move || loop {
+            stdin.read_line(&mut buffer).unwrap();
+            print!("-> {buffer}");
+            stream.write_all(buffer.as_bytes()).unwrap();
+            buffer.clear();
+        });
+
+        Client {
+            game: Game::default(),
+            texts: Vec::new(),
+        }
     }
 }
 
-fn reading_and_printing(mut reader: BufReader<TcpStream>) -> anyhow::Result<()> {
-    loop {
-        let _message = read_response(&mut reader)?;
+impl Client {
+    pub fn update(&mut self, message: Message) {
+        match message {
+            Message::_Game(message) => {
+                let _result = self.game.update(message);
+            } /*
+              Message::TextReceive(string) => {
+                  self.reader.read_line(&mut self.read_buffer).unwrap();
+              }
+              */
+        }
     }
+
+    #[must_use]
+    pub fn view(&self) -> Row<Message> {
+        let mut row = Row::new();
+
+        for y in 0..11 {
+            let mut column = Column::new();
+            for x in 0..11 {
+                let button = match self.game.board.get(&Vertex { x, y }) {
+                    Space::Empty => button(text("  ")),
+                    Space::Black => button(text("X")),
+                    Space::King => button(text("K")),
+                    Space::White => button(text("O")),
+                };
+                column = column.push(button);
+            }
+            row = row.push(column);
+        }
+
+        let mut column = Column::new();
+        column = column.push("Texts:");
+
+        for message in &self.texts {
+            column = column.push(text(message));
+        }
+
+        row![row, column]
+    }
+}
+
+#[derive(Clone, Debug)]
+enum Message {
+    _Game(message::Message),
+    // TextReceive(String),
+    // TextSend(String),
 }
