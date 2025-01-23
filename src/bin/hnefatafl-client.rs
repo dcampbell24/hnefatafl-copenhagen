@@ -2,8 +2,7 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     sync::mpsc,
-    thread::{self, sleep},
-    time::Duration,
+    thread,
 };
 
 use futures::executor;
@@ -121,12 +120,13 @@ fn pass_messages() -> impl Stream<Item = Message> {
         });
 
         let (tx, rx) = mpsc::channel();
-        thread::spawn(move || loop {
+        thread::spawn(move || {
             let mut buffer = String::new();
-            if reader.read_line(&mut buffer).unwrap() == 0 {
-                sleep(Duration::from_millis(100));
-            } else {
-                tx.send(buffer).unwrap();
+            loop {
+                if reader.read_line(&mut buffer).unwrap() != 0 {
+                    tx.send(buffer.clone()).unwrap();
+                    buffer.clear();
+                }
             }
         });
 
