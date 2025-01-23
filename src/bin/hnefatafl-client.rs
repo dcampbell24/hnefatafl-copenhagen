@@ -8,17 +8,21 @@ use std::{
 use futures::executor;
 use hnefatafl_copenhagen::{game::Game, message, play::Vertex, space::Space};
 use iced::{
+    font::Font,
     futures::{SinkExt, Stream},
     stream,
     widget::{button, row, text, text_input, Column, Row},
-    Subscription,
+    Subscription, Theme,
 };
 
 const ADDRESS: &str = "localhost:8000";
 
 fn main() -> anyhow::Result<()> {
     iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
+        .default_font(Font::MONOSPACE)
         .subscription(Client::pass_messages)
+        .window_size(iced::Size::INFINITY)
+        .theme(Client::theme)
         .run()?;
 
     Ok(())
@@ -35,6 +39,10 @@ struct Client {
 impl Client {
     fn pass_messages(_self: &Self) -> Subscription<Message> {
         Subscription::run(pass_messages)
+    }
+
+    pub fn theme(_self: &Self) -> Theme {
+        Theme::SolarizedLight
     }
 
     pub fn update(&mut self, message: Message) {
@@ -70,7 +78,7 @@ impl Client {
             let mut column = Column::new();
             for x in 0..11 {
                 let button = match self.game.board.get(&Vertex { x, y }) {
-                    Space::Empty => button(text("  ")),
+                    Space::Empty => button(text(" ")),
                     Space::Black => button(text("X")),
                     Space::King => button(text("K")),
                     Space::White => button(text("O")),
