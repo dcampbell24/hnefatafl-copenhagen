@@ -3,6 +3,7 @@ use std::{
     net::TcpStream,
     sync::mpsc,
     thread,
+    time::Duration,
 };
 
 use hnefatafl_copenhagen::{game::Game, message, play::Vertex, space::Space};
@@ -107,7 +108,7 @@ enum Message {
 fn pass_messages() -> impl Stream<Item = Message> {
     stream::channel(100, |mut sender| async move {
         let mut tcp_stream = TcpStream::connect(ADDRESS).unwrap();
-        let reader = BufReader::new(tcp_stream.try_clone().unwrap());
+        let mut reader = BufReader::new(tcp_stream.try_clone().unwrap());
         println!("connected to {ADDRESS} ...");
 
         let (tx, rx) = mpsc::channel();
@@ -118,16 +119,30 @@ fn pass_messages() -> impl Stream<Item = Message> {
             tcp_stream.write_all(message.as_bytes()).unwrap();
         });
 
-        thread::spawn(move || send_messages(reader, sender));
+        let (tx, rx) = mpsc::channel();
+        thread::spawn(move || loop {
+            let mut buffer = String::new();
+            reader.read_line(&mut buffer).unwrap();
+            print!("-> {buffer}");
+            if let Err(error) = tx.send(buffer) {
+                println!("{error}");
+                return;
+            }
+        });
+
+        thread::spawn(move || send_message(rx, sender));
     })
 }
 
-async fn send_messages(mut reader: BufReader<TcpStream>, mut sender: Sender<Message>) {
+async fn send_message(rx: mpsc::Receiver<String>, mut sender: Sender<Message>) {
     loop {
-        let mut buffer = String::new();
-        reader.read_line(&mut buffer).unwrap();
-        print!("-> {buffer}");
-
-        let _ = sender.send(Message::TextReceived(buffer)).await;
+        match rx.recv_timeout(Duration::from_secs(1)) {
+            Ok(message) => {
+                let _ = sender.send(Message::TextReceived(message)).await;
+            }
+            Err(error) => {
+                println!("{error}");
+            }
+        }
     }
 }
