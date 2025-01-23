@@ -71,7 +71,11 @@ impl Client {
             Message::TextSend => {
                 if let Some(tx) = &self.tx {
                     self.text_input.push('\n');
-                    tx.send(self.text_input.clone()).unwrap();
+                    if self.screen == Screen::Login {
+                        tx.send(self.text_input.clone()).unwrap();
+                    } else {
+                        tx.send(format!("text {}", self.text_input)).unwrap();
+                    }
                 }
                 self.text_input.clear();
 
