@@ -8,7 +8,7 @@ use std::{
 use futures::executor;
 use hnefatafl_copenhagen::{game::Game, message, play::Vertex, space::Space};
 use iced::{
-    futures::{channel::mpsc::Sender, SinkExt, Stream},
+    futures::{SinkExt, Stream},
     stream,
     widget::{button, row, text, text_input, Column, Row},
     Subscription,
@@ -119,30 +119,14 @@ fn pass_messages() -> impl Stream<Item = Message> {
             tcp_stream.write_all(message.as_bytes()).unwrap();
         });
 
-        let (tx, rx) = mpsc::channel();
         thread::spawn(move || {
             let mut buffer = String::new();
             loop {
                 if reader.read_line(&mut buffer).unwrap() != 0 {
-                    tx.send(buffer.clone()).unwrap();
+                    let _ = executor::block_on(sender.send(Message::TextReceived(buffer.clone())));
                     buffer.clear();
                 }
             }
         });
-
-        thread::spawn(move || send_message(&rx, sender));
     })
-}
-
-fn send_message(rx: &mpsc::Receiver<String>, mut sender: Sender<Message>) {
-    loop {
-        match rx.recv() {
-            Ok(message) => {
-                let _ = executor::block_on(sender.send(Message::TextReceived(message)));
-            }
-            Err(error) => {
-                println!("{error}");
-            }
-        }
-    }
 }
