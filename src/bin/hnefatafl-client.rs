@@ -31,9 +31,17 @@ fn main() -> anyhow::Result<()> {
 #[derive(Debug, Default)]
 struct Client {
     game: Game,
+    screen: Screen,
     tx: Option<mpsc::Sender<String>>,
     texts: Vec<String>,
     text_input: String,
+}
+
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+enum Screen {
+    #[default]
+    Login,
+    Games,
 }
 
 impl Client {
@@ -66,41 +74,57 @@ impl Client {
                     tx.send(self.text_input.clone()).unwrap();
                 }
                 self.text_input.clear();
+
+                if self.screen == Screen::Login {
+                    self.screen = Screen::Games;
+                }
             }
         }
     }
 
     #[must_use]
     pub fn view(&self) -> Row<Message> {
-        let mut row = Row::new();
+        match self.screen {
+            Screen::Games => {
+                let mut row = Row::new();
 
-        for y in 0..11 {
-            let mut column = Column::new();
-            for x in 0..11 {
-                let button = match self.game.board.get(&Vertex { x, y }) {
-                    Space::Empty => button(text(" ")),
-                    Space::Black => button(text("X")),
-                    Space::King => button(text("K")),
-                    Space::White => button(text("O")),
-                };
-                column = column.push(button);
+                for y in 0..11 {
+                    let mut column = Column::new();
+                    for x in 0..11 {
+                        let button = match self.game.board.get(&Vertex { x, y }) {
+                            Space::Empty => button(text(" ")),
+                            Space::Black => button(text("X")),
+                            Space::King => button(text("K")),
+                            Space::White => button(text("O")),
+                        };
+                        column = column.push(button);
+                    }
+                    row = row.push(column);
+                }
+
+                let mut column = Column::new();
+                column = column.push("Texts:");
+                column = column.push(
+                    text_input("", &self.text_input)
+                        .on_input(Message::TextChanged)
+                        .on_submit(Message::TextSend),
+                );
+
+                for message in &self.texts {
+                    column = column.push(text(message));
+                }
+
+                row![row, column]
             }
-            row = row.push(column);
+            Screen::Login => {
+                row![
+                    text("username:"),
+                    text_input("", &self.text_input)
+                        .on_input(Message::TextChanged)
+                        .on_submit(Message::TextSend),
+                ]
+            }
         }
-
-        let mut column = Column::new();
-        column = column.push("Texts:");
-        column = column.push(
-            text_input("", &self.text_input)
-                .on_input(Message::TextChanged)
-                .on_submit(Message::TextSend),
-        );
-
-        for message in &self.texts {
-            column = column.push(text(message));
-        }
-
-        row![row, column]
     }
 }
 
