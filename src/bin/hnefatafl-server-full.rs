@@ -48,7 +48,7 @@ fn main() -> anyhow::Result<()> {
 
     let (tx, rx) = mpsc::channel();
 
-    thread::spawn(move || server.handle_login(&rx));
+    thread::spawn(move || server.handle_messages(&rx));
 
     for (index, stream) in (0..).zip(listener.incoming()) {
         let stream = stream?;
@@ -60,7 +60,7 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn login(
-    index: u128,
+    index: usize,
     mut stream: TcpStream,
     tx: &mpsc::Sender<(String, Option<mpsc::Sender<String>>)>,
 ) -> anyhow::Result<()> {
@@ -68,17 +68,20 @@ fn login(
 
     let mut buf = String::new();
     reader.read_line(&mut buf)?;
+    while buf.trim().is_empty() {
+        reader.read_line(&mut buf)?;
+    }
 
     if let Some(username) = buf.split_ascii_whitespace().next() {
         let (client_tx, client_rx) = mpsc::channel();
         tx.send((format!("{index} {username} login"), Some(client_tx)))?;
 
         let message = client_rx.recv()?;
-        if "ok" != message.as_str() {
-            stream.write_all(b"error\n")?;
+        if "=" != message.as_str() {
+            stream.write_all(b"?\n")?;
             return Ok(());
         }
-        stream.write_all(b"ok\n")?;
+        stream.write_all(b"=\n")?;
 
         thread::spawn(move || receiving_and_writing(stream, &client_rx));
 
@@ -109,82 +112,111 @@ fn receiving_and_writing(
 struct Server {
     clients: Vec<mpsc::Sender<String>>,
     _games: Vec<ServerGame>,
-    _game_ids: HashSet<u128>,
-    usernames: HashMap<String, Option<u128>>,
+    _game_ids: HashSet<usize>,
+    usernames: HashMap<String, Option<usize>>,
 }
 
 impl Server {
-    fn handle_login(
+    fn handle_messages(
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
     ) -> anyhow::Result<()> {
         loop {
-            let (message, option_tx) = rx.recv()?;
-            let index_username_command: Vec<_> = message.split_ascii_whitespace().collect();
-
-            if let (Some(index_supplied), Some(username), Some(command)) = (
-                index_username_command.first(),
-                index_username_command.get(1),
-                index_username_command.get(2),
-            ) {
-                let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
-                let the_rest = the_rest.join(" ");
-                match *command {
-                    "login" => {
-                        if let Some(tx) = option_tx {
-                            if let Some(index_database) = self.usernames.get_mut(*username) {
-                                // The username is in the database and already logged in.
-                                if let Some(index_database) = index_database {
-                                    info!(
-                                        "{index_supplied} {username} login failed, {index_database} is logged in"
-                                    );
-                                    tx.send("error".to_string())?;
-                                // The username is in the database, but not logged in yet.
-                                } else if let Ok(index_supplied) = index_supplied.parse::<u128>() {
-                                    info!("{index_supplied} {username} logged in");
-                                    *index_database = Some(index_supplied);
-                                    tx.send("ok".to_string())?;
-                                } else {
-                                    tx.send("error".to_string())?;
-                                }
-                            // The username is not in the database.
-                            } else if let Ok(index_supplied) = index_supplied.parse::<u128>() {
-                                info!("{index_supplied} {username} created user account");
-                                self.usernames
-                                    .insert((*username).to_string(), Some(index_supplied));
-                                tx.send("ok".to_string())?;
-                            } else {
-                                tx.send("error".to_string())?;
-                            }
-
-                            self.clients.push(tx);
-                        }
-                    }
-                    "logout" => {
-                        // The username is in the database and already logged in.
-                        if let Some(index_database_option) = self.usernames.get_mut(*username) {
-                            if let Some(index_database) = index_database_option {
-                                if let Ok(index_supplied) = index_supplied.parse::<u128>() {
-                                    if *index_database == index_supplied {
-                                        info!("{index_supplied} {username} logged out");
-                                        *index_database_option = None;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    "text" => {
-                        info!("{index_supplied} {username} text {the_rest}");
-                        for tx in &mut self.clients {
-                            tx.send(format!("text {the_rest}"))?;
-                        }
-                    }
-                    _ => {
-                        let index = index_supplied.parse::<usize>()?;
-                        self.clients[index].send("error".to_string())?;
-                    }
+            let (tx, ok) = self.handle_messages_internal(rx);
+            if let Some(tx) = tx {
+                if ok {
+                    tx.send('='.to_string())?;
+                } else {
+                    tx.send('?'.to_string())?;
                 }
             }
+        }
+    }
+
+    fn handle_messages_internal(
+        &mut self,
+        rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
+    ) -> (Option<mpsc::Sender<String>>, bool) {
+        let (message, option_tx) = rx.recv().expect("error receiving message");
+        let index_username_command: Vec<_> = message.split_ascii_whitespace().collect();
+
+        if let (Some(index_supplied), Some(username), command_option) = (
+            index_username_command.first(),
+            index_username_command.get(1),
+            index_username_command.get(2),
+        ) {
+            let Some(command) = command_option else {
+                return (None, false);
+            };
+
+            let index_supplied = index_supplied
+                .parse::<usize>()
+                .expect("the index should be a valid usize");
+
+            let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
+            let the_rest = the_rest.join(" ");
+            match *command {
+                "login" => {
+                    if let Some(tx) = option_tx {
+                        self.clients.push(tx);
+
+                        if let Some(index_database) = self.usernames.get_mut(*username) {
+                            // The username is in the database and already logged in.
+                            if let Some(index_database) = index_database {
+                                info!(
+                                        "{index_supplied} {username} login failed, {index_database} is logged in"
+                                    );
+
+                                (None, false)
+                            // The username is in the database, but not logged in yet.
+                            } else {
+                                info!("{index_supplied} {username} logged in");
+                                *index_database = Some(index_supplied);
+
+                                (Some(self.clients[index_supplied].clone()), true)
+                            }
+                        // The username is not in the database.
+                        } else {
+                            info!("{index_supplied} {username} created user account");
+                            self.usernames
+                                .insert((*username).to_string(), Some(index_supplied));
+
+                            (Some(self.clients[index_supplied].clone()), true)
+                        }
+                    } else {
+                        panic!("there is no channel to send on")
+                    }
+                }
+                "logout" => {
+                    // The username is in the database and already logged in.
+                    if let Some(index_database_option) = self.usernames.get_mut(*username) {
+                        if let Some(index_database) = index_database_option {
+                            if *index_database == index_supplied {
+                                info!("{index_supplied} {username} logged out");
+                                *index_database_option = None;
+                                (None, true)
+                            } else {
+                                (Some(self.clients[index_supplied].clone()), false)
+                            }
+                        } else {
+                            (Some(self.clients[index_supplied].clone()), false)
+                        }
+                    } else {
+                        (Some(self.clients[index_supplied].clone()), false)
+                    }
+                }
+                "text" => {
+                    info!("{index_supplied} {username} text {the_rest}");
+                    for tx in &mut self.clients {
+                        // fixme
+                        tx.send(format!("text {the_rest}")).expect("sending failed");
+                    }
+                    (Some(self.clients[index_supplied].clone()), true)
+                }
+                _ => (Some(self.clients[index_supplied].clone()), false),
+            }
+        } else {
+            panic!("we pass the arguments in that form");
         }
     }
 }
@@ -195,7 +227,7 @@ pub struct LoggedIn {
 }
 
 struct ServerGame {
-    _id: u128,
+    _id: usize,
     _attacker: String,
     _defender: String,
     _game: Game,
