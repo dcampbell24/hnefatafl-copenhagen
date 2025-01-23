@@ -2,10 +2,11 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     sync::mpsc,
-    thread,
+    thread::{self, sleep},
     time::Duration,
 };
 
+use futures::executor;
 use hnefatafl_copenhagen::{game::Game, message, play::Vertex, space::Space};
 use iced::{
     futures::{channel::mpsc::Sender, SinkExt, Stream},
@@ -50,7 +51,7 @@ impl Client {
                 self.text_input = string;
             }
             Message::TextReceived(string) => {
-                print!("-> {string}, we made it!");
+                print!("-> {string}");
             }
             Message::TextSend => {
                 if let Some(tx) = &self.tx {
@@ -115,30 +116,29 @@ fn pass_messages() -> impl Stream<Item = Message> {
         let _ = sender.send(Message::TcpConnected(tx)).await;
         thread::spawn(move || loop {
             let message = rx.recv().unwrap();
-            print!("<- {}", &message);
+            print!("<- {message}");
             tcp_stream.write_all(message.as_bytes()).unwrap();
         });
 
         let (tx, rx) = mpsc::channel();
         thread::spawn(move || loop {
             let mut buffer = String::new();
-            reader.read_line(&mut buffer).unwrap();
-            print!("-> {buffer}");
-            if let Err(error) = tx.send(buffer) {
-                println!("{error}");
-                return;
+            if reader.read_line(&mut buffer).unwrap() == 0 {
+                sleep(Duration::from_millis(100));
+            } else {
+                tx.send(buffer).unwrap();
             }
         });
 
-        thread::spawn(move || send_message(rx, sender));
+        thread::spawn(move || send_message(&rx, sender));
     })
 }
 
-async fn send_message(rx: mpsc::Receiver<String>, mut sender: Sender<Message>) {
+fn send_message(rx: &mpsc::Receiver<String>, mut sender: Sender<Message>) {
     loop {
-        match rx.recv_timeout(Duration::from_secs(1)) {
+        match rx.recv() {
             Ok(message) => {
-                let _ = sender.send(Message::TextReceived(message)).await;
+                let _ = executor::block_on(sender.send(Message::TextReceived(message)));
             }
             Err(error) => {
                 println!("{error}");

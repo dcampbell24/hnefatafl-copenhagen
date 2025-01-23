@@ -1617,6 +1617,7 @@ dependencies = [
  "criterion",
  "csv",
  "env_logger",
+ "futures",
  "iced",
  "log",
  "rustc-hash 2.1.0",
