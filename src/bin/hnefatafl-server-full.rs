@@ -181,7 +181,6 @@ impl Server {
                     }
                     _ => {
                         let index = index_supplied.parse::<usize>()?;
-                        println!("error: {index}");
                         self.clients[index].send("error".to_string())?;
                     }
                 }
