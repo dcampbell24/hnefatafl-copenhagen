@@ -1,4 +1,5 @@
 use std::{
+    collections::VecDeque,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     sync::mpsc,
@@ -33,7 +34,7 @@ struct Client {
     game: Game,
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
-    texts: Vec<String>,
+    texts: VecDeque<String>,
     text_input: String,
 }
 
@@ -70,7 +71,7 @@ impl Client {
                 if Some("text") == text.next() {
                     let text: Vec<&str> = text.collect();
                     let text = text.join(" ");
-                    self.texts.push(text);
+                    self.texts.push_front(text);
                 }
             }
             Message::TextSend => {
