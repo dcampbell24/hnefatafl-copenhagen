@@ -237,10 +237,10 @@ impl Server {
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients {
                         // Todo: is it ok to ignore errors?
-                        let _ok = tx.send(format!("text {the_rest}")).is_ok();
+                        let _ok = tx.send(format!("= text {the_rest}")).is_ok();
                     }
                     (
-                        Some(self.clients[index_supplied].clone()),
+                        None,
                         true,
                         (*command).to_string(),
                     )

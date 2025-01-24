@@ -75,19 +75,19 @@ impl Client {
                 let one = text.next();
                 let two = text.next();
                 match one {
-                    Some("text") => {
-                        let text: Vec<&str> = text.collect();
-                        let text = text.join(" ");
-                        self.texts.push_front(text);
-                    }
-                    Some("=" | "?") => {
+                    Some("=") => match two {
+                        Some("login") => self.screen = Screen::Games,
+                        Some("text") => {
+                            let text: Vec<&str> = text.collect();
+                            let text = text.join(" ");
+                            self.texts.push_front(text);
+                        }
+                        _ => {}
+                    },
+                    Some("?") => {
                         if Some("login") == two {
-                            if Some("=") == one {
-                                self.screen = Screen::Games;
-                            } else {
-                                // Fixme:
-                                exit(1);
-                            }
+                            // Fixme:
+                            exit(1);
                         }
                     }
                     _ => {}
