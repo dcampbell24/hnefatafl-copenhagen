@@ -77,11 +77,11 @@ fn login(
         tx.send((format!("{index} {username} login"), Some(client_tx)))?;
 
         let message = client_rx.recv()?;
-        if "=" != message.as_str() {
-            stream.write_all(b"?\n")?;
+        if "= login" != message.as_str() {
+            stream.write_all(b"? login\n")?;
             return Ok(());
         }
-        stream.write_all(b"=\n")?;
+        stream.write_all(b"= login\n")?;
 
         thread::spawn(move || receiving_and_writing(stream, &client_rx));
 
@@ -122,24 +122,25 @@ impl Server {
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
     ) -> anyhow::Result<()> {
         loop {
-            let (tx, ok) = self.handle_messages_internal(rx);
+            let (tx, ok, command) = self.handle_messages_internal(rx);
             if let Some(tx) = tx {
                 if ok {
-                    tx.send('='.to_string())?;
+                    tx.send(format!("= {command}"))?;
                 } else {
-                    tx.send('?'.to_string())?;
+                    tx.send(format!("? {command}"))?;
                 }
             }
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     fn handle_messages_internal(
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
-    ) -> (Option<mpsc::Sender<String>>, bool) {
+    ) -> (Option<mpsc::Sender<String>>, bool, String) {
         // Todo: is it ok to ignore errors?
         let Ok((message, option_tx)) = rx.recv() else {
-            return (None, false);
+            return (None, false, String::new());
         };
         let index_username_command: Vec<_> = message.split_ascii_whitespace().collect();
 
@@ -149,7 +150,7 @@ impl Server {
             index_username_command.get(2),
         ) {
             let Some(command) = command_option else {
-                return (None, false);
+                return (None, false, String::new());
             };
 
             let index_supplied = index_supplied
@@ -170,13 +171,21 @@ impl Server {
                                         "{index_supplied} {username} login failed, {index_database} is logged in"
                                     );
 
-                                (None, false)
+                                (
+                                    Some(self.clients[index_supplied].clone()),
+                                    false,
+                                    (*command).to_string(),
+                                )
                             // The username is in the database, but not logged in yet.
                             } else {
                                 info!("{index_supplied} {username} logged in");
                                 *index_database = Some(index_supplied);
 
-                                (Some(self.clients[index_supplied].clone()), true)
+                                (
+                                    Some(self.clients[index_supplied].clone()),
+                                    true,
+                                    (*command).to_string(),
+                                )
                             }
                         // The username is not in the database.
                         } else {
@@ -184,7 +193,11 @@ impl Server {
                             self.usernames
                                 .insert((*username).to_string(), Some(index_supplied));
 
-                            (Some(self.clients[index_supplied].clone()), true)
+                            (
+                                Some(self.clients[index_supplied].clone()),
+                                true,
+                                (*command).to_string(),
+                            )
                         }
                     } else {
                         panic!("there is no channel to send on")
@@ -197,15 +210,27 @@ impl Server {
                             if *index_database == index_supplied {
                                 info!("{index_supplied} {username} logged out");
                                 *index_database_option = None;
-                                (None, true)
+                                (None, true, (*command).to_string())
                             } else {
-                                (Some(self.clients[index_supplied].clone()), false)
+                                (
+                                    Some(self.clients[index_supplied].clone()),
+                                    false,
+                                    (*command).to_string(),
+                                )
                             }
                         } else {
-                            (Some(self.clients[index_supplied].clone()), false)
+                            (
+                                Some(self.clients[index_supplied].clone()),
+                                false,
+                                (*command).to_string(),
+                            )
                         }
                     } else {
-                        (Some(self.clients[index_supplied].clone()), false)
+                        (
+                            Some(self.clients[index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        )
                     }
                 }
                 "text" => {
@@ -214,9 +239,17 @@ impl Server {
                         // Todo: is it ok to ignore errors?
                         let _ok = tx.send(format!("text {the_rest}")).is_ok();
                     }
-                    (Some(self.clients[index_supplied].clone()), true)
+                    (
+                        Some(self.clients[index_supplied].clone()),
+                        true,
+                        (*command).to_string(),
+                    )
                 }
-                _ => (Some(self.clients[index_supplied].clone()), false),
+                _ => (
+                    Some(self.clients[index_supplied].clone()),
+                    false,
+                    (*command).to_string(),
+                ),
             }
         } else {
             panic!("we pass the arguments in that form");

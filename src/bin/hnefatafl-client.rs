@@ -12,8 +12,8 @@ use iced::{
     font::Font,
     futures::{SinkExt, Stream},
     stream,
-    widget::{button, row, text, text_input, Column, Row},
-    Subscription, Theme,
+    widget::{button, column, row, text, text_input, Column, Row},
+    Color, Element, Subscription, Theme,
 };
 
 const ADDRESS: &str = "localhost:8000";
@@ -31,11 +31,13 @@ fn main() -> anyhow::Result<()> {
 
 #[derive(Debug, Default)]
 struct Client {
+    error: Option<String>,
     game: Game,
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
     texts: VecDeque<String>,
     text_input: String,
+    username: String,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -55,6 +57,7 @@ impl Client {
     }
 
     pub fn update(&mut self, message: Message) {
+        self.error = None;
         match message {
             Message::_Game(message) => {
                 let _result = self.game.update(message);
@@ -68,10 +71,24 @@ impl Client {
             }
             Message::TextReceived(string) => {
                 let mut text = string.split_ascii_whitespace();
-                if Some("text") == text.next() {
-                    let text: Vec<&str> = text.collect();
-                    let text = text.join(" ");
-                    self.texts.push_front(text);
+                let one = text.next();
+                let two = text.next();
+                match one {
+                    Some("text") => {
+                        let text: Vec<&str> = text.collect();
+                        let text = text.join(" ");
+                        self.texts.push_front(text);
+                    }
+                    Some("=" | "?") => {
+                        if Some("login") == two {
+                            if Some("=") == one {
+                                self.screen = Screen::Games;
+                            } else {
+                                self.error = Some("login failed".to_string());
+                            }
+                        }
+                    }
+                    _ => {}
                 }
             }
             Message::TextSend => {
@@ -84,19 +101,15 @@ impl Client {
                     }
                 }
                 self.text_input.clear();
-
-                if self.screen == Screen::Login {
-                    self.screen = Screen::Games;
-                }
             }
         }
     }
 
     #[must_use]
-    pub fn view(&self) -> Row<Message> {
-        match self.screen {
+    pub fn view(&self) -> Element<Message> {
+        let screen = match self.screen {
             Screen::Games => {
-                let mut row = Row::new();
+                let mut game = Row::new();
 
                 for y in 0..11 {
                     let mut column = Column::new();
@@ -109,31 +122,44 @@ impl Client {
                         };
                         column = column.push(button);
                     }
-                    row = row.push(column);
+                    game = game.push(column);
                 }
 
-                let mut column = Column::new();
-                column = column.push("Texts:");
-                column = column.push(
+                let mut texting = Column::new();
+                texting = texting.push("texts:");
+                texting = texting.push(
                     text_input("", &self.text_input)
                         .on_input(Message::TextChanged)
                         .on_submit(Message::TextSend),
                 );
 
                 for message in &self.texts {
-                    column = column.push(text(message));
+                    texting = texting.push(text(message));
                 }
 
-                row![row, column]
+                let screen = row![game, texting];
+                let username = row![text("username:"), text(&self.username),];
+
+                column![username, screen].into()
             }
-            Screen::Login => {
-                row![
-                    text("username:"),
-                    text_input("", &self.text_input)
-                        .on_input(Message::TextChanged)
-                        .on_submit(Message::TextSend),
-                ]
-            }
+            Screen::Login => row![
+                text("username:"),
+                text_input("", &self.text_input)
+                    .on_input(Message::TextChanged)
+                    .on_submit(Message::TextSend),
+            ]
+            .into(),
+        };
+
+        if let Some(error) = &self.error {
+            column![
+                // Solarized Red
+                text(error).color(Color::from_rgb8(220, 50, 47)),
+                screen,
+            ]
+            .into()
+        } else {
+            screen
         }
     }
 }
