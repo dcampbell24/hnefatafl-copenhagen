@@ -66,7 +66,12 @@ impl Client {
                 self.text_input = string;
             }
             Message::TextReceived(string) => {
-                print!("-> {string}");
+                let mut text = string.split_ascii_whitespace();
+                if Some("text") == text.next() {
+                    let text: Vec<&str> = text.collect();
+                    let text = text.join(" ");
+                    self.texts.push(text);
+                }
             }
             Message::TextSend => {
                 if let Some(tx) = &self.tx {

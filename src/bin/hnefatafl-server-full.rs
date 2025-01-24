@@ -137,7 +137,10 @@ impl Server {
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
     ) -> (Option<mpsc::Sender<String>>, bool) {
-        let (message, option_tx) = rx.recv().expect("error receiving message");
+        // Todo: is it ok to ignore errors?
+        let Ok((message, option_tx)) = rx.recv() else {
+            return (None, false);
+        };
         let index_username_command: Vec<_> = message.split_ascii_whitespace().collect();
 
         if let (Some(index_supplied), Some(username), command_option) = (
@@ -208,8 +211,8 @@ impl Server {
                 "text" => {
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients {
-                        // fixme
-                        tx.send(format!("text {the_rest}")).expect("sending failed");
+                        // Todo: is it ok to ignore errors?
+                        let _ok = tx.send(format!("text {the_rest}")).is_ok();
                     }
                     (Some(self.clients[index_supplied].clone()), true)
                 }
