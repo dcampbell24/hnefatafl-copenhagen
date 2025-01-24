@@ -165,6 +165,7 @@ fn pass_messages() -> impl Stream<Item = Message> {
             let mut buffer = String::new();
             loop {
                 if reader.read_line(&mut buffer).unwrap() != 0 {
+                    print!("-> {buffer}");
                     let _ = executor::block_on(sender.send(Message::TextReceived(buffer.clone())));
                     buffer.clear();
                 }
