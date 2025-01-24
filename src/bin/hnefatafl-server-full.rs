@@ -79,7 +79,7 @@ fn login(
         let message = client_rx.recv()?;
         if "= login" != message.as_str() {
             stream.write_all(b"? login\n")?;
-            return Ok(());
+            return Err(anyhow::Error::msg("failed to login"));
         }
         stream.write_all(b"= login\n")?;
 

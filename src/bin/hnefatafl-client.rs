@@ -2,6 +2,7 @@ use std::{
     collections::VecDeque,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
+    process::exit,
     sync::mpsc,
     thread,
 };
@@ -84,7 +85,8 @@ impl Client {
                             if Some("=") == one {
                                 self.screen = Screen::Games;
                             } else {
-                                self.error = Some("login failed".to_string());
+                                // Fixme:
+                                exit(1);
                             }
                         }
                     }
