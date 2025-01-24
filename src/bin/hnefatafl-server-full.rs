@@ -196,7 +196,6 @@ impl Server {
                     info!("{index_supplied} {username} display_users");
                     for tx in &mut self.clients {
                         // Todo: is it ok to ignore errors?
-                        // Fixme: don't say the inactive users.
                         let _ok = tx
                             .send(format!("= display_users {}", &self.accounts))
                             .is_ok();
@@ -284,7 +283,6 @@ impl Server {
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients {
                         // Todo: is it ok to ignore errors?
-                        // Fixme: don't try sending to the inactive users.
                         let _ok = tx.send(format!("= text {the_rest}")).is_ok();
                     }
                     (None, true, (*command).to_string())
