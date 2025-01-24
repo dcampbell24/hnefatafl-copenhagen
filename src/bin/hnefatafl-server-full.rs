@@ -119,16 +119,21 @@ fn receiving_and_writing(
 
 #[derive(Default)]
 struct Server {
+    accounts: Accounts,
     clients: Vec<mpsc::Sender<String>>,
     _games: Vec<ServerGame>,
     _game_ids: HashSet<usize>,
-    usernames: Usernames,
 }
 
 #[derive(Clone, Debug, Default)]
-struct Usernames(HashMap<String, Option<usize>>);
+struct Accounts(HashMap<String, Account>);
 
-impl fmt::Display for Usernames {
+#[derive(Clone, Debug, Default)]
+struct Account {
+    logged_in: Option<usize>,
+}
+
+impl fmt::Display for Accounts {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut names = Vec::new();
         for name in self.0.keys() {
@@ -190,7 +195,7 @@ impl Server {
                         // Todo: is it ok to ignore errors?
                         // Fixme: don't say the inactive users.
                         let _ok = tx
-                            .send(format!("= display_users {}", &self.usernames))
+                            .send(format!("= display_users {}", &self.accounts))
                             .is_ok();
                     }
                     (None, true, (*command).to_string())
@@ -199,9 +204,9 @@ impl Server {
                     if let Some(tx) = option_tx {
                         self.clients.push(tx);
 
-                        if let Some(index_database) = self.usernames.0.get_mut(*username) {
+                        if let Some(index_database) = self.accounts.0.get_mut(*username) {
                             // The username is in the database and already logged in.
-                            if let Some(index_database) = index_database {
+                            if let Some(index_database) = index_database.logged_in {
                                 info!(
                                         "{index_supplied} {username} login failed, {index_database} is logged in"
                                     );
@@ -214,7 +219,7 @@ impl Server {
                             // The username is in the database, but not logged in yet.
                             } else {
                                 info!("{index_supplied} {username} logged in");
-                                *index_database = Some(index_supplied);
+                                index_database.logged_in = Some(index_supplied);
 
                                 (
                                     Some(self.clients[index_supplied].clone()),
@@ -225,9 +230,12 @@ impl Server {
                         // The username is not in the database.
                         } else {
                             info!("{index_supplied} {username} created user account");
-                            self.usernames
-                                .0
-                                .insert((*username).to_string(), Some(index_supplied));
+                            self.accounts.0.insert(
+                                (*username).to_string(),
+                                Account {
+                                    logged_in: Some(index_supplied),
+                                },
+                            );
 
                             (
                                 Some(self.clients[index_supplied].clone()),
@@ -241,11 +249,11 @@ impl Server {
                 }
                 "logout" => {
                     // The username is in the database and already logged in.
-                    if let Some(index_database_option) = self.usernames.0.get_mut(*username) {
-                        if let Some(index_database) = index_database_option {
-                            if *index_database == index_supplied {
+                    if let Some(index_database_option) = self.accounts.0.get_mut(*username) {
+                        if let Some(index_database) = index_database_option.logged_in {
+                            if index_database == index_supplied {
                                 info!("{index_supplied} {username} logged out");
-                                *index_database_option = None;
+                                *index_database_option = Account { logged_in: None };
                                 (None, true, (*command).to_string())
                             } else {
                                 (
