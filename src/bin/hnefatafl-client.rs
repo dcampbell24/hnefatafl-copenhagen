@@ -76,6 +76,11 @@ impl Client {
                 let two = text.next();
                 match one {
                     Some("=") => match two {
+                        Some("display_users") => {
+                            let users: Vec<&str> = text.collect();
+                            // Fixme: alter the GUI.
+                            println!("{users:?}");
+                        }
                         Some("login") => self.screen = Screen::Games,
                         Some("text") => {
                             let text: Vec<&str> = text.collect();
@@ -104,17 +109,17 @@ impl Client {
                     } else {
                         tx.send(format!("text {}", self.text_input)).unwrap();
                     }
+                    self.text_input.clear();
                 }
-                self.text_input.clear();
             }
         }
     }
 
     #[must_use]
     pub fn view(&self) -> Element<Message> {
-        let screen = match self.screen {
+        let screen: Element<'_, Message> = match self.screen {
             Screen::Games => {
-                let mut game = Row::new();
+                let mut game: Row<'_, Message> = Row::new();
 
                 for y in 0..11 {
                     let mut column = Column::new();

@@ -1,10 +1,11 @@
 use std::{
     collections::{HashMap, HashSet},
-    env,
+    env, fmt,
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     sync::mpsc::{self, Receiver},
-    thread,
+    thread::{self, sleep},
+    time::Duration,
 };
 
 use chrono::Utc;
@@ -49,6 +50,14 @@ fn main() -> anyhow::Result<()> {
     let (tx, rx) = mpsc::channel();
 
     thread::spawn(move || server.handle_messages(&rx));
+
+    let tx_usernames = tx.clone();
+    thread::spawn(move || loop {
+        tx_usernames
+            .send(("0 server display_users".to_string(), None))
+            .unwrap();
+        sleep(Duration::from_secs(10));
+    });
 
     for (index, stream) in (0..).zip(listener.incoming()) {
         let stream = stream?;
@@ -113,7 +122,22 @@ struct Server {
     clients: Vec<mpsc::Sender<String>>,
     _games: Vec<ServerGame>,
     _game_ids: HashSet<usize>,
-    usernames: HashMap<String, Option<usize>>,
+    usernames: Usernames,
+}
+
+#[derive(Clone, Debug, Default)]
+struct Usernames(HashMap<String, Option<usize>>);
+
+impl fmt::Display for Usernames {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut names = Vec::new();
+        for name in self.0.keys() {
+            names.push(name.as_str());
+        }
+        names.sort_unstable();
+        let names = names.join(" ");
+        write!(f, "{names}")
+    }
 }
 
 impl Server {
@@ -160,11 +184,22 @@ impl Server {
             let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
             let the_rest = the_rest.join(" ");
             match *command {
+                "display_users" => {
+                    info!("{index_supplied} {username} display_users");
+                    for tx in &mut self.clients {
+                        // Todo: is it ok to ignore errors?
+                        // Fixme: don't say the inactive users.
+                        let _ok = tx
+                            .send(format!("= display_users {}", &self.usernames))
+                            .is_ok();
+                    }
+                    (None, true, (*command).to_string())
+                }
                 "login" => {
                     if let Some(tx) = option_tx {
                         self.clients.push(tx);
 
-                        if let Some(index_database) = self.usernames.get_mut(*username) {
+                        if let Some(index_database) = self.usernames.0.get_mut(*username) {
                             // The username is in the database and already logged in.
                             if let Some(index_database) = index_database {
                                 info!(
@@ -191,6 +226,7 @@ impl Server {
                         } else {
                             info!("{index_supplied} {username} created user account");
                             self.usernames
+                                .0
                                 .insert((*username).to_string(), Some(index_supplied));
 
                             (
@@ -205,7 +241,7 @@ impl Server {
                 }
                 "logout" => {
                     // The username is in the database and already logged in.
-                    if let Some(index_database_option) = self.usernames.get_mut(*username) {
+                    if let Some(index_database_option) = self.usernames.0.get_mut(*username) {
                         if let Some(index_database) = index_database_option {
                             if *index_database == index_supplied {
                                 info!("{index_supplied} {username} logged out");
@@ -237,6 +273,7 @@ impl Server {
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients {
                         // Todo: is it ok to ignore errors?
+                        // Fixme: don't try sending to the inactive users.
                         let _ok = tx.send(format!("= text {the_rest}")).is_ok();
                     }
                     (None, true, (*command).to_string())
