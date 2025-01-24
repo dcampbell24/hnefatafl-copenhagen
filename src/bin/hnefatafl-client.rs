@@ -13,7 +13,7 @@ use iced::{
     font::Font,
     futures::{SinkExt, Stream},
     stream,
-    widget::{button, column, row, text, text_input, Column, Row},
+    widget::{button, column, container, row, text, text_input, Column, Row},
     Color, Element, Subscription, Theme,
 };
 
@@ -39,6 +39,7 @@ struct Client {
     texts: VecDeque<String>,
     text_input: String,
     username: String,
+    users: Vec<String>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -77,9 +78,8 @@ impl Client {
                 match one {
                     Some("=") => match two {
                         Some("display_users") => {
-                            let users: Vec<&str> = text.collect();
-                            // Fixme: alter the GUI.
-                            println!("{users:?}");
+                            let users: Vec<String> = text.map(ToString::to_string).collect();
+                            self.users = users;
                         }
                         Some("login") => self.screen = Screen::Games,
                         Some("text") => {
@@ -120,15 +120,16 @@ impl Client {
         let screen: Element<'_, Message> = match self.screen {
             Screen::Games => {
                 let mut game: Row<'_, Message> = Row::new();
+                let board_size = 64;
 
                 for y in 0..11 {
                     let mut column = Column::new();
                     for x in 0..11 {
                         let button = match self.game.board.get(&Vertex { x, y }) {
-                            Space::Empty => button(text(" ")),
-                            Space::Black => button(text("X")),
-                            Space::King => button(text("K")),
-                            Space::White => button(text("O")),
+                            Space::Empty => button(text(" ").size(board_size)),
+                            Space::Black => button(text("X").size(board_size)),
+                            Space::King => button(text("K").size(board_size)),
+                            Space::White => button(text("O").size(board_size)),
                         };
                         column = column.push(button);
                     }
@@ -146,11 +147,21 @@ impl Client {
                 for message in &self.texts {
                     texting = texting.push(text(message));
                 }
+                let texting = container(texting).padding(10).style(container::rounded_box);
 
-                let screen = row![game, texting];
-                let username = row![text("username:"), text(&self.username),];
+                let username = row![text("username: "), text(&self.username)];
+                let username = container(username)
+                    .padding(10)
+                    .style(container::rounded_box);
 
-                column![username, screen].into()
+                let mut users = column![text("users:")];
+                for user in &self.users {
+                    users = users.push(text(user));
+                }
+                let users = container(users).padding(10).style(container::rounded_box);
+
+                let user_area = column![username, row![texting, users]];
+                row![game, user_area].into()
             }
             Screen::Login => row![
                 text("username:"),
