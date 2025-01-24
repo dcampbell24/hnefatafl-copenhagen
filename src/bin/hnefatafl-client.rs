@@ -33,7 +33,7 @@ fn main() -> anyhow::Result<()> {
 #[derive(Debug, Default)]
 struct Client {
     error: Option<String>,
-    game: Game,
+    game: Option<Game>,
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
     texts: VecDeque<String>,
@@ -46,10 +46,37 @@ struct Client {
 enum Screen {
     #[default]
     Login,
+    Game,
     Games,
 }
 
 impl Client {
+    #[must_use]
+    fn board(&self) -> Row<Message> {
+        let Some(game) = &self.game else {
+            return row![];
+        };
+
+        let mut game_display: Row<'_, Message> = Row::new();
+        let board_size = 50;
+
+        for y in 0..11 {
+            let mut column = Column::new();
+            for x in 0..11 {
+                let button = match game.board.get(&Vertex { x, y }) {
+                    Space::Empty => button(text(" ").size(board_size)),
+                    Space::Black => button(text("X").size(board_size)),
+                    Space::King => button(text("K").size(board_size)),
+                    Space::White => button(text("O").size(board_size)),
+                };
+                column = column.push(button);
+            }
+            game_display = game_display.push(column);
+        }
+
+        game_display
+    }
+
     fn pass_messages(_self: &Self) -> Subscription<Message> {
         Subscription::run(pass_messages)
     }
@@ -62,8 +89,16 @@ impl Client {
         self.error = None;
         match message {
             Message::_Game(message) => {
-                let _result = self.game.update(message);
+                let Some(game) = &mut self.game else {
+                    return;
+                };
+                let _result = game.update(message);
             }
+            Message::GameCreate => {
+                self.game = Some(Game::default());
+                self.screen = Screen::Game;
+            }
+            Message::GameLeave => self.screen = Screen::Games,
             Message::TcpConnected(tx) => {
                 println!("TCP connected...");
                 self.tx = Some(tx);
@@ -116,52 +151,55 @@ impl Client {
     }
 
     #[must_use]
+    fn user_area(&self) -> Column<Message> {
+        let mut texting = Column::new();
+        texting = texting.push("texts:");
+        texting = texting.push(
+            text_input("", &self.text_input)
+                .on_input(Message::TextChanged)
+                .on_submit(Message::TextSend),
+        );
+
+        for message in &self.texts {
+            texting = texting.push(text(message));
+        }
+        let texting = container(texting).padding(10).style(container::rounded_box);
+
+        let username = row![text("username: "), text(&self.username)];
+        let username = container(username)
+            .padding(10)
+            .style(container::rounded_box);
+
+        let mut users = column![text("users:")];
+        for user in &self.users {
+            users = users.push(text(user));
+        }
+        let users = container(users).padding(10).style(container::rounded_box);
+
+        let user_area = column![username, row![texting, users]];
+        user_area
+    }
+
+    #[must_use]
     pub fn view(&self) -> Element<Message> {
         let screen: Element<'_, Message> = match self.screen {
+            Screen::Game => {
+                let game = self.board();
+                let user_area = self.user_area();
+                let game = row![game, user_area];
+
+                let leave_game = button("Leave Game").on_press(Message::GameLeave);
+                let buttons = row![leave_game];
+
+                column![game, buttons].into()
+            }
             Screen::Games => {
-                let mut game: Row<'_, Message> = Row::new();
-                let board_size = 64;
+                let user_area = self.user_area();
 
-                for y in 0..11 {
-                    let mut column = Column::new();
-                    for x in 0..11 {
-                        let button = match self.game.board.get(&Vertex { x, y }) {
-                            Space::Empty => button(text(" ").size(board_size)),
-                            Space::Black => button(text("X").size(board_size)),
-                            Space::King => button(text("K").size(board_size)),
-                            Space::White => button(text("O").size(board_size)),
-                        };
-                        column = column.push(button);
-                    }
-                    game = game.push(column);
-                }
+                let create_game = button("Create Game").on_press(Message::GameCreate);
+                let buttons = row![create_game];
 
-                let mut texting = Column::new();
-                texting = texting.push("texts:");
-                texting = texting.push(
-                    text_input("", &self.text_input)
-                        .on_input(Message::TextChanged)
-                        .on_submit(Message::TextSend),
-                );
-
-                for message in &self.texts {
-                    texting = texting.push(text(message));
-                }
-                let texting = container(texting).padding(10).style(container::rounded_box);
-
-                let username = row![text("username: "), text(&self.username)];
-                let username = container(username)
-                    .padding(10)
-                    .style(container::rounded_box);
-
-                let mut users = column![text("users:")];
-                for user in &self.users {
-                    users = users.push(text(user));
-                }
-                let users = container(users).padding(10).style(container::rounded_box);
-
-                let user_area = column![username, row![texting, users]];
-                row![game, user_area].into()
+                column![user_area, buttons].into()
             }
             Screen::Login => row![
                 text("username:"),
@@ -188,6 +226,8 @@ impl Client {
 #[derive(Clone, Debug)]
 enum Message {
     _Game(message::Message),
+    GameCreate,
+    GameLeave,
     TcpConnected(mpsc::Sender<String>),
     TextChanged(String),
     TextReceived(String),
