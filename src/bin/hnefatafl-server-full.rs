@@ -136,11 +136,14 @@ struct Account {
 impl fmt::Display for Accounts {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut names = Vec::new();
-        for name in self.0.keys() {
-            names.push(name.as_str());
+        for (name, account) in &self.0 {
+            if account.logged_in.is_some() {
+                names.push(name.to_string());
+            }
         }
         names.sort_unstable();
         let names = names.join(" ");
+
         write!(f, "{names}")
     }
 }
