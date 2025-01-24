@@ -239,11 +239,7 @@ impl Server {
                         // Todo: is it ok to ignore errors?
                         let _ok = tx.send(format!("= text {the_rest}")).is_ok();
                     }
-                    (
-                        None,
-                        true,
-                        (*command).to_string(),
-                    )
+                    (None, true, (*command).to_string())
                 }
                 _ => (
                     Some(self.clients[index_supplied].clone()),
