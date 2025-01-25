@@ -3,7 +3,7 @@ name: clippy check
 
 # Make sure CI fails on all warnings, including Clippy lints
 env:
-  RUSTFLAGS: "-Dwarnings"
+  RUSTFLAGS: "-D warnings"
 
 jobs:
   clippy_check:

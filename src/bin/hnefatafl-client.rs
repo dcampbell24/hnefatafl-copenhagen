@@ -35,7 +35,7 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     error: Option<String>,
     game: Option<Game>,
-    game_new: GameNew,
+    _game_new: GameNew,
     role_selected: Option<Role>,
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
@@ -49,7 +49,7 @@ struct Client {
 enum Screen {
     #[default]
     Login,
-    Game,
+    _Game,
     GameNew,
     GameNewFrozen,
     Games,
@@ -92,6 +92,7 @@ impl Client {
 
     pub fn update(&mut self, message: Message) {
         self.error = None;
+
         match message {
             Message::_Game(message) => {
                 let Some(game) = &mut self.game else {
@@ -200,7 +201,7 @@ impl Client {
     #[must_use]
     pub fn view(&self) -> Element<Message> {
         let screen: Element<'_, Message> = match self.screen {
-            Screen::Game => {
+            Screen::_Game => {
                 let game = self.board();
                 let user_area = self.user_area();
                 let game = row![game, user_area];
