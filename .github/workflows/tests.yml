@@ -16,5 +16,5 @@ jobs:
 
       - name: Run cargo test
         run: |
-          apt-get install mold
+          sudo apt-get install mold
           cargo test --all-targets --all-features
