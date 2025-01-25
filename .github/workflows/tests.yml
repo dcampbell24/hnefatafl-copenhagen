@@ -15,4 +15,6 @@ jobs:
             persist-credentials: false
 
       - name: Run cargo test
-        run: cargo test --all-targets --all-features
+        run: |
+          apt-get install mold
+          cargo test --all-targets --all-features
