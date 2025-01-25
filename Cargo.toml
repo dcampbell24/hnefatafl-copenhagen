@@ -31,7 +31,7 @@ build-client = ["futures", "iced"]
 
 [[bin]]
 name = "hnefatafl-client"
-required-features = ["build-client"] 
+required-features = ["build-client"]
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
