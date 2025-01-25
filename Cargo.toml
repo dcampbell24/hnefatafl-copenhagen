@@ -19,12 +19,19 @@ chrono = "0.4"
 clap = { version ="4", features = ["derive"] }
 csv = "1"
 env_logger = "0.11"
-futures = "0.3.31"
-iced = "0.13"
+futures = { version = "0.3", optional = true }
+iced = { version = "0.13", optional = true }
 log = "0.4"
 # rayon = "1"
 rustc-hash = "2"
 serde = { version = "1", features = ["derive"] }
+
+[features]
+build-client = ["futures", "iced"]
+
+[[bin]]
+name = "hnefatafl-client"
+required-features = ["build-client"] 
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
