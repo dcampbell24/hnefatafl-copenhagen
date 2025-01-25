@@ -1,5 +1,6 @@
 use std::{
     collections::VecDeque,
+    fmt,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
@@ -13,7 +14,7 @@ use iced::{
     font::Font,
     futures::{SinkExt, Stream},
     stream,
-    widget::{button, column, container, row, text, text_input, Column, Row},
+    widget::{button, column, container, radio, row, text, text_input, Column, Row},
     Color, Element, Subscription, Theme,
 };
 
@@ -34,6 +35,8 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     error: Option<String>,
     game: Option<Game>,
+    game_new: GameNew,
+    role_selected: Option<Role>,
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
     texts: VecDeque<String>,
@@ -47,6 +50,8 @@ enum Screen {
     #[default]
     Login,
     Game,
+    GameNew,
+    GameNewFrozen,
     Games,
 }
 
@@ -94,14 +99,26 @@ impl Client {
                 };
                 let _result = game.update(message);
             }
-            Message::GameCreate => {
-                self.game = Some(Game::default());
-                self.screen = Screen::Game;
-            }
+            Message::GameNew => self.screen = Screen::GameNew,
+            //self.game = Some(Game::default());
+
+            // new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
+            //if let Some(tx) = &self.tx {
+            //    tx.send(format!("{}", self.game_new)).unwrap();
+            //}
+            // }
             Message::GameLeave => self.screen = Screen::Games,
+            Message::GameSubmit => {
+                if self.role_selected.is_some() {
+                    self.screen = Screen::GameNewFrozen;
+                }
+            }
             Message::TcpConnected(tx) => {
                 println!("TCP connected...");
                 self.tx = Some(tx);
+            }
+            Message::RoleSelected(role) => {
+                self.role_selected = Some(role);
             }
             Message::TextChanged(string) => {
                 self.text_input = string;
@@ -193,10 +210,35 @@ impl Client {
 
                 column![game, buttons].into()
             }
+            Screen::GameNew => {
+                let attacker = radio(
+                    "attacker ",
+                    Role::Attacker,
+                    self.role_selected,
+                    Message::RoleSelected,
+                );
+
+                let defender = radio(
+                    "defender ",
+                    Role::Defender,
+                    self.role_selected,
+                    Message::RoleSelected,
+                );
+
+                let role = row![text("role: "), attacker, defender];
+                column![role, button("New Game").on_press(Message::GameSubmit)].into()
+            }
+            Screen::GameNewFrozen => {
+                let Some(role) = self.role_selected else {
+                    panic!("You can't get to GameNewFrozen unless you have selected a role!");
+                };
+
+                text(format!("role: {role}")).into()
+            }
             Screen::Games => {
                 let user_area = self.user_area();
 
-                let create_game = button("Create Game").on_press(Message::GameCreate);
+                let create_game = button("Create Game").on_press(Message::GameNew);
                 let buttons = row![create_game];
 
                 column![user_area, buttons].into()
@@ -223,11 +265,40 @@ impl Client {
     }
 }
 
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+struct GameNew {
+    role: Role,
+}
+
+impl fmt::Display for GameNew {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "new_game {}", self.role)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+enum Role {
+    #[default]
+    Attacker,
+    Defender,
+}
+
+impl fmt::Display for Role {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Role::Attacker => write!(f, "attacker"),
+            Role::Defender => write!(f, "defender"),
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 enum Message {
     _Game(message::Message),
-    GameCreate,
     GameLeave,
+    GameNew,
+    GameSubmit,
+    RoleSelected(Role),
     TcpConnected(mpsc::Sender<String>),
     TextChanged(String),
     TextReceived(String),

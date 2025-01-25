@@ -31,10 +31,15 @@ fn main() -> anyhow::Result<()> {
     // X Get a login.
     // Wait for a message such as
     //     new_game,
-    //     join_game,
-    //     watch_game,
-    //     list_active_games,
-    //     list_archived_games,
+    //         one player creates a game, then it gets added to the pending games
+    //             new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
+    //             ? create_game | = create_game game_id
+    //         another play chooses to join a pending game
+    //         then the game is added to the active games
+    //     join_game game_id,
+    //     watch_game game_id,
+    //     list_active_games -- returns all of the game_id and a game summary, move #,
+    //     list_archived_games -- return all of the game_id s of completed games,
     //     send_message
     //         X there is a general chat you join when logged on
     //         an in game chat you join when you join a game
