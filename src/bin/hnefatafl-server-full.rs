@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     env, fmt,
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
@@ -11,7 +11,7 @@ use std::{
 use chrono::Utc;
 use clap::{command, Parser};
 use env_logger::Builder;
-use hnefatafl_copenhagen::game::Game;
+use hnefatafl_copenhagen::{game::Game, role::Role, server_game::ServerGame};
 use log::{info, LevelFilter};
 
 /// A Hnefatafl Copenhagen Server
@@ -32,6 +32,7 @@ fn main() -> anyhow::Result<()> {
     // Wait for a message such as
     //     new_game,
     //         one player creates a game, then it gets added to the pending games
+    //             = new_game ID
     //             new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
     //             ? create_game | = create_game game_id
     //         another play chooses to join a pending game
@@ -128,8 +129,8 @@ fn receiving_and_writing(
 struct Server {
     accounts: Accounts,
     clients: Vec<mpsc::Sender<String>>,
-    _games: Vec<ServerGame>,
-    _game_ids: HashSet<usize>,
+    games: HashMap<usize, ServerGame>,
+    game_id: usize,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -286,6 +287,46 @@ impl Server {
                         )
                     }
                 }
+                "new_game" => {
+                    let Some(role) = the_rest.split_ascii_whitespace().next() else {
+                        return (
+                            Some(self.clients[index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+                    let Ok(role) = Role::try_from(role) else {
+                        return (
+                            Some(self.clients[index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+
+                    info!("{index_supplied} {username} new_game {role}");
+                    let game = Game::default();
+
+                    let game = if role == Role::Attacker {
+                        ServerGame {
+                            id: self.game_id,
+                            attacker: Some((*username).to_string()),
+                            defender: None,
+                            game,
+                        }
+                    } else {
+                        ServerGame {
+                            id: self.game_id,
+                            attacker: None,
+                            defender: Some((*username).to_string()),
+                            game,
+                        }
+                    };
+                    let command = format!("{command} {game}");
+                    self.games.insert(self.game_id, game);
+                    self.game_id += 1;
+
+                    (Some(self.clients[index_supplied].clone()), true, command)
+                }
                 "text" => {
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients {
@@ -309,13 +350,6 @@ impl Server {
 pub struct LoggedIn {
     _username: String,
     _game_open: Option<Game>,
-}
-
-struct ServerGame {
-    _id: usize,
-    _attacker: String,
-    _defender: String,
-    _game: Game,
 }
 
 fn init_logger() {

@@ -17,6 +17,8 @@ pub mod game;
 pub mod game_record;
 pub mod message;
 pub mod play;
+pub mod role;
+pub mod server_game;
 pub mod space;
 pub mod status;
 pub mod time;

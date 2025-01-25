@@ -1,6 +1,5 @@
 use std::{
     collections::VecDeque,
-    fmt,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
@@ -9,7 +8,7 @@ use std::{
 };
 
 use futures::executor;
-use hnefatafl_copenhagen::{game::Game, message, play::Vertex, space::Space};
+use hnefatafl_copenhagen::{game::Game, message, play::Vertex, role::Role, space::Space};
 use iced::{
     font::Font,
     futures::{SinkExt, Stream},
@@ -107,7 +106,7 @@ impl Client {
                     self.game = Some(Game::default());
 
                     // new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-                    tx.send(format!("{}\n", GameNew { role })).unwrap();
+                    tx.send(format!("new_game {role}\n")).unwrap();
                 }
             }
             Message::TcpConnected(tx) => {
@@ -260,33 +259,6 @@ impl Client {
             .into()
         } else {
             screen
-        }
-    }
-}
-
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-struct GameNew {
-    role: Role,
-}
-
-impl fmt::Display for GameNew {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "new_game {}", self.role)
-    }
-}
-
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
-enum Role {
-    #[default]
-    Attacker,
-    Defender,
-}
-
-impl fmt::Display for Role {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Role::Attacker => write!(f, "attacker"),
-            Role::Defender => write!(f, "defender"),
         }
     }
 }
