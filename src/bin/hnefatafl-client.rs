@@ -153,7 +153,8 @@ impl Client {
                     if self.screen == Screen::Login {
                         tx.send(self.text_input.clone()).unwrap();
                         if let Some(username) = self.text_input.split_ascii_whitespace().next() {
-                            self.username = username.to_string();
+                            let username = username.to_ascii_lowercase();
+                            self.username = username;
                         }
                     } else {
                         tx.send(format!("text {}", self.text_input)).unwrap();

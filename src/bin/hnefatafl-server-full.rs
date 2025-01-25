@@ -86,6 +86,8 @@ fn login(
         reader.read_line(&mut buf)?;
     }
 
+    buf.make_ascii_lowercase();
+
     if let Some(username) = buf.split_ascii_whitespace().next() {
         let (client_tx, client_rx) = mpsc::channel();
         tx.send((format!("{index} {username} login"), Some(client_tx)))?;
