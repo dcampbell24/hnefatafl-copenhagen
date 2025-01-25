@@ -172,6 +172,7 @@ impl Client {
         texting = texting.push(
             text_input("", &self.text_input)
                 .on_input(Message::TextChanged)
+                .on_paste(Message::TextChanged)
                 .on_submit(Message::TextSend),
         );
 
