@@ -35,7 +35,6 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     error: Option<String>,
     game: Option<Game>,
-    _game_new: GameNew,
     role_selected: Option<Role>,
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
@@ -101,17 +100,14 @@ impl Client {
                 let _result = game.update(message);
             }
             Message::GameNew => self.screen = Screen::GameNew,
-            //self.game = Some(Game::default());
-
-            // new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-            //if let Some(tx) = &self.tx {
-            //    tx.send(format!("{}", self.game_new)).unwrap();
-            //}
-            // }
             Message::GameLeave => self.screen = Screen::Games,
             Message::GameSubmit => {
-                if self.role_selected.is_some() {
+                if let (Some(role), Some(tx)) = (self.role_selected, &self.tx) {
                     self.screen = Screen::GameNewFrozen;
+                    self.game = Some(Game::default());
+
+                    // new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
+                    tx.send(format!("{}\n", GameNew { role })).unwrap();
                 }
             }
             Message::TcpConnected(tx) => {
