@@ -26,16 +26,21 @@ futures = { version = "0.3", optional = true }
 iced = { version = "0.13", optional = true }
 
 # server only
-chrono = "0.4"
-env_logger = "0.11"
-log = "0.4"
+chrono = { version = "0.4", optional = true }
+env_logger = { version = "0.11", optional = true }
+log = { version = "0.4", optional = true }
 
 [features]
 client = ["futures", "iced"]
+server = ["chrono", "env_logger", "log"]
 
 [[bin]]
 name = "hnefatafl-client"
 required-features = ["client"]
+
+[[bin]]
+name = "hnefatafl-server-full"
+required-features = ["server"]
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
