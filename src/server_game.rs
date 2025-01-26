@@ -35,6 +35,24 @@ pub struct ServerGameLight {
     pub defender: Option<String>,
 }
 
+impl fmt::Display for ServerGameLight {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let attacker = if let Some(name) = &self.attacker {
+            &format!("attacker: {name}")
+        } else {
+            "attacker: none"
+        };
+
+        let defender = if let Some(name) = &self.defender {
+            &format!("defender: {name}")
+        } else {
+            "defender: none"
+        };
+
+        write!(f, "game: {}, {attacker}, {defender}", self.id)
+    }
+}
+
 impl TryFrom<(&str, &str, &str)> for ServerGameLight {
     type Error = anyhow::Error;
 

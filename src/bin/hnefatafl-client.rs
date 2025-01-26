@@ -182,6 +182,12 @@ impl Client {
 
     #[must_use]
     fn user_area(&self) -> Column<Message> {
+        let mut games = Column::new();
+        for game in &self.games {
+            games = games.push(text(game.to_string()));
+        }
+        let games = container(games).padding(10).style(container::rounded_box);
+
         let mut texting = Column::new();
         texting = texting.push("texts:");
         texting = texting.push(
@@ -207,7 +213,7 @@ impl Client {
         }
         let users = container(users).padding(10).style(container::rounded_box);
 
-        let user_area = column![username, row![texting, users]];
+        let user_area = column![username, row![games, texting, users]];
         user_area
     }
 
@@ -251,12 +257,11 @@ impl Client {
             }
             Screen::Games => {
                 let user_area = self.user_area();
-                let games = text(format!("{:?}", self.games));
 
                 let create_game = button("Create Game").on_press(Message::GameNew);
                 let buttons = row![create_game];
 
-                column![user_area, games, buttons].into()
+                column![user_area, buttons].into()
             }
             Screen::Login => row![
                 text("username:"),
