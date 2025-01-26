@@ -34,7 +34,10 @@ fn main() -> anyhow::Result<()> {
     // X -> = new_game game 1 david none
     // X -> = display_pending_games game 1 david none
     // X -> = display_users david
-    // join_game 1 abby
+    // X connected to localhost:8000 ...
+    // X <- abby
+    // X -> = login
+    // join_game 1
     // display_active_games game 1 david abby
     // watch_game 1,
     // display_archived_games game 1 david abby
