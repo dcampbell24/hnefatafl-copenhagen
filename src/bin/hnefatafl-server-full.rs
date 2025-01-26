@@ -34,7 +34,7 @@ fn main() -> anyhow::Result<()> {
     //         one player creates a game, then it gets added to the pending games
     //             = new_game ID
     //             new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-    //             ? create_game | = create_game game_id
+    //             ? new_game | = new_game game_id
     //         another play chooses to join a pending game
     //         then the game is added to the active games
     //     join_game game_id,
@@ -283,6 +283,25 @@ impl Server {
                             if index_database == index_supplied {
                                 info!("{index_supplied} {username} logged out");
                                 *index_database_option = Account { logged_in: None };
+                                // Remove the pending game if there is one.
+                                let mut index_option = None;
+                                for (index, game) in self.pending_games.0.clone() {
+                                    if let Some(attacker) = &game.attacker {
+                                        if attacker == username {
+                                            index_option = Some(index);
+                                        }
+                                    }
+                                    if let Some(defender) = &game.defender {
+                                        if defender == username {
+                                            index_option = Some(index);
+                                        }
+                                    }
+                                }
+
+                                if let Some(index) = index_option {
+                                    self.pending_games.0.remove(&index);
+                                }
+
                                 (None, true, (*command).to_string())
                             } else {
                                 (
@@ -336,7 +355,7 @@ impl Server {
                             defender: Some((*username).to_string()),
                         }
                     };
-                    let command = format!("{command} {game}");
+                    let command = format!("{command} {}", game.protocol());
                     self.pending_games.0.insert(self.game_id, game);
                     self.game_id += 1;
 
