@@ -36,7 +36,7 @@ fn main() -> anyhow::Result<()> {
     //         join_game 1 abby
     //         display_active_games game 1 david abby
     //     watch_game 1,
-    //     display_pending_games game 1 david none
+    //     X display_pending_games game 1 david none
     //     display_active_games game 1 david abby
     //     display_archived_games game 1 david abby
     //     send_messages
