@@ -8,7 +8,9 @@ use std::{
 };
 
 use futures::executor;
-use hnefatafl_copenhagen::{game::Game, message, play::Vertex, role::Role, space::Space};
+use hnefatafl_copenhagen::{
+    game::Game, message, play::Vertex, role::Role, server_game::ServerGameLight, space::Space,
+};
 use iced::{
     font::Font,
     futures::{SinkExt, Stream},
@@ -34,6 +36,7 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     error: Option<String>,
     game: Option<Game>,
+    games: Vec<ServerGameLight>,
     role_selected: Option<Role>,
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
@@ -125,6 +128,20 @@ impl Client {
                 let two = text.next();
                 match one {
                     Some("=") => match two {
+                        Some("display_games") => {
+                            self.games.clear();
+                            let games: Vec<&str> = text.collect();
+                            for chunks in games.chunks_exact(4) {
+                                let id = chunks[1];
+                                let attacker = chunks[2];
+                                let defender = chunks[3];
+
+                                self.games.push(
+                                    ServerGameLight::try_from((id, attacker, defender))
+                                        .expect("the value should be a valid ServerGameLight"),
+                                );
+                            }
+                        }
                         Some("display_users") => {
                             let users: Vec<String> = text.map(ToString::to_string).collect();
                             self.users = users;
@@ -139,7 +156,6 @@ impl Client {
                     },
                     Some("?") => {
                         if Some("login") == two {
-                            // Fixme:
                             exit(1);
                         }
                     }
@@ -235,11 +251,12 @@ impl Client {
             }
             Screen::Games => {
                 let user_area = self.user_area();
+                let games = text(format!("{:?}", self.games));
 
                 let create_game = button("Create Game").on_press(Message::GameNew);
                 let buttons = row![create_game];
 
-                column![user_area, buttons].into()
+                column![user_area, games, buttons].into()
             }
             Screen::Login => row![
                 text("username:"),

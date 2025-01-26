@@ -57,11 +57,12 @@ fn main() -> anyhow::Result<()> {
 
     thread::spawn(move || server.handle_messages(&rx));
 
-    let tx_usernames = tx.clone();
+    let tx_messages = tx.clone();
     thread::spawn(move || loop {
-        tx_usernames
-            .send(("0 server display_users".to_string(), None))
+        tx_messages
+            .send(("0 server display_server".to_string(), None))
             .unwrap();
+
         sleep(Duration::from_secs(10));
     });
 
@@ -129,17 +130,12 @@ fn receiving_and_writing(
 struct Server {
     accounts: Accounts,
     clients: Vec<mpsc::Sender<String>>,
-    games: HashMap<usize, ServerGame>,
+    games: Games,
     game_id: usize,
 }
 
 #[derive(Clone, Debug, Default)]
 struct Accounts(HashMap<String, Account>);
-
-#[derive(Clone, Debug, Default)]
-struct Account {
-    logged_in: Option<usize>,
-}
 
 impl fmt::Display for Accounts {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -153,6 +149,26 @@ impl fmt::Display for Accounts {
         let names = names.join(" ");
 
         write!(f, "{names}")
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+struct Account {
+    logged_in: Option<usize>,
+}
+
+#[derive(Clone, Debug, Default)]
+struct Games(HashMap<usize, ServerGame>);
+
+impl fmt::Display for Games {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut games = Vec::new();
+        for game in self.0.values() {
+            games.push(format!("{game}"));
+        }
+        let games = games.join(" ");
+
+        write!(f, "{games}")
     }
 }
 
@@ -200,10 +216,11 @@ impl Server {
             let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
             let the_rest = the_rest.join(" ");
             match *command {
-                "display_users" => {
-                    info!("{index_supplied} {username} display_users");
+                "display_server" => {
+                    info!("{index_supplied} {username} display_server");
+                    // Todo: is it ok to ignore errors?
                     for tx in &mut self.clients {
-                        // Todo: is it ok to ignore errors?
+                        let _ok = tx.send(format!("= display_games {}", &self.games)).is_ok();
                         let _ok = tx
                             .send(format!("= display_users {}", &self.accounts))
                             .is_ok();
@@ -322,7 +339,7 @@ impl Server {
                         }
                     };
                     let command = format!("{command} {game}");
-                    self.games.insert(self.game_id, game);
+                    self.games.0.insert(self.game_id, game);
                     self.game_id += 1;
 
                     (Some(self.clients[index_supplied].clone()), true, command)

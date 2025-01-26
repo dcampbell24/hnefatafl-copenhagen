@@ -27,3 +27,37 @@ impl fmt::Display for ServerGame {
         write!(f, "game {} {attacker} {defender}", self.id)
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct ServerGameLight {
+    pub id: usize,
+    pub attacker: Option<String>,
+    pub defender: Option<String>,
+}
+
+impl TryFrom<(&str, &str, &str)> for ServerGameLight {
+    type Error = anyhow::Error;
+
+    fn try_from(id_attacker_defender: (&str, &str, &str)) -> anyhow::Result<Self> {
+        let (id, attacker, defender) = id_attacker_defender;
+        let id = id.parse::<usize>()?;
+
+        let attacker = if attacker == "none" {
+            None
+        } else {
+            Some(attacker.to_string())
+        };
+
+        let defender = if defender == "none" {
+            None
+        } else {
+            Some(defender.to_string())
+        };
+
+        Ok(Self {
+            id,
+            attacker,
+            defender,
+        })
+    }
+}
