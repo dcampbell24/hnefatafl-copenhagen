@@ -32,12 +32,14 @@ fn main() -> anyhow::Result<()> {
     // X -> = login
     // X <- new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
     // X -> = new_game game 1 david none
-    // X display_pending_games game 1 david none
+    // X -> = display_pending_games game 1 david none
+    // X -> = display_users david
     // join_game 1 abby
     // display_active_games game 1 david abby
     // watch_game 1,
     // display_archived_games game 1 david abby
     // X <- text A message!
+    // X -> = text A message!
     // text_game 1 A message!
 
     init_logger();
