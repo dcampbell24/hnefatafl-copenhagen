@@ -217,7 +217,7 @@ impl Server {
             let the_rest = the_rest.join(" ");
             match *command {
                 "display_server" => {
-                    info!("{index_supplied} {username} display_server");
+                    info!("∞ {username} display_server");
                     // Todo: is it ok to ignore errors?
                     for tx in &mut self.clients {
                         let _ok = tx
