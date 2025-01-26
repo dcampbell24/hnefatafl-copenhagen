@@ -11,7 +11,7 @@ use std::{
 use chrono::Utc;
 use clap::{command, Parser};
 use env_logger::Builder;
-use hnefatafl_copenhagen::{game::Game, role::Role, server_game::ServerGame};
+use hnefatafl_copenhagen::{game::Game, role::Role, server_game::ServerGameLight};
 use log::{info, LevelFilter};
 
 /// A Hnefatafl Copenhagen Server
@@ -130,7 +130,7 @@ fn receiving_and_writing(
 struct Server {
     accounts: Accounts,
     clients: Vec<mpsc::Sender<String>>,
-    games: Games,
+    pending_games: GamesLight,
     game_id: usize,
 }
 
@@ -158,13 +158,13 @@ struct Account {
 }
 
 #[derive(Clone, Debug, Default)]
-struct Games(HashMap<usize, ServerGame>);
+struct GamesLight(HashMap<usize, ServerGameLight>);
 
-impl fmt::Display for Games {
+impl fmt::Display for GamesLight {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut games = Vec::new();
         for game in self.0.values() {
-            games.push(format!("{game}"));
+            games.push(game.protocol());
         }
         let games = games.join(" ");
 
@@ -220,7 +220,9 @@ impl Server {
                     info!("{index_supplied} {username} display_server");
                     // Todo: is it ok to ignore errors?
                     for tx in &mut self.clients {
-                        let _ok = tx.send(format!("= display_games {}", &self.games)).is_ok();
+                        let _ok = tx
+                            .send(format!("= display_pending_games {}", &self.pending_games))
+                            .is_ok();
                         let _ok = tx
                             .send(format!("= display_users {}", &self.accounts))
                             .is_ok();
@@ -321,25 +323,21 @@ impl Server {
                     };
 
                     info!("{index_supplied} {username} new_game {role}");
-                    let game = Game::default();
-
                     let game = if role == Role::Attacker {
-                        ServerGame {
+                        ServerGameLight {
                             id: self.game_id,
                             attacker: Some((*username).to_string()),
                             defender: None,
-                            game,
                         }
                     } else {
-                        ServerGame {
+                        ServerGameLight {
                             id: self.game_id,
                             attacker: None,
                             defender: Some((*username).to_string()),
-                            game,
                         }
                     };
                     let command = format!("{command} {game}");
-                    self.games.0.insert(self.game_id, game);
+                    self.pending_games.0.insert(self.game_id, game);
                     self.game_id += 1;
 
                     (Some(self.clients[index_supplied].clone()), true, command)

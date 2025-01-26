@@ -5,13 +5,21 @@ use crate::game::Game;
 #[derive(Clone, Debug)]
 pub struct ServerGame {
     pub id: usize,
-    pub attacker: Option<String>,
-    pub defender: Option<String>,
+    pub attacker: String,
+    pub defender: String,
     pub game: Game,
 }
 
-impl fmt::Display for ServerGame {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+#[derive(Clone, Debug)]
+pub struct ServerGameLight {
+    pub id: usize,
+    pub attacker: Option<String>,
+    pub defender: Option<String>,
+}
+
+impl ServerGameLight {
+    #[must_use]
+    pub fn protocol(&self) -> String {
         let attacker = if let Some(name) = &self.attacker {
             name
         } else {
@@ -24,15 +32,8 @@ impl fmt::Display for ServerGame {
             "none"
         };
 
-        write!(f, "game {} {attacker} {defender}", self.id)
+        format!("game {} {attacker} {defender}", self.id)
     }
-}
-
-#[derive(Clone, Debug)]
-pub struct ServerGameLight {
-    pub id: usize,
-    pub attacker: Option<String>,
-    pub defender: Option<String>,
 }
 
 impl fmt::Display for ServerGameLight {

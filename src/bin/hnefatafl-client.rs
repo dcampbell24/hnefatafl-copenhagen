@@ -128,7 +128,7 @@ impl Client {
                 let two = text.next();
                 match one {
                     Some("=") => match two {
-                        Some("display_games") => {
+                        Some("display_pending_games") => {
                             self.games.clear();
                             let games: Vec<&str> = text.collect();
                             for chunks in games.chunks_exact(4) {
