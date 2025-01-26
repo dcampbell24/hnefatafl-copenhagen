@@ -27,23 +27,21 @@ struct Args {
 }
 
 fn main() -> anyhow::Result<()> {
-    // X Accept TCP connections.
-    // X Get a login.
-    // Wait for a message such as
+    // X connected to localhost:8000 ...
+    // X <- david
+    // X -> = login
     //     new_game,
-    //         one player creates a game, then it gets added to the pending games
-    //             = new_game ID
-    //             new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-    //             ? new_game | = new_game game_id
-    //         another play chooses to join a pending game
-    //         then the game is added to the active games
-    //     join_game game_id,
-    //     watch_game game_id,
-    //     list_active_games -- returns all of the game_id and a game summary, move #,
-    //     list_archived_games -- return all of the game_id s of completed games,
-    //     send_message
-    //         X there is a general chat you join when logged on
-    //         an in game chat you join when you join a game
+    //         X <- new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
+    //         X -> = new_game game 1 david none
+    //         join_game 1 abby
+    //         display_active_games game 1 david abby
+    //     watch_game 1,
+    //     display_pending_games game 1 david none
+    //     display_active_games game 1 david abby
+    //     display_archived_games game 1 david abby
+    //     send_messages
+    //         X <- text A message!
+    //         text_game 1 A message!
 
     init_logger();
 
