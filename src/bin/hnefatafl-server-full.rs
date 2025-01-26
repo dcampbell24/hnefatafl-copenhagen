@@ -16,8 +16,7 @@ use log::{info, LevelFilter};
 
 /// A Hnefatafl Copenhagen Server
 ///
-/// This is a TCP server that listens for HTP engines
-/// to connect and then plays them against each other.
+/// This is a TCP server that listens client connections.
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Args {

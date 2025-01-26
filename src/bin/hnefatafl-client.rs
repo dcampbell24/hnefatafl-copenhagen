@@ -7,6 +7,7 @@ use std::{
     thread,
 };
 
+use clap::{command, Parser};
 use futures::executor;
 use hnefatafl_copenhagen::{
     game::Game, message, play::Vertex, role::Role, server_game::ServerGameLight, space::Space,
@@ -19,7 +20,16 @@ use iced::{
     Color, Element, Subscription, Theme,
 };
 
-const ADDRESS: &str = "localhost:8000";
+/// A Hnefatafl Copenhagen Client
+///
+/// This is a TCP client that connects to a server.
+#[derive(Parser, Debug)]
+#[command(version, about)]
+struct Args {
+    /// Listen for HTP drivers on host and port
+    #[arg(default_value = "localhost:8000", index = 1, value_name = "host:port")]
+    host_port: String,
+}
 
 fn main() -> anyhow::Result<()> {
     iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
@@ -299,10 +309,12 @@ enum Message {
 }
 
 fn pass_messages() -> impl Stream<Item = Message> {
-    stream::channel(100, |mut sender| async move {
-        let mut tcp_stream = TcpStream::connect(ADDRESS).unwrap();
+    stream::channel(100, move |mut sender| async move {
+        let args = Args::parse();
+        let address = &args.host_port;
+        let mut tcp_stream = TcpStream::connect(address).unwrap();
         let mut reader = BufReader::new(tcp_stream.try_clone().unwrap());
-        println!("connected to {ADDRESS} ...");
+        println!("connected to {address} ...");
 
         let (tx, rx) = mpsc::channel();
         let _ = sender.send(Message::TcpConnected(tx)).await;
