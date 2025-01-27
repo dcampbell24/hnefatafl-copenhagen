@@ -65,7 +65,7 @@ fn main() -> anyhow::Result<()> {
         sleep(Duration::from_secs(10));
     });
 
-    for (index, stream) in (0..).zip(listener.incoming()) {
+    for (index, stream) in (1..).zip(listener.incoming()) {
         let stream = stream?;
         let tx = tx.clone();
         thread::spawn(move || login(index, stream, &tx));
@@ -216,7 +216,7 @@ impl Server {
             let the_rest = the_rest.join(" ");
             match *command {
                 "display_server" => {
-                    info!("∞ {username} display_server");
+                    info!("0 {username} display_server");
                     // Todo: is it ok to ignore errors?
                     for tx in &mut self.clients.values() {
                         let _ok = tx
