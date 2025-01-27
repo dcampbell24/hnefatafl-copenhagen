@@ -61,7 +61,7 @@ struct Client {
 enum Screen {
     #[default]
     Login,
-    _Game,
+    Game,
     GameNew,
     GameNewFrozen,
     Games,
@@ -102,6 +102,7 @@ impl Client {
         Theme::SolarizedLight
     }
 
+    #[allow(clippy::too_many_lines)]
     pub fn update(&mut self, message: Message) {
         self.error = None;
 
@@ -162,7 +163,18 @@ impl Client {
                             let users: Vec<String> = text.map(ToString::to_string).collect();
                             self.users = users;
                         }
+                        Some("join_game") => {
+                            self.game = Some(Game::default());
+                            self.screen = Screen::Game;
+                        }
                         Some("login") => self.screen = Screen::Games,
+                        Some("new_game") => {
+                            let three = text.next();
+                            if three == Some("ready") {
+                                self.game = Some(Game::default());
+                                self.screen = Screen::Game;
+                            }
+                        }
                         Some("text") => {
                             let text: Vec<&str> = text.collect();
                             let text = text.join(" ");
@@ -244,10 +256,9 @@ impl Client {
     #[must_use]
     pub fn view(&self) -> Element<Message> {
         let screen: Element<'_, Message> = match self.screen {
-            Screen::_Game => {
+            Screen::Game => {
                 let game = self.board();
-                let user_area = self.user_area();
-                let game = row![game, user_area];
+                let game = row![game, text(&self.username)];
 
                 let leave_game = button("Leave Game").on_press(Message::GameLeave);
                 let buttons = row![leave_game];
