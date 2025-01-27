@@ -112,8 +112,13 @@ impl Client {
                 };
                 let _result = game.update(message);
             }
-            Message::GameNew => self.screen = Screen::GameNew,
+            Message::GameJoin(id) => {
+                if let Some(tx) = &self.tx {
+                    handle_error(tx.send(format!("join_game {id}\n")));
+                }
+            }
             Message::GameLeave => self.screen = Screen::Games,
+            Message::GameNew => self.screen = Screen::GameNew,
             Message::GameSubmit => {
                 if let (Some(role), Some(tx)) = (self.role_selected, &self.tx) {
                     self.screen = Screen::GameNewFrozen;
@@ -199,8 +204,11 @@ impl Client {
     #[must_use]
     fn user_area(&self) -> Column<Message> {
         let mut games = Column::new();
+        games = games.push(text("games:"));
         for game in &self.games {
-            games = games.push(text(game.to_string()));
+            let id = game.id;
+            let join = button("join").on_press(Message::GameJoin(id));
+            games = games.push(row![text(game.to_string()), join]);
         }
         let games = container(games).padding(10).style(container::rounded_box);
 
@@ -304,6 +312,7 @@ impl Client {
 #[derive(Clone, Debug)]
 enum Message {
     _Game(message::Message),
+    GameJoin(u128),
     GameLeave,
     GameNew,
     GameSubmit,

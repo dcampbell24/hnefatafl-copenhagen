@@ -11,7 +11,12 @@ use std::{
 use chrono::Utc;
 use clap::{command, Parser};
 use env_logger::Builder;
-use hnefatafl_copenhagen::{game::Game, handle_error, role::Role, server_game::ServerGameLight};
+use hnefatafl_copenhagen::{
+    game::Game,
+    handle_error,
+    role::Role,
+    server_game::{ServerGame, ServerGameLight},
+};
 use log::{info, LevelFilter};
 
 /// A Hnefatafl Copenhagen Server
@@ -129,7 +134,8 @@ fn receiving_and_writing(
 struct Server {
     accounts: Accounts,
     clients: HashMap<u128, mpsc::Sender<String>>,
-    pending_games: GamesLight,
+    pending_games: ServerGamesLight,
+    games: ServerGames,
     game_id: u128,
 }
 
@@ -157,9 +163,24 @@ struct Account {
 }
 
 #[derive(Clone, Debug, Default)]
-struct GamesLight(HashMap<u128, ServerGameLight>);
+struct ServerGames(HashMap<u128, ServerGame>);
 
-impl fmt::Display for GamesLight {
+impl fmt::Display for ServerGames {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut games = Vec::new();
+        for game in self.0.values() {
+            games.push(game.protocol());
+        }
+        let games = games.join(" ");
+
+        write!(f, "{games}")
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+struct ServerGamesLight(HashMap<u128, ServerGameLight>);
+
+impl fmt::Display for ServerGamesLight {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut games = Vec::new();
         for game in self.0.values() {
@@ -218,9 +239,63 @@ impl Server {
                         handle_error(
                             tx.send(format!("= display_pending_games {}", &self.pending_games)),
                         );
+                        handle_error(tx.send(format!("= display_games {}", &self.games)));
                         handle_error(tx.send(format!("= display_users {}", &self.accounts)));
                     }
                     (None, true, (*command).to_string())
+                }
+                "join_game" => {
+                    let Some(id) = the_rest.split_ascii_whitespace().next() else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+                    let Ok(id) = id.parse::<u128>() else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+
+                    let game = &self.pending_games.0[&id];
+                    let Some(channel) = game.channel else {
+                        panic!("a pending game has to have a waiting channel");
+                    };
+                    handle_error(self.clients[&channel].send("= new_game ready".to_string()));
+
+                    let new_game = if let Some(attacker) = &game.attacker {
+                        ServerGame {
+                            id: game.id,
+                            attacker: attacker.clone(),
+                            defender: (*username).to_string(),
+                            game: Game::default(),
+                        }
+                    } else if let Some(defender) = &game.defender {
+                        ServerGame {
+                            id: game.id,
+                            attacker: (*username).to_string(),
+                            defender: defender.clone(),
+                            game: Game::default(),
+                        }
+                    } else {
+                        panic!("there has to be an attacker or defender")
+                    };
+                    self.pending_games.0.remove(&id);
+                    self.games.0.insert(id, new_game);
+
+                    // todo:
+                    // tell the attacker to move
+                    // tell the defender to move...
+                    // finish the game
+                    // add the game to the archived games.
+                    (
+                        Some(self.clients[&index_supplied].clone()),
+                        true,
+                        (*command).to_string(),
+                    )
                 }
                 "login" => {
                     if let Some(tx) = option_tx {
@@ -337,12 +412,14 @@ impl Server {
                             id: self.game_id,
                             attacker: Some((*username).to_string()),
                             defender: None,
+                            channel: Some(index_supplied),
                         }
                     } else {
                         ServerGameLight {
                             id: self.game_id,
                             attacker: None,
                             defender: Some((*username).to_string()),
+                            channel: Some(index_supplied),
                         }
                     };
                     let command = format!("{command} {}", game.protocol());

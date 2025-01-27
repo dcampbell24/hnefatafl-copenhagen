@@ -10,11 +10,25 @@ pub struct ServerGame {
     pub game: Game,
 }
 
+impl ServerGame {
+    #[must_use]
+    pub fn protocol(&self) -> String {
+        format!("game {} {} {}", self.id, self.attacker, self.defender)
+    }
+}
+
+impl fmt::Display for ServerGame {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}, {} ", self.id, self.attacker, self.defender)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct ServerGameLight {
     pub id: u128,
     pub attacker: Option<String>,
     pub defender: Option<String>,
+    pub channel: Option<u128>,
 }
 
 impl ServerGameLight {
@@ -50,7 +64,7 @@ impl fmt::Display for ServerGameLight {
             "defender: none"
         };
 
-        write!(f, "game: {}, {attacker}, {defender}", self.id)
+        write!(f, "{}: {attacker}, {defender} ", self.id)
     }
 }
 
@@ -77,6 +91,7 @@ impl TryFrom<(&str, &str, &str)> for ServerGameLight {
             id,
             attacker,
             defender,
+            channel: None,
         })
     }
 }
