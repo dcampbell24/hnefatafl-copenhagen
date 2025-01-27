@@ -1,5 +1,6 @@
 use std::{
     collections::VecDeque,
+    fmt,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
@@ -119,7 +120,7 @@ impl Client {
                     self.game = Some(Game::default());
 
                     // new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-                    tx.send(format!("new_game {role}\n")).unwrap();
+                    handle_error(tx.send(format!("new_game {role}\n")));
                 }
             }
             Message::TcpConnected(tx) => {
@@ -180,14 +181,14 @@ impl Client {
 
                     self.text_input.push('\n');
                     if self.screen == Screen::Login {
-                        tx.send(self.text_input.clone()).unwrap();
+                        handle_error(tx.send(self.text_input.clone()));
 
                         if let Some(username) = self.text_input.split_ascii_whitespace().next() {
                             let username = username.to_ascii_lowercase();
                             self.username = username;
                         }
                     } else {
-                        tx.send(format!("text {}", self.text_input)).unwrap();
+                        handle_error(tx.send(format!("text {}", self.text_input)));
                     }
                     self.text_input.clear();
                 }
@@ -317,27 +318,46 @@ fn pass_messages() -> impl Stream<Item = Message> {
     stream::channel(100, move |mut sender| async move {
         let args = Args::parse();
         let address = &args.host_port;
-        let mut tcp_stream = TcpStream::connect(address).unwrap();
-        let mut reader = BufReader::new(tcp_stream.try_clone().unwrap());
+        let mut tcp_stream = handle_error(TcpStream::connect(address));
+
+        let reader = handle_error(tcp_stream.try_clone());
+        let mut reader = BufReader::new(reader);
         println!("connected to {address} ...");
 
         let (tx, rx) = mpsc::channel();
         let _ = sender.send(Message::TcpConnected(tx)).await;
         thread::spawn(move || loop {
-            let message = rx.recv().unwrap();
+            let message = handle_error(rx.recv());
             print!("<- {message}");
-            tcp_stream.write_all(message.as_bytes()).unwrap();
+
+            handle_error(tcp_stream.write_all(message.as_bytes()));
         });
 
         thread::spawn(move || {
             let mut buffer = String::new();
             loop {
-                if reader.read_line(&mut buffer).unwrap() != 0 {
+                let bytes = handle_error(reader.read_line(&mut buffer));
+                if bytes > 0 {
                     print!("-> {buffer}");
-                    let _ = executor::block_on(sender.send(Message::TextReceived(buffer.clone())));
+                    handle_error(executor::block_on(
+                        sender.send(Message::TextReceived(buffer.clone())),
+                    ));
                     buffer.clear();
+                } else {
+                    eprintln!("error: the TCP stream has closed");
+                    exit(1);
                 }
             }
         });
     })
+}
+
+fn handle_error<T, E: fmt::Display>(result: Result<T, E>) -> T {
+    match result {
+        Ok(value) => value,
+        Err(error) => {
+            eprintln!("error: {error}");
+            exit(1);
+        }
+    }
 }
