@@ -4,7 +4,7 @@ use crate::game::Game;
 
 #[derive(Clone, Debug)]
 pub struct ServerGame {
-    pub id: usize,
+    pub id: u128,
     pub attacker: String,
     pub defender: String,
     pub game: Game,
@@ -12,7 +12,7 @@ pub struct ServerGame {
 
 #[derive(Clone, Debug)]
 pub struct ServerGameLight {
-    pub id: usize,
+    pub id: u128,
     pub attacker: Option<String>,
     pub defender: Option<String>,
 }
@@ -59,7 +59,7 @@ impl TryFrom<(&str, &str, &str)> for ServerGameLight {
 
     fn try_from(id_attacker_defender: (&str, &str, &str)) -> anyhow::Result<Self> {
         let (id, attacker, defender) = id_attacker_defender;
-        let id = id.parse::<usize>()?;
+        let id = id.parse::<u128>()?;
 
         let attacker = if attacker == "none" {
             None

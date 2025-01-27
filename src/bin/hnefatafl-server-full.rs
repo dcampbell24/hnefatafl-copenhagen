@@ -75,7 +75,7 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn login(
-    index: usize,
+    index: u128,
     mut stream: TcpStream,
     tx: &mpsc::Sender<(String, Option<mpsc::Sender<String>>)>,
 ) -> anyhow::Result<()> {
@@ -83,8 +83,8 @@ fn login(
 
     let mut buf = String::new();
     reader.read_line(&mut buf)?;
-    while buf.trim().is_empty() {
-        reader.read_line(&mut buf)?;
+    if buf.trim().is_empty() {
+        return Ok(());
     }
 
     buf.make_ascii_lowercase();
@@ -128,9 +128,9 @@ fn receiving_and_writing(
 #[derive(Default)]
 struct Server {
     accounts: Accounts,
-    clients: Vec<mpsc::Sender<String>>,
+    clients: HashMap<u128, mpsc::Sender<String>>,
     pending_games: GamesLight,
-    game_id: usize,
+    game_id: u128,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -153,11 +153,11 @@ impl fmt::Display for Accounts {
 
 #[derive(Clone, Debug, Default)]
 struct Account {
-    logged_in: Option<usize>,
+    logged_in: Option<u128>,
 }
 
 #[derive(Clone, Debug, Default)]
-struct GamesLight(HashMap<usize, ServerGameLight>);
+struct GamesLight(HashMap<u128, ServerGameLight>);
 
 impl fmt::Display for GamesLight {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -209,8 +209,8 @@ impl Server {
             };
 
             let index_supplied = index_supplied
-                .parse::<usize>()
-                .expect("the index should be a valid usize");
+                .parse::<u128>()
+                .expect("the index should be a valid u128");
 
             let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
             let the_rest = the_rest.join(" ");
@@ -218,7 +218,7 @@ impl Server {
                 "display_server" => {
                     info!("∞ {username} display_server");
                     // Todo: is it ok to ignore errors?
-                    for tx in &mut self.clients {
+                    for tx in &mut self.clients.values() {
                         let _ok = tx
                             .send(format!("= display_pending_games {}", &self.pending_games))
                             .is_ok();
@@ -230,8 +230,6 @@ impl Server {
                 }
                 "login" => {
                     if let Some(tx) = option_tx {
-                        self.clients.push(tx);
-
                         if let Some(index_database) = self.accounts.0.get_mut(*username) {
                             // The username is in the database and already logged in.
                             if let Some(index_database) = index_database.logged_in {
@@ -239,18 +237,15 @@ impl Server {
                                         "{index_supplied} {username} login failed, {index_database} is logged in"
                                     );
 
-                                (
-                                    Some(self.clients[index_supplied].clone()),
-                                    false,
-                                    (*command).to_string(),
-                                )
+                                (Some(tx), false, (*command).to_string())
                             // The username is in the database, but not logged in yet.
                             } else {
                                 info!("{index_supplied} {username} logged in");
+                                self.clients.insert(index_supplied, tx);
                                 index_database.logged_in = Some(index_supplied);
 
                                 (
-                                    Some(self.clients[index_supplied].clone()),
+                                    Some(self.clients[&index_supplied].clone()),
                                     true,
                                     (*command).to_string(),
                                 )
@@ -258,6 +253,7 @@ impl Server {
                         // The username is not in the database.
                         } else {
                             info!("{index_supplied} {username} created user account");
+                            self.clients.insert(index_supplied, tx);
                             self.accounts.0.insert(
                                 (*username).to_string(),
                                 Account {
@@ -266,7 +262,7 @@ impl Server {
                             );
 
                             (
-                                Some(self.clients[index_supplied].clone()),
+                                Some(self.clients[&index_supplied].clone()),
                                 true,
                                 (*command).to_string(),
                             )
@@ -282,6 +278,7 @@ impl Server {
                             if index_database == index_supplied {
                                 info!("{index_supplied} {username} logged out");
                                 *index_database_option = Account { logged_in: None };
+                                self.clients.remove(&index_database);
                                 // Remove the pending game if there is one.
                                 let mut index_option = None;
                                 for (index, game) in self.pending_games.0.clone() {
@@ -304,21 +301,21 @@ impl Server {
                                 (None, true, (*command).to_string())
                             } else {
                                 (
-                                    Some(self.clients[index_supplied].clone()),
+                                    Some(self.clients[&index_supplied].clone()),
                                     false,
                                     (*command).to_string(),
                                 )
                             }
                         } else {
                             (
-                                Some(self.clients[index_supplied].clone()),
+                                Some(self.clients[&index_supplied].clone()),
                                 false,
                                 (*command).to_string(),
                             )
                         }
                     } else {
                         (
-                            Some(self.clients[index_supplied].clone()),
+                            Some(self.clients[&index_supplied].clone()),
                             false,
                             (*command).to_string(),
                         )
@@ -327,14 +324,14 @@ impl Server {
                 "new_game" => {
                     let Some(role) = the_rest.split_ascii_whitespace().next() else {
                         return (
-                            Some(self.clients[index_supplied].clone()),
+                            Some(self.clients[&index_supplied].clone()),
                             false,
                             (*command).to_string(),
                         );
                     };
                     let Ok(role) = Role::try_from(role) else {
                         return (
-                            Some(self.clients[index_supplied].clone()),
+                            Some(self.clients[&index_supplied].clone()),
                             false,
                             (*command).to_string(),
                         );
@@ -358,18 +355,18 @@ impl Server {
                     self.pending_games.0.insert(self.game_id, game);
                     self.game_id += 1;
 
-                    (Some(self.clients[index_supplied].clone()), true, command)
+                    (Some(self.clients[&index_supplied].clone()), true, command)
                 }
                 "text" => {
                     info!("{index_supplied} {username} text {the_rest}");
-                    for tx in &mut self.clients {
+                    for tx in &mut self.clients.values() {
                         // Todo: is it ok to ignore errors?
                         let _ok = tx.send(format!("= text {the_rest}")).is_ok();
                     }
                     (None, true, (*command).to_string())
                 }
                 _ => (
-                    Some(self.clients[index_supplied].clone()),
+                    Some(self.clients[&index_supplied].clone()),
                     false,
                     (*command).to_string(),
                 ),
