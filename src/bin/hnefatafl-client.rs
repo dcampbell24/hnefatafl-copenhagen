@@ -1,6 +1,5 @@
 use std::{
     collections::VecDeque,
-    fmt,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
@@ -11,7 +10,8 @@ use std::{
 use clap::{command, Parser};
 use futures::executor;
 use hnefatafl_copenhagen::{
-    game::Game, message, play::Vertex, role::Role, server_game::ServerGameLight, space::Space,
+    game::Game, handle_error, message, play::Vertex, role::Role, server_game::ServerGameLight,
+    space::Space,
 };
 use iced::{
     font::Font,
@@ -350,14 +350,4 @@ fn pass_messages() -> impl Stream<Item = Message> {
             }
         });
     })
-}
-
-fn handle_error<T, E: fmt::Display>(result: Result<T, E>) -> T {
-    match result {
-        Ok(value) => value,
-        Err(error) => {
-            eprintln!("error: {error}");
-            exit(1);
-        }
-    }
 }

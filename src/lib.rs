@@ -1,8 +1,10 @@
 use std::{
     collections::HashSet,
+    fmt,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     path::Path,
+    process::exit,
 };
 
 use game::Game;
@@ -22,6 +24,16 @@ pub mod server_game;
 pub mod space;
 pub mod status;
 pub mod time;
+
+pub fn handle_error<T, E: fmt::Display>(result: Result<T, E>) -> T {
+    match result {
+        Ok(value) => value,
+        Err(error) => {
+            eprintln!("error: {error}");
+            exit(1)
+        }
+    }
+}
 
 /// # Errors
 ///

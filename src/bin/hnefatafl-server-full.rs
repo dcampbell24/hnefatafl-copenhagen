@@ -11,7 +11,7 @@ use std::{
 use chrono::Utc;
 use clap::{command, Parser};
 use env_logger::Builder;
-use hnefatafl_copenhagen::{game::Game, role::Role, server_game::ServerGameLight};
+use hnefatafl_copenhagen::{game::Game, handle_error, role::Role, server_game::ServerGameLight};
 use log::{info, LevelFilter};
 
 /// A Hnefatafl Copenhagen Server
@@ -193,10 +193,7 @@ impl Server {
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
     ) -> (Option<mpsc::Sender<String>>, bool, String) {
-        // Todo: is it ok to ignore errors?
-        let Ok((message, option_tx)) = rx.recv() else {
-            return (None, false, String::new());
-        };
+        let (message, option_tx) = handle_error(rx.recv());
         let index_username_command: Vec<_> = message.split_ascii_whitespace().collect();
 
         if let (Some(index_supplied), Some(username), command_option) = (
@@ -217,14 +214,11 @@ impl Server {
             match *command {
                 "display_server" => {
                     info!("0 {username} display_server");
-                    // Todo: is it ok to ignore errors?
                     for tx in &mut self.clients.values() {
-                        let _ok = tx
-                            .send(format!("= display_pending_games {}", &self.pending_games))
-                            .is_ok();
-                        let _ok = tx
-                            .send(format!("= display_users {}", &self.accounts))
-                            .is_ok();
+                        handle_error(
+                            tx.send(format!("= display_pending_games {}", &self.pending_games)),
+                        );
+                        handle_error(tx.send(format!("= display_users {}", &self.accounts)));
                     }
                     (None, true, (*command).to_string())
                 }
@@ -360,8 +354,7 @@ impl Server {
                 "text" => {
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients.values() {
-                        // Todo: is it ok to ignore errors?
-                        let _ok = tx.send(format!("= text {the_rest}")).is_ok();
+                        handle_error(tx.send(format!("= text {the_rest}")));
                     }
                     (None, true, (*command).to_string())
                 }
