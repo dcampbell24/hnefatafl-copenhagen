@@ -12,6 +12,7 @@ use chrono::Utc;
 use clap::{command, Parser};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
+    color::Color,
     game::Game,
     handle_error,
     role::Role,
@@ -444,6 +445,85 @@ impl Server {
                     self.game_id += 1;
 
                     (Some(self.clients[&index_supplied].clone()), true, command)
+                }
+                //  game 0 play black a4 a2
+                "game" => {
+                    let words: Vec<&str> = the_rest.split_ascii_whitespace().collect();
+                    let Some(index) = words.first() else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+                    let Ok(index) = index.parse() else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+                    let Some(color) = words.get(2) else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+                    let Ok(color) = Color::try_from(*color) else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+                    let Some(from) = words.get(3) else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+                    let Some(to) = words.get(4) else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+
+                    let game = &self.games.0[&index];
+                    if color == Color::Black {
+                        if *username == game.attacker {
+                            handle_error(
+                                game.defender_tx
+                                    .send(format!("game {index} play black {from} {to}")),
+                            );
+                        } else {
+                            return (
+                                Some(self.clients[&index_supplied].clone()),
+                                false,
+                                (*command).to_string(),
+                            );
+                        }
+                    } else if *username == game.defender {
+                        handle_error(
+                            game.attacker_tx
+                                .send(format!("game {index} play white {from} {to}")),
+                        );
+                    } else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    }
+
+                    (
+                        Some(self.clients[&index_supplied].clone()),
+                        true,
+                        (*command).to_string(),
+                    )
                 }
                 "text" => {
                     info!("{index_supplied} {username} text {the_rest}");

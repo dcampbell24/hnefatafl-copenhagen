@@ -214,7 +214,7 @@ impl Client {
                             panic!("there should be an established channel by now");
                         };
 
-                        handle_error(tx.send(format!("game {index} {result}\n")));
+                        handle_error(tx.send(format!("game {index} play {result}\n")));
                     }
                     _ => {}
                 }
