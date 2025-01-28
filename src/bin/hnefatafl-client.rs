@@ -185,36 +185,57 @@ impl Client {
                             exit(1);
                         }
                     }
-                    // game 0 generate_move black
                     Some("game") => {
                         // Plays the move then sends the result back.
                         let Some(index) = text.next() else {
                             return;
                         };
-                        // Todo: could be play.
-                        if Some("generate_move") != text.next() {
-                            return;
+
+                        // game 0 generate_move black
+                        let text_word = text.next();
+                        if text_word == Some("generate_move") {
+                            let Some(color) = text.next() else {
+                                return;
+                            };
+                            let Ok(color) = Color::try_from(color) else {
+                                return;
+                            };
+                            let Some(game) = &mut self.game else {
+                                panic!("a game should exist to play in one");
+                            };
+
+                            let result = game
+                                .read_line(&format!("generate_move {color}"))
+                                .expect("generate_move should be valid")
+                                .expect("an empty string wasn't passed");
+
+                            let Some(tx) = &self.tx else {
+                                panic!("there should be an established channel by now");
+                            };
+
+                            handle_error(tx.send(format!("game {index} play {result}\n")));
+                        // game 0 play black a3 a4
+                        } else if text_word == Some("play") {
+                            let Some(color) = text.next() else {
+                                return;
+                            };
+                            let Ok(color) = Color::try_from(color) else {
+                                return;
+                            };
+                            let Some(from) = text.next() else {
+                                return;
+                            };
+                            let Some(to) = text.next() else {
+                                return;
+                            };
+                            let Some(game) = &mut self.game else {
+                                panic!("a game should exist to play in one");
+                            };
+
+                            game.read_line(&format!("play {color} {from} {to}"))
+                                .expect("play should be valid")
+                                .expect("an empty string wasn't passed");
                         }
-                        let Some(color) = text.next() else {
-                            return;
-                        };
-                        let Ok(color) = Color::try_from(color) else {
-                            return;
-                        };
-                        let Some(game) = &mut self.game else {
-                            panic!("a game should exist to play in one");
-                        };
-
-                        let result = game
-                            .read_line(&format!("generate_move {color}"))
-                            .expect("generate move should be valid")
-                            .expect("an empty string wasn't passed");
-
-                        let Some(tx) = &self.tx else {
-                            panic!("there should be an established channel by now");
-                        };
-
-                        handle_error(tx.send(format!("game {index} play {result}\n")));
                     }
                     _ => {}
                 }
