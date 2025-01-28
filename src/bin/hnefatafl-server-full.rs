@@ -42,9 +42,11 @@ fn main() -> anyhow::Result<()> {
     // X connected to localhost:8000 ...
     // X <- abby
     // X -> = login
-    // join_game 1
-    // display_active_games game 1 david abby
+    // X join_game 1
+    // X display_active_games game 1 david abby
+    // play game 1
     // watch_game 1,
+    // display in game users
     // display_archived_games game 1 david abby
     // X <- text A message!
     // X -> = text A message!
