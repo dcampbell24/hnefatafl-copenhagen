@@ -1,3 +1,4 @@
+use core::panic;
 use std::{
     collections::VecDeque,
     io::{BufRead, BufReader, Write},
@@ -10,15 +11,15 @@ use std::{
 use clap::{command, Parser};
 use futures::executor;
 use hnefatafl_copenhagen::{
-    game::Game, handle_error, message, play::Vertex, role::Role, server_game::ServerGameLight,
-    space::Space,
+    color::Color, game::Game, handle_error, message, play::Vertex, role::Role,
+    server_game::ServerGameLight, space::Space,
 };
 use iced::{
     font::Font,
     futures::{SinkExt, Stream},
     stream,
     widget::{button, column, container, radio, row, text, text_input, Column, Row},
-    Color, Element, Subscription, Theme,
+    Element, Subscription, Theme,
 };
 
 /// A Hnefatafl Copenhagen Client
@@ -141,10 +142,8 @@ impl Client {
             }
             Message::TextReceived(string) => {
                 let mut text = string.split_ascii_whitespace();
-                let one = text.next();
-                let two = text.next();
-                match one {
-                    Some("=") => match two {
+                match text.next() {
+                    Some("=") => match text.next() {
                         Some("display_pending_games") => {
                             self.games.clear();
                             let games: Vec<&str> = text.collect();
@@ -169,8 +168,7 @@ impl Client {
                         }
                         Some("login") => self.screen = Screen::Games,
                         Some("new_game") => {
-                            let three = text.next();
-                            if three == Some("ready") {
+                            if Some("ready") == text.next() {
                                 self.game = Some(Game::default());
                                 self.screen = Screen::Game;
                             }
@@ -183,9 +181,40 @@ impl Client {
                         _ => {}
                     },
                     Some("?") => {
-                        if Some("login") == two {
+                        if Some("login") == text.next() {
                             exit(1);
                         }
+                    }
+                    // game 0 generate_move black
+                    Some("game") => {
+                        // Plays the move then sends the result back.
+                        let Some(index) = text.next() else {
+                            return;
+                        };
+                        // Todo: could be play.
+                        if Some("generate_move") != text.next() {
+                            return;
+                        }
+                        let Some(color) = text.next() else {
+                            return;
+                        };
+                        let Ok(color) = Color::try_from(color) else {
+                            return;
+                        };
+                        let Some(game) = &mut self.game else {
+                            panic!("a game should exist to play in one");
+                        };
+
+                        let result = game
+                            .read_line(&format!("generate_move {color}"))
+                            .expect("generate move should be valid")
+                            .expect("an empty string wasn't passed");
+
+                        let Some(tx) = &self.tx else {
+                            panic!("there should be an established channel by now");
+                        };
+
+                        handle_error(tx.send(format!("game {index} {result}\n")));
                     }
                     _ => {}
                 }
@@ -258,7 +287,7 @@ impl Client {
         let screen: Element<'_, Message> = match self.screen {
             Screen::Game => {
                 let game = self.board();
-                let game = row![game, text(&self.username)];
+                let game = row![game, text(format!("username: {}", &self.username))];
 
                 let leave_game = button("Leave Game").on_press(Message::GameLeave);
                 let buttons = row![leave_game];
@@ -310,7 +339,7 @@ impl Client {
         if let Some(error) = &self.error {
             column![
                 // Solarized Red
-                text(error).color(Color::from_rgb8(220, 50, 47)),
+                text(error).color(iced::Color::from_rgb8(220, 50, 47)),
                 screen,
             ]
             .into()

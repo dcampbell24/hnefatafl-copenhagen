@@ -260,6 +260,7 @@ impl Server {
                         );
                     };
 
+                    info!("{index_supplied} {username} join_game {id}");
                     let Some(game) = self.pending_games.0.remove(&id) else {
                         panic!("the id must refer to a valid pending game");
                     };
@@ -304,9 +305,9 @@ impl Server {
 
                     self.games.0.insert(id, new_game);
 
-                    handle_error(self.clients[&channel].send("= new_game ready\n".to_string()));
-                    handle_error(self.clients[&index_supplied].send("= join_game\n".to_string()));
-                    handle_error(attacker_tx.send(format!("game {id} generate_move black\n")));
+                    handle_error(self.clients[&channel].send("= new_game ready".to_string()));
+                    handle_error(self.clients[&index_supplied].send("= join_game".to_string()));
+                    handle_error(attacker_tx.send(format!("game {id} generate_move black")));
 
                     (None, true, String::new())
                 }
@@ -419,7 +420,10 @@ impl Server {
                         );
                     };
 
-                    info!("{index_supplied} {username} new_game {role}");
+                    info!(
+                        "{index_supplied} {username} new_game {} {role}",
+                        self.game_id
+                    );
                     let game = if role == Role::Attacker {
                         ServerGameLight {
                             id: self.game_id,
