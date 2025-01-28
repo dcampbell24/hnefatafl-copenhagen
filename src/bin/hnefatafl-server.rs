@@ -23,9 +23,7 @@ struct Args {
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    let setup_commands = vec!["# There arn't any.".to_string()];
-
-    start(&args.host_port, &setup_commands)
+    start(&args.host_port)
 }
 
 struct Htp {
@@ -34,16 +32,9 @@ struct Htp {
 }
 
 impl Htp {
-    fn start(&mut self, _setup_commands: Vec<String>) -> anyhow::Result<()> {
+    fn start(&mut self) -> anyhow::Result<()> {
         let mut black_reader = BufReader::new(self.black_connection.try_clone()?);
         let mut white_reader = BufReader::new(self.white_connection.try_clone()?);
-
-        /*
-        for command in setup_commands {
-            send_command(&command, &mut self.black_connection, &mut black_reader)?;
-            send_command(&command, &mut self.white_connection, &mut white_reader)?;
-        }
-        */
 
         let mut game = Game::default();
 
@@ -76,7 +67,7 @@ impl Htp {
     }
 }
 
-fn start(address: &str, setup_commands: &[String]) -> anyhow::Result<()> {
+fn start(address: &str) -> anyhow::Result<()> {
     let listener = TcpListener::bind(address)?;
     println!("listening on {address} ...");
 
@@ -92,9 +83,8 @@ fn start(address: &str, setup_commands: &[String]) -> anyhow::Result<()> {
                 black_connection: players.pop().unwrap(),
                 white_connection: stream,
             };
-            let setup_commands = setup_commands.to_owned();
 
-            thread::spawn(move || game.start(setup_commands));
+            thread::spawn(move || game.start());
         }
     }
 

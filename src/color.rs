@@ -2,9 +2,11 @@ use std::fmt;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub enum Color {
+    // attacker
     #[default]
     Black,
     Colorless,
+    // defender
     White,
 }
 

@@ -17,6 +17,7 @@ use hnefatafl_copenhagen::{
     handle_error,
     role::Role,
     server_game::{ServerGame, ServerGameLight},
+    status::Status,
 };
 use log::{debug, info, LevelFilter};
 
@@ -44,7 +45,8 @@ fn main() -> anyhow::Result<()> {
     // X -> = login
     // X join_game 1
     // X display_active_games game 1 david abby
-    // play game 1
+    // X play game 1
+    // ** todo: player loses if he quits. **
     // watch_game 1,
     // display in game users
     // display_archived_games game 1 david abby
@@ -494,13 +496,19 @@ impl Server {
                         );
                     };
 
-                    let game = &self.games.0[&index];
+                    let Some(game) = self.games.0.get_mut(&index) else {
+                        panic!("the index should be valid")
+                    };
+
+                    let mut blacks_turn_next = true;
                     if color == Color::Black {
                         if *username == game.attacker {
                             handle_error(
                                 game.defender_tx
                                     .send(format!("game {index} play black {from} {to}")),
                             );
+                            handle_error(game.game.read_line(&format!("play black {from} {to}")));
+                            blacks_turn_next = false;
                         } else {
                             return (
                                 Some(self.clients[&index_supplied].clone()),
@@ -513,12 +521,30 @@ impl Server {
                             game.attacker_tx
                                 .send(format!("game {index} play white {from} {to}")),
                         );
+                        handle_error(game.game.read_line(&format!("play white {from} {to}")));
                     } else {
                         return (
                             Some(self.clients[&index_supplied].clone()),
                             false,
                             (*command).to_string(),
                         );
+                    }
+
+                    match game.game.status {
+                        Status::BlackWins | Status::Draw | Status::WhiteWins => {}
+                        Status::Ongoing => {
+                            if blacks_turn_next {
+                                handle_error(
+                                    game.attacker_tx
+                                        .send(format!("game {index} generate_move black")),
+                                );
+                            } else {
+                                handle_error(
+                                    game.defender_tx
+                                        .send(format!("game {index} generate_move white")),
+                                );
+                            }
+                        }
                     }
 
                     (
