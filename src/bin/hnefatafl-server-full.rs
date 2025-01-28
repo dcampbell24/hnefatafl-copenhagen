@@ -33,26 +33,10 @@ struct Args {
 }
 
 fn main() -> anyhow::Result<()> {
-    // X connected to localhost:8000 ...
-    // X <- david
-    // X -> = login
-    // X <- new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-    // X -> = new_game game 1 david none
-    // X -> = display_pending_games game 1 david none
-    // X -> = display_users david
-    // X connected to localhost:8000 ...
-    // X <- abby
-    // X -> = login
-    // X join_game 1
-    // X display_active_games game 1 david abby
-    // X play game 1
-    // ** todo: player loses if he quits. **
-    // watch_game 1,
-    // display in game users
-    // X Add the game to archived games.
-    // X <- text A message!
-    // X -> = text A message!
+    // new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
     // text_game 1 A message!
+    // watch_game 1
+    // Display in game users.
 
     init_logger();
 
