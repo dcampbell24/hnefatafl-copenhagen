@@ -504,13 +504,12 @@ impl Server {
                     let mut blacks_turn_next = true;
                     if color == Color::Black {
                         if *username == game.attacker {
+                            handle_error(game.game.read_line(&format!("play black {from} {to}")));
+                            blacks_turn_next = false;
                             // Todo: if a player quits he loses.
                             let _ok = game
                                 .defender_tx
                                 .send(format!("game {index} play black {from} {to}"));
-
-                            handle_error(game.game.read_line(&format!("play black {from} {to}")));
-                            blacks_turn_next = false;
                         } else {
                             return (
                                 Some(self.clients[&index_supplied].clone()),
@@ -519,12 +518,11 @@ impl Server {
                             );
                         }
                     } else if *username == game.defender {
+                        handle_error(game.game.read_line(&format!("play white {from} {to}")));
                         // Todo: if a player quits he loses.
                         let _ok = game
                             .attacker_tx
                             .send(format!("game {index} play white {from} {to}"));
-
-                        handle_error(game.game.read_line(&format!("play white {from} {to}")));
                     } else {
                         return (
                             Some(self.clients[&index_supplied].clone()),
