@@ -16,7 +16,7 @@ use hnefatafl_copenhagen::{
     game::Game,
     handle_error,
     role::Role,
-    server_game::{ServerGame, ServerGameLight},
+    server_game::{ArchivedGame, ServerGame, ServerGameLight},
     status::Status,
 };
 use log::{debug, info, LevelFilter};
@@ -49,7 +49,7 @@ fn main() -> anyhow::Result<()> {
     // ** todo: player loses if he quits. **
     // watch_game 1,
     // display in game users
-    // display_archived_games game 1 david abby
+    // X Add the game to archived games.
     // X <- text A message!
     // X -> = text A message!
     // text_game 1 A message!
@@ -138,6 +138,7 @@ fn receiving_and_writing(
 #[derive(Default)]
 struct Server {
     accounts: Accounts,
+    archived_games: Vec<ArchivedGame>,
     clients: HashMap<u128, mpsc::Sender<String>>,
     pending_games: ServerGamesLight,
     games: ServerGames,
@@ -531,7 +532,14 @@ impl Server {
                     }
 
                     match game.game.status {
-                        Status::BlackWins | Status::Draw | Status::WhiteWins => {}
+                        Status::BlackWins | Status::Draw | Status::WhiteWins => {
+                            self.archived_games.push(ArchivedGame {
+                                id: game.id,
+                                attacker: game.attacker.to_string(),
+                                defender: game.defender.to_string(),
+                                game: game.game.clone(),
+                            });
+                        }
                         Status::Ongoing => {
                             if blacks_turn_next {
                                 handle_error(

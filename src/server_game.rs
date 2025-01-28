@@ -3,6 +3,14 @@ use std::{fmt, sync::mpsc::Sender};
 use crate::game::Game;
 
 #[derive(Clone, Debug)]
+pub struct ArchivedGame {
+    pub id: u128,
+    pub attacker: String,
+    pub defender: String,
+    pub game: Game,
+}
+
+#[derive(Clone, Debug)]
 pub struct ServerGame {
     pub id: u128,
     pub attacker: String,
