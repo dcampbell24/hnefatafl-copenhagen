@@ -68,18 +68,65 @@ enum Screen {
     Games,
 }
 
+/*
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let letters = "   ABCDEFGHJKL";
+        let bar = "─".repeat(11);
+
+        writeln!(f, "\n{letters}\n  ┌{bar}┐")?;
+        for y in 0..11 {
+            let y_label = 11 - y;
+            write!(f, "{y_label:2}│",)?;
+
+            for x in 0..11 {
+                if ((y, x) == (0, 0)
+                    || (y, x) == (10, 0)
+                    || (y, x) == (0, 10)
+                    || (y, x) == (10, 10)
+                    || (y, x) == (5, 5))
+                    && self.spaces[(y * 10) + x] == Space::Empty
+                {
+                    write!(f, "■")?;
+                } else {
+                    write!(f, "{}", self.spaces[y * 11 + x])?;
+                }
+            }
+            writeln!(f, "│{y_label:2}")?;
+        }
+        write!(f, "  └{bar}┘\n{letters}")
+    }
+}
+*/
+
 impl Client {
     #[must_use]
-    fn board(&self) -> Row<Message> {
-        let Some(game) = &self.game else {
-            return row![];
-        };
-
-        let mut game_display: Row<'_, Message> = Row::new();
+    fn board(&self) -> Column<Message> {
         let board_size = 50;
 
+        let letters = " ABCDEFGHJKL";
+        let mut row_letters_1 = Row::new();
+        for letter in letters.chars() {
+            row_letters_1 = row_letters_1.push(text(letter).size(board_size).center());
+        }
+        let mut row_letters_2 = Row::new();
+        for letter in letters.chars() {
+            row_letters_2 = row_letters_2.push(text(letter).size(board_size).center());
+        }
+
+        let Some(game) = &self.game else {
+            return column![];
+        };
+
+        let mut game_display = Column::new();
+        game_display = game_display.push(row_letters_1.spacing(23));
+
         for y in 0..11 {
-            let mut column = Column::new();
+            let mut row = Row::new();
+
+            let y_label = 11 - y;
+            row = row.push(text(format!("{y_label:2}")).size(board_size).center());
+
             for x in 0..11 {
                 let button = match game.board.get(&Vertex { x, y }) {
                     Space::Empty => button(text(" ").size(board_size)),
@@ -87,11 +134,15 @@ impl Client {
                     Space::King => button(text("K").size(board_size)),
                     Space::White => button(text("O").size(board_size)),
                 };
-                column = column.push(button);
+                row = row.push(button);
             }
-            game_display = game_display.push(column);
+
+            row = row.push(text(format!("{y_label:2}")).size(board_size).center());
+
+            game_display = game_display.push(row);
         }
 
+        game_display = game_display.push(row_letters_2.spacing(23));
         game_display
     }
 

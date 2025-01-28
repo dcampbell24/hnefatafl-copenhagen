@@ -18,7 +18,7 @@ use hnefatafl_copenhagen::{
     role::Role,
     server_game::{ServerGame, ServerGameLight},
 };
-use log::{info, LevelFilter};
+use log::{debug, info, LevelFilter};
 
 /// A Hnefatafl Copenhagen Server
 ///
@@ -68,7 +68,7 @@ fn main() -> anyhow::Result<()> {
             .send(("0 server display_server".to_string(), None))
             .unwrap();
 
-        sleep(Duration::from_secs(10));
+        sleep(Duration::from_secs(4));
     });
 
     for (index, stream) in (1..).zip(listener.incoming()) {
@@ -235,7 +235,7 @@ impl Server {
             let the_rest = the_rest.join(" ");
             match *command {
                 "display_server" => {
-                    info!("0 {username} display_server");
+                    debug!("0 {username} display_server");
                     for tx in &mut self.clients.values() {
                         handle_error(
                             tx.send(format!("= display_pending_games {}", &self.pending_games)),
