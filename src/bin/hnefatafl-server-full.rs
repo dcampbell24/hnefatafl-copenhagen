@@ -260,42 +260,55 @@ impl Server {
                         );
                     };
 
-                    let game = &self.pending_games.0[&id];
+                    let Some(game) = self.pending_games.0.remove(&id) else {
+                        panic!("the id must refer to a valid pending game");
+                    };
+
                     let Some(channel) = game.channel else {
                         panic!("a pending game has to have a waiting channel");
                     };
-                    handle_error(self.clients[&channel].send("= new_game ready".to_string()));
+
+                    let (attacker_tx, defender_tx) = if game.attacker.is_some() {
+                        (
+                            self.clients[&channel].clone(),
+                            self.clients[&index_supplied].clone(),
+                        )
+                    } else {
+                        (
+                            self.clients[&index_supplied].clone(),
+                            self.clients[&channel].clone(),
+                        )
+                    };
 
                     let new_game = if let Some(attacker) = &game.attacker {
                         ServerGame {
                             id: game.id,
                             attacker: attacker.clone(),
+                            attacker_tx: attacker_tx.clone(),
                             defender: (*username).to_string(),
+                            defender_tx,
                             game: Game::default(),
                         }
                     } else if let Some(defender) = &game.defender {
                         ServerGame {
                             id: game.id,
                             attacker: (*username).to_string(),
+                            attacker_tx: attacker_tx.clone(),
                             defender: defender.clone(),
+                            defender_tx,
                             game: Game::default(),
                         }
                     } else {
                         panic!("there has to be an attacker or defender")
                     };
-                    self.pending_games.0.remove(&id);
+
                     self.games.0.insert(id, new_game);
 
-                    // todo:
-                    // tell the attacker to move
-                    // tell the defender to move...
-                    // finish the game
-                    // add the game to the archived games.
-                    (
-                        Some(self.clients[&index_supplied].clone()),
-                        true,
-                        (*command).to_string(),
-                    )
+                    handle_error(self.clients[&channel].send("= new_game ready\n".to_string()));
+                    handle_error(self.clients[&index_supplied].send("= join_game\n".to_string()));
+                    handle_error(attacker_tx.send(format!("game {id} generate_move black\n")));
+
+                    (None, true, String::new())
                 }
                 "login" => {
                     if let Some(tx) = option_tx {
@@ -434,6 +447,15 @@ impl Server {
                         handle_error(tx.send(format!("= text {the_rest}")));
                     }
                     (None, true, (*command).to_string())
+                }
+                "=" => {
+                    // todo
+                    // = game id play color a2 a3
+                    // Update the state of game id
+                    // send game id play opposite_color
+                    // check if the game has ended
+                    // if not send game id generate_move opposite_color
+                    (None, true, String::new())
                 }
                 _ => (
                     Some(self.clients[&index_supplied].clone()),

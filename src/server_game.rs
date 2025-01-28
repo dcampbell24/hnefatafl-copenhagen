@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, sync::mpsc::Sender};
 
 use crate::game::Game;
 
@@ -6,7 +6,9 @@ use crate::game::Game;
 pub struct ServerGame {
     pub id: u128,
     pub attacker: String,
+    pub attacker_tx: Sender<String>,
     pub defender: String,
+    pub defender_tx: Sender<String>,
     pub game: Game,
 }
 
