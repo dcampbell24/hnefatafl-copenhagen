@@ -34,7 +34,6 @@ struct Args {
 
 fn main() -> anyhow::Result<()> {
     // 3. new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-    // 1. text_game 1 A message!
     // 3. watch_game 1
     // 3. Display in game users.
     // 1. need passwords, you can enter no password
