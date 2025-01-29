@@ -71,37 +71,6 @@ enum Screen {
     Games,
 }
 
-/*
-impl fmt::Display for Board {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let letters = "   ABCDEFGHJKL";
-        let bar = "─".repeat(11);
-
-        writeln!(f, "\n{letters}\n  ┌{bar}┐")?;
-        for y in 0..11 {
-            let y_label = 11 - y;
-            write!(f, "{y_label:2}│",)?;
-
-            for x in 0..11 {
-                if ((y, x) == (0, 0)
-                    || (y, x) == (10, 0)
-                    || (y, x) == (0, 10)
-                    || (y, x) == (10, 10)
-                    || (y, x) == (5, 5))
-                    && self.spaces[(y * 10) + x] == Space::Empty
-                {
-                    write!(f, "■")?;
-                } else {
-                    write!(f, "{}", self.spaces[y * 11 + x])?;
-                }
-            }
-            writeln!(f, "│{y_label:2}")?;
-        }
-        write!(f, "  └{bar}┘\n{letters}")
-    }
-}
-*/
-
 impl Client {
     #[must_use]
     fn board(&self) -> Column<Message> {
@@ -145,7 +114,18 @@ impl Client {
                 let vertex = Vertex { x, y };
 
                 let mut button = match game.board.get(&vertex) {
-                    Space::Empty => button(text(" ").size(board_size)),
+                    Space::Empty => {
+                        if (y, x) == (0, 0)
+                            || (y, x) == (10, 0)
+                            || (y, x) == (0, 10)
+                            || (y, x) == (10, 10)
+                            || (y, x) == (5, 5)
+                        {
+                            button(text("■").size(board_size))
+                        } else {
+                            button(text(" ").size(board_size))
+                        }
+                    }
                     Space::Black => button(text("X").size(board_size)),
                     Space::King => button(text("K").size(board_size)),
                     Space::White => button(text("O").size(board_size)),
