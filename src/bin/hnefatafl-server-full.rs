@@ -153,6 +153,8 @@ impl fmt::Display for Accounts {
 #[derive(Clone, Debug, Default)]
 struct Account {
     logged_in: Option<u128>,
+    wins: u32,
+    losses: u32,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -336,6 +338,7 @@ impl Server {
                                 (*username).to_string(),
                                 Account {
                                     logged_in: Some(index_supplied),
+                                    ..Default::default()
                                 },
                             );
 
@@ -351,11 +354,11 @@ impl Server {
                 }
                 "logout" => {
                     // The username is in the database and already logged in.
-                    if let Some(index_database_option) = self.accounts.0.get_mut(*username) {
-                        if let Some(index_database) = index_database_option.logged_in {
+                    if let Some(account) = self.accounts.0.get_mut(*username) {
+                        if let Some(index_database) = account.logged_in {
                             if index_database == index_supplied {
                                 info!("{index_supplied} {username} logged out");
-                                *index_database_option = Account { logged_in: None };
+                                account.logged_in = None;
                                 self.clients.remove(&index_database);
                                 // Remove the pending game if there is one.
                                 let mut index_option = None;
@@ -521,7 +524,14 @@ impl Server {
                     }
 
                     match game.game.status {
-                        Status::BlackWins | Status::Draw | Status::WhiteWins => {
+                        Status::BlackWins => {
+                            if let Some(attacker) = self.accounts.0.get_mut(&game.attacker) {
+                                attacker.wins += 1;
+                            }
+                            if let Some(defender) = self.accounts.0.get_mut(&game.defender) {
+                                defender.losses += 1;
+                            }
+
                             self.archived_games.push(ArchivedGame {
                                 id: game.id,
                                 attacker: game.attacker.to_string(),
@@ -530,6 +540,7 @@ impl Server {
                                 text: game.text.clone(),
                             });
                         }
+                        Status::Draw => {}
                         Status::Ongoing => {
                             if blacks_turn_next {
                                 // Todo: if a player quits he loses.
@@ -542,6 +553,22 @@ impl Server {
                                     .defender_tx
                                     .send(format!("game {index} generate_move white"));
                             }
+                        }
+                        Status::WhiteWins => {
+                            if let Some(attacker) = self.accounts.0.get_mut(&game.attacker) {
+                                attacker.losses += 1;
+                            }
+                            if let Some(defender) = self.accounts.0.get_mut(&game.defender) {
+                                defender.wins += 1;
+                            }
+
+                            self.archived_games.push(ArchivedGame {
+                                id: game.id,
+                                attacker: game.attacker.to_string(),
+                                defender: game.defender.to_string(),
+                                game: game.game.clone(),
+                                text: game.text.clone(),
+                            });
                         }
                     }
 
