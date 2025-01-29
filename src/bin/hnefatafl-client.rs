@@ -241,16 +241,16 @@ impl Client {
                         }
                         Some("display_users") => {
                             let users: Vec<&str> = text.collect();
-                            let mut users_winners_losses = Vec::new();
+                            let mut users_wins_losses = Vec::new();
                             for user_wins_losses in users.chunks_exact(3) {
                                 let user = user_wins_losses[0];
                                 let wins = user_wins_losses[1];
                                 let losses = user_wins_losses[2];
 
-                                users_winners_losses
+                                users_wins_losses
                                     .push(format!("{user}: wins: {wins}, losses: {losses}"));
                             }
-                            self.users = users_winners_losses;
+                            self.users = users_wins_losses;
                         }
                         Some("join_game") => {
                             self.game = Some(Game::default());
