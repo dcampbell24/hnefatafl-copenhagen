@@ -6,7 +6,7 @@ use crate::{game::Game, play::Play, status::Status};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArchivedGame {
-    pub id: u128,
+    pub id: u64,
     pub attacker: String,
     pub defender: String,
     pub plays: Vec<Play>,
@@ -16,7 +16,7 @@ pub struct ArchivedGame {
 
 #[derive(Clone, Debug)]
 pub struct ServerGame {
-    pub id: u128,
+    pub id: u64,
     pub attacker: String,
     pub attacker_tx: Sender<String>,
     pub defender: String,
@@ -40,10 +40,10 @@ impl fmt::Display for ServerGame {
 
 #[derive(Clone, Debug)]
 pub struct ServerGameLight {
-    pub id: u128,
+    pub id: u64,
     pub attacker: Option<String>,
     pub defender: Option<String>,
-    pub channel: Option<u128>,
+    pub channel: Option<u64>,
 }
 
 impl ServerGameLight {
@@ -88,7 +88,7 @@ impl TryFrom<(&str, &str, &str)> for ServerGameLight {
 
     fn try_from(id_attacker_defender: (&str, &str, &str)) -> anyhow::Result<Self> {
         let (id, attacker, defender) = id_attacker_defender;
-        let id = id.parse::<u128>()?;
+        let id = id.parse::<u64>()?;
 
         let attacker = if attacker == "none" {
             None

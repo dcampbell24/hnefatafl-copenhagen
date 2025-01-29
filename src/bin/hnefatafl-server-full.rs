@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     env, fmt,
+    fs::{read_to_string, File},
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     sync::mpsc::{self, Receiver},
@@ -20,6 +21,7 @@ use hnefatafl_copenhagen::{
     status::Status,
 };
 use log::{debug, info, LevelFilter};
+use ron::ser::{to_string_pretty, PrettyConfig};
 use serde::{Deserialize, Serialize};
 
 /// A Hnefatafl Copenhagen Server
@@ -31,6 +33,9 @@ struct Args {
     /// Listen for HTP drivers on host and port
     #[arg(default_value = "localhost:8000", index = 1, value_name = "host:port")]
     host_port: String,
+    /// Load the server state from a file
+    #[arg(long)]
+    load: Option<String>,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -43,9 +48,14 @@ fn main() -> anyhow::Result<()> {
     // 4. figure out some way of testing
 
     init_logger();
-
-    let mut server = Server::default();
     let args = Args::parse();
+
+    let mut server = if let Some(file) = args.load {
+        ron::from_str(&read_to_string(&file)?)?
+    } else {
+        Server::default()
+    };
+
     let address = &args.host_port;
     let listener = TcpListener::bind(address)?;
     info!("listening on {address} ...");
@@ -73,7 +83,7 @@ fn main() -> anyhow::Result<()> {
 }
 
 fn login(
-    index: u128,
+    index: u64,
     mut stream: TcpStream,
     tx: &mpsc::Sender<(String, Option<mpsc::Sender<String>>)>,
 ) -> anyhow::Result<()> {
@@ -123,17 +133,17 @@ fn receiving_and_writing(
     }
 }
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Clone, Default, Deserialize, Serialize)]
 struct Server {
     accounts: Accounts,
     archived_games: Vec<ArchivedGame>,
     #[serde(skip)]
-    clients: HashMap<u128, mpsc::Sender<String>>,
+    clients: HashMap<u64, mpsc::Sender<String>>,
     #[serde(skip)]
     pending_games: ServerGamesLight,
     #[serde(skip)]
     games: ServerGames,
-    game_id: u128,
+    game_id: u64,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -156,13 +166,13 @@ impl fmt::Display for Accounts {
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 struct Account {
-    logged_in: Option<u128>,
+    logged_in: Option<u64>,
     wins: u32,
     losses: u32,
 }
 
 #[derive(Clone, Debug, Default)]
-struct ServerGames(HashMap<u128, ServerGame>);
+struct ServerGames(HashMap<u64, ServerGame>);
 
 impl fmt::Display for ServerGames {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -177,7 +187,7 @@ impl fmt::Display for ServerGames {
 }
 
 #[derive(Clone, Debug, Default)]
-struct ServerGamesLight(HashMap<u128, ServerGameLight>);
+struct ServerGamesLight(HashMap<u64, ServerGameLight>);
 
 impl fmt::Display for ServerGamesLight {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -226,8 +236,8 @@ impl Server {
             };
 
             let index_supplied = index_supplied
-                .parse::<u128>()
-                .expect("the index should be a valid u128");
+                .parse::<u64>()
+                .expect("the index should be a valid u64");
 
             let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
             let the_rest = the_rest.join(" ");
@@ -251,7 +261,7 @@ impl Server {
                             (*command).to_string(),
                         );
                     };
-                    let Ok(id) = id.parse::<u128>() else {
+                    let Ok(id) = id.parse::<u64>() else {
                         return (
                             Some(self.clients[&index_supplied].clone()),
                             false,
@@ -345,6 +355,8 @@ impl Server {
                                     ..Default::default()
                                 },
                             );
+
+                            self.save_server();
 
                             (
                                 Some(self.clients[&index_supplied].clone()),
@@ -544,6 +556,8 @@ impl Server {
                                 status: game.game.status.clone(),
                                 text: game.text.clone(),
                             });
+
+                            self.save_server();
                         }
                         Status::Draw => {}
                         Status::Ongoing => {
@@ -575,6 +589,8 @@ impl Server {
                                 status: game.game.status.clone(),
                                 text: game.text.clone(),
                             });
+
+                            self.save_server();
                         }
                     }
 
@@ -600,7 +616,7 @@ impl Server {
                             (*command).to_string(),
                         );
                     };
-                    let Ok(id) = id.parse::<u128>() else {
+                    let Ok(id) = id.parse::<u64>() else {
                         return (
                             Some(self.clients[&index_supplied].clone()),
                             false,
@@ -639,6 +655,21 @@ impl Server {
             }
         } else {
             panic!("we pass the arguments in that form");
+        }
+    }
+
+    fn save_server(&self) {
+        let mut server = self.clone();
+        for account in server.accounts.0.values_mut() {
+            account.logged_in = None;
+        }
+
+        if let Ok(mut file) = File::create("hnefatafl-copenhagen.ron") {
+            if let Ok(string) = to_string_pretty(&server, PrettyConfig::default()) {
+                if let Err(error) = file.write_all(string.as_bytes()) {
+                    log::error!("{error}");
+                }
+            }
         }
     }
 }

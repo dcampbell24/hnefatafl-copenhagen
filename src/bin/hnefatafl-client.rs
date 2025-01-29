@@ -48,7 +48,7 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     error: Option<String>,
     game: Option<Game>,
-    game_id: u128,
+    game_id: u64,
     games: Vec<ServerGameLight>,
     my_turn: bool,
     play_from: Option<Vertex>,
@@ -278,8 +278,8 @@ impl Client {
                         let Some(index) = text.next() else {
                             return;
                         };
-                        let Ok(id) = index.parse::<u128>() else {
-                            panic!("the game_id should be a valid u128");
+                        let Ok(id) = index.parse::<u64>() else {
+                            panic!("the game_id should be a valid u64");
                         };
                         self.game_id = id;
 
@@ -488,7 +488,7 @@ impl Client {
 #[derive(Clone, Debug)]
 enum Message {
     _Game(message::Message),
-    GameJoin(u128),
+    GameJoin(u64),
     GameLeave,
     GameNew,
     GameSubmit,
