@@ -33,10 +33,14 @@ struct Args {
 }
 
 fn main() -> anyhow::Result<()> {
-    // new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-    // text_game 1 A message!
-    // watch_game 1
-    // Display in game users.
+    // 3. new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
+    // 1. text_game 1 A message!
+    // 3. watch_game 1
+    // 3. Display in game users.
+    // 1. need passwords, you can enter no password
+    // 1. need offline storage of the server state
+    // 2. wins, losses, glicko rating system
+    // 4. figure out some way of testing
 
     init_logger();
 
@@ -279,6 +283,7 @@ impl Server {
                             defender: (*username).to_string(),
                             defender_tx,
                             game: Game::default(),
+                            text: String::new(),
                         }
                     } else if let Some(defender) = &game.defender {
                         ServerGame {
@@ -288,6 +293,7 @@ impl Server {
                             defender: defender.clone(),
                             defender_tx,
                             game: Game::default(),
+                            text: String::new(),
                         }
                     } else {
                         panic!("there has to be an attacker or defender")
@@ -522,6 +528,7 @@ impl Server {
                                 attacker: game.attacker.to_string(),
                                 defender: game.defender.to_string(),
                                 game: game.game.clone(),
+                                text: game.text.clone(),
                             });
                         }
                         Status::Ongoing => {
@@ -548,8 +555,39 @@ impl Server {
                 "text" => {
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients.values() {
-                        handle_error(tx.send(format!("= text {the_rest}")));
+                        let _ok = tx.send(format!("= text {the_rest}"));
                     }
+                    (None, true, (*command).to_string())
+                }
+                "text_game" => {
+                    let mut text = the_rest.split_ascii_whitespace();
+                    let Some(id) = text.next() else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+                    let Ok(id) = id.parse::<u128>() else {
+                        return (
+                            Some(self.clients[&index_supplied].clone()),
+                            false,
+                            (*command).to_string(),
+                        );
+                    };
+
+                    let text: Vec<&str> = text.collect();
+                    let mut text = text.join(" ");
+                    text = format!("{text}\n");
+                    info!("{index_supplied} {username} text_game {id} {text}");
+
+                    if let Some(game) = self.games.0.get_mut(&id) {
+                        game.text.push_str(&text);
+                        text = format!("= text_game {text}\n");
+                        let _ok = game.attacker_tx.send(text.clone());
+                        let _ok = game.defender_tx.send(text);
+                    }
+
                     (None, true, (*command).to_string())
                 }
                 "=" => {

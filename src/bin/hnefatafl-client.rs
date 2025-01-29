@@ -56,6 +56,7 @@ struct Client {
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
     texts: VecDeque<String>,
+    texts_game: VecDeque<String>,
     text_input: String,
     username: String,
     users: Vec<String>,
@@ -244,12 +245,14 @@ impl Client {
                         }
                         Some("join_game") => {
                             self.game = Some(Game::default());
+                            self.texts_game = VecDeque::new();
                             self.screen = Screen::Game;
                         }
                         Some("login") => self.screen = Screen::Games,
                         Some("new_game") => {
                             if Some("ready") == text.next() {
                                 self.game = Some(Game::default());
+                                self.texts_game = VecDeque::new();
                                 self.screen = Screen::Game;
                             }
                         }
@@ -257,6 +260,11 @@ impl Client {
                             let text: Vec<&str> = text.collect();
                             let text = text.join(" ");
                             self.texts.push_front(text);
+                        }
+                        Some("text_game") => {
+                            let text: Vec<&str> = text.collect();
+                            let text = text.join(" ");
+                            self.texts_game.push_front(text);
                         }
                         _ => {}
                     },
@@ -343,6 +351,10 @@ impl Client {
                             let username = username.to_ascii_lowercase();
                             self.username = username;
                         }
+                    } else if self.screen == Screen::Game {
+                        handle_error(
+                            tx.send(format!("text_game {} {}", self.game_id, self.text_input)),
+                        );
                     } else {
                         handle_error(tx.send(format!("text {}", self.text_input)));
                     }
@@ -396,8 +408,22 @@ impl Client {
     pub fn view(&self) -> Element<Message> {
         let screen: Element<'_, Message> = match self.screen {
             Screen::Game => {
+                let mut texting = Column::new();
+                texting = texting.push("texts:");
+                texting = texting.push(
+                    text_input("", &self.text_input)
+                        .on_input(Message::TextChanged)
+                        .on_paste(Message::TextChanged)
+                        .on_submit(Message::TextSend),
+                );
+                for message in &self.texts_game {
+                    texting = texting.push(text(message));
+                }
+                let texting = container(texting).padding(10).style(container::rounded_box);
+                let user_area = column![text(format!("username: {}", &self.username)), texting];
+
                 let game = self.board();
-                let game = row![game, text(format!("username: {}", &self.username))];
+                let game = row![game, user_area];
 
                 let leave_game = button("Leave Game").on_press(Message::GameLeave);
                 let buttons = row![leave_game];

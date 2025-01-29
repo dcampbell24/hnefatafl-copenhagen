@@ -8,6 +8,7 @@ pub struct ArchivedGame {
     pub attacker: String,
     pub defender: String,
     pub game: Game,
+    pub text: String,
 }
 
 #[derive(Clone, Debug)]
@@ -18,6 +19,7 @@ pub struct ServerGame {
     pub defender: String,
     pub defender_tx: Sender<String>,
     pub game: Game,
+    pub text: String,
 }
 
 impl ServerGame {
