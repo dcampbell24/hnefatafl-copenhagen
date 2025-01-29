@@ -66,10 +66,7 @@ fn main() -> anyhow::Result<()> {
 
     let tx_messages = tx.clone();
     thread::spawn(move || loop {
-        tx_messages
-            .send(("0 server display_server".to_string(), None))
-            .unwrap();
-
+        handle_error(tx_messages.send(("0 server display_server".to_string(), None)));
         sleep(Duration::from_secs(4));
     });
 
