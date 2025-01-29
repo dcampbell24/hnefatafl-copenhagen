@@ -48,7 +48,10 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     error: Option<String>,
     game: Option<Game>,
+    game_id: u128,
     games: Vec<ServerGameLight>,
+    my_turn: bool,
+    play_from: Option<Vertex>,
     role_selected: Option<Role>,
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
@@ -121,6 +124,17 @@ impl Client {
         let mut game_display = Column::new();
         game_display = game_display.push(row_letters_1.spacing(23));
 
+        let mut possible_moves = None;
+        if self.my_turn {
+            if let Some(game) = self.game.as_ref() {
+                possible_moves = Some(game.board.all_legal_moves(
+                    &game.status,
+                    &game.turn,
+                    &game.previous_boards,
+                ));
+            }
+        }
+
         for y in 0..11 {
             let mut row = Row::new();
 
@@ -128,12 +142,27 @@ impl Client {
             row = row.push(text(format!("{y_label:2}")).size(board_size).center());
 
             for x in 0..11 {
-                let button = match game.board.get(&Vertex { x, y }) {
+                let vertex = Vertex { x, y };
+
+                let mut button = match game.board.get(&vertex) {
                     Space::Empty => button(text(" ").size(board_size)),
                     Space::Black => button(text("X").size(board_size)),
                     Space::King => button(text("K").size(board_size)),
                     Space::White => button(text("O").size(board_size)),
                 };
+
+                if let Some(Ok(legal_moves)) = &possible_moves {
+                    if let Some(vertex_from) = self.play_from.as_ref() {
+                        if let Some(vertexes) = legal_moves.moves.get(vertex_from) {
+                            if vertexes.contains(&vertex) {
+                                button = button.on_press(Message::PlayMoveTo(vertex));
+                            }
+                        }
+                    } else if let Some(_vertexes) = legal_moves.moves.get(&vertex) {
+                        button = button.on_press(Message::PlayMoveFrom(vertex));
+                    }
+                }
+
                 row = row.push(button);
             }
 
@@ -180,6 +209,26 @@ impl Client {
                     // new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
                     handle_error(tx.send(format!("new_game {role}\n")));
                 }
+            }
+            Message::PlayMoveFrom(vertex) => self.play_from = Some(vertex),
+            Message::PlayMoveTo(to) => {
+                let Some(game) = &mut self.game else {
+                    panic!("you have to be in a game to make a move");
+                };
+                let Some(from) = self.play_from.as_ref() else {
+                    panic!("you have to have a from to get to to");
+                };
+                let Some(tx) = self.tx.as_mut() else {
+                    panic!("you have to have a sender at this point")
+                };
+
+                handle_error(tx.send(format!(
+                    "game {} play {} {from} {to}\n",
+                    self.game_id, game.turn
+                )));
+                handle_error(game.read_line(&format!("play {} {from} {to}\n", game.turn)));
+                self.play_from = None;
+                self.my_turn = false;
             }
             Message::TcpConnected(tx) => {
                 println!("TCP connected...");
@@ -241,30 +290,39 @@ impl Client {
                         let Some(index) = text.next() else {
                             return;
                         };
+                        let Ok(id) = index.parse::<u128>() else {
+                            panic!("the game_id should be a valid u128");
+                        };
+                        self.game_id = id;
 
                         // game 0 generate_move black
                         let text_word = text.next();
                         if text_word == Some("generate_move") {
-                            let Some(color) = text.next() else {
-                                return;
-                            };
-                            let Ok(color) = Color::try_from(color) else {
-                                return;
-                            };
-                            let Some(game) = &mut self.game else {
-                                panic!("a game should exist to play in one");
-                            };
+                            let username_start: String = self.username.chars().take(3).collect();
+                            if username_start == "ai-" {
+                                let Some(color) = text.next() else {
+                                    return;
+                                };
+                                let Ok(color) = Color::try_from(color) else {
+                                    return;
+                                };
+                                let Some(game) = &mut self.game else {
+                                    panic!("a game should exist to play in one");
+                                };
 
-                            let result = game
-                                .read_line(&format!("generate_move {color}"))
-                                .expect("generate_move should be valid")
-                                .expect("an empty string wasn't passed");
+                                let result = game
+                                    .read_line(&format!("generate_move {color}"))
+                                    .expect("generate_move should be valid")
+                                    .expect("an empty string wasn't passed");
 
-                            let Some(tx) = &self.tx else {
-                                panic!("there should be an established channel by now");
-                            };
+                                let Some(tx) = &self.tx else {
+                                    panic!("there should be an established channel by now");
+                                };
 
-                            handle_error(tx.send(format!("game {index} play {result}\n")));
+                                handle_error(tx.send(format!("game {index} play {result}\n")));
+                            } else {
+                                self.my_turn = true;
+                            }
                         // game 0 play black a3 a4
                         } else if text_word == Some("play") {
                             let Some(color) = text.next() else {
@@ -428,6 +486,8 @@ enum Message {
     GameLeave,
     GameNew,
     GameSubmit,
+    PlayMoveFrom(Vertex),
+    PlayMoveTo(Vertex),
     RoleSelected(Role),
     TcpConnected(mpsc::Sender<String>),
     TextChanged(String),

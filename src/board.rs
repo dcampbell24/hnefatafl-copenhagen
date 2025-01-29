@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{collections::HashMap, fmt};
 
 use rustc_hash::{FxBuildHasher, FxHashSet};
 
@@ -221,9 +221,12 @@ impl Board {
         status: &Status,
         turn: &Color,
         previous_boards: &PreviousBoards,
-    ) -> anyhow::Result<Vec<LegalMoves>> {
-        let mut legal_moves_all = Vec::new();
+    ) -> anyhow::Result<LegalMoves> {
         let mut possible_vertexes = Vec::new();
+        let mut legal_moves = LegalMoves {
+            color: turn.clone(),
+            moves: HashMap::new(),
+        };
 
         for y in 0..11 {
             for x in 0..11 {
@@ -255,17 +258,11 @@ impl Board {
             }
 
             if !vertexes_to.is_empty() {
-                let legal_moves = LegalMoves {
-                    color: turn.clone(),
-                    from: vertex_from,
-                    to: vertexes_to,
-                };
-
-                legal_moves_all.push(legal_moves);
+                legal_moves.moves.insert(vertex_from, vertexes_to);
             }
         }
 
-        Ok(legal_moves_all)
+        Ok(legal_moves)
     }
 
     #[allow(clippy::collapsible_if)]
@@ -980,8 +977,7 @@ enum Direction {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct LegalMoves {
     pub color: Color,
-    pub from: Vertex,
-    pub to: Vec<Vertex>,
+    pub moves: HashMap<Vertex, Vec<Vertex>>,
 }
 
 #[must_use]

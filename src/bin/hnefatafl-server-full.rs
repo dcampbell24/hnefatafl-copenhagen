@@ -435,7 +435,7 @@ impl Server {
 
                     (Some(self.clients[&index_supplied].clone()), true, command)
                 }
-                //  game 0 play black a4 a2
+                // game 0 play black a4 a2
                 "game" => {
                     let words: Vec<&str> = the_rest.split_ascii_whitespace().collect();
                     let Some(index) = words.first() else {
