@@ -38,7 +38,7 @@ fn main() -> anyhow::Result<()> {
     // 3. Display in game users.
     // 1. need passwords, you can enter no password
     // 1. need offline storage of the server state
-    // 2. wins, losses, glicko rating system
+    // 2. glicko rating system
     // 4. figure out some way of testing
 
     init_logger();
