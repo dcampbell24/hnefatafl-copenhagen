@@ -20,6 +20,7 @@ use hnefatafl_copenhagen::{
     status::Status,
 };
 use log::{debug, info, LevelFilter};
+use serde::{Deserialize, Serialize};
 
 /// A Hnefatafl Copenhagen Server
 ///
@@ -122,17 +123,20 @@ fn receiving_and_writing(
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Deserialize, Serialize)]
 struct Server {
     accounts: Accounts,
     archived_games: Vec<ArchivedGame>,
+    #[serde(skip)]
     clients: HashMap<u128, mpsc::Sender<String>>,
+    #[serde(skip)]
     pending_games: ServerGamesLight,
+    #[serde(skip)]
     games: ServerGames,
     game_id: u128,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 struct Accounts(HashMap<String, Account>);
 
 impl fmt::Display for Accounts {
@@ -150,7 +154,7 @@ impl fmt::Display for Accounts {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 struct Account {
     logged_in: Option<u128>,
     wins: u32,
@@ -536,7 +540,8 @@ impl Server {
                                 id: game.id,
                                 attacker: game.attacker.to_string(),
                                 defender: game.defender.to_string(),
-                                game: game.game.clone(),
+                                plays: game.game.plays.clone(),
+                                status: game.game.status.clone(),
                                 text: game.text.clone(),
                             });
                         }
@@ -566,7 +571,8 @@ impl Server {
                                 id: game.id,
                                 attacker: game.attacker.to_string(),
                                 defender: game.defender.to_string(),
-                                game: game.game.clone(),
+                                plays: game.game.plays.clone(),
+                                status: game.game.status.clone(),
                                 text: game.text.clone(),
                             });
                         }

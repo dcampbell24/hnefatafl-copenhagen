@@ -1,6 +1,7 @@
 use std::fmt;
 
 use anyhow::Context;
+use serde::{Deserialize, Serialize};
 
 use crate::color::Color;
 
@@ -14,7 +15,7 @@ pub enum Plae {
     WhiteResigns,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Play {
     pub color: Color,
     pub from: Vertex,
@@ -56,7 +57,7 @@ impl TryFrom<Vec<&str>> for Plae {
     }
 }
 
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct Vertex {
     pub x: usize,
     pub y: usize,

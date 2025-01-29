@@ -1,8 +1,10 @@
 use std::fmt;
 
+use serde::{Deserialize, Serialize};
+
 use crate::color::Color;
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub enum Space {
     Empty,
     Black,

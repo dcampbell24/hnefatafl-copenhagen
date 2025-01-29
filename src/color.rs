@@ -1,6 +1,8 @@
 use std::fmt;
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Color {
     // attacker
     #[default]

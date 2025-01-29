@@ -1,13 +1,16 @@
 use std::{fmt, sync::mpsc::Sender};
 
-use crate::game::Game;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug)]
+use crate::{game::Game, play::Play, status::Status};
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArchivedGame {
     pub id: u128,
     pub attacker: String,
     pub defender: String,
-    pub game: Game,
+    pub plays: Vec<Play>,
+    pub status: Status,
     pub text: String,
 }
 
