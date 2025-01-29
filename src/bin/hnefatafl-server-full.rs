@@ -38,15 +38,15 @@ struct Args {
     load: Option<String>,
 }
 
+// 1. new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE] # handles the leave issue...
+// 1. need passwords, you can enter no password
+// 2. glicko rating system
+// 3. deal with errors better
+// 3. handle too many lines
+// 3. watch_game 1
+// 3. Display in game users.
+// 4. figure out some way of testing
 fn main() -> anyhow::Result<()> {
-    // 3. new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-    // 3. watch_game 1
-    // 3. Display in game users.
-    // 1. need passwords, you can enter no password
-    // 1. need offline storage of the server state
-    // 2. glicko rating system
-    // 4. figure out some way of testing
-
     init_logger();
     let args = Args::parse();
 
