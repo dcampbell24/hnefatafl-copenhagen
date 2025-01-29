@@ -148,14 +148,14 @@ struct Accounts(HashMap<String, Account>);
 
 impl fmt::Display for Accounts {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut names = Vec::new();
+        let mut accounts = Vec::new();
         for (name, account) in &self.0 {
             if account.logged_in.is_some() {
-                names.push(name.to_string());
+                accounts.push(format!("{name} {} {}", account.wins, account.losses));
             }
         }
-        names.sort_unstable();
-        let names = names.join(" ");
+        accounts.sort_unstable();
+        let names = accounts.join(" ");
 
         write!(f, "{names}")
     }
