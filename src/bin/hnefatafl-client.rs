@@ -121,14 +121,14 @@ impl Client {
                             || (y, x) == (10, 10)
                             || (y, x) == (5, 5)
                         {
-                            button(text("■").size(board_size))
+                            button(text("□").size(board_size))
                         } else {
                             button(text(" ").size(board_size))
                         }
                     }
-                    Space::Black => button(text("X").size(board_size)),
-                    Space::King => button(text("K").size(board_size)),
-                    Space::White => button(text("O").size(board_size)),
+                    Space::Black => button(text("●").size(board_size)),
+                    Space::King => button(text("△").size(board_size)),
+                    Space::White => button(text("○").size(board_size)),
                 };
 
                 if let Some(Ok(legal_moves)) = &possible_moves {
