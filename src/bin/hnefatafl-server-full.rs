@@ -23,6 +23,7 @@ use hnefatafl_copenhagen::{
 };
 use log::{debug, info, LevelFilter};
 use password_hash::SaltString;
+use rand::rngs::OsRng;
 use ron::ser::{to_string_pretty, PrettyConfig};
 use serde::{Deserialize, Serialize};
 
@@ -387,12 +388,9 @@ impl Server {
 
                             let password = the_rest;
                             let ctx = Argon2::default();
-                            // Todo: make a random salt.
-                            let salt = vec![0; 8];
-                            let salt_string = SaltString::encode_b64(&salt).unwrap();
-
+                            let salt = SaltString::generate(&mut OsRng);
                             let hash = ctx
-                                .hash_password(password.as_bytes(), &salt_string)
+                                .hash_password(password.as_bytes(), &salt)
                                 .unwrap()
                                 .to_string();
 
@@ -689,15 +687,7 @@ impl Server {
 
                     (None, true, (*command).to_string())
                 }
-                "=" => {
-                    // todo
-                    // = game id play color a2 a3
-                    // Update the state of game id
-                    // send game id play opposite_color
-                    // check if the game has ended
-                    // if not send game id generate_move opposite_color
-                    (None, true, String::new())
-                }
+                "=" => (None, true, String::new()),
                 _ => (
                     Some(self.clients[&index_supplied].clone()),
                     false,

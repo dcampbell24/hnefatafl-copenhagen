@@ -1659,6 +1659,7 @@ dependencies = [
  "iced",
  "log",
  "password-hash",
+ "rand",
  "ron",
  "rustc-hash 2.1.0",
  "serde",
