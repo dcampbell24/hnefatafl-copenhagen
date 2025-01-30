@@ -9,10 +9,7 @@ use std::{
     time::Duration,
 };
 
-use argon2::{
-    Algorithm, Argon2, AssociatedData, KeyId, ParamsBuilder, PasswordHash, PasswordHasher,
-    PasswordVerifier, Version,
-};
+use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use chrono::Utc;
 use clap::{command, Parser};
 use env_logger::Builder;
@@ -389,17 +386,7 @@ impl Server {
                             info!("{index_supplied} {username} created user account");
 
                             let password = the_rest;
-
-                            let params = ParamsBuilder::new()
-                                .m_cost(32)
-                                .t_cost(2)
-                                .p_cost(3)
-                                .data(AssociatedData::new(&[0x0f; 6]).unwrap())
-                                .keyid(KeyId::new(&[0xf0; 4]).unwrap())
-                                .build()
-                                .unwrap();
-
-                            let ctx = Argon2::new(Algorithm::Argon2d, Version::V0x13, params);
+                            let ctx = Argon2::default();
                             // Todo: make a random salt.
                             let salt = vec![0; 8];
                             let salt_string = SaltString::encode_b64(&salt).unwrap();
