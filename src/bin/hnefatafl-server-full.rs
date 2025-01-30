@@ -288,6 +288,15 @@ impl Server {
                     };
 
                     let new_game = if let Some(attacker) = &game.attacker {
+                        handle_error(
+                            self.clients[&channel]
+                                .send(format!("= new_game ready {attacker} {username}")),
+                        );
+                        handle_error(
+                            self.clients[&index_supplied]
+                                .send(format!("= join_game {attacker} {username}")),
+                        );
+
                         ServerGame {
                             id: game.id,
                             attacker: attacker.clone(),
@@ -298,6 +307,15 @@ impl Server {
                             text: String::new(),
                         }
                     } else if let Some(defender) = &game.defender {
+                        handle_error(
+                            self.clients[&channel]
+                                .send(format!("= new_game ready {username} {defender}")),
+                        );
+                        handle_error(
+                            self.clients[&index_supplied]
+                                .send(format!("= join_game {username} {defender}")),
+                        );
+
                         ServerGame {
                             id: game.id,
                             attacker: (*username).to_string(),
@@ -312,9 +330,6 @@ impl Server {
                     };
 
                     self.games.0.insert(id, new_game);
-
-                    handle_error(self.clients[&channel].send("= new_game ready".to_string()));
-                    handle_error(self.clients[&index_supplied].send("= join_game".to_string()));
                     handle_error(attacker_tx.send(format!("game {id} generate_move black")));
 
                     (None, true, String::new())

@@ -46,6 +46,8 @@ fn main() -> anyhow::Result<()> {
 
 #[derive(Debug, Default)]
 struct Client {
+    attacker: String,
+    defender: String,
     error: Option<String>,
     game: Option<Game>,
     game_id: u64,
@@ -256,6 +258,15 @@ impl Client {
                             self.game = Some(Game::default());
                             self.texts_game = VecDeque::new();
                             self.screen = Screen::Game;
+
+                            let Some(attacker) = text.next() else {
+                                panic!("the attacker should be supplied");
+                            };
+                            let Some(defender) = text.next() else {
+                                panic!("the defender should be supplied");
+                            };
+                            self.attacker = attacker.to_string();
+                            self.defender = defender.to_string();
                         }
                         Some("login") => self.screen = Screen::Games,
                         Some("new_game") => {
@@ -263,6 +274,15 @@ impl Client {
                                 self.game = Some(Game::default());
                                 self.texts_game = VecDeque::new();
                                 self.screen = Screen::Game;
+
+                                let Some(attacker) = text.next() else {
+                                    panic!("the attacker should be supplied");
+                                };
+                                let Some(defender) = text.next() else {
+                                    panic!("the defender should be supplied");
+                                };
+                                self.attacker = attacker.to_string();
+                                self.defender = defender.to_string();
                             }
                         }
                         Some("text") => {
@@ -429,7 +449,13 @@ impl Client {
                     texting = texting.push(text(message));
                 }
                 let texting = container(texting).padding(10).style(container::rounded_box);
-                let user_area = column![text(format!("username: {}", &self.username)), texting];
+                let user_area = column![
+                    text(format!(
+                        "username: {}, attacker: {}, defender: {}",
+                        &self.username, &self.attacker, &self.defender
+                    )),
+                    texting
+                ];
 
                 let game = self.board();
                 let game = row![game, user_area];
