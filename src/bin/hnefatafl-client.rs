@@ -53,6 +53,7 @@ struct Client {
     game_id: u64,
     games: Vec<ServerGameLight>,
     my_turn: bool,
+    password: String,
     play_from: Option<Vertex>,
     role_selected: Option<Role>,
     screen: Screen,
@@ -192,6 +193,9 @@ impl Client {
                     // new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
                     handle_error(tx.send(format!("new_game {role}\n")));
                 }
+            }
+            Message::PasswordChanged(password) => {
+                self.password = password;
             }
             Message::PlayMoveFrom(vertex) => self.play_from = Some(vertex),
             Message::PlayMoveTo(to) => {
@@ -372,19 +376,19 @@ impl Client {
                         return;
                     }
 
-                    self.text_input.push('\n');
                     if self.screen == Screen::Login {
-                        handle_error(tx.send(self.text_input.clone()));
-
                         if let Some(username) = self.text_input.split_ascii_whitespace().next() {
                             let username = username.to_ascii_lowercase();
+                            handle_error(tx.send(format!("{username} {}\n", self.password)));
                             self.username = username;
                         }
                     } else if self.screen == Screen::Game {
+                        self.text_input.push('\n');
                         handle_error(
                             tx.send(format!("text_game {} {}", self.game_id, self.text_input)),
                         );
                     } else {
+                        self.text_input.push('\n');
                         handle_error(tx.send(format!("text {}", self.text_input)));
                     }
                     self.text_input.clear();
@@ -435,7 +439,7 @@ impl Client {
 
     #[must_use]
     pub fn view(&self) -> Element<Message> {
-        let screen: Element<'_, Message> = match self.screen {
+        match self.screen {
             Screen::Game => {
                 let mut texting = Column::new();
                 texting = texting.push("texts:");
@@ -498,24 +502,23 @@ impl Client {
 
                 column![user_area, buttons].into()
             }
-            Screen::Login => row![
-                text("username:"),
-                text_input("", &self.text_input)
-                    .on_input(Message::TextChanged)
-                    .on_submit(Message::TextSend),
-            ]
-            .into(),
-        };
+            Screen::Login => {
+                let username = row![
+                    text("username:"),
+                    text_input("", &self.text_input)
+                        .on_input(Message::TextChanged)
+                        .on_submit(Message::TextSend),
+                ];
 
-        if let Some(error) = &self.error {
-            column![
-                // Solarized Red
-                text(error).color(iced::Color::from_rgb8(220, 50, 47)),
-                screen,
-            ]
-            .into()
-        } else {
-            screen
+                let password = row![
+                    text("password:"),
+                    text_input("", &self.password)
+                        .on_input(Message::PasswordChanged)
+                        .on_submit(Message::TextSend),
+                ];
+
+                column![username, password].spacing(10).into()
+            }
         }
     }
 }
@@ -527,6 +530,7 @@ enum Message {
     GameLeave,
     GameNew,
     GameSubmit,
+    PasswordChanged(String),
     PlayMoveFrom(Vertex),
     PlayMoveTo(Vertex),
     RoleSelected(Role),

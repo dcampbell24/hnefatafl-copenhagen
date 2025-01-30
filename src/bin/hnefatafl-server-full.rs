@@ -93,10 +93,17 @@ fn login(
     }
 
     buf.make_ascii_lowercase();
+    let mut username_password = buf.split_ascii_whitespace();
 
-    if let Some(username) = buf.split_ascii_whitespace().next() {
+    if let Some(username) = username_password.next() {
+        let password: Vec<&str> = username_password.collect();
+        let password = password.join(" ");
+
         let (client_tx, client_rx) = mpsc::channel();
-        tx.send((format!("{index} {username} login"), Some(client_tx)))?;
+        tx.send((
+            format!("{index} {username} login {password}"),
+            Some(client_tx),
+        ))?;
 
         let message = client_rx.recv()?;
         if "= login" != message.as_str() {
@@ -137,10 +144,11 @@ struct Server {
     #[serde(skip)]
     clients: HashMap<u64, mpsc::Sender<String>>,
     #[serde(skip)]
-    pending_games: ServerGamesLight,
-    #[serde(skip)]
     games: ServerGames,
     game_id: u64,
+    passwords: HashMap<String, String>,
+    #[serde(skip)]
+    pending_games: ServerGamesLight,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -347,6 +355,16 @@ impl Server {
                             // The username is in the database, but not logged in yet.
                             } else {
                                 info!("{index_supplied} {username} logged in");
+
+                                let password_1 = the_rest;
+                                let Some(password_2) = self.passwords.get(*username) else {
+                                    panic!("we already know the username is in the database.");
+                                };
+
+                                if password_1 != *password_2 {
+                                    return (Some(tx), false, (*command).to_string());
+                                }
+
                                 self.clients.insert(index_supplied, tx);
                                 index_database.logged_in = Some(index_supplied);
 
@@ -359,6 +377,10 @@ impl Server {
                         // The username is not in the database.
                         } else {
                             info!("{index_supplied} {username} created user account");
+
+                            let password = the_rest;
+                            self.passwords.insert((*username).to_string(), password);
+
                             self.clients.insert(index_supplied, tx);
                             self.accounts.0.insert(
                                 (*username).to_string(),
