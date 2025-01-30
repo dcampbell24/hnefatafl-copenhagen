@@ -9,6 +9,10 @@ use std::{
     time::Duration,
 };
 
+use argon2::{
+    Algorithm, Argon2, AssociatedData, KeyId, ParamsBuilder, PasswordHash, PasswordHasher,
+    PasswordVerifier, Version,
+};
 use chrono::Utc;
 use clap::{command, Parser};
 use env_logger::Builder;
@@ -21,6 +25,7 @@ use hnefatafl_copenhagen::{
     status::Status,
 };
 use log::{debug, info, LevelFilter};
+use password_hash::SaltString;
 use ron::ser::{to_string_pretty, PrettyConfig};
 use serde::{Deserialize, Serialize};
 
@@ -354,16 +359,21 @@ impl Server {
                                 (Some(tx), false, (*command).to_string())
                             // The username is in the database, but not logged in yet.
                             } else {
-                                info!("{index_supplied} {username} logged in");
-
                                 let password_1 = the_rest;
                                 let Some(password_2) = self.passwords.get(*username) else {
                                     panic!("we already know the username is in the database.");
                                 };
 
-                                if password_1 != *password_2 {
+                                let hash_2 = PasswordHash::try_from(password_2.as_str()).unwrap();
+                                if let Err(_error) = Argon2::default()
+                                    .verify_password(password_1.as_bytes(), &hash_2)
+                                {
+                                    info!(
+                                        "{index_supplied} {username} provided the wrong password"
+                                    );
                                     return (Some(tx), false, (*command).to_string());
                                 }
+                                info!("{index_supplied} {username} logged in");
 
                                 self.clients.insert(index_supplied, tx);
                                 index_database.logged_in = Some(index_supplied);
@@ -379,7 +389,27 @@ impl Server {
                             info!("{index_supplied} {username} created user account");
 
                             let password = the_rest;
-                            self.passwords.insert((*username).to_string(), password);
+
+                            let params = ParamsBuilder::new()
+                                .m_cost(32)
+                                .t_cost(2)
+                                .p_cost(3)
+                                .data(AssociatedData::new(&[0x0f; 6]).unwrap())
+                                .keyid(KeyId::new(&[0xf0; 4]).unwrap())
+                                .build()
+                                .unwrap();
+
+                            let ctx = Argon2::new(Algorithm::Argon2d, Version::V0x13, params);
+                            // Todo: make a random salt.
+                            let salt = vec![0; 8];
+                            let salt_string = SaltString::encode_b64(&salt).unwrap();
+
+                            let hash = ctx
+                                .hash_password(password.as_bytes(), &salt_string)
+                                .unwrap()
+                                .to_string();
+
+                            self.passwords.insert((*username).to_string(), hash);
 
                             self.clients.insert(index_supplied, tx);
                             self.accounts.0.insert(

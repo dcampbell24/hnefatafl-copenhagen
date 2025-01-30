@@ -30,10 +30,12 @@ iced = { version = "0.13", optional = true }
 chrono = { version = "0.4", optional = true }
 env_logger = { version = "0.11", optional = true }
 log = { version = "0.4", optional = true }
+password-hash = { version = "0.5", optional = true }
+argon2 = { version = "0.5", optional = true }
 
 [features]
 client = ["futures", "iced"]
-server = ["chrono", "env_logger", "log"]
+server = ["chrono", "env_logger", "log", "password-hash", "argon2"]
 
 [[bin]]
 name = "hnefatafl-client"
