@@ -215,8 +215,7 @@ impl Server {
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
     ) -> anyhow::Result<()> {
         loop {
-            let (tx, ok, command) = self.handle_messages_internal(rx);
-            if let Some(tx) = tx {
+            if let Some((tx, ok, command)) = self.handle_messages_internal(rx) {
                 if ok {
                     tx.send(format!("= {command}"))?;
                 } else {
@@ -230,7 +229,7 @@ impl Server {
     fn handle_messages_internal(
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
-    ) -> (Option<mpsc::Sender<String>>, bool, String) {
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let (message, option_tx) = handle_error(rx.recv());
         let index_username_command: Vec<_> = message.split_ascii_whitespace().collect();
 
@@ -239,9 +238,7 @@ impl Server {
             index_username_command.get(1),
             index_username_command.get(2),
         ) {
-            let Some(command) = command_option else {
-                return (None, false, String::new());
-            };
+            let command = command_option?;
 
             let index_supplied = index_supplied
                 .parse::<u64>()
@@ -259,22 +256,22 @@ impl Server {
                         handle_error(tx.send(format!("= display_games {}", &self.games)));
                         handle_error(tx.send(format!("= display_users {}", &self.accounts)));
                     }
-                    (None, true, (*command).to_string())
+                    None
                 }
                 "join_game" => {
                     let Some(id) = the_rest.split_ascii_whitespace().next() else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
                     let Ok(id) = id.parse::<u64>() else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
 
                     info!("{index_supplied} {username} join_game {id}");
@@ -343,7 +340,7 @@ impl Server {
                     self.games.0.insert(id, new_game);
                     handle_error(attacker_tx.send(format!("game {id} generate_move black")));
 
-                    (None, true, String::new())
+                    None
                 }
                 "login" => {
                     if let Some(tx) = option_tx {
@@ -354,7 +351,7 @@ impl Server {
                                         "{index_supplied} {username} login failed, {index_database} is logged in"
                                     );
 
-                                (Some(tx), false, (*command).to_string())
+                                Some(((tx), false, (*command).to_string()))
                             // The username is in the database, but not logged in yet.
                             } else {
                                 let password_1 = the_rest;
@@ -369,18 +366,18 @@ impl Server {
                                     info!(
                                         "{index_supplied} {username} provided the wrong password"
                                     );
-                                    return (Some(tx), false, (*command).to_string());
+                                    return Some((tx, false, (*command).to_string()));
                                 }
                                 info!("{index_supplied} {username} logged in");
 
                                 self.clients.insert(index_supplied, tx);
                                 index_database.logged_in = Some(index_supplied);
 
-                                (
-                                    Some(self.clients[&index_supplied].clone()),
+                                Some((
+                                    self.clients[&index_supplied].clone(),
                                     true,
                                     (*command).to_string(),
-                                )
+                                ))
                             }
                         // The username is not in the database.
                         } else {
@@ -407,11 +404,11 @@ impl Server {
 
                             self.save_server();
 
-                            (
-                                Some(self.clients[&index_supplied].clone()),
+                            Some((
+                                self.clients[&index_supplied].clone(),
                                 true,
                                 (*command).to_string(),
-                            )
+                            ))
                         }
                     } else {
                         panic!("there is no channel to send on")
@@ -444,43 +441,43 @@ impl Server {
                                     self.pending_games.0.remove(&index);
                                 }
 
-                                (None, true, (*command).to_string())
+                                None
                             } else {
-                                (
-                                    Some(self.clients[&index_supplied].clone()),
+                                Some((
+                                    self.clients[&index_supplied].clone(),
                                     false,
                                     (*command).to_string(),
-                                )
+                                ))
                             }
                         } else {
-                            (
-                                Some(self.clients[&index_supplied].clone()),
+                            Some((
+                                self.clients[&index_supplied].clone(),
                                 false,
                                 (*command).to_string(),
-                            )
+                            ))
                         }
                     } else {
-                        (
-                            Some(self.clients[&index_supplied].clone()),
+                        Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        )
+                        ))
                     }
                 }
                 "new_game" => {
                     let Some(role) = the_rest.split_ascii_whitespace().next() else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
                     let Ok(role) = Role::try_from(role) else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
 
                     info!(
@@ -506,52 +503,52 @@ impl Server {
                     self.pending_games.0.insert(self.game_id, game);
                     self.game_id += 1;
 
-                    (Some(self.clients[&index_supplied].clone()), true, command)
+                    Some((self.clients[&index_supplied].clone(), true, command))
                 }
                 // game 0 play black a4 a2
                 "game" => {
                     let words: Vec<&str> = the_rest.split_ascii_whitespace().collect();
                     let Some(index) = words.first() else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
                     let Ok(index) = index.parse() else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
                     let Some(color) = words.get(2) else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
                     let Ok(color) = Color::try_from(*color) else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
                     let Some(from) = words.get(3) else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
                     let Some(to) = words.get(4) else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
 
                     let Some(game) = self.games.0.get_mut(&index) else {
@@ -568,11 +565,11 @@ impl Server {
                                 .defender_tx
                                 .send(format!("game {index} play black {from} {to}"));
                         } else {
-                            return (
-                                Some(self.clients[&index_supplied].clone()),
+                            return Some((
+                                self.clients[&index_supplied].clone(),
                                 false,
                                 (*command).to_string(),
-                            );
+                            ));
                         }
                     } else if *username == game.defender {
                         handle_error(game.game.read_line(&format!("play white {from} {to}")));
@@ -581,11 +578,11 @@ impl Server {
                             .attacker_tx
                             .send(format!("game {index} play white {from} {to}"));
                     } else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     }
 
                     match game.game.status {
@@ -643,34 +640,34 @@ impl Server {
                         }
                     }
 
-                    (
-                        Some(self.clients[&index_supplied].clone()),
+                    Some((
+                        self.clients[&index_supplied].clone(),
                         true,
                         (*command).to_string(),
-                    )
+                    ))
                 }
                 "text" => {
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients.values() {
                         let _ok = tx.send(format!("= text {the_rest}"));
                     }
-                    (None, true, (*command).to_string())
+                    None
                 }
                 "text_game" => {
                     let mut text = the_rest.split_ascii_whitespace();
                     let Some(id) = text.next() else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
                     let Ok(id) = id.parse::<u64>() else {
-                        return (
-                            Some(self.clients[&index_supplied].clone()),
+                        return Some((
+                            self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
-                        );
+                        ));
                     };
 
                     let text: Vec<&str> = text.collect();
@@ -685,14 +682,14 @@ impl Server {
                         let _ok = game.defender_tx.send(text);
                     }
 
-                    (None, true, (*command).to_string())
+                    None
                 }
-                "=" => (None, true, String::new()),
-                _ => (
-                    Some(self.clients[&index_supplied].clone()),
+                "=" => None,
+                _ => Some((
+                    self.clients[&index_supplied].clone(),
                     false,
                     (*command).to_string(),
-                ),
+                )),
             }
         } else {
             panic!("we pass the arguments in that form");
