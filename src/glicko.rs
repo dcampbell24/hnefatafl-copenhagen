@@ -144,5 +144,13 @@ mod tests {
         assert_eq!(rating_4.rd.round(), 299.0);
         rating_4.update_rd();
         assert_eq!(rating_4.rd.round(), 305.0);
+
+        let mut rating_5 = rating.clone();
+        rating_5.update_rating(1_500.0, &Outcome::Draw);
+        assert_eq!(rating_5.rating.round(), 1_500.0);
+
+        let mut rating_6 = rating.clone();
+        rating_6.update_rating(1_600.0, &Outcome::Draw);
+        assert_eq!(rating_6.rating.round(), 1545.0);
     }
 }
