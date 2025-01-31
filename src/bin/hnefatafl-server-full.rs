@@ -14,6 +14,7 @@ use chrono::Utc;
 use clap::{command, Parser};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
+    accounts::{Account, Accounts},
     color::Color,
     game::Game,
     handle_error,
@@ -151,51 +152,6 @@ struct Server {
     passwords: HashMap<String, String>,
     #[serde(skip)]
     pending_games: ServerGamesLight,
-}
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-struct Accounts(HashMap<String, Account>);
-
-impl fmt::Display for Accounts {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut accounts = Vec::new();
-        for (name, account) in &self.0 {
-            if account.logged_in.is_some() {
-                accounts.push(format!(
-                    "{name} {} {} {}",
-                    account.wins, account.losses, account.rating
-                ));
-            }
-        }
-        accounts.sort_unstable();
-        let names = accounts.join(" ");
-
-        write!(f, "{names}")
-    }
-}
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-struct Account {
-    logged_in: Option<u64>,
-    wins: u64,
-    losses: u64,
-    rating: Rating,
-}
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-enum Rating {
-    #[default]
-    Unrated,
-    Rated(u64),
-}
-
-impl fmt::Display for Rating {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Rating::Unrated => write!(f, "unrated"),
-            Rating::Rated(rating) => write!(f, "{rating}"),
-        }
-    }
 }
 
 #[derive(Clone, Debug, Default)]

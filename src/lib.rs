@@ -13,6 +13,7 @@ use message::Message;
 use play::{Plae, Vertex};
 use status::Status;
 
+pub mod accounts;
 pub mod board;
 pub mod color;
 pub mod game;
