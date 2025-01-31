@@ -11,8 +11,8 @@ use std::{
 use clap::{command, Parser};
 use futures::executor;
 use hnefatafl_copenhagen::{
-    color::Color, game::Game, handle_error, play::Vertex, role::Role,
-    server_game::ServerGameLight, space::Space,
+    color::Color, game::Game, handle_error, play::Vertex, role::Role, server_game::ServerGameLight,
+    space::Space,
 };
 use iced::{
     font::Font,
