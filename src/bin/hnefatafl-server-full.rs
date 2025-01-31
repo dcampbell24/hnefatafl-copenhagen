@@ -2,9 +2,9 @@ use std::{
     collections::HashMap,
     env, fmt,
     fs::{read_to_string, File},
-    io::{BufRead, BufReader, Write},
-    net::{TcpListener, TcpStream},
-    sync::mpsc::{self, Receiver},
+    io::{BufRead, Write},
+    net::TcpListener,
+    sync::{mpsc, Arc},
     thread::{self, sleep},
     time::Duration,
 };
@@ -25,6 +25,10 @@ use log::{debug, info, LevelFilter};
 use password_hash::SaltString;
 use rand::rngs::OsRng;
 use ron::ser::{to_string_pretty, PrettyConfig};
+use rustls::{
+    pki_types::{pem::PemObject, CertificateDer, PrivateKeyDer},
+    ServerConfig, ServerConnection,
+};
 use serde::{Deserialize, Serialize};
 
 /// A Hnefatafl Copenhagen Server
@@ -36,9 +40,18 @@ struct Args {
     /// Listen for HTP drivers on host and port
     #[arg(default_value = "localhost:8000", index = 1, value_name = "host:port")]
     host_port: String,
+
     /// Load the server state from a file
     #[arg(long)]
     load: Option<String>,
+
+    /// A SSL certificate.
+    #[arg(default_value = "testing-ssl/cert.pem", long)]
+    certificate: String,
+
+    /// A private SSL key.
+    #[arg(default_value = "testing-ssl/key.pem", long)]
+    key: String,
 }
 
 // 1. new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE] # handles the leave issue...
@@ -58,6 +71,8 @@ fn main() -> anyhow::Result<()> {
     } else {
         Server::default()
     };
+    let certificate = args.certificate;
+    let key = args.key;
 
     let address = &args.host_port;
     let listener = TcpListener::bind(address)?;
@@ -74,9 +89,24 @@ fn main() -> anyhow::Result<()> {
     });
 
     for (index, stream) in (1..).zip(listener.incoming()) {
-        let stream = stream?;
+        let mut stream = stream?;
+
+        // Fixme!
+        let certs = CertificateDer::pem_file_iter(&certificate)?
+            .map(|cert| cert.unwrap())
+            .collect();
+
+        let private_key = PrivateKeyDer::from_pem_file(&key)?;
+
+        let config = ServerConfig::builder()
+            .with_no_client_auth()
+            .with_single_cert(certs, private_key)?;
+
+        let mut connection = ServerConnection::new(Arc::new(config.clone()))?;
+        connection.complete_io(&mut stream)?;
+
         let tx = tx.clone();
-        thread::spawn(move || login(index, stream, &tx));
+        thread::spawn(move || login(index, connection, &tx));
     }
 
     Ok(())
@@ -84,13 +114,11 @@ fn main() -> anyhow::Result<()> {
 
 fn login(
     index: u64,
-    mut stream: TcpStream,
+    mut connection: ServerConnection,
     tx: &mpsc::Sender<(String, Option<mpsc::Sender<String>>)>,
 ) -> anyhow::Result<()> {
-    let mut reader = BufReader::new(stream.try_clone()?);
-
     let mut buf = String::new();
-    reader.read_line(&mut buf)?;
+    connection.reader().read_line(&mut buf)?;
     if buf.trim().is_empty() {
         return Ok(());
     }
@@ -110,16 +138,21 @@ fn login(
 
         let message = client_rx.recv()?;
         if "= login" != message.as_str() {
-            stream.write_all(b"? login\n")?;
+            connection.writer().write_all(b"? login\n")?;
             return Err(anyhow::Error::msg("failed to login"));
         }
-        stream.write_all(b"= login\n")?;
-
-        thread::spawn(move || receiving_and_writing(stream, &client_rx));
+        connection.writer().write_all(b"= login\n")?;
 
         let mut buf = String::new();
         for _ in 0..1_000_000 {
-            reader.read_line(&mut buf)?;
+            // Todo: make async
+            let message = client_rx.recv()?;
+            connection
+                .writer()
+                .write_all(format!("{message}\n").as_bytes())?;
+
+            // Todo: make async
+            connection.reader().read_line(&mut buf)?;
             tx.send((format!("{index} {username} {}", buf.trim()), None))?;
             buf.clear();
         }
@@ -128,16 +161,6 @@ fn login(
     }
 
     Ok(())
-}
-
-fn receiving_and_writing(
-    mut stream: TcpStream,
-    client_rx: &Receiver<String>,
-) -> anyhow::Result<()> {
-    loop {
-        let message = client_rx.recv()?;
-        stream.write_all(format!("{message}\n").as_bytes())?;
-    }
 }
 
 #[derive(Clone, Default, Deserialize, Serialize)]
