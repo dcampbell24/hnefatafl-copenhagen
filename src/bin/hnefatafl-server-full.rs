@@ -42,13 +42,12 @@ struct Args {
 }
 
 // 1. new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE] # handles the leave issue...
-// 1. need passwords, you can enter no password
-// 2. glicko rating system
-// 3. deal with errors better
-// 3. handle too many lines
+// 2. glicko rating system.
+// 3. Handle too_many_lines.
 // 3. watch_game 1
 // 3. Display in game users.
-// 4. figure out some way of testing
+// 4. Figure out some way of testing.
+// 4. Get SSL working.
 fn main() -> anyhow::Result<()> {
     init_logger();
     let args = Args::parse();
