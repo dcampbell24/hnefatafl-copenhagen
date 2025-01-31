@@ -18,11 +18,13 @@ use iced::{
     font::Font,
     futures::{SinkExt, Stream},
     stream,
-    widget::{button, column, container, radio, row, text, text_input, Column, Container, Row},
+    widget::{
+        button, column, container, radio, row, scrollable, text, text_input, Column, Container, Row,
+    },
     Element, Subscription, Theme,
 };
 
-const PADDING: u16 = 10;
+const PADDING: u16 = 20;
 const SPACING: u16 = 10;
 
 /// A Hnefatafl Copenhagen Client
@@ -166,16 +168,13 @@ impl Client {
         Subscription::run(pass_messages)
     }
 
-    fn texting(&self, in_game: bool) -> Container<Message> {
-        let mut texting = Column::new();
-        texting = texting.push("texts:");
-        texting = texting.push(
-            text_input("", &self.text_input)
-                .on_input(Message::TextChanged)
-                .on_paste(Message::TextChanged)
-                .on_submit(Message::TextSend),
-        );
+    fn texting(&self, in_game: bool) -> Column<Message> {
+        let text_input = text_input("", &self.text_input)
+            .on_input(Message::TextChanged)
+            .on_paste(Message::TextChanged)
+            .on_submit(Message::TextSend);
 
+        let mut texting = Column::new();
         if in_game {
             for message in &self.texts_game {
                 texting = texting.push(text(message));
@@ -186,9 +185,9 @@ impl Client {
             }
         }
 
-        container(texting)
-            .padding(PADDING)
-            .style(container::rounded_box)
+        let text_input = column![text("texts:"), text_input,];
+
+        column![text_input, scrollable(texting),]
     }
 
     pub fn theme(_self: &Self) -> Theme {
@@ -432,29 +431,26 @@ impl Client {
     }
 
     #[must_use]
-    fn user_area(&self, in_game: bool) -> Row<Message> {
-        let mut games = Column::new();
+    fn user_area(&self, in_game: bool) -> Container<Message> {
+        let mut games = Column::new().padding(PADDING);
         games = games.push(text("games:"));
         for game in &self.games {
             let id = game.id;
             let join = button("join").on_press(Message::GameJoin(id));
             games = games.push(row![text(game.to_string()), join]);
         }
-        let games = container(games)
-            .padding(PADDING)
-            .style(container::rounded_box);
 
-        let texting = self.texting(in_game);
+        let texting = self.texting(in_game).padding(PADDING);
 
-        let mut users = column![text("users:")];
+        let mut users = column![text("users:")].padding(PADDING);
         for user in &self.users {
             users = users.push(text(user));
         }
-        let users = container(users)
-            .padding(PADDING)
-            .style(container::rounded_box);
 
-        row![games, texting, users]
+        let user_area = row![games, texting, users];
+        container(user_area)
+            .padding(PADDING)
+            .style(container::bordered_box)
     }
 
     #[must_use]
@@ -472,7 +468,7 @@ impl Client {
                 .spacing(SPACING);
                 let user_area = container(user_area)
                     .padding(PADDING)
-                    .style(container::rounded_box);
+                    .style(container::bordered_box);
 
                 let texting = self.texting(true);
                 let game = self.board();
@@ -511,7 +507,7 @@ impl Client {
                 let top = row![username, create_game].spacing(SPACING);
                 let top = container(top)
                     .padding(PADDING)
-                    .style(container::rounded_box);
+                    .style(container::bordered_box);
 
                 let user_area = self.user_area(false);
 
