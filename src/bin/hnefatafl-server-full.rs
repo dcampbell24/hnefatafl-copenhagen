@@ -624,7 +624,7 @@ impl Server {
                 "text" => {
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients.values() {
-                        let _ok = tx.send(format!("= text {the_rest}"));
+                        let _ok = tx.send(format!("= text {username}: {the_rest}"));
                     }
                     None
                 }
@@ -647,7 +647,7 @@ impl Server {
 
                     let text: Vec<&str> = text.collect();
                     let mut text = text.join(" ");
-                    text = format!("{text}\n");
+                    text = format!("{username}: {text}");
                     info!("{index_supplied} {username} text_game {id} {text}");
 
                     if let Some(game) = self.games.0.get_mut(&id) {

@@ -18,9 +18,12 @@ use iced::{
     font::Font,
     futures::{SinkExt, Stream},
     stream,
-    widget::{button, column, container, radio, row, text, text_input, Column, Row},
+    widget::{button, column, container, radio, row, text, text_input, Column, Container, Row},
     Element, Subscription, Theme,
 };
+
+const PADDING: u16 = 10;
+const SPACING: u16 = 10;
 
 /// A Hnefatafl Copenhagen Client
 ///
@@ -161,6 +164,25 @@ impl Client {
 
     fn pass_messages(_self: &Self) -> Subscription<Message> {
         Subscription::run(pass_messages)
+    }
+
+    fn texting(&self) -> Container<Message> {
+        let mut texting = Column::new();
+        texting = texting.push("texts:");
+        texting = texting.push(
+            text_input("", &self.text_input)
+                .on_input(Message::TextChanged)
+                .on_paste(Message::TextChanged)
+                .on_submit(Message::TextSend),
+        );
+
+        for message in &self.texts {
+            texting = texting.push(text(message));
+        }
+
+        container(texting)
+            .padding(PADDING)
+            .style(container::rounded_box)
     }
 
     pub fn theme(_self: &Self) -> Theme {
@@ -400,7 +422,7 @@ impl Client {
     }
 
     #[must_use]
-    fn user_area(&self) -> Column<Message> {
+    fn user_area(&self) -> Row<Message> {
         let mut games = Column::new();
         games = games.push(text("games:"));
         for game in &self.games {
@@ -408,68 +430,45 @@ impl Client {
             let join = button("join").on_press(Message::GameJoin(id));
             games = games.push(row![text(game.to_string()), join]);
         }
-        let games = container(games).padding(10).style(container::rounded_box);
-
-        let mut texting = Column::new();
-        texting = texting.push("texts:");
-        texting = texting.push(
-            text_input("", &self.text_input)
-                .on_input(Message::TextChanged)
-                .on_paste(Message::TextChanged)
-                .on_submit(Message::TextSend),
-        );
-
-        for message in &self.texts {
-            texting = texting.push(text(message));
-        }
-        let texting = container(texting).padding(10).style(container::rounded_box);
-
-        let username = row![text("username: "), text(&self.username)];
-        let username = container(username)
-            .padding(10)
+        let games = container(games)
+            .padding(PADDING)
             .style(container::rounded_box);
+
+        let texting = self.texting();
 
         let mut users = column![text("users:")];
         for user in &self.users {
             users = users.push(text(user));
         }
-        let users = container(users).padding(10).style(container::rounded_box);
+        let users = container(users)
+            .padding(PADDING)
+            .style(container::rounded_box);
 
-        let user_area = column![username, row![games, texting, users]];
-        user_area
+        row![games, texting, users]
     }
 
     #[must_use]
     pub fn view(&self) -> Element<Message> {
         match self.screen {
             Screen::Game => {
-                let mut texting = Column::new();
-                texting = texting.push("texts:");
-                texting = texting.push(
-                    text_input("", &self.text_input)
-                        .on_input(Message::TextChanged)
-                        .on_paste(Message::TextChanged)
-                        .on_submit(Message::TextSend),
-                );
-                for message in &self.texts_game {
-                    texting = texting.push(text(message));
-                }
-                let texting = container(texting).padding(10).style(container::rounded_box);
-                let user_area = column![
+                let leave_game = button("Leave Game").on_press(Message::GameLeave);
+                let user_area = row![
                     text(format!(
                         "username: {}, attacker: {}, defender: {}",
                         &self.username, &self.attacker, &self.defender
                     )),
-                    texting
-                ];
+                    leave_game,
+                ]
+                .spacing(SPACING);
+                let user_area = container(user_area)
+                    .padding(PADDING)
+                    .style(container::rounded_box);
 
+                let texting = self.texting();
                 let game = self.board();
-                let game = row![game, user_area];
+                let game = row![game, texting];
 
-                let leave_game = button("Leave Game").on_press(Message::GameLeave);
-                let buttons = row![leave_game];
-
-                column![game, buttons].into()
+                column![user_area, game].into()
             }
             Screen::GameNew => {
                 let attacker = radio(
@@ -497,12 +496,16 @@ impl Client {
                 text(format!("role: {role}")).into()
             }
             Screen::Games => {
+                let username = row![text("username: "), text(&self.username)];
+                let create_game = button("Create Game").on_press(Message::GameNew);
+                let top = row![username, create_game].spacing(SPACING);
+                let top = container(top)
+                    .padding(PADDING)
+                    .style(container::rounded_box);
+
                 let user_area = self.user_area();
 
-                let create_game = button("Create Game").on_press(Message::GameNew);
-                let buttons = row![create_game];
-
-                column![user_area, buttons].into()
+                column![top, user_area].into()
             }
             Screen::Login => {
                 let username = row![
@@ -519,7 +522,7 @@ impl Client {
                         .on_submit(Message::TextSend),
                 ];
 
-                column![username, password].spacing(10).into()
+                column![username, password].spacing(SPACING).into()
             }
         }
     }
