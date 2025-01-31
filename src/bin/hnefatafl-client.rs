@@ -11,7 +11,7 @@ use std::{
 use clap::{command, Parser};
 use futures::executor;
 use hnefatafl_copenhagen::{
-    color::Color, game::Game, handle_error, message, play::Vertex, role::Role,
+    color::Color, game::Game, handle_error, play::Vertex, role::Role,
     server_game::ServerGameLight, space::Space,
 };
 use iced::{
@@ -194,12 +194,6 @@ impl Client {
         self.error = None;
 
         match message {
-            Message::_Game(message) => {
-                let Some(game) = &mut self.game else {
-                    return;
-                };
-                let _result = game.update(message);
-            }
             Message::GameJoin(id) => {
                 if let Some(tx) = &self.tx {
                     handle_error(tx.send(format!("join_game {id}\n")));
@@ -530,7 +524,6 @@ impl Client {
 
 #[derive(Clone, Debug)]
 enum Message {
-    _Game(message::Message),
     GameJoin(u64),
     GameLeave,
     GameNew,
