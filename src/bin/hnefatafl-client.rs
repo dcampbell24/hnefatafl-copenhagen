@@ -166,7 +166,7 @@ impl Client {
         Subscription::run(pass_messages)
     }
 
-    fn texting(&self) -> Container<Message> {
+    fn texting(&self, in_game: bool) -> Container<Message> {
         let mut texting = Column::new();
         texting = texting.push("texts:");
         texting = texting.push(
@@ -176,8 +176,14 @@ impl Client {
                 .on_submit(Message::TextSend),
         );
 
-        for message in &self.texts {
-            texting = texting.push(text(message));
+        if in_game {
+            for message in &self.texts_game {
+                texting = texting.push(text(message));
+            }
+        } else {
+            for message in &self.texts {
+                texting = texting.push(text(message));
+            }
         }
 
         container(texting)
@@ -292,7 +298,9 @@ impl Client {
                         }
                         Some("login") => self.screen = Screen::Games,
                         Some("new_game") => {
-                            if Some("ready") == text.next() {
+                            // = new_game game 1 david none
+                            let next_word = text.next();
+                            if Some("ready") == next_word {
                                 self.game = Some(Game::default());
                                 self.texts_game = VecDeque::new();
                                 self.screen = Screen::Game;
@@ -305,6 +313,14 @@ impl Client {
                                 };
                                 self.attacker = attacker.to_string();
                                 self.defender = defender.to_string();
+                            } else if Some("game") == next_word {
+                                let Some(game_id) = text.next() else {
+                                    panic!("the game id should be next");
+                                };
+                                let Ok(game_id) = game_id.parse() else {
+                                    panic!("the game_id should be a u64")
+                                };
+                                self.game_id = game_id;
                             }
                         }
                         Some("text") => {
@@ -416,7 +432,7 @@ impl Client {
     }
 
     #[must_use]
-    fn user_area(&self) -> Row<Message> {
+    fn user_area(&self, in_game: bool) -> Row<Message> {
         let mut games = Column::new();
         games = games.push(text("games:"));
         for game in &self.games {
@@ -428,7 +444,7 @@ impl Client {
             .padding(PADDING)
             .style(container::rounded_box);
 
-        let texting = self.texting();
+        let texting = self.texting(in_game);
 
         let mut users = column![text("users:")];
         for user in &self.users {
@@ -458,7 +474,7 @@ impl Client {
                     .padding(PADDING)
                     .style(container::rounded_box);
 
-                let texting = self.texting();
+                let texting = self.texting(true);
                 let game = self.board();
                 let game = row![game, texting];
 
@@ -497,7 +513,7 @@ impl Client {
                     .padding(PADDING)
                     .style(container::rounded_box);
 
-                let user_area = self.user_area();
+                let user_area = self.user_area(false);
 
                 column![top, user_area].into()
             }

@@ -652,7 +652,7 @@ impl Server {
 
                     if let Some(game) = self.games.0.get_mut(&id) {
                         game.text.push_str(&text);
-                        text = format!("= text_game {text}\n");
+                        text = format!("= text_game {text}");
                         let _ok = game.attacker_tx.send(text.clone());
                         let _ok = game.defender_tx.send(text);
                     }
