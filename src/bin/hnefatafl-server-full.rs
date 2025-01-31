@@ -161,7 +161,10 @@ impl fmt::Display for Accounts {
         let mut accounts = Vec::new();
         for (name, account) in &self.0 {
             if account.logged_in.is_some() {
-                accounts.push(format!("{name} {} {}", account.wins, account.losses));
+                accounts.push(format!(
+                    "{name} {} {} {}",
+                    account.wins, account.losses, account.rating
+                ));
             }
         }
         accounts.sort_unstable();
@@ -174,8 +177,25 @@ impl fmt::Display for Accounts {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 struct Account {
     logged_in: Option<u64>,
-    wins: u32,
-    losses: u32,
+    wins: u64,
+    losses: u64,
+    rating: Rating,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+enum Rating {
+    #[default]
+    Unrated,
+    Rated(u64),
+}
+
+impl fmt::Display for Rating {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Rating::Unrated => write!(f, "unrated"),
+            Rating::Rated(rating) => write!(f, "{rating}"),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Default)]

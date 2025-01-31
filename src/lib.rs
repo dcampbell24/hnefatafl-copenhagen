@@ -17,6 +17,7 @@ pub mod board;
 pub mod color;
 pub mod game;
 pub mod game_record;
+pub mod glicko;
 pub mod message;
 pub mod play;
 pub mod role;

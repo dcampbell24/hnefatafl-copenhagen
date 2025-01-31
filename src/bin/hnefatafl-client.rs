@@ -247,16 +247,18 @@ impl Client {
                         }
                         Some("display_users") => {
                             let users: Vec<&str> = text.collect();
-                            let mut users_wins_losses = Vec::new();
-                            for user_wins_losses in users.chunks_exact(3) {
-                                let user = user_wins_losses[0];
-                                let wins = user_wins_losses[1];
-                                let losses = user_wins_losses[2];
+                            let mut users_wins_losses_rating = Vec::new();
+                            for user_wins_losses_rating in users.chunks_exact(4) {
+                                let user = user_wins_losses_rating[0];
+                                let wins = user_wins_losses_rating[1];
+                                let losses = user_wins_losses_rating[2];
+                                let rating = user_wins_losses_rating[3];
 
-                                users_wins_losses
-                                    .push(format!("{user}: wins: {wins}, losses: {losses}"));
+                                users_wins_losses_rating.push(format!(
+                                    "{user}: wins: {wins}, losses: {losses}, rating: {rating}"
+                                ));
                             }
-                            self.users = users_wins_losses;
+                            self.users = users_wins_losses_rating;
                         }
                         Some("join_game") => {
                             self.game = Some(Game::default());
