@@ -37,7 +37,6 @@ impl Rating {
         self.rd = f64::sqrt(1.0 / ((1.0 / self.rd_sq()) + (1.0 / self.d_sq(rating))));
     }
 
-    // Fixme:
     #[must_use]
     fn d_sq(&self, rating: f64) -> f64 {
         1.0 / ((Q * Q) * (self.g() * self.g()) * self.e(rating) * (1.0 - self.e(rating)))
