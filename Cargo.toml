@@ -26,6 +26,7 @@ serde = { version = "1", features = ["derive"] }
 # client only
 futures = { version = "0.3", optional = true }
 iced = { version = "0.13", optional = true }
+webpki-roots = { version = "0.26", optional = true }
 
 # server only
 argon2 = { version = "0.5", optional = true }
@@ -36,7 +37,7 @@ password-hash = { version = "0.5", optional = true }
 rand = { version = "0.8", optional = true }
 
 [features]
-client = ["futures", "iced"]
+client = ["futures", "iced", "webpki-roots"]
 server = ["argon2", "chrono", "env_logger", "log", "password-hash", "rand"]
 
 [[bin]]

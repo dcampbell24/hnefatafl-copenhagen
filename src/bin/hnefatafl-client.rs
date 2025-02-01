@@ -1,10 +1,9 @@
 use core::panic;
 use std::{
     collections::VecDeque,
-    io::{BufRead, BufReader, Write},
-    net::TcpStream,
-    process::exit,
-    sync::mpsc,
+    io::{BufRead, /*BufReader,*/ Write},
+    /*net::TcpStream,*/ process::exit,
+    sync::{mpsc, Arc, Mutex},
     thread,
 };
 
@@ -24,6 +23,7 @@ use iced::{
     },
     Element, Subscription, Theme,
 };
+use rustls::RootCertStore;
 
 const PADDING: u16 = 20;
 const SPACING: u16 = 10;
@@ -37,6 +37,14 @@ struct Args {
     /// Listen for HTP drivers on host and port
     #[arg(default_value = "localhost:8000", index = 1, value_name = "host:port")]
     host_port: String,
+
+    /// A SSL certificate.
+    #[arg(default_value = "testing-ssl/cert.pem", long)]
+    certificate: String,
+
+    /// A private SSL key.
+    #[arg(default_value = "testing-ssl/key.pem", long)]
+    key: String,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -571,12 +579,28 @@ enum Message {
 fn pass_messages() -> impl Stream<Item = Message> {
     stream::channel(100, move |mut sender| async move {
         let args = Args::parse();
-        let address = &args.host_port;
-        let mut tcp_stream = handle_error(TcpStream::connect(address));
 
-        let reader = handle_error(tcp_stream.try_clone());
-        let mut reader = BufReader::new(reader);
+        let root_store = RootCertStore {
+            roots: webpki_roots::TLS_SERVER_ROOTS.into(),
+        };
+        let mut config = rustls::ClientConfig::builder()
+            .with_root_certificates(root_store)
+            .with_no_client_auth();
+
+        // Allow using SSLKEYLOGFILE.
+        config.key_log = Arc::new(rustls::KeyLogFile::new());
+
+        let address = args.host_port.clone();
+        // let tcp_stream = handle_error(TcpStream::connect(&address));
         println!("connected to {address} ...");
+
+        // let server_name = args.host_port.try_into().unwrap();
+        let server_name = "localhost".try_into().unwrap();
+        let connection = rustls::ClientConnection::new(Arc::new(config), server_name).unwrap();
+        // let mut tls = rustls::Stream::new(&mut connection, &mut tcp_stream);
+
+        let connection_1 = Arc::new(Mutex::new(connection));
+        let connection_2 = Arc::clone(&connection_1);
 
         let (tx, rx) = mpsc::channel();
         let _ = sender.send(Message::TcpConnected(tx)).await;
@@ -584,13 +608,21 @@ fn pass_messages() -> impl Stream<Item = Message> {
             let message = handle_error(rx.recv());
             print!("<- {message}");
 
-            handle_error(tcp_stream.write_all(message.as_bytes()));
+            connection_1
+                .lock()
+                .unwrap()
+                .writer()
+                .write_all(message.as_bytes())
+                .unwrap();
         });
 
         thread::spawn(move || {
             let mut buffer = String::new();
             loop {
-                let bytes = handle_error(reader.read_line(&mut buffer));
+                let Ok(bytes) = connection_2.lock().unwrap().reader().read_line(&mut buffer) else {
+                    continue;
+                };
+
                 if bytes > 0 {
                     print!("-> {buffer}");
                     handle_error(executor::block_on(

@@ -4,7 +4,10 @@ use std::{
     fs::{read_to_string, File},
     io::{BufRead, Write},
     net::TcpListener,
-    sync::{mpsc, Arc},
+    sync::{
+        mpsc::{self, Receiver},
+        Arc, Mutex,
+    },
     thread::{self, sleep},
     time::Duration,
 };
@@ -91,7 +94,6 @@ fn main() -> anyhow::Result<()> {
     for (index, stream) in (1..).zip(listener.incoming()) {
         let mut stream = stream?;
 
-        // Fixme!
         let certs = CertificateDer::pem_file_iter(&certificate)?
             .map(|cert| cert.unwrap())
             .collect();
@@ -103,7 +105,10 @@ fn main() -> anyhow::Result<()> {
             .with_single_cert(certs, private_key)?;
 
         let mut connection = ServerConnection::new(Arc::new(config.clone()))?;
-        connection.complete_io(&mut stream)?;
+        if let Err(error) = connection.complete_io(&mut stream) {
+            println!("Error: {error}");
+            continue;
+        }
 
         let tx = tx.clone();
         thread::spawn(move || login(index, connection, &tx));
@@ -142,17 +147,14 @@ fn login(
             return Err(anyhow::Error::msg("failed to login"));
         }
         connection.writer().write_all(b"= login\n")?;
+        let connection = Arc::new(Mutex::new(connection));
+
+        let connection_away = Arc::clone(&connection);
+        thread::spawn(move || receiving_and_writing(&connection_away, &client_rx));
 
         let mut buf = String::new();
         for _ in 0..1_000_000 {
-            // Todo: make async
-            let message = client_rx.recv()?;
-            connection
-                .writer()
-                .write_all(format!("{message}\n").as_bytes())?;
-
-            // Todo: make async
-            connection.reader().read_line(&mut buf)?;
+            connection.lock().unwrap().reader().read_line(&mut buf)?;
             tx.send((format!("{index} {username} {}", buf.trim()), None))?;
             buf.clear();
         }
@@ -161,6 +163,20 @@ fn login(
     }
 
     Ok(())
+}
+
+fn receiving_and_writing(
+    stream: &Arc<Mutex<ServerConnection>>,
+    client_rx: &Receiver<String>,
+) -> anyhow::Result<()> {
+    loop {
+        let message = client_rx.recv()?;
+        stream
+            .lock()
+            .unwrap()
+            .writer()
+            .write_all(format!("{message}\n").as_bytes())?;
+    }
 }
 
 #[derive(Clone, Default, Deserialize, Serialize)]
