@@ -2,13 +2,14 @@ use std::{fmt, sync::mpsc::Sender};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{game::Game, play::Play, status::Status};
+use crate::{game::Game, play::Play, rating::Rated, status::Status};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArchivedGame {
     pub id: u64,
     pub attacker: String,
     pub defender: String,
+    pub rated: Rated,
     pub plays: Vec<Play>,
     pub status: Status,
     pub text: String,
@@ -21,6 +22,7 @@ pub struct ServerGame {
     pub attacker_tx: Sender<String>,
     pub defender: String,
     pub defender_tx: Sender<String>,
+    pub rated: Rated,
     pub game: Game,
     pub text: String,
 }
@@ -28,13 +30,20 @@ pub struct ServerGame {
 impl ServerGame {
     #[must_use]
     pub fn protocol(&self) -> String {
-        format!("game {} {} {}", self.id, self.attacker, self.defender)
+        format!(
+            "game {} {} {} {}",
+            self.id, self.attacker, self.defender, self.rated
+        )
     }
 }
 
 impl fmt::Display for ServerGame {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}: {}, {} ", self.id, self.attacker, self.defender)
+        write!(
+            f,
+            "{}: {}, {}, {} ",
+            self.id, self.attacker, self.defender, self.rated
+        )
     }
 }
 
@@ -43,6 +52,7 @@ pub struct ServerGameLight {
     pub id: u64,
     pub attacker: Option<String>,
     pub defender: Option<String>,
+    pub rated: Rated,
     pub channel: Option<u64>,
 }
 
@@ -61,7 +71,7 @@ impl ServerGameLight {
             "none"
         };
 
-        format!("game {} {attacker} {defender}", self.id)
+        format!("game {} {attacker} {defender} {}", self.id, self.rated)
     }
 }
 
@@ -79,15 +89,15 @@ impl fmt::Display for ServerGameLight {
             "defender: none"
         };
 
-        write!(f, "{}: {attacker}, {defender} ", self.id)
+        write!(f, "{}: {attacker}, {defender}, {}", self.id, self.rated)
     }
 }
 
-impl TryFrom<(&str, &str, &str)> for ServerGameLight {
+impl TryFrom<(&str, &str, &str, &str)> for ServerGameLight {
     type Error = anyhow::Error;
 
-    fn try_from(id_attacker_defender: (&str, &str, &str)) -> anyhow::Result<Self> {
-        let (id, attacker, defender) = id_attacker_defender;
+    fn try_from(id_attacker_defender_rated: (&str, &str, &str, &str)) -> anyhow::Result<Self> {
+        let (id, attacker, defender, rated) = id_attacker_defender_rated;
         let id = id.parse::<u64>()?;
 
         let attacker = if attacker == "none" {
@@ -106,6 +116,7 @@ impl TryFrom<(&str, &str, &str)> for ServerGameLight {
             id,
             attacker,
             defender,
+            rated: Rated::try_from(rated)?,
             channel: None,
         })
     }

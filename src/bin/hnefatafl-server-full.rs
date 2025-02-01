@@ -18,6 +18,7 @@ use hnefatafl_copenhagen::{
     color::Color,
     game::Game,
     handle_error,
+    rating::Rated,
     role::Role,
     server_game::{ArchivedGame, ServerGame, ServerGameLight},
     status::Status,
@@ -278,13 +279,13 @@ impl Server {
                     };
 
                     let new_game = if let Some(attacker) = &game.attacker {
-                        handle_error(
-                            self.clients[&channel]
-                                .send(format!("= new_game ready {attacker} {username}")),
-                        );
+                        handle_error(self.clients[&channel].send(format!(
+                            "= new_game ready {attacker} {username} {}",
+                            game.rated
+                        )));
                         handle_error(
                             self.clients[&index_supplied]
-                                .send(format!("= join_game {attacker} {username}")),
+                                .send(format!("= join_game {attacker} {username} {}", game.rated)),
                         );
 
                         ServerGame {
@@ -293,17 +294,18 @@ impl Server {
                             attacker_tx: attacker_tx.clone(),
                             defender: (*username).to_string(),
                             defender_tx,
+                            rated: game.rated,
                             game: Game::default(),
                             text: String::new(),
                         }
                     } else if let Some(defender) = &game.defender {
-                        handle_error(
-                            self.clients[&channel]
-                                .send(format!("= new_game ready {username} {defender}")),
-                        );
+                        handle_error(self.clients[&channel].send(format!(
+                            "= new_game ready {username} {defender} {}",
+                            game.rated
+                        )));
                         handle_error(
                             self.clients[&index_supplied]
-                                .send(format!("= join_game {username} {defender}")),
+                                .send(format!("= join_game {username} {defender} {}", game.rated)),
                         );
 
                         ServerGame {
@@ -312,6 +314,7 @@ impl Server {
                             attacker_tx: attacker_tx.clone(),
                             defender: defender.clone(),
                             defender_tx,
+                            rated: game.rated,
                             game: Game::default(),
                             text: String::new(),
                         }
@@ -447,7 +450,8 @@ impl Server {
                     }
                 }
                 "new_game" => {
-                    let Some(role) = the_rest.split_ascii_whitespace().next() else {
+                    let mut the_rest = the_rest.split_ascii_whitespace();
+                    let Some(role) = the_rest.next() else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -462,8 +466,23 @@ impl Server {
                         ));
                     };
 
+                    let Some(rated) = the_rest.next() else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+                    let Ok(rated) = Rated::try_from(rated) else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+
                     info!(
-                        "{index_supplied} {username} new_game {} {role}",
+                        "{index_supplied} {username} new_game {} {role} {rated}",
                         self.game_id
                     );
                     let game = if role == Role::Attacker {
@@ -471,6 +490,7 @@ impl Server {
                             id: self.game_id,
                             attacker: Some((*username).to_string()),
                             defender: None,
+                            rated,
                             channel: Some(index_supplied),
                         }
                     } else {
@@ -478,6 +498,7 @@ impl Server {
                             id: self.game_id,
                             attacker: None,
                             defender: Some((*username).to_string()),
+                            rated,
                             channel: Some(index_supplied),
                         }
                     };
@@ -580,6 +601,7 @@ impl Server {
                                 id: game.id,
                                 attacker: game.attacker.to_string(),
                                 defender: game.defender.to_string(),
+                                rated: game.rated,
                                 plays: game.game.plays.clone(),
                                 status: game.game.status.clone(),
                                 text: game.text.clone(),
@@ -613,6 +635,7 @@ impl Server {
                                 id: game.id,
                                 attacker: game.attacker.to_string(),
                                 defender: game.defender.to_string(),
+                                rated: game.rated,
                                 plays: game.game.plays.clone(),
                                 status: game.game.status.clone(),
                                 text: game.text.clone(),

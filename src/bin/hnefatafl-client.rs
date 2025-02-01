@@ -260,13 +260,14 @@ impl Client {
                         Some("display_pending_games") => {
                             self.games.clear();
                             let games: Vec<&str> = text.collect();
-                            for chunks in games.chunks_exact(4) {
+                            for chunks in games.chunks_exact(5) {
                                 let id = chunks[1];
                                 let attacker = chunks[2];
                                 let defender = chunks[3];
+                                let rated = chunks[4];
 
                                 self.games.push(
-                                    ServerGameLight::try_from((id, attacker, defender))
+                                    ServerGameLight::try_from((id, attacker, defender, rated))
                                         .expect("the value should be a valid ServerGameLight"),
                                 );
                             }
