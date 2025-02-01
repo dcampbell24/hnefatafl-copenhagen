@@ -22,7 +22,8 @@ impl Rating {
     }
 
     pub fn update_rd(&mut self) {
-        // Fixme: use a rational way to set c.
+        // This assumes 30 2 month periods must pass before one's rating
+        // deviation is the same as a new player and that a typical RD is 50.
         let c = 63.2;
 
         let rd_new = f64::sqrt(self.rd_sq() + (c * c));

@@ -102,6 +102,13 @@ fn login(
         let password: Vec<&str> = username_password.collect();
         let password = password.join(" ");
 
+        if username.len() > 32 {
+            return Err(anyhow::Error::msg("username is greater than 32 characters"));
+        }
+        if password.len() > 32 {
+            return Err(anyhow::Error::msg("password is greater than 32 characters"));
+        }
+
         let (client_tx, client_rx) = mpsc::channel();
         tx.send((
             format!("{index} {username} login {password}"),
