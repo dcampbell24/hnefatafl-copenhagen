@@ -11,15 +11,16 @@ use std::{
 use clap::{command, Parser};
 use futures::executor;
 use hnefatafl_copenhagen::{
-    color::Color, game::Game, handle_error, play::Vertex, role::Role, server_game::ServerGameLight,
-    space::Space,
+    color::Color, game::Game, handle_error, play::Vertex, rating::Rated, role::Role,
+    server_game::ServerGameLight, space::Space,
 };
 use iced::{
     font::Font,
     futures::{SinkExt, Stream},
     stream,
     widget::{
-        button, column, container, radio, row, scrollable, text, text_input, Column, Container, Row,
+        button, checkbox, column, container, radio, row, scrollable, text, text_input, Column,
+        Container, Row,
     },
     Element, Subscription, Theme,
 };
@@ -60,6 +61,7 @@ struct Client {
     my_turn: bool,
     password: String,
     play_from: Option<Vertex>,
+    rated: Rated,
     role_selected: Option<Role>,
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
@@ -211,8 +213,8 @@ impl Client {
                     self.screen = Screen::GameNewFrozen;
                     self.game = Some(Game::default());
 
-                    // new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-                    handle_error(tx.send(format!("new_game {role}\n")));
+                    // new_game (attacker | defender) (rated | unrated) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
+                    handle_error(tx.send(format!("new_game {role} {}\n", self.rated)));
                 }
             }
             Message::PasswordChanged(password) => {
@@ -241,6 +243,9 @@ impl Client {
             Message::TcpConnected(tx) => {
                 println!("TCP connected...");
                 self.tx = Some(tx);
+            }
+            Message::RatedSelected(rated) => {
+                self.rated = if rated { Rated::Yes } else { Rated::No };
             }
             Message::RoleSelected(role) => {
                 self.role_selected = Some(role);
@@ -491,12 +496,14 @@ impl Client {
                     Message::RoleSelected,
                 );
 
-                let mut button = button("New Game");
+                let rated = checkbox("rated", self.rated.into()).on_toggle(Message::RatedSelected);
+
+                let mut new_game = button("New Game");
                 if self.role_selected.is_some() {
-                    button = button.on_press(Message::GameSubmit);
+                    new_game = new_game.on_press(Message::GameSubmit);
                 }
 
-                row![button, text("role: "), attacker, defender]
+                row![new_game, text("role: "), attacker, defender, rated]
                     .padding(PADDING)
                     .spacing(SPACING)
                     .into()
@@ -553,6 +560,7 @@ enum Message {
     PasswordChanged(String),
     PlayMoveFrom(Vertex),
     PlayMoveTo(Vertex),
+    RatedSelected(bool),
     RoleSelected(Role),
     TcpConnected(mpsc::Sender<String>),
     TextChanged(String),

@@ -21,6 +21,7 @@ pub mod game_record;
 pub mod glicko;
 pub mod message;
 pub mod play;
+pub mod rating;
 pub mod role;
 pub mod server_game;
 pub mod space;
