@@ -13,12 +13,15 @@ use message::Message;
 use play::{Plae, Vertex};
 use status::Status;
 
+pub mod accounts;
 pub mod board;
 pub mod color;
 pub mod game;
 pub mod game_record;
+pub mod glicko;
 pub mod message;
 pub mod play;
+pub mod rating;
 pub mod role;
 pub mod server_game;
 pub mod space;

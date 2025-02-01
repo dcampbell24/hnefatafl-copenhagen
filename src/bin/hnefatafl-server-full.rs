@@ -14,6 +14,7 @@ use chrono::Utc;
 use clap::{command, Parser};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
+    accounts::{Account, Accounts},
     color::Color,
     game::Game,
     handle_error,
@@ -55,13 +56,12 @@ struct Args {
 }
 
 // 1. new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE] # handles the leave issue...
-// 1. need passwords, you can enter no password
-// 2. glicko rating system
-// 3. deal with errors better
-// 3. handle too many lines
+// 2. glicko rating system.
+// 3. Handle too_many_lines.
 // 3. watch_game 1
 // 3. Display in game users.
-// 4. figure out some way of testing
+// 4. Figure out some way of testing.
+// 4. Get SSL working.
 fn main() -> anyhow::Result<()> {
     init_logger();
     let args = Args::parse();
@@ -175,31 +175,6 @@ struct Server {
     passwords: HashMap<String, String>,
     #[serde(skip)]
     pending_games: ServerGamesLight,
-}
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-struct Accounts(HashMap<String, Account>);
-
-impl fmt::Display for Accounts {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut accounts = Vec::new();
-        for (name, account) in &self.0 {
-            if account.logged_in.is_some() {
-                accounts.push(format!("{name} {} {}", account.wins, account.losses));
-            }
-        }
-        accounts.sort_unstable();
-        let names = accounts.join(" ");
-
-        write!(f, "{names}")
-    }
-}
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-struct Account {
-    logged_in: Option<u64>,
-    wins: u32,
-    losses: u32,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -672,7 +647,7 @@ impl Server {
                 "text" => {
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients.values() {
-                        let _ok = tx.send(format!("= text {the_rest}"));
+                        let _ok = tx.send(format!("= text {username}: {the_rest}"));
                     }
                     None
                 }
@@ -695,12 +670,12 @@ impl Server {
 
                     let text: Vec<&str> = text.collect();
                     let mut text = text.join(" ");
-                    text = format!("{text}\n");
+                    text = format!("{username}: {text}");
                     info!("{index_supplied} {username} text_game {id} {text}");
 
                     if let Some(game) = self.games.0.get_mut(&id) {
                         game.text.push_str(&text);
-                        text = format!("= text_game {text}\n");
+                        text = format!("= text_game {text}");
                         let _ok = game.attacker_tx.send(text.clone());
                         let _ok = game.defender_tx.send(text);
                     }

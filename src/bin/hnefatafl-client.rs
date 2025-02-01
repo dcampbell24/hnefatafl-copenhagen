@@ -11,16 +11,22 @@ use std::{
 use clap::{command, Parser};
 use futures::executor;
 use hnefatafl_copenhagen::{
-    color::Color, game::Game, handle_error, message, play::Vertex, role::Role,
+    color::Color, game::Game, handle_error, play::Vertex, rating::Rated, role::Role,
     server_game::ServerGameLight, space::Space,
 };
 use iced::{
     font::Font,
     futures::{SinkExt, Stream},
     stream,
-    widget::{button, column, container, radio, row, text, text_input, Column, Row},
+    widget::{
+        button, checkbox, column, container, radio, row, scrollable, text, text_input, Column,
+        Container, Row,
+    },
     Element, Subscription, Theme,
 };
+
+const PADDING: u16 = 20;
+const SPACING: u16 = 10;
 
 /// A Hnefatafl Copenhagen Client
 ///
@@ -55,6 +61,7 @@ struct Client {
     my_turn: bool,
     password: String,
     play_from: Option<Vertex>,
+    rated: Rated,
     role_selected: Option<Role>,
     screen: Screen,
     tx: Option<mpsc::Sender<String>>,
@@ -163,6 +170,28 @@ impl Client {
         Subscription::run(pass_messages)
     }
 
+    fn texting(&self, in_game: bool) -> Column<Message> {
+        let text_input = text_input("", &self.text_input)
+            .on_input(Message::TextChanged)
+            .on_paste(Message::TextChanged)
+            .on_submit(Message::TextSend);
+
+        let mut texting = Column::new();
+        if in_game {
+            for message in &self.texts_game {
+                texting = texting.push(text(message));
+            }
+        } else {
+            for message in &self.texts {
+                texting = texting.push(text(message));
+            }
+        }
+
+        let text_input = column![text("texts:"), text_input,];
+
+        column![text_input, scrollable(texting),]
+    }
+
     pub fn theme(_self: &Self) -> Theme {
         Theme::SolarizedLight
     }
@@ -172,12 +201,6 @@ impl Client {
         self.error = None;
 
         match message {
-            Message::_Game(message) => {
-                let Some(game) = &mut self.game else {
-                    return;
-                };
-                let _result = game.update(message);
-            }
             Message::GameJoin(id) => {
                 if let Some(tx) = &self.tx {
                     handle_error(tx.send(format!("join_game {id}\n")));
@@ -190,8 +213,8 @@ impl Client {
                     self.screen = Screen::GameNewFrozen;
                     self.game = Some(Game::default());
 
-                    // new_game (attacker | defender) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-                    handle_error(tx.send(format!("new_game {role}\n")));
+                    // new_game (attacker | defender) (rated | unrated) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
+                    handle_error(tx.send(format!("new_game {role} {}\n", self.rated)));
                 }
             }
             Message::PasswordChanged(password) => {
@@ -221,6 +244,9 @@ impl Client {
                 println!("TCP connected...");
                 self.tx = Some(tx);
             }
+            Message::RatedSelected(rated) => {
+                self.rated = if rated { Rated::Yes } else { Rated::No };
+            }
             Message::RoleSelected(role) => {
                 self.role_selected = Some(role);
             }
@@ -247,16 +273,18 @@ impl Client {
                         }
                         Some("display_users") => {
                             let users: Vec<&str> = text.collect();
-                            let mut users_wins_losses = Vec::new();
-                            for user_wins_losses in users.chunks_exact(3) {
-                                let user = user_wins_losses[0];
-                                let wins = user_wins_losses[1];
-                                let losses = user_wins_losses[2];
+                            let mut users_wins_losses_rating = Vec::new();
+                            for user_wins_losses_rating in users.chunks_exact(4) {
+                                let user = user_wins_losses_rating[0];
+                                let wins = user_wins_losses_rating[1];
+                                let losses = user_wins_losses_rating[2];
+                                let rating = user_wins_losses_rating[3];
 
-                                users_wins_losses
-                                    .push(format!("{user}: wins: {wins}, losses: {losses}"));
+                                users_wins_losses_rating.push(format!(
+                                    "{user}: wins: {wins}, losses: {losses}, rating: {rating}"
+                                ));
                             }
-                            self.users = users_wins_losses;
+                            self.users = users_wins_losses_rating;
                         }
                         Some("join_game") => {
                             self.game = Some(Game::default());
@@ -274,7 +302,9 @@ impl Client {
                         }
                         Some("login") => self.screen = Screen::Games,
                         Some("new_game") => {
-                            if Some("ready") == text.next() {
+                            // = new_game game 1 david none
+                            let next_word = text.next();
+                            if Some("ready") == next_word {
                                 self.game = Some(Game::default());
                                 self.texts_game = VecDeque::new();
                                 self.screen = Screen::Game;
@@ -287,6 +317,14 @@ impl Client {
                                 };
                                 self.attacker = attacker.to_string();
                                 self.defender = defender.to_string();
+                            } else if Some("game") == next_word {
+                                let Some(game_id) = text.next() else {
+                                    panic!("the game id should be next");
+                                };
+                                let Ok(game_id) = game_id.parse() else {
+                                    panic!("the game_id should be a u64")
+                                };
+                                self.game_id = game_id;
                             }
                         }
                         Some("text") => {
@@ -398,76 +436,50 @@ impl Client {
     }
 
     #[must_use]
-    fn user_area(&self) -> Column<Message> {
-        let mut games = Column::new();
+    fn user_area(&self, in_game: bool) -> Container<Message> {
+        let mut games = Column::new().padding(PADDING);
         games = games.push(text("games:"));
         for game in &self.games {
             let id = game.id;
             let join = button("join").on_press(Message::GameJoin(id));
             games = games.push(row![text(game.to_string()), join]);
         }
-        let games = container(games).padding(10).style(container::rounded_box);
 
-        let mut texting = Column::new();
-        texting = texting.push("texts:");
-        texting = texting.push(
-            text_input("", &self.text_input)
-                .on_input(Message::TextChanged)
-                .on_paste(Message::TextChanged)
-                .on_submit(Message::TextSend),
-        );
+        let texting = self.texting(in_game).padding(PADDING);
 
-        for message in &self.texts {
-            texting = texting.push(text(message));
-        }
-        let texting = container(texting).padding(10).style(container::rounded_box);
-
-        let username = row![text("username: "), text(&self.username)];
-        let username = container(username)
-            .padding(10)
-            .style(container::rounded_box);
-
-        let mut users = column![text("users:")];
+        let mut users = column![text("users:")].padding(PADDING);
         for user in &self.users {
             users = users.push(text(user));
         }
-        let users = container(users).padding(10).style(container::rounded_box);
 
-        let user_area = column![username, row![games, texting, users]];
-        user_area
+        let user_area = row![games, texting, users];
+        container(user_area)
+            .padding(PADDING)
+            .style(container::bordered_box)
     }
 
     #[must_use]
     pub fn view(&self) -> Element<Message> {
         match self.screen {
             Screen::Game => {
-                let mut texting = Column::new();
-                texting = texting.push("texts:");
-                texting = texting.push(
-                    text_input("", &self.text_input)
-                        .on_input(Message::TextChanged)
-                        .on_paste(Message::TextChanged)
-                        .on_submit(Message::TextSend),
-                );
-                for message in &self.texts_game {
-                    texting = texting.push(text(message));
-                }
-                let texting = container(texting).padding(10).style(container::rounded_box);
-                let user_area = column![
+                let leave_game = button("Leave Game").on_press(Message::GameLeave);
+                let user_area = row![
                     text(format!(
                         "username: {}, attacker: {}, defender: {}",
                         &self.username, &self.attacker, &self.defender
                     )),
-                    texting
-                ];
+                    leave_game,
+                ]
+                .spacing(SPACING);
+                let user_area = container(user_area)
+                    .padding(PADDING)
+                    .style(container::bordered_box);
 
+                let texting = self.texting(true);
                 let game = self.board();
-                let game = row![game, user_area];
+                let game = row![game, texting];
 
-                let leave_game = button("Leave Game").on_press(Message::GameLeave);
-                let buttons = row![leave_game];
-
-                column![game, buttons].into()
+                column![user_area, game].into()
             }
             Screen::GameNew => {
                 let attacker = radio(
@@ -484,23 +496,36 @@ impl Client {
                     Message::RoleSelected,
                 );
 
-                let role = row![text("role: "), attacker, defender];
-                column![role, button("New Game").on_press(Message::GameSubmit)].into()
+                let rated = checkbox("rated", self.rated.into()).on_toggle(Message::RatedSelected);
+
+                let mut new_game = button("New Game");
+                if self.role_selected.is_some() {
+                    new_game = new_game.on_press(Message::GameSubmit);
+                }
+
+                row![new_game, text("role: "), attacker, defender, rated]
+                    .padding(PADDING)
+                    .spacing(SPACING)
+                    .into()
             }
             Screen::GameNewFrozen => {
                 let Some(role) = self.role_selected else {
                     panic!("You can't get to GameNewFrozen unless you have selected a role!");
                 };
 
-                text(format!("role: {role}")).into()
+                row![text(format!("role: {role}"))].padding(PADDING).into()
             }
             Screen::Games => {
-                let user_area = self.user_area();
-
+                let username = row![text("username: "), text(&self.username)];
                 let create_game = button("Create Game").on_press(Message::GameNew);
-                let buttons = row![create_game];
+                let top = row![username, create_game].spacing(SPACING);
+                let top = container(top)
+                    .padding(PADDING)
+                    .style(container::bordered_box);
 
-                column![user_area, buttons].into()
+                let user_area = self.user_area(false);
+
+                column![top, user_area].into()
             }
             Screen::Login => {
                 let username = row![
@@ -517,7 +542,10 @@ impl Client {
                         .on_submit(Message::TextSend),
                 ];
 
-                column![username, password].spacing(10).into()
+                column![username, password]
+                    .padding(PADDING)
+                    .spacing(SPACING)
+                    .into()
             }
         }
     }
@@ -525,7 +553,6 @@ impl Client {
 
 #[derive(Clone, Debug)]
 enum Message {
-    _Game(message::Message),
     GameJoin(u64),
     GameLeave,
     GameNew,
@@ -533,6 +560,7 @@ enum Message {
     PasswordChanged(String),
     PlayMoveFrom(Vertex),
     PlayMoveTo(Vertex),
+    RatedSelected(bool),
     RoleSelected(Role),
     TcpConnected(mpsc::Sender<String>),
     TextChanged(String),
