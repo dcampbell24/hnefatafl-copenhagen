@@ -17,6 +17,7 @@ use hnefatafl_copenhagen::{
     accounts::{Account, Accounts},
     color::Color,
     game::Game,
+    glicko::Outcome,
     handle_error,
     rating::Rated,
     role::Role,
@@ -44,7 +45,6 @@ struct Args {
 }
 
 // 1. new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE] # handles the leave issue...
-// 2. glicko rating system.
 // 3. Handle too_many_lines.
 // 3. watch_game 1
 // 3. Display in game users.
@@ -590,11 +590,33 @@ impl Server {
 
                     match game.game.status {
                         Status::BlackWins => {
-                            if let Some(attacker) = self.accounts.0.get_mut(&game.attacker) {
+                            let accounts = &mut self.accounts.0;
+                            let (attacker_rating, defender_rating) =
+                                if let (Some(attacker), Some(defender)) =
+                                    (accounts.get(&game.attacker), accounts.get(&game.defender))
+                                {
+                                    (attacker.rating.rating, defender.rating.rating)
+                                } else {
+                                    panic!("the attacker and defender accounts should exist");
+                                };
+
+                            if let Some(attacker) = accounts.get_mut(&game.attacker) {
                                 attacker.wins += 1;
+
+                                if game.rated.into() {
+                                    attacker
+                                        .rating
+                                        .update_rating(defender_rating, &Outcome::Win);
+                                }
                             }
-                            if let Some(defender) = self.accounts.0.get_mut(&game.defender) {
+                            if let Some(defender) = accounts.get_mut(&game.defender) {
                                 defender.losses += 1;
+
+                                if game.rated.into() {
+                                    defender
+                                        .rating
+                                        .update_rating(attacker_rating, &Outcome::Loss);
+                                }
                             }
 
                             self.archived_games.push(ArchivedGame {
@@ -624,11 +646,33 @@ impl Server {
                             }
                         }
                         Status::WhiteWins => {
-                            if let Some(attacker) = self.accounts.0.get_mut(&game.attacker) {
+                            let accounts = &mut self.accounts.0;
+                            let (attacker_rating, defender_rating) =
+                                if let (Some(attacker), Some(defender)) =
+                                    (accounts.get(&game.attacker), accounts.get(&game.defender))
+                                {
+                                    (attacker.rating.rating, defender.rating.rating)
+                                } else {
+                                    panic!("the attacker and defender accounts should exist");
+                                };
+
+                            if let Some(attacker) = accounts.get_mut(&game.attacker) {
                                 attacker.losses += 1;
+
+                                if game.rated.into() {
+                                    attacker
+                                        .rating
+                                        .update_rating(defender_rating, &Outcome::Loss);
+                                }
                             }
-                            if let Some(defender) = self.accounts.0.get_mut(&game.defender) {
+                            if let Some(defender) = accounts.get_mut(&game.defender) {
                                 defender.wins += 1;
+
+                                if game.rated.into() {
+                                    defender
+                                        .rating
+                                        .update_rating(attacker_rating, &Outcome::Win);
+                                }
                             }
 
                             self.archived_games.push(ArchivedGame {
