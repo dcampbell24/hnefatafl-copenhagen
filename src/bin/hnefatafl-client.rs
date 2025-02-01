@@ -491,15 +491,22 @@ impl Client {
                     Message::RoleSelected,
                 );
 
-                let role = row![text("role: "), attacker, defender];
-                column![role, button("New Game").on_press(Message::GameSubmit)].into()
+                let mut button = button("New Game");
+                if self.role_selected.is_some() {
+                    button = button.on_press(Message::GameSubmit);
+                }
+
+                row![button, text("role: "), attacker, defender]
+                    .padding(PADDING)
+                    .spacing(SPACING)
+                    .into()
             }
             Screen::GameNewFrozen => {
                 let Some(role) = self.role_selected else {
                     panic!("You can't get to GameNewFrozen unless you have selected a role!");
                 };
 
-                text(format!("role: {role}")).into()
+                row![text(format!("role: {role}"))].padding(PADDING).into()
             }
             Screen::Games => {
                 let username = row![text("username: "), text(&self.username)];
@@ -528,7 +535,10 @@ impl Client {
                         .on_submit(Message::TextSend),
                 ];
 
-                column![username, password].spacing(SPACING).into()
+                column![username, password]
+                    .padding(PADDING)
+                    .spacing(SPACING)
+                    .into()
             }
         }
     }
