@@ -281,7 +281,7 @@ impl Client {
                                 let rating = user_wins_losses_rating[3];
 
                                 users_wins_losses_rating.push(format!(
-                                    "{user}: wins: {wins}, losses: {losses}, rating: {rating}"
+                                    "{user}: wins {wins}, losses {losses}, rating {rating}"
                                 ));
                             }
                             self.users = users_wins_losses_rating;

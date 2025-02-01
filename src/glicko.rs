@@ -64,8 +64,9 @@ impl Default for Rating {
 }
 
 impl fmt::Display for Rating {
+    // With a confidence interval of 95%.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.rating)
+        write!(f, "{}±{}", self.rating, 1.96 * self.rd)
     }
 }
 
