@@ -45,7 +45,8 @@ struct Args {
 }
 
 // 1. new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE] # handles the leave issue...
-// 3. Handle too_many_lines.
+// 2. Run update_rd on every account once every two months and calculate the
+//    average rating and rd, we assume rd is 50.
 // 3. watch_game 1
 // 3. Display in game users.
 // 4. Figure out some way of testing.
