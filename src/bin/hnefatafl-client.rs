@@ -488,7 +488,7 @@ impl Client {
         for game in &self.games {
             let id = game.id;
             let join = button("join").on_press(Message::GameJoin(id));
-            games = games.push(row![text(game.to_string()), join]);
+            games = games.push(row![text(game.to_string()), join].spacing(SPACING));
         }
 
         let texting = self.texting(in_game).padding(PADDING);
