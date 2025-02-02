@@ -42,7 +42,7 @@ const SPACING: u16 = 10;
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Args {
-    /// Listen for HTP drivers on host and port
+    /// Connect to the HTP server at host and port
     #[arg(default_value = "localhost:8000", index = 1, value_name = "host:port")]
     host_port: String,
 }
