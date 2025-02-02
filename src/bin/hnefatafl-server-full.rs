@@ -151,16 +151,16 @@ fn receiving_and_writing(
 
 #[derive(Clone, Default, Deserialize, Serialize)]
 struct Server {
+    game_id: u64,
     accounts: Accounts,
-    archived_games: Vec<ArchivedGame>,
     #[serde(skip)]
     clients: HashMap<u64, mpsc::Sender<String>>,
     #[serde(skip)]
     games: ServerGames,
-    game_id: u64,
     passwords: HashMap<String, String>,
     #[serde(skip)]
     pending_games: ServerGamesLight,
+    archived_games: Vec<ArchivedGame>,
 }
 
 #[derive(Clone, Debug, Default)]
