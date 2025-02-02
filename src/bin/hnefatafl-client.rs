@@ -65,7 +65,7 @@ struct Client {
     error: Option<String>,
     game: Option<Game>,
     game_id: u64,
-    games: Vec<ServerGameLight>,
+    games_pending: Vec<ServerGameLight>,
     my_turn: bool,
     password: String,
     play_from: Option<Vertex>,
@@ -283,7 +283,7 @@ impl Client {
                 match text.next() {
                     Some("=") => match text.next() {
                         Some("display_pending_games") => {
-                            self.games.clear();
+                            self.games_pending.clear();
                             let games: Vec<&str> = text.collect();
                             for chunks in games.chunks_exact(5) {
                                 let id = chunks[1];
@@ -291,7 +291,7 @@ impl Client {
                                 let defender = chunks[3];
                                 let rated = chunks[4];
 
-                                self.games.push(
+                                self.games_pending.push(
                                     ServerGameLight::try_from((id, attacker, defender, rated))
                                         .expect("the value should be a valid ServerGameLight"),
                                 );
@@ -484,8 +484,8 @@ impl Client {
     #[must_use]
     fn user_area(&self, in_game: bool) -> Container<Message> {
         let mut games = Column::new().padding(PADDING);
-        games = games.push(text("games:"));
-        for game in &self.games {
+        games = games.push(text("pending games:"));
+        for game in &self.games_pending {
             let id = game.id;
             let join = button("join").on_press(Message::GameJoin(id));
             games = games.push(row![text(game.to_string()), join].spacing(SPACING));
