@@ -46,7 +46,7 @@ impl TryFrom<Vec<&str>> for TimeSettings {
     fn try_from(args: Vec<&str>) -> anyhow::Result<Self> {
         let err_msg = "expected: time_settings ('none' | 'fischer') MINUTES ADD_SECONDS";
 
-        if Some("none").as_ref() == args.get(1) {
+        if Some("un-timed").as_ref() == args.get(1) {
             return Ok(Self(None));
         }
 

@@ -549,9 +549,6 @@ impl Client {
                     new_game = new_game.on_press(Message::GameSubmit);
                 }
 
-                // Todo: add time settings.
-                // checkbox | text_input, text_input -- bool | Option<String>, Option<String>
-                // none | minutes_main_time seconds_to_add
                 let mut time =
                     row![checkbox("timed ", self.timed.clone().into())
                         .on_toggle(Message::TimeCheckbox)];
