@@ -27,9 +27,9 @@ impl fmt::Display for TimeSettings {
             let time_left = time.time_left.as_secs();
             let add_seconds = time.add_time.as_secs();
 
-            write!(f, "{time_left} {add_seconds}")
+            write!(f, "fischer {time_left} {add_seconds}")
         } else {
-            write!(f, "un-timed")
+            write!(f, "un-timed _ _")
         }
     }
 }
@@ -44,7 +44,7 @@ impl TryFrom<Vec<&str>> for TimeSettings {
     type Error = anyhow::Error;
 
     fn try_from(args: Vec<&str>) -> anyhow::Result<Self> {
-        let err_msg = "expected: time_settings ('none' | 'fischer') MINUTES ADD_SECONDS";
+        let err_msg = "expected: time_settings ('un-timed' | 'fischer') MINUTES ADD_SECONDS";
 
         if Some("un-timed").as_ref() == args.get(1) {
             return Ok(Self(None));

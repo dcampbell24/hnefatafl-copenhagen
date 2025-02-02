@@ -1,8 +1,14 @@
-use std::{fmt, sync::mpsc::Sender};
+use std::{fmt, sync::mpsc::Sender, time::Duration};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{game::Game, play::Play, rating::Rated, status::Status};
+use crate::{
+    game::Game,
+    play::Play,
+    rating::Rated,
+    status::Status,
+    time::{Time, TimeSettings},
+};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArchivedGame {
@@ -53,6 +59,7 @@ pub struct ServerGameLight {
     pub attacker: Option<String>,
     pub defender: Option<String>,
     pub rated: Rated,
+    pub timed: TimeSettings,
     pub channel: Option<u64>,
 }
 
@@ -71,7 +78,10 @@ impl ServerGameLight {
             "none"
         };
 
-        format!("game {} {attacker} {defender} {}", self.id, self.rated)
+        format!(
+            "game {} {attacker} {defender} {} {}",
+            self.id, self.rated, self.timed
+        )
     }
 }
 
@@ -89,15 +99,22 @@ impl fmt::Display for ServerGameLight {
             "defender: none"
         };
 
-        write!(f, "{}: {attacker}, {defender}, {}", self.id, self.rated)
+        write!(
+            f,
+            "{}: {attacker}, {defender}, {}, {}",
+            self.id, self.rated, self.timed
+        )
     }
 }
 
-impl TryFrom<(&str, &str, &str, &str)> for ServerGameLight {
+impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
     type Error = anyhow::Error;
 
-    fn try_from(id_attacker_defender_rated: (&str, &str, &str, &str)) -> anyhow::Result<Self> {
-        let (id, attacker, defender, rated) = id_attacker_defender_rated;
+    fn try_from(
+        id_attacker_defender_rated: (&str, &str, &str, &str, &str, &str, &str),
+    ) -> anyhow::Result<Self> {
+        let (id, attacker, defender, rated, timed, minutes, add_seconds) =
+            id_attacker_defender_rated;
         let id = id.parse::<u64>()?;
 
         let attacker = if attacker == "none" {
@@ -112,11 +129,21 @@ impl TryFrom<(&str, &str, &str, &str)> for ServerGameLight {
             Some(defender.to_string())
         };
 
+        let timed = match timed {
+            "fischer" => TimeSettings(Some(Time {
+                add_time: Duration::from_secs(add_seconds.parse::<u64>()?),
+                time_left: Duration::from_secs(minutes.parse::<u64>()?),
+            })),
+            // "un-timed"
+            _ => TimeSettings(None),
+        };
+
         Ok(Self {
             id,
             attacker,
             defender,
             rated: Rated::try_from(rated)?,
+            timed,
             channel: None,
         })
     }

@@ -23,6 +23,7 @@ use hnefatafl_copenhagen::{
     role::Role,
     server_game::{ArchivedGame, ServerGame, ServerGameLight},
     status::Status,
+    time::TimeSettings,
 };
 use log::{debug, info, LevelFilter};
 use password_hash::SaltString;
@@ -482,8 +483,39 @@ impl Server {
                         ));
                     };
 
+                    let Some(timed) = the_rest.next() else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+                    let Some(minutes) = the_rest.next() else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+                    let Some(add_seconds) = the_rest.next() else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+                    let Ok(timed) =
+                        TimeSettings::try_from(vec!["time-settings", timed, minutes, add_seconds])
+                    else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+
                     info!(
-                        "{index_supplied} {username} new_game {} {role} {rated}",
+                        "{index_supplied} {username} new_game {} {role} {rated} {timed}",
                         self.game_id
                     );
                     let game = if role == Role::Attacker {
@@ -492,6 +524,7 @@ impl Server {
                             attacker: Some((*username).to_string()),
                             defender: None,
                             rated,
+                            timed,
                             channel: Some(index_supplied),
                         }
                     } else {
@@ -500,6 +533,7 @@ impl Server {
                             attacker: None,
                             defender: Some((*username).to_string()),
                             rated,
+                            timed,
                             channel: Some(index_supplied),
                         }
                     };
