@@ -44,7 +44,7 @@ struct Args {
     load: Option<String>,
 }
 
-// 1. new_game attacker [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE] # handles the leave issue...
+// 1. new_game attacker (rated | unrated) (none | fischer [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]) # handles the leave issue...
 // 2. Run update_rd on every account once every two months and calculate the
 //    average rating and rd, we assume rd is 50.
 // 3. watch_game 1

@@ -18,21 +18,36 @@ impl fmt::Display for Time {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct Settings {
-    pub time_settings: Option<Time>,
+#[derive(Clone, Debug, Default)]
+pub struct TimeSettings(pub Option<Time>);
+
+impl fmt::Display for TimeSettings {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(time) = &self.0 {
+            let time_left = time.time_left.as_secs();
+            let add_seconds = time.add_time.as_secs();
+
+            write!(f, "{time_left} {add_seconds}")
+        } else {
+            write!(f, "un-timed")
+        }
+    }
 }
 
-impl TryFrom<Vec<&str>> for Settings {
+impl From<TimeSettings> for bool {
+    fn from(time_settings: TimeSettings) -> Self {
+        time_settings.0.is_some()
+    }
+}
+
+impl TryFrom<Vec<&str>> for TimeSettings {
     type Error = anyhow::Error;
 
     fn try_from(args: Vec<&str>) -> anyhow::Result<Self> {
         let err_msg = "expected: time_settings ('none' | 'fischer') MINUTES ADD_SECONDS";
 
         if Some("none").as_ref() == args.get(1) {
-            return Ok(Settings {
-                time_settings: None,
-            });
+            return Ok(Self(None));
         }
 
         if args.len() < 4 {
@@ -48,12 +63,10 @@ impl TryFrom<Vec<&str>> for Settings {
                 .parse::<u64>()
                 .context("time_settings: arg 3 is not an integer")?;
 
-            Ok(Settings {
-                time_settings: Some(Time {
-                    add_time: Duration::from_secs(arg_3),
-                    time_left: Duration::from_secs(arg_2 * 60),
-                }),
-            })
+            Ok(Self(Some(Time {
+                add_time: Duration::from_secs(arg_3),
+                time_left: Duration::from_secs(arg_2 * 60),
+            })))
         } else {
             Err(anyhow::Error::msg(err_msg))
         }

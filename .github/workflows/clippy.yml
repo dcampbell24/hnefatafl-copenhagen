@@ -19,4 +19,4 @@ jobs:
           persist-credentials: false
 
       - name: Run clippy
-        run: cargo clippy --all-features
+        run: cargo clippy --all-targets --all-features

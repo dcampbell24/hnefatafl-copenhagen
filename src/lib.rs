@@ -43,13 +43,9 @@ pub fn handle_error<T, E: fmt::Display>(result: Result<T, E>) -> T {
 /// If the captures or game status don't match for an engine game and a record
 /// game.
 #[allow(clippy::missing_panics_doc)]
-#[allow(clippy::cast_precision_loss)]
 pub fn hnefatafl_rs() -> anyhow::Result<()> {
     let copenhagen_csv = Path::new("tests/copenhagen.csv");
-
     let mut count = 0;
-    // let mut errors_already = 0;
-
     let records = game_records_from_path(copenhagen_csv)?;
 
     let results: Vec<_> = records
@@ -112,20 +108,12 @@ pub fn hnefatafl_rs() -> anyhow::Result<()> {
                 if error.to_string()
                     == anyhow::Error::msg("play: you already reached that position").to_string()
                 {
-                    // errors_already += 1;
                 } else {
                     return Err(error);
                 }
             }
         }
     }
-
-    /*
-    println!(
-        "\"play: you already reached that position\": {:.4}",
-        f64::from(errors_already) / count as f64
-    );
-    */
 
     Ok(())
 }

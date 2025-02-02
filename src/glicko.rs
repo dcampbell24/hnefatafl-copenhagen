@@ -100,11 +100,13 @@ mod tests {
 
     use super::{exp10, Rating};
 
+    #[allow(clippy::float_cmp)]
     #[test]
     fn pow_10() {
         assert_eq!(exp10(2.0).round(), 100.0);
     }
 
+    #[allow(clippy::float_cmp)]
     #[test]
     fn rd_increases() {
         let mut rating = Rating::default();
@@ -122,6 +124,7 @@ mod tests {
         assert_eq!(rating.rd.round(), 307.0);
     }
 
+    #[allow(clippy::float_cmp)]
     #[test]
     fn rating_and_rd_changes() {
         let rating = Rating::default();

@@ -6,13 +6,21 @@ use std::{
     process::exit,
     sync::mpsc,
     thread,
+    time::Duration,
 };
 
 use clap::{command, Parser};
 use futures::executor;
 use hnefatafl_copenhagen::{
-    color::Color, game::Game, handle_error, play::Vertex, rating::Rated, role::Role,
-    server_game::ServerGameLight, space::Space,
+    color::Color,
+    game::Game,
+    handle_error,
+    play::Vertex,
+    rating::Rated,
+    role::Role,
+    server_game::ServerGameLight,
+    space::Space,
+    time::{Time, TimeSettings},
 };
 use iced::{
     font::Font,
@@ -64,6 +72,9 @@ struct Client {
     rated: Rated,
     role_selected: Option<Role>,
     screen: Screen,
+    timed: TimeSettings,
+    time_minutes: String,
+    time_add_seconds: String,
     tx: Option<mpsc::Sender<String>>,
     texts: VecDeque<String>,
     texts_game: VecDeque<String>,
@@ -210,11 +221,25 @@ impl Client {
             Message::GameNew => self.screen = Screen::GameNew,
             Message::GameSubmit => {
                 if let (Some(role), Some(tx)) = (self.role_selected, &self.tx) {
+                    if self.timed.0.is_some() {
+                        if let (Ok(minutes), Ok(add_seconds)) = (
+                            self.time_minutes.parse::<u64>(),
+                            self.time_add_seconds.parse::<u64>(),
+                        ) {
+                            self.timed.0 = Some(Time {
+                                add_time: Duration::from_secs(add_seconds),
+                                time_left: Duration::from_secs(minutes * 60),
+                            });
+                        }
+                    }
+
                     self.screen = Screen::GameNewFrozen;
                     self.game = Some(Game::default());
 
                     // new_game (attacker | defender) (rated | unrated) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-                    handle_error(tx.send(format!("new_game {role} {}\n", self.rated)));
+                    handle_error(
+                        tx.send(format!("new_game {role} {} {}\n", self.rated, self.timed)),
+                    );
                 }
             }
             Message::PasswordChanged(password) => {
@@ -433,6 +458,26 @@ impl Client {
                     self.text_input.clear();
                 }
             }
+            Message::TimeAddSeconds(string) => {
+                if string.parse::<u64>().is_ok() {
+                    self.time_add_seconds = string;
+                }
+            }
+            Message::TimeCheckbox(time_selected) => {
+                if time_selected {
+                    self.timed.0 = Some(Time {
+                        add_time: Duration::from_secs(10),
+                        time_left: Duration::from_secs(15 * 60),
+                    });
+                } else {
+                    self.timed.0 = None;
+                }
+            }
+            Message::TimeMinutes(string) => {
+                if string.parse::<u64>().is_ok() {
+                    self.time_minutes = string;
+                }
+            }
         }
     }
 
@@ -504,7 +549,25 @@ impl Client {
                     new_game = new_game.on_press(Message::GameSubmit);
                 }
 
-                row![new_game, text("role: "), attacker, defender, rated]
+                // Todo: add time settings.
+                // checkbox | text_input, text_input -- bool | Option<String>, Option<String>
+                // none | minutes_main_time seconds_to_add
+                let mut time =
+                    row![checkbox("timed ", self.timed.clone().into())
+                        .on_toggle(Message::TimeCheckbox)];
+
+                if self.timed.0.is_some() {
+                    time = time.push(text("minutes"));
+                    time = time
+                        .push(text_input("15", &self.time_minutes).on_input(Message::TimeMinutes));
+                    time = time.push(text("add seconds"));
+                    time = time.push(
+                        text_input("10", &self.time_add_seconds).on_input(Message::TimeAddSeconds),
+                    );
+                }
+                time = time.spacing(SPACING);
+
+                row![new_game, text("role: "), attacker, defender, rated, time]
                     .padding(PADDING)
                     .spacing(SPACING)
                     .into()
@@ -567,6 +630,9 @@ enum Message {
     TextChanged(String),
     TextReceived(String),
     TextSend,
+    TimeAddSeconds(String),
+    TimeCheckbox(bool),
+    TimeMinutes(String),
 }
 
 fn pass_messages() -> impl Stream<Item = Message> {

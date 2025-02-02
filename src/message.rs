@@ -15,7 +15,7 @@ pub enum Message {
     Quit,
     ResetBoard,
     ShowBoard,
-    TimeSettings(time::Settings),
+    TimeSettings(time::TimeSettings),
     Version,
 }
 
@@ -61,7 +61,7 @@ impl TryFrom<&str> for Message {
             "reset_board" => Ok(Self::ResetBoard),
             "show_board" => Ok(Self::ShowBoard),
             "time_settings" => {
-                let time_settings = time::Settings::try_from(args)?;
+                let time_settings = time::TimeSettings::try_from(args)?;
                 Ok(Self::TimeSettings(time_settings))
             }
             "version" => Ok(Self::Version),

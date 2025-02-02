@@ -214,7 +214,7 @@ impl Game {
             }
             Message::ShowBoard => Ok(Some(self.board.to_string())),
             Message::TimeSettings(mut time_settings) => {
-                if let Some(time) = time_settings.time_settings.take() {
+                if let Some(time) = time_settings.0.take() {
                     self.black_time = Some(time.clone());
                     self.white_time = Some(time);
                     self.timer = Some(Instant::now());
