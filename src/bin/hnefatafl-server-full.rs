@@ -6,7 +6,7 @@ use std::{
     net::{TcpListener, TcpStream},
     sync::mpsc::{self, Receiver},
     thread::{self, sleep},
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
@@ -300,6 +300,7 @@ impl Server {
                             game: Game {
                                 black_time: game.timed.clone(),
                                 white_time: game.timed,
+                                timer: Some(Instant::now()),
                                 ..Game::default()
                             },
                             text: String::new(),
@@ -324,6 +325,7 @@ impl Server {
                             game: Game {
                                 black_time: game.timed.clone(),
                                 white_time: game.timed,
+                                timer: Some(Instant::now()),
                                 ..Game::default()
                             },
                             text: String::new(),
@@ -600,9 +602,6 @@ impl Server {
                     let Some(game) = self.games.0.get_mut(&index) else {
                         panic!("the index should be valid")
                     };
-
-                    // Fixme!
-                    println!("{}", game.game);
 
                     let mut blacks_turn_next = true;
                     if color == Color::Black {

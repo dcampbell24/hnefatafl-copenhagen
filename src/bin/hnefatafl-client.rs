@@ -6,7 +6,7 @@ use std::{
     process::exit,
     sync::mpsc,
     thread,
-    time::Duration,
+    time::Instant,
 };
 
 use clap::{command, Parser};
@@ -223,12 +223,12 @@ impl Client {
                 if let (Some(role), Some(tx)) = (self.role_selected, &self.tx) {
                     if self.timed.0.is_some() {
                         if let (Ok(minutes), Ok(add_seconds)) = (
-                            self.time_minutes.parse::<u64>(),
-                            self.time_add_seconds.parse::<u64>(),
+                            self.time_minutes.parse::<u128>(),
+                            self.time_add_seconds.parse::<u128>(),
                         ) {
                             self.timed.0 = Some(Time {
-                                add_time: Duration::from_secs(add_seconds),
-                                time_left: Duration::from_secs(minutes * 60),
+                                add_seconds,
+                                milliseconds_left: minutes * 60_000,
                             });
                         }
                     }
@@ -361,6 +361,7 @@ impl Client {
                             self.game = Some(Game {
                                 black_time: timed.clone(),
                                 white_time: timed,
+                                timer: Some(Instant::now()),
                                 ..Game::default()
                             });
                         }
@@ -372,6 +373,7 @@ impl Client {
                                 self.game = Some(Game {
                                     black_time: self.timed.clone(),
                                     white_time: self.timed.clone(),
+                                    timer: Some(Instant::now()),
                                     ..Game::default()
                                 });
 
@@ -509,8 +511,8 @@ impl Client {
             Message::TimeCheckbox(time_selected) => {
                 if time_selected {
                     self.timed.0 = Some(Time {
-                        add_time: Duration::from_secs(10),
-                        time_left: Duration::from_secs(15 * 60),
+                        add_seconds: 10,
+                        milliseconds_left: 15 * 60_000,
                     });
                 } else {
                     self.timed.0 = None;

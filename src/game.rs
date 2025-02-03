@@ -99,7 +99,7 @@ impl Game {
                 Color::Black => (
                     Status::WhiteWins,
                     self.black_time.0.as_mut(),
-                    self.timer.as_mut(),
+                    &mut self.timer,
                 ),
                 Color::Colorless => {
                     unreachable!("It can't be no one's turn when the game is ongoing!")
@@ -107,18 +107,20 @@ impl Game {
                 Color::White => (
                     Status::BlackWins,
                     self.white_time.0.as_mut(),
-                    self.timer.as_mut(),
+                    &mut self.timer,
                 ),
             } {
-                time.time_left = time.time_left.saturating_sub(timer.elapsed());
+                time.milliseconds_left = time
+                    .milliseconds_left
+                    .saturating_sub(timer.elapsed().as_millis());
                 *timer = Instant::now();
 
-                if time.time_left.as_secs() == 0 {
+                if time.milliseconds_left == 0 {
                     self.status = status;
                     return Ok(Some(String::new()));
                 }
 
-                time.time_left += time.add_time;
+                time.milliseconds_left += time.add_seconds * 1_000;
             }
 
             match play {

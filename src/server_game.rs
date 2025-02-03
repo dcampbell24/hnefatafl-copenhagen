@@ -1,4 +1,4 @@
-use std::{fmt, sync::mpsc::Sender, time::Duration};
+use std::{fmt, sync::mpsc::Sender};
 
 use serde::{Deserialize, Serialize};
 
@@ -131,8 +131,8 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
 
         let timed = match timed {
             "fischer" => TimeSettings(Some(Time {
-                add_time: Duration::from_secs(add_seconds.parse::<u64>()?),
-                time_left: Duration::from_secs(minutes.parse::<u64>()?),
+                add_seconds: add_seconds.parse::<u128>()?,
+                milliseconds_left: minutes.parse::<u128>()?,
             })),
             // "un-timed"
             _ => TimeSettings(None),

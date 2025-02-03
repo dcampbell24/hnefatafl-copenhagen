@@ -1,20 +1,25 @@
-use std::{fmt, time::Duration};
+use std::fmt;
 
 use anyhow::Context;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Time {
-    pub add_time: Duration,
-    pub time_left: Duration,
+    pub add_seconds: u128,
+    pub milliseconds_left: u128,
 }
 
 impl fmt::Display for Time {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut seconds = self.time_left.as_secs();
-        let minutes = seconds / 60;
-        seconds %= 60;
+        let minutes = self.milliseconds_left / 60_000;
+        let milliseconds_left = self.milliseconds_left % 60_000;
+        let seconds = milliseconds_left / 1_000;
+        let seconds_10th = (milliseconds_left % 1_000) / 100;
 
-        write!(f, "{minutes}m {seconds}s / {}s", self.add_time.as_secs())
+        write!(
+            f,
+            "{minutes}m {seconds}.{seconds_10th}s / {}s",
+            self.add_seconds
+        )
     }
 }
 
@@ -24,10 +29,7 @@ pub struct TimeSettings(pub Option<Time>);
 impl fmt::Debug for TimeSettings {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(time) = &self.0 {
-            let time_left = time.time_left.as_secs();
-            let add_seconds = time.add_time.as_secs();
-
-            write!(f, "fischer {time_left} {add_seconds}")
+            write!(f, "fischer {} {}", time.milliseconds_left, time.add_seconds)
         } else {
             write!(f, "un-timed _ _")
         }
@@ -66,16 +68,16 @@ impl TryFrom<Vec<&str>> for TimeSettings {
 
         if "fischer" == args[1] {
             let arg_2 = args[2]
-                .parse::<u64>()
+                .parse::<u128>()
                 .context("time_settings: arg 2 is not an integer")?;
 
             let arg_3 = args[3]
-                .parse::<u64>()
+                .parse::<u128>()
                 .context("time_settings: arg 3 is not an integer")?;
 
             Ok(Self(Some(Time {
-                add_time: Duration::from_secs(arg_3),
-                time_left: Duration::from_secs(arg_2),
+                add_seconds: arg_3,
+                milliseconds_left: arg_2,
             })))
         } else {
             Err(anyhow::Error::msg(err_msg))

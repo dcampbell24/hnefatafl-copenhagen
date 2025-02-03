@@ -2,12 +2,19 @@ use std::{
     io::{self, BufReader},
     net::TcpStream,
     process::{Command, ExitStatus},
+    time::Instant,
 };
 
 use clap::command;
 use clap::{self, Parser};
 
-use hnefatafl_copenhagen::{game::Game, read_response, status::Status, write_command};
+use hnefatafl_copenhagen::{
+    game::Game,
+    read_response,
+    status::Status,
+    time::{Time, TimeSettings},
+    write_command,
+};
 
 /// Hnefatafl Copenhagen
 ///
@@ -69,7 +76,19 @@ fn main() -> anyhow::Result<()> {
 
     let mut buffer = String::new();
     let stdin = io::stdin();
-    let mut game = Game::default();
+
+    let mut game = Game {
+        black_time: TimeSettings(Some(Time {
+            add_seconds: 10,
+            milliseconds_left: 15 * 60 * 1_000,
+        })),
+        white_time: TimeSettings(Some(Time {
+            add_seconds: 10,
+            milliseconds_left: 15 * 60 * 1_000,
+        })),
+        timer: Some(Instant::now()),
+        ..Game::default()
+    };
 
     if args.display_game {
         #[cfg(any(target_family = "unix", target_family = "windows"))]
