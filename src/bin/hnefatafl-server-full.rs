@@ -599,6 +599,10 @@ impl Server {
                             (*command).to_string(),
                         ));
                     };
+                    let mut to = (*to).to_string();
+                    if to == "_" {
+                        to = String::new();
+                    }
 
                     let Some(game) = self.games.0.get_mut(&index) else {
                         panic!("the index should be valid")
@@ -607,6 +611,7 @@ impl Server {
                     let mut blacks_turn_next = true;
                     if color == Color::Black {
                         if *username == game.attacker {
+                            println!("play black {from} {to}");
                             handle_error(game.game.read_line(&format!("play black {from} {to}")));
                             blacks_turn_next = false;
                             // Todo: if a player quits he loses.

@@ -238,14 +238,34 @@ impl Client {
             Message::GameSubmit => {
                 if let (Some(role), Some(tx)) = (self.role_selected, &self.tx) {
                     if self.timed.0.is_some() {
-                        if let (Ok(minutes), Ok(add_seconds)) = (
+                        match (
                             self.time_minutes.parse::<u128>(),
                             self.time_add_seconds.parse::<u128>(),
                         ) {
-                            self.timed.0 = Some(Time {
-                                add_seconds,
-                                milliseconds_left: minutes * 60_000,
-                            });
+                            (Ok(minutes), Ok(add_seconds)) => {
+                                self.timed.0 = Some(Time {
+                                    add_seconds,
+                                    milliseconds_left: minutes * 60_000,
+                                });
+                            }
+                            (Ok(minutes), Err(_)) => {
+                                self.timed.0 = Some(Time {
+                                    add_seconds: 10,
+                                    milliseconds_left: minutes * 60_000,
+                                });
+                            }
+                            (Err(_), Ok(add_seconds)) => {
+                                self.timed.0 = Some(Time {
+                                    add_seconds,
+                                    milliseconds_left: 15 * 60_000,
+                                });
+                            }
+                            (Err(_), Err(_)) => {
+                                self.timed.0 = Some(Time {
+                                    add_seconds: 10,
+                                    milliseconds_left: 15 * 60_000,
+                                });
+                            }
                         }
                     }
 
@@ -562,12 +582,36 @@ impl Client {
                         Color::Black => {
                             if let Some(time) = &mut self.time_attacker.0 {
                                 time.milliseconds_left = time.milliseconds_left.saturating_sub(100);
+
+                                if self.my_turn && time.milliseconds_left == 0 {
+                                    if let Some(tx) = &mut self.tx {
+                                        handle_error(tx.send(format!(
+                                            "game {} play black resigns _\n",
+                                            self.game_id
+                                        )));
+                                    }
+
+                                    handle_error(game.read_line("play black resigns"));
+                                    self.time_attacker = TimeSettings(None);
+                                }
                             }
                         }
                         Color::Colorless => {}
                         Color::White => {
                             if let Some(time) = &mut self.time_defender.0 {
                                 time.milliseconds_left = time.milliseconds_left.saturating_sub(100);
+
+                                if self.my_turn && time.milliseconds_left == 0 {
+                                    if let Some(tx) = &mut self.tx {
+                                        handle_error(tx.send(format!(
+                                            "game {} play white resigns _\n",
+                                            self.game_id
+                                        )));
+                                    }
+
+                                    handle_error(game.read_line("play white resigns"));
+                                    self.time_defender = TimeSettings(None);
+                                }
                             }
                         }
                     }
