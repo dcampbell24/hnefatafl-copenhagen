@@ -234,11 +234,10 @@ impl Client {
                     }
 
                     self.screen = Screen::GameNewFrozen;
-                    self.game = Some(Game::default());
 
                     // new_game (attacker | defender) (rated | unrated) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
                     handle_error(
-                        tx.send(format!("new_game {role} {} {}\n", self.rated, self.timed)),
+                        tx.send(format!("new_game {role} {} {:?}\n", self.rated, self.timed)),
                     );
                 }
             }
@@ -324,7 +323,12 @@ impl Client {
                             self.users = users_wins_losses_rating;
                         }
                         Some("join_game") => {
-                            self.game = Some(Game::default());
+                            self.game = Some(Game {
+                                black_time: self.timed.clone(),
+                                white_time: self.timed.clone(),
+                                ..Game::default()
+                            });
+
                             self.texts_game = VecDeque::new();
                             self.screen = Screen::Game;
 
@@ -342,7 +346,12 @@ impl Client {
                             // = new_game game 1 david none
                             let next_word = text.next();
                             if Some("ready") == next_word {
-                                self.game = Some(Game::default());
+                                self.game = Some(Game {
+                                    black_time: self.timed.clone(),
+                                    white_time: self.timed.clone(),
+                                    ..Game::default()
+                                });
+
                                 self.texts_game = VecDeque::new();
                                 self.screen = Screen::Game;
 
@@ -533,10 +542,20 @@ impl Client {
                     .style(container::bordered_box);
 
                 let texting = self.texting(true);
-                let game = self.board();
-                let game = row![game, texting];
+                let Some(game) = &self.game else {
+                    panic!("you are in a game");
+                };
+                let time = row![
+                    text(format!("black time: {}", game.black_time)),
+                    text(format!("white time: {}", game.white_time)),
+                ]
+                .spacing(SPACING);
+                let user_area = column![user_area, time, texting].spacing(SPACING);
+                let user_area = container(user_area)
+                    .padding(PADDING)
+                    .style(container::bordered_box);
 
-                column![user_area, game].into()
+                row![self.board(), user_area].spacing(SPACING).into()
             }
             Screen::GameNew => {
                 let attacker = radio(

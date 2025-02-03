@@ -297,7 +297,11 @@ impl Server {
                             defender: (*username).to_string(),
                             defender_tx,
                             rated: game.rated,
-                            game: Game::default(),
+                            game: Game {
+                                black_time: game.timed.clone(),
+                                white_time: game.timed,
+                                ..Game::default()
+                            },
                             text: String::new(),
                         }
                     } else if let Some(defender) = &game.defender {
@@ -317,7 +321,11 @@ impl Server {
                             defender: defender.clone(),
                             defender_tx,
                             rated: game.rated,
-                            game: Game::default(),
+                            game: Game {
+                                black_time: game.timed.clone(),
+                                white_time: game.timed,
+                                ..Game::default()
+                            },
                             text: String::new(),
                         }
                     } else {
@@ -515,7 +523,7 @@ impl Server {
                     };
 
                     info!(
-                        "{index_supplied} {username} new_game {} {role} {rated} {timed}",
+                        "{index_supplied} {username} new_game {} {role} {rated} {timed:?}",
                         self.game_id
                     );
                     let game = if role == Role::Attacker {
@@ -592,6 +600,9 @@ impl Server {
                     let Some(game) = self.games.0.get_mut(&index) else {
                         panic!("the index should be valid")
                     };
+
+                    // Fixme!
+                    println!("{}", game.game);
 
                     let mut blacks_turn_next = true;
                     if color == Color::Black {

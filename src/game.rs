@@ -8,7 +8,7 @@ use crate::{
     message::{Message, COMMANDS},
     play::{Captures, Plae, Play, BOARD_LETTERS},
     status::Status,
-    time::Time,
+    time::TimeSettings,
 };
 
 #[derive(Debug, Default, Clone, Eq, PartialEq)]
@@ -18,8 +18,8 @@ pub struct Game {
     pub previous_boards: PreviousBoards,
     pub status: Status,
     pub timer: Option<Instant>,
-    pub black_time: Option<Time>,
-    pub white_time: Option<Time>,
+    pub black_time: TimeSettings,
+    pub white_time: TimeSettings,
     pub turn: Color,
 }
 
@@ -47,13 +47,13 @@ impl fmt::Display for Game {
 
         writeln!(f, "status: {}", self.status)?;
 
-        if let Some(time) = &self.black_time {
+        if let Some(time) = &self.black_time.0 {
             writeln!(f, "black_time: {time}")?;
         } else {
             writeln!(f, "black_time: infinite")?;
         }
 
-        if let Some(time) = &self.white_time {
+        if let Some(time) = &self.white_time.0 {
             writeln!(f, "white_time: {time}")?;
         } else {
             writeln!(f, "white_time: infinite")?;
@@ -98,7 +98,7 @@ impl Game {
             if let (status, Some(time), Some(timer)) = match self.turn {
                 Color::Black => (
                     Status::WhiteWins,
-                    self.black_time.as_mut(),
+                    self.black_time.0.as_mut(),
                     self.timer.as_mut(),
                 ),
                 Color::Colorless => {
@@ -106,7 +106,7 @@ impl Game {
                 }
                 Color::White => (
                     Status::BlackWins,
-                    self.white_time.as_mut(),
+                    self.white_time.0.as_mut(),
                     self.timer.as_mut(),
                 ),
             } {
@@ -215,12 +215,12 @@ impl Game {
             Message::ShowBoard => Ok(Some(self.board.to_string())),
             Message::TimeSettings(mut time_settings) => {
                 if let Some(time) = time_settings.0.take() {
-                    self.black_time = Some(time.clone());
-                    self.white_time = Some(time);
+                    self.black_time.0 = Some(time.clone());
+                    self.white_time.0 = Some(time);
                     self.timer = Some(Instant::now());
                 } else {
-                    self.black_time = None;
-                    self.white_time = None;
+                    self.black_time.0 = None;
+                    self.white_time.0 = None;
                     self.timer = None;
                 }
 

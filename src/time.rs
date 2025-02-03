@@ -14,14 +14,14 @@ impl fmt::Display for Time {
         let minutes = seconds / 60;
         seconds %= 60;
 
-        write!(f, "{minutes}m {seconds}s")
+        write!(f, "{minutes}m {seconds}s / {}s", self.add_time.as_secs())
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Default, Eq, PartialEq)]
 pub struct TimeSettings(pub Option<Time>);
 
-impl fmt::Display for TimeSettings {
+impl fmt::Debug for TimeSettings {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(time) = &self.0 {
             let time_left = time.time_left.as_secs();
@@ -30,6 +30,16 @@ impl fmt::Display for TimeSettings {
             write!(f, "fischer {time_left} {add_seconds}")
         } else {
             write!(f, "un-timed _ _")
+        }
+    }
+}
+
+impl fmt::Display for TimeSettings {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(time) = &self.0 {
+            write!(f, "{time}")
+        } else {
+            write!(f, "-")
         }
     }
 }
@@ -65,7 +75,7 @@ impl TryFrom<Vec<&str>> for TimeSettings {
 
             Ok(Self(Some(Time {
                 add_time: Duration::from_secs(arg_3),
-                time_left: Duration::from_secs(arg_2 * 60),
+                time_left: Duration::from_secs(arg_2),
             })))
         } else {
             Err(anyhow::Error::msg(err_msg))
