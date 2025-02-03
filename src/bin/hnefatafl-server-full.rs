@@ -611,8 +611,13 @@ impl Server {
                     let mut blacks_turn_next = true;
                     if color == Color::Black {
                         if *username == game.attacker {
-                            println!("play black {from} {to}");
-                            handle_error(game.game.read_line(&format!("play black {from} {to}")));
+                            game.game
+                                .read_line(&format!("play black {from} {to}"))
+                                .map_err(|error| {
+                                    debug!("Error: {error}");
+                                    error
+                                })
+                                .ok()?;
                             blacks_turn_next = false;
                             // Todo: if a player quits he loses.
                             let _ok = game
@@ -626,7 +631,13 @@ impl Server {
                             ));
                         }
                     } else if *username == game.defender {
-                        handle_error(game.game.read_line(&format!("play white {from} {to}")));
+                        game.game
+                            .read_line(&format!("play white {from} {to}"))
+                            .map_err(|error| {
+                                debug!("Error: {error}");
+                                error
+                            })
+                            .ok()?;
                         // Todo: if a player quits he loses.
                         let _ok = game
                             .attacker_tx
