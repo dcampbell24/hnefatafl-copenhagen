@@ -322,13 +322,8 @@ impl Client {
                             }
                             self.users = users_wins_losses_rating;
                         }
+                        // = join_game david abby rated fischer 900 10
                         Some("join_game") => {
-                            self.game = Some(Game {
-                                black_time: self.timed.clone(),
-                                white_time: self.timed.clone(),
-                                ..Game::default()
-                            });
-
                             self.texts_game = VecDeque::new();
                             self.screen = Screen::Game;
 
@@ -340,6 +335,34 @@ impl Client {
                             };
                             self.attacker = attacker.to_string();
                             self.defender = defender.to_string();
+
+                            let Some(_rated) = text.next() else {
+                                panic!("there should be rated or unrated supplied");
+                            };
+
+                            let Some(timed) = text.next() else {
+                                panic!("there should be a time setting supplied");
+                            };
+                            let Some(minutes) = text.next() else {
+                                panic!("there should be a minutes supplied");
+                            };
+                            let Some(add_seconds) = text.next() else {
+                                panic!("there should be a add_seconds supplied");
+                            };
+                            let Ok(timed) = TimeSettings::try_from(vec![
+                                "time_settings",
+                                timed,
+                                minutes,
+                                add_seconds,
+                            ]) else {
+                                panic!("there should be a valid time settings");
+                            };
+
+                            self.game = Some(Game {
+                                black_time: timed.clone(),
+                                white_time: timed,
+                                ..Game::default()
+                            });
                         }
                         Some("login") => self.screen = Screen::Games,
                         Some("new_game") => {

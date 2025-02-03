@@ -285,10 +285,10 @@ impl Server {
                             "= new_game ready {attacker} {username} {}",
                             game.rated
                         )));
-                        handle_error(
-                            self.clients[&index_supplied]
-                                .send(format!("= join_game {attacker} {username} {}", game.rated)),
-                        );
+                        handle_error(self.clients[&index_supplied].send(format!(
+                            "= join_game {attacker} {username} {} {:?}",
+                            game.rated, game.timed
+                        )));
 
                         ServerGame {
                             id: game.id,
@@ -309,10 +309,10 @@ impl Server {
                             "= new_game ready {username} {defender} {}",
                             game.rated
                         )));
-                        handle_error(
-                            self.clients[&index_supplied]
-                                .send(format!("= join_game {username} {defender} {}", game.rated)),
-                        );
+                        handle_error(self.clients[&index_supplied].send(format!(
+                            "= join_game {username} {defender} {} {:?}",
+                            game.rated, game.timed
+                        )));
 
                         ServerGame {
                             id: game.id,
