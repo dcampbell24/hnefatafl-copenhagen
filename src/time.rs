@@ -11,15 +11,10 @@ pub struct Time {
 impl fmt::Display for Time {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let minutes = self.milliseconds_left / 60_000;
-        let milliseconds_left = self.milliseconds_left % 60_000;
-        let seconds = milliseconds_left / 1_000;
-        let seconds_10th = (milliseconds_left % 1_000) / 100;
+        let mut seconds = self.milliseconds_left % 60_000;
+        seconds /= 1_000;
 
-        write!(
-            f,
-            "{minutes}m {seconds}.{seconds_10th}s / {}s",
-            self.add_seconds
-        )
+        write!(f, "{minutes}:{seconds:02} / {}s", self.add_seconds)
     }
 }
 

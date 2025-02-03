@@ -45,7 +45,8 @@ struct Args {
     load: Option<String>,
 }
 
-// 1. new_game attacker (rated | unrated) (un-timed | fischer [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]) # handles the leave issue...
+// 1. Handles the leave issue... if you periodically check the time.
+// 1. Send a message when the game is over.
 // 2. Run update_rd on every account once every two months and calculate the
 //    average rating and rd, we assume rd is 50.
 // 3. watch_game 1
@@ -633,6 +634,7 @@ impl Server {
                         ));
                     }
 
+                    // Fixme!
                     match game.game.status {
                         Status::BlackWins => {
                             let accounts = &mut self.accounts.0;

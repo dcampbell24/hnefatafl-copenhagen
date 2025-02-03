@@ -80,11 +80,11 @@ fn main() -> anyhow::Result<()> {
     let mut game = Game {
         black_time: TimeSettings(Some(Time {
             add_seconds: 10,
-            milliseconds_left: 15 * 60 * 1_000,
+            milliseconds_left: 15 * 60_000,
         })),
         white_time: TimeSettings(Some(Time {
             add_seconds: 10,
-            milliseconds_left: 15 * 60 * 1_000,
+            milliseconds_left: 15 * 60_000,
         })),
         timer: Some(Instant::now()),
         ..Game::default()

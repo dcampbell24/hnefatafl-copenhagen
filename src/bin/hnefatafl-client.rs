@@ -20,6 +20,7 @@ use hnefatafl_copenhagen::{
     role::Role,
     server_game::ServerGameLight,
     space::Space,
+    status::Status,
     time::{Time, TimeSettings},
 };
 use iced::{
@@ -50,7 +51,7 @@ struct Args {
 fn main() -> anyhow::Result<()> {
     iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
         .default_font(Font::MONOSPACE)
-        .subscription(Client::pass_messages)
+        .subscription(Client::subscriptions)
         .window_size(iced::Size::INFINITY)
         .theme(Client::theme)
         .run()?;
@@ -75,6 +76,8 @@ struct Client {
     timed: TimeSettings,
     time_minutes: String,
     time_add_seconds: String,
+    time_attacker: TimeSettings,
+    time_defender: TimeSettings,
     tx: Option<mpsc::Sender<String>>,
     texts: VecDeque<String>,
     texts_game: VecDeque<String>,
@@ -177,8 +180,21 @@ impl Client {
         game_display
     }
 
-    fn pass_messages(_self: &Self) -> Subscription<Message> {
-        Subscription::run(pass_messages)
+    fn subscriptions(&self) -> Subscription<Message> {
+        let subscription_1 = if let Some(game) = &self.game {
+            if game.timer.is_some() {
+                iced::time::every(iced::time::Duration::from_millis(100))
+                    .map(|_instant| Message::Tick)
+            } else {
+                Subscription::none()
+            }
+        } else {
+            Subscription::none()
+        };
+
+        let subscription_2 = Subscription::run(pass_messages);
+
+        Subscription::batch(vec![subscription_1, subscription_2])
     }
 
     fn texting(&self, in_game: bool) -> Column<Message> {
@@ -261,6 +277,23 @@ impl Client {
                     self.game_id, game.turn
                 )));
                 handle_error(game.read_line(&format!("play {} {from} {to}\n", game.turn)));
+
+                if game.status == Status::Ongoing {
+                    match game.turn {
+                        Color::Black => {
+                            if let Some(time) = &mut self.time_attacker.0 {
+                                time.milliseconds_left += time.add_seconds * 1_000;
+                            }
+                        }
+                        Color::Colorless => {}
+                        Color::White => {
+                            if let Some(time) = &mut self.time_defender.0 {
+                                time.milliseconds_left += time.add_seconds * 1_000;
+                            }
+                        }
+                    }
+                }
+
                 self.play_from = None;
                 self.my_turn = false;
             }
@@ -322,7 +355,7 @@ impl Client {
                             }
                             self.users = users_wins_losses_rating;
                         }
-                        // = join_game david abby rated fischer 900 10
+                        // = join_game david abby rated fischer 900_000 10
                         Some("join_game") => {
                             self.texts_game = VecDeque::new();
                             self.screen = Screen::Game;
@@ -360,14 +393,16 @@ impl Client {
 
                             self.game = Some(Game {
                                 black_time: timed.clone(),
-                                white_time: timed,
+                                white_time: timed.clone(),
                                 timer: Some(Instant::now()),
                                 ..Game::default()
                             });
+                            self.time_attacker = timed.clone();
+                            self.time_defender = timed;
                         }
                         Some("login") => self.screen = Screen::Games,
                         Some("new_game") => {
-                            // = new_game game 1 david none
+                            // = new_game game 15 none david rated fischer 900_000 10
                             let next_word = text.next();
                             if Some("ready") == next_word {
                                 self.game = Some(Game {
@@ -376,6 +411,8 @@ impl Client {
                                     timer: Some(Instant::now()),
                                     ..Game::default()
                                 });
+                                self.time_attacker = self.timed.clone();
+                                self.time_defender = self.timed.clone();
 
                                 self.texts_game = VecDeque::new();
                                 self.screen = Screen::Game;
@@ -474,6 +511,22 @@ impl Client {
                             game.read_line(&format!("play {color} {from} {to}"))
                                 .expect("play should be valid")
                                 .expect("an empty string wasn't passed");
+
+                            if game.status == Status::Ongoing {
+                                match game.turn {
+                                    Color::Black => {
+                                        if let Some(time) = &mut self.time_attacker.0 {
+                                            time.milliseconds_left += time.add_seconds * 1_000;
+                                        }
+                                    }
+                                    Color::Colorless => {}
+                                    Color::White => {
+                                        if let Some(time) = &mut self.time_defender.0 {
+                                            time.milliseconds_left += time.add_seconds * 1_000;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     _ => {}
@@ -501,6 +554,23 @@ impl Client {
                         handle_error(tx.send(format!("text {}", self.text_input)));
                     }
                     self.text_input.clear();
+                }
+            }
+            Message::Tick => {
+                if let Some(game) = &mut self.game {
+                    match game.turn {
+                        Color::Black => {
+                            if let Some(time) = &mut self.time_attacker.0 {
+                                time.milliseconds_left = time.milliseconds_left.saturating_sub(100);
+                            }
+                        }
+                        Color::Colorless => {}
+                        Color::White => {
+                            if let Some(time) = &mut self.time_defender.0 {
+                                time.milliseconds_left = time.milliseconds_left.saturating_sub(100);
+                            }
+                        }
+                    }
                 }
             }
             Message::TimeAddSeconds(string) => {
@@ -567,12 +637,12 @@ impl Client {
                     .style(container::bordered_box);
 
                 let texting = self.texting(true);
-                let Some(game) = &self.game else {
+                let Some(_game) = &self.game else {
                     panic!("you are in a game");
                 };
                 let time = row![
-                    text(format!("black time: {}", game.black_time)),
-                    text(format!("white time: {}", game.white_time)),
+                    text(format!("black time: {}", self.time_attacker)),
+                    text(format!("white time: {}", self.time_defender)),
                 ]
                 .spacing(SPACING);
                 let user_area = column![user_area, time, texting].spacing(SPACING);
@@ -682,6 +752,7 @@ enum Message {
     TextChanged(String),
     TextReceived(String),
     TextSend,
+    Tick,
     TimeAddSeconds(String),
     TimeCheckbox(bool),
     TimeMinutes(String),

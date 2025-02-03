@@ -113,7 +113,6 @@ impl Game {
                 time.milliseconds_left = time
                     .milliseconds_left
                     .saturating_sub(timer.elapsed().as_millis());
-                *timer = Instant::now();
 
                 if time.milliseconds_left == 0 {
                     self.status = status;
@@ -121,6 +120,7 @@ impl Game {
                 }
 
                 time.milliseconds_left += time.add_seconds * 1_000;
+                *timer = Instant::now();
             }
 
             match play {

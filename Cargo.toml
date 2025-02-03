@@ -24,7 +24,7 @@ serde = { version = "1", features = ["derive"] }
 
 # client only
 futures = { version = "0.3", optional = true }
-iced = { version = "0.13", optional = true }
+iced = { version = "0.13", features = ["smol"], optional = true }
 
 # server only
 argon2 = { version = "0.5", optional = true }
