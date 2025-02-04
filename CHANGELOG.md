@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- hnefatafl-client: Default to connecting to hnefatafl.org.
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 

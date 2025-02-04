@@ -45,7 +45,7 @@ const SPACING: u16 = 10;
 #[command(version, about)]
 struct Args {
     /// Connect to the HTP server at host
-    #[arg(default_value = "localhost", long)]
+    #[arg(default_value = "hnefatafl.org", long)]
     host: String,
 }
 
