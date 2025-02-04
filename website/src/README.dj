@@ -1,10 +1,8 @@
-## Homepage
-
 This is a website for a [Copenhagen Hnefatafl][1] server and client.
 
 [1]: https://aagenielsen.dk/copenhagen_rules.php
 
-### Install
+## Install
 
 Install the software with [Rust's][2] cargo:
 
@@ -22,7 +20,7 @@ hnefatafl-client
 
 You will automatically connect to the main server.
 
-### Help Me
+## Help Me
 
 If you have any issues with the software, open an issue on [github][3].
 
