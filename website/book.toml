@@ -1,0 +1,30 @@
+[book]
+title = "Copenhagen Hnefatafl"
+description = "A demo book to test and validate changes"
+authors = [
+    "David Lawrence Campbell",
+]
+language = "en"
+
+[rust]
+edition = "2021"
+
+[output.html]
+git-repository-url = "https://github.com/dcampbell24/hnefatafl-copenhagen/website"
+mathjax-support = true
+input-404 = "404.md"
+
+[output.html.playground]
+editable = true
+line-numbers = true
+
+[output.html.search]
+limit-results = 20
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 2
+boost-paragraph = 1
+expand = true
+heading-split-level = 2
+
+[preprocessor.djot]
