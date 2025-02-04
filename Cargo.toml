@@ -1,13 +1,13 @@
 [package]
 name = "hnefatafl-copenhagen"
-version = "0.4.0-development"
+version = "0.4.0"
 authors = ["David Campbell <dcampbell24@gmail.com>"]
 edition = "2021"
 rust-version =  "1.79"
 description = "Copenhagen Hnefatafl engine similar to the Go Text Protocol."
 documentation = "https://docs.rs/hnefatafl-copenhagen/"
 readme = "README.md"
-# homepage = "https://"
+homepage = "https://hnefatafl.org"
 repository = "https://github.com/dcampbell24/hnefatafl-copenhagen"
 license = "MIT OR Apache-2.0"
 keywords = ["copenhagan", "hnefatafl"]
