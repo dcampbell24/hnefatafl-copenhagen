@@ -73,7 +73,7 @@ debug = true
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
 assets = [
-    ["target/release/hnefatafl-server", "usr/bin/", "755"],
+    ["target/release/hnefatafl-server-full", "usr/bin/", "755"],
     ["hnefatafl.service", "lib/systemd/system/", "644"],
 ]
 changelog = "debian/changelog"

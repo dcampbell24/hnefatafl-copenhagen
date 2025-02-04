@@ -219,7 +219,7 @@ impl Server {
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
-        let (message, option_tx) = handle_error(rx.recv());
+        let (message, option_tx) = rx.recv().ok()?;
         let index_username_command: Vec<_> = message.split_ascii_whitespace().collect();
 
         if let (Some(index_supplied), Some(username), command_option) = (
@@ -239,11 +239,11 @@ impl Server {
                 "display_server" => {
                     debug!("0 {username} display_server");
                     for tx in &mut self.clients.values() {
-                        handle_error(
-                            tx.send(format!("= display_pending_games {}", &self.pending_games)),
-                        );
-                        handle_error(tx.send(format!("= display_games {}", &self.games)));
-                        handle_error(tx.send(format!("= display_users {}", &self.accounts)));
+                        tx.send(format!("= display_pending_games {}", &self.pending_games))
+                            .ok()?;
+                        tx.send(format!("= display_games {}", &self.games)).ok()?;
+                        tx.send(format!("= display_users {}", &self.accounts))
+                            .ok()?;
                     }
                     None
                 }
@@ -285,10 +285,12 @@ impl Server {
                     };
 
                     let new_game = if let Some(attacker) = &game.attacker {
-                        handle_error(self.clients[&channel].send(format!(
-                            "= new_game ready {attacker} {username} {}",
-                            game.rated
-                        )));
+                        self.clients[&channel]
+                            .send(format!(
+                                "= new_game ready {attacker} {username} {}",
+                                game.rated
+                            ))
+                            .ok()?;
                         handle_error(self.clients[&index_supplied].send(format!(
                             "= join_game {attacker} {username} {} {:?}",
                             game.rated, game.timed
@@ -310,14 +312,18 @@ impl Server {
                             text: String::new(),
                         }
                     } else if let Some(defender) = &game.defender {
-                        handle_error(self.clients[&channel].send(format!(
-                            "= new_game ready {username} {defender} {}",
-                            game.rated
-                        )));
-                        handle_error(self.clients[&index_supplied].send(format!(
-                            "= join_game {username} {defender} {} {:?}",
-                            game.rated, game.timed
-                        )));
+                        self.clients[&channel]
+                            .send(format!(
+                                "= new_game ready {username} {defender} {}",
+                                game.rated
+                            ))
+                            .ok()?;
+                        self.clients[&index_supplied]
+                            .send(format!(
+                                "= join_game {username} {defender} {} {:?}",
+                                game.rated, game.timed
+                            ))
+                            .ok()?;
 
                         ServerGame {
                             id: game.id,
@@ -339,7 +345,9 @@ impl Server {
                     };
 
                     self.games.0.insert(id, new_game);
-                    handle_error(attacker_tx.send(format!("game {id} generate_move black")));
+                    attacker_tx
+                        .send(format!("game {id} generate_move black"))
+                        .ok()?;
 
                     None
                 }
