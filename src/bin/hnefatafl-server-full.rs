@@ -39,7 +39,7 @@ const PORT: &str = ":49152";
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Args {
-    /// Listen for HTP drivers on host and port
+    /// Listen for HTP drivers on host
     #[arg(default_value = "0.0.0.0", long)]
     host: String,
     /// Load the server state from a file
