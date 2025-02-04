@@ -22,8 +22,8 @@ ssl:
 .PHONY: website
 website:
 	mdbook build --dest-dir /var/www/html/
+	touch /var/www/html/robots.txt
 #	sscli -b https://hnefatafl.org -r /var/www/html/
-#	touch /var/www/html/robots.txt
 
 # Install sscli with "npm i -g static-sitemap-cli".
 
