@@ -13,7 +13,7 @@ deb:
 
 .PHONY: logs
 logs:
-	journalctl -u service-name.service
+	journalctl -u hnefatafl.service
 
 .PHONY: ssl
 ssl:
