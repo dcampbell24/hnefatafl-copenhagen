@@ -34,6 +34,7 @@ use iced::{
     Element, Subscription, Theme,
 };
 
+const PORT: &str = ":49152";
 const PADDING: u16 = 20;
 const SPACING: u16 = 10;
 
@@ -43,9 +44,9 @@ const SPACING: u16 = 10;
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Args {
-    /// Connect to the HTP server at host and port
-    #[arg(default_value = "localhost:8000", index = 1, value_name = "host:port")]
-    host_port: String,
+    /// Connect to the HTP server at host
+    #[arg(default_value = "localhost", long)]
+    host: String,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -804,9 +805,11 @@ enum Message {
 
 fn pass_messages() -> impl Stream<Item = Message> {
     stream::channel(100, move |mut sender| async move {
-        let args = Args::parse();
-        let address = &args.host_port;
-        let mut tcp_stream = handle_error(TcpStream::connect(address));
+        let mut args = Args::parse();
+        args.host.push_str(PORT);
+        let address = args.host;
+
+        let mut tcp_stream = handle_error(TcpStream::connect(&address));
 
         let reader = handle_error(tcp_stream.try_clone());
         let mut reader = BufReader::new(reader);

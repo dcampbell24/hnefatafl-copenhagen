@@ -31,6 +31,8 @@ use rand::rngs::OsRng;
 use ron::ser::{to_string_pretty, PrettyConfig};
 use serde::{Deserialize, Serialize};
 
+const PORT: &str = ":49152";
+
 /// A Hnefatafl Copenhagen Server
 ///
 /// This is a TCP server that listens client connections.
@@ -38,8 +40,8 @@ use serde::{Deserialize, Serialize};
 #[command(version, about)]
 struct Args {
     /// Listen for HTP drivers on host and port
-    #[arg(default_value = "localhost:8000", index = 1, value_name = "host:port")]
-    host_port: String,
+    #[arg(default_value = "0.0.0.0", long)]
+    host: String,
     /// Load the server state from a file
     #[arg(long)]
     load: Option<String>,
@@ -55,7 +57,7 @@ struct Args {
 // 4. Get SSL working.
 fn main() -> anyhow::Result<()> {
     init_logger();
-    let args = Args::parse();
+    let mut args = Args::parse();
 
     let mut server = if let Some(file) = args.load {
         ron::from_str(&read_to_string(&file)?)?
@@ -63,8 +65,9 @@ fn main() -> anyhow::Result<()> {
         Server::default()
     };
 
-    let address = &args.host_port;
-    let listener = TcpListener::bind(address)?;
+    args.host.push_str(PORT);
+    let address = args.host;
+    let listener = TcpListener::bind(&address)?;
     info!("listening on {address} ...");
 
     let (tx, rx) = mpsc::channel();
