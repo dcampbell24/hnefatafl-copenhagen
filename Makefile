@@ -11,6 +11,10 @@ profile:
 deb:
 	cargo deb -- --features server
 
+.PHONY: logs
+logs:
+	journalctl -u service-name.service
+
 .PHONY: ssl
 ssl:
 	openssl \
