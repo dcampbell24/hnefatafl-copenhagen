@@ -68,3 +68,13 @@ multiple_crate_versions = { level = "allow", priority = 1 }
 [profile.profiling]
 inherits = "release"
 debug = true
+
+[package.metadata.deb]
+copyright = "2025 David Lawrence Campbell"
+maintainer = "David Campbell <dcampbell24@gmail.com>"
+assets = [
+    ["target/release/hnefatafl-server", "usr/bin/", "755"],
+    ["hnefatafl.service", "lib/systemd/system/", "644"],
+]
+changelog = "debian/changelog"
+section = "games"
