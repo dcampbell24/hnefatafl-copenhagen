@@ -9,4 +9,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add a changelog.
 
-[unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.1...HEAD
+[unreleased]: https://github.com/dcampbel24/hnefatafl-copenhagen/compare/v0.4.0...HEAD
