@@ -35,8 +35,8 @@ password-hash = { version = "0.5", optional = true }
 rand = { version = "0.8", optional = true }
 
 [features]
-client = ["futures", "iced"]
-server = ["argon2", "chrono", "env_logger", "log", "password-hash", "rand"]
+client = ["dep:futures", "dep:iced"]
+server = ["dep:argon2", "dep:chrono", "dep:env_logger", "dep:log", "dep:password-hash", "dep:rand"]
 
 [[bin]]
 name = "hnefatafl-client"
