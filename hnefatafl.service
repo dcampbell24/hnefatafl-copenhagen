@@ -1,5 +1,5 @@
 [Unit]
-Description=Prometheus logging of the BME280, MCP9808, and SHT31
+Description=Copenhagen Hnefatafl Server
 
 [Service]
 Type=simple
