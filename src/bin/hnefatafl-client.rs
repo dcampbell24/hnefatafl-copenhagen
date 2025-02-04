@@ -643,20 +643,23 @@ impl Client {
 
     #[must_use]
     fn user_area(&self, in_game: bool) -> Container<Message> {
-        let mut games = Column::new().padding(PADDING);
-        games = games.push(text("pending games:"));
+        let mut games = Column::new();
         for game in &self.games_pending {
             let id = game.id;
             let join = button("join").on_press(Message::GameJoin(id));
             games = games.push(row![text(game.to_string()), join].spacing(SPACING));
         }
+        let games = scrollable(games);
+        let games = column![text("pending games:"), games].padding(PADDING);
 
         let texting = self.texting(in_game).padding(PADDING);
 
-        let mut users = column![text("users:")].padding(PADDING);
+        let mut users = Column::new();
         for user in &self.users {
             users = users.push(text(user));
         }
+        let users = scrollable(users);
+        let users = column![text("users:"), users].padding(PADDING);
 
         let user_area = row![games, texting, users];
         container(user_area)
