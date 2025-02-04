@@ -1,9 +1,10 @@
 use std::{
     collections::HashMap,
     env, fmt,
-    fs::{read_to_string, File},
+    fs::{exists, read_to_string, File},
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
+    path::PathBuf,
     sync::mpsc::{self, Receiver},
     thread::{self, sleep},
     time::{Duration, Instant},
@@ -42,9 +43,6 @@ struct Args {
     /// Listen for HTP drivers on host
     #[arg(default_value = "0.0.0.0", long)]
     host: String,
-    /// Load the server state from a file
-    #[arg(long)]
-    load: Option<String>,
 }
 
 // 1. Handles the leave issue... if you periodically check the time.
@@ -59,8 +57,9 @@ fn main() -> anyhow::Result<()> {
     init_logger();
     let mut args = Args::parse();
 
-    let mut server = if let Some(file) = args.load {
-        ron::from_str(&read_to_string(&file)?)?
+    let data_file = data_file();
+    let mut server = if exists(&data_file)? {
+        ron::from_str(&read_to_string(&data_file)?)?
     } else {
         Server::default()
     };
@@ -87,6 +86,16 @@ fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+fn data_file() -> PathBuf {
+    let mut data_file = if let Some(data_file) = dirs::data_dir() {
+        data_file
+    } else {
+        PathBuf::new()
+    };
+    data_file.push("hnefatafl-copenhagen.ron");
+    data_file
 }
 
 fn login(
@@ -825,7 +834,8 @@ impl Server {
             account.logged_in = None;
         }
 
-        if let Ok(mut file) = File::create("hnefatafl-copenhagen.ron") {
+        let data_file = data_file();
+        if let Ok(mut file) = File::create(&data_file) {
             if let Ok(string) = to_string_pretty(&server, PrettyConfig::default()) {
                 if let Err(error) = file.write_all(string.as_bytes()) {
                     log::error!("{error}");
