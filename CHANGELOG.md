@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Hide the password.
 - hnefatafl-client: Do logging.
 
+### Changed
+
+- Resign if you can't generate a move.
+
 ## [0.4.1] - 2025-02-04
 
 ### Added

@@ -64,10 +64,12 @@ impl fmt::Display for Game {
 }
 
 impl Game {
-    /// # Errors
-    ///
-    /// If you are unable to generate a move.
-    pub fn generate_move(&mut self) -> anyhow::Result<Option<String>> {
+    #[allow(clippy::missing_panics_doc)]
+    pub fn generate_move(&mut self) -> Option<String> {
+        if self.status != Status::Ongoing {
+            return None;
+        }
+
         for letter_from in BOARD_LETTERS.chars() {
             for i_from in 1..12 {
                 let mut vertex_from = letter_from.to_string();
@@ -79,18 +81,19 @@ impl Game {
                         vertex_to.push_str(&i_to.to_string());
 
                         let message = format!("play {} {vertex_from} {vertex_to}", self.turn);
-                        let message = Message::try_from(message.as_str())?;
+                        let message = Message::try_from(message.as_str())
+                            .expect("we must have formed a valid play");
 
                         let turn = self.turn.clone();
                         if let Ok(_message) = self.update(message) {
-                            return Ok(Some(format!("{turn} {vertex_from} {vertex_to}")));
+                            return Some(format!("{turn} {vertex_from} {vertex_to}"));
                         }
                     }
                 }
             }
         }
 
-        Err(anyhow::Error::msg("unable to generate move"))
+        Some(format!("play {} resigns", self.turn))
     }
 
     fn play(&mut self, play: Plae) -> anyhow::Result<Option<String>> {
@@ -190,7 +193,7 @@ impl Game {
         match message {
             Message::Empty => Ok(None),
             Message::FinalStatus => Ok(Some(format!("{}", self.status))),
-            Message::GenerateMove => self.generate_move(),
+            Message::GenerateMove => Ok(self.generate_move()),
             Message::KnownCommand(command) => {
                 if COMMANDS.contains(&command.as_str()) {
                     Ok(Some("true".to_string()))

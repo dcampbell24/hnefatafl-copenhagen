@@ -1961,7 +1961,7 @@ mod tests {
     fn someone_wins() {
         let mut game = Game::default();
 
-        while game.generate_move().is_ok() {}
+        while game.generate_move().is_some() {}
 
         println!("{game}");
     }
