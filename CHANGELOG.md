@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- hnefatafl-client: Hide the password.
+- hnefatafl-client: Give the option of Hiding the password.
 - hnefatafl-client: Do logging.
 
 ### Changed

@@ -77,6 +77,7 @@ struct Client {
     my_turn: bool,
     password: String,
     password_real: String,
+    password_show: bool,
     play_from: Option<Vertex>,
     rated: Rated,
     role_selected: Option<Role>,
@@ -300,6 +301,9 @@ impl Client {
                     self.password.pop();
                     self.password_real.pop();
                 }
+            }
+            Message::PasswordShow(show_password) => {
+                self.password_show = show_password;
             }
             Message::PlayMoveFrom(vertex) => self.play_from = Some(vertex),
             Message::PlayMoveTo(to) => {
@@ -688,6 +692,7 @@ impl Client {
     }
 
     #[must_use]
+    #[allow(clippy::too_many_lines)]
     pub fn view(&self) -> Element<Message> {
         match self.screen {
             Screen::Game => {
@@ -789,14 +794,26 @@ impl Client {
                         .on_submit(Message::TextSend),
                 ];
 
-                let password = row![
-                    text("password:"),
-                    text_input("", &self.password)
-                        .on_input(Message::PasswordChanged)
-                        .on_submit(Message::TextSend),
-                ];
+                let password = if self.password_show {
+                    row![
+                        text("password:"),
+                        text_input("", &self.password_real)
+                            .on_input(Message::PasswordChanged)
+                            .on_submit(Message::TextSend),
+                    ]
+                } else {
+                    row![
+                        text("password:"),
+                        text_input("", &self.password)
+                            .on_input(Message::PasswordChanged)
+                            .on_submit(Message::TextSend),
+                    ]
+                };
 
-                column![username, password]
+                let show_password =
+                    checkbox("show password", self.password_show).on_toggle(Message::PasswordShow);
+
+                column![username, password, show_password]
                     .padding(PADDING)
                     .spacing(SPACING)
                     .into()
@@ -812,6 +829,7 @@ enum Message {
     GameNew,
     GameSubmit,
     PasswordChanged(String),
+    PasswordShow(bool),
     PlayMoveFrom(Vertex),
     PlayMoveTo(Vertex),
     RatedSelected(bool),
