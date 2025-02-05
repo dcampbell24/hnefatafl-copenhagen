@@ -70,6 +70,7 @@ struct Client {
     games_pending: Vec<ServerGameLight>,
     my_turn: bool,
     password: String,
+    password_real: String,
     play_from: Option<Vertex>,
     rated: Rated,
     role_selected: Option<Role>,
@@ -278,8 +279,21 @@ impl Client {
                     );
                 }
             }
-            Message::PasswordChanged(password) => {
-                self.password = password;
+            Message::PasswordChanged(mut password) => {
+                let password_len: Vec<_> = password.chars().collect();
+                let password_len = password_len.len();
+                let self_password_len: Vec<_> = self.password.chars().collect();
+                let self_password_len = self_password_len.len();
+
+                if password_len == self_password_len + 1 {
+                    if let Some(ch) = password.pop() {
+                        self.password_real.push(ch);
+                        self.password.push('●');
+                    }
+                } else if password_len + 1 == self_password_len {
+                    self.password.pop();
+                    self.password_real.pop();
+                }
             }
             Message::PlayMoveFrom(vertex) => self.play_from = Some(vertex),
             Message::PlayMoveTo(to) => {
@@ -562,7 +576,7 @@ impl Client {
                     if self.screen == Screen::Login {
                         if let Some(username) = self.text_input.split_ascii_whitespace().next() {
                             let username = username.to_ascii_lowercase();
-                            handle_error(tx.send(format!("{username} {}\n", self.password)));
+                            handle_error(tx.send(format!("{username} {}\n", self.password_real)));
                             self.username = username;
                         }
                     } else if self.screen == Screen::Game {
