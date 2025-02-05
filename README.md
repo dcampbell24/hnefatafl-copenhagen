@@ -9,9 +9,12 @@
 [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?logo=docs.rs
 [docs-rs-link]: https://docs.rs/hnefatafl-copenhagen
 
-An engine similar to the [Go Text Protocol].
+An [engine] similar to the [Go Text Protocol], a [client], and a [server].
 
+[engine]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-text-protocol.rs
 [Go Text Protocol]: https://www.lysator.liu.se/~gunnar/gtp/gtp2-spec-draft2/gtp2-spec.html
+[client]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-client.rs
+[server]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-server.rs
 
 ## Differences from the Go Text Protocol
 
