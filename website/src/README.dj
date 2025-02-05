@@ -4,7 +4,7 @@ This is a website for a [Copenhagen Hnefatafl][1] server and client.
 
 ## Install
 
-Install the software with [Rust's][2] cargo:
+Install the client with [Rust's][2] cargo:
 
 ```sh
 cargo install hnefatafl-copenhagen --features client
