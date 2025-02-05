@@ -15,8 +15,11 @@ categories = ["game-engines", "games"]
 
 [dependencies]
 anyhow = "1"
+chrono = "0.4"
 clap = { version ="4", features = ["derive"] }
 csv = "1"
+env_logger = "0.11"
+log = "0.4"
 # rayon = "1"
 ron = "0.8"
 rustc-hash = "2"
@@ -28,16 +31,13 @@ iced = { version = "0.13", features = ["smol"], optional = true }
 
 # server only
 argon2 = { version = "0.5", optional = true }
-chrono = { version = "0.4", optional = true }
 dirs = { version = "6", optional = true }
-env_logger = { version = "0.11", optional = true }
-log = { version = "0.4", optional = true }
 password-hash = { version = "0.5", optional = true }
 rand = { version = "0.8", optional = true }
 
 [features]
 client = ["dep:futures", "dep:iced"]
-server = ["dep:argon2", "dep:chrono", "dep:dirs", "dep:env_logger", "dep:log", "dep:password-hash", "dep:rand"]
+server = ["dep:argon2", "dep:dirs", "dep:password-hash", "dep:rand"]
 
 [[bin]]
 name = "hnefatafl-client"

@@ -1,6 +1,7 @@
 use core::panic;
 use std::{
     collections::VecDeque,
+    env,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
@@ -9,7 +10,9 @@ use std::{
     time::Instant,
 };
 
+use chrono::Utc;
 use clap::{command, Parser};
+use env_logger::Builder;
 use futures::executor;
 use hnefatafl_copenhagen::{
     color::Color,
@@ -33,6 +36,7 @@ use iced::{
     },
     Element, Subscription, Theme,
 };
+use log::{debug, error, info, LevelFilter};
 
 const PORT: &str = ":49152";
 const PADDING: u16 = 20;
@@ -50,6 +54,8 @@ struct Args {
 }
 
 fn main() -> anyhow::Result<()> {
+    init_logger();
+
     iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
         .default_font(Font::MONOSPACE)
         .subscription(Client::subscriptions)
@@ -333,7 +339,7 @@ impl Client {
                 self.my_turn = false;
             }
             Message::TcpConnected(tx) => {
-                println!("TCP connected...");
+                info!("TCP connected...");
                 self.tx = Some(tx);
             }
             Message::RatedSelected(rated) => {
@@ -830,13 +836,14 @@ fn pass_messages() -> impl Stream<Item = Message> {
 
         let reader = handle_error(tcp_stream.try_clone());
         let mut reader = BufReader::new(reader);
-        println!("connected to {address} ...");
+        info!("connected to {address} ...");
 
         let (tx, rx) = mpsc::channel();
         let _ = sender.send(Message::TcpConnected(tx)).await;
         thread::spawn(move || loop {
             let message = handle_error(rx.recv());
-            print!("<- {message}");
+            let message_trim = message.trim();
+            debug!("<- {message_trim}");
 
             handle_error(tcp_stream.write_all(message.as_bytes()));
         });
@@ -846,16 +853,41 @@ fn pass_messages() -> impl Stream<Item = Message> {
             loop {
                 let bytes = handle_error(reader.read_line(&mut buffer));
                 if bytes > 0 {
-                    print!("-> {buffer}");
+                    let buffer_trim = buffer.trim();
+                    debug!("-> {buffer_trim}");
                     handle_error(executor::block_on(
                         sender.send(Message::TextReceived(buffer.clone())),
                     ));
                     buffer.clear();
                 } else {
-                    eprintln!("error: the TCP stream has closed");
+                    error!("error: the TCP stream has closed");
                     exit(1);
                 }
             }
         });
     })
+}
+
+fn init_logger() {
+    let mut builder = Builder::new();
+
+    builder.format(|formatter, record| {
+        writeln!(
+            formatter,
+            "{} [{}] ({}): {}",
+            Utc::now().format("%Y-%m-%d %H:%M:%S %z"),
+            record.level(),
+            record.target(),
+            record.args()
+        )
+    });
+
+    if let Ok(var) = env::var("RUST_LOG") {
+        builder.parse_filters(&var);
+    } else {
+        // if no RUST_LOG provided, default to logging at the Info level
+        builder.filter(None, LevelFilter::Info);
+    }
+
+    builder.init();
 }
