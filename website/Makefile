@@ -2,7 +2,7 @@
 website:
 	mdbook build --dest-dir /var/www/html/
 	touch /var/www/html/robots.txt
-#	sscli -b https://hnefatafl.org -r /var/www/html/
+	sscli -b https://hnefatafl.org -r /var/www/html/
 
 # Install sscli with "npm i -g static-sitemap-cli".
 
