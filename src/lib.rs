@@ -1917,6 +1917,7 @@ mod tests {
         };
 
         game.read_line("play black b1 b2")?;
+        assert_eq!(game.generate_move(), Some("play white resigns".to_string()));
         game.read_line("play white resigns")?;
 
         assert_eq!(game.status, Status::BlackWins);
