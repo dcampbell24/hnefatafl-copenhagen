@@ -7,7 +7,7 @@ This is a website for a [Copenhagen Hnefatafl][1] server and client.
 Install the software with [Rust's][2] cargo:
 
 ```sh
-cargo install hnefatafl-copenhagen
+cargo install hnefatafl-copenhagen --features client
 ```
 
 [2]: https://www.rust-lang.org/learn/get-started
