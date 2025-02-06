@@ -1,7 +1,7 @@
 use core::panic;
 use std::{
     collections::VecDeque,
-    env,
+    env, f64,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
@@ -92,7 +92,7 @@ struct Client {
     texts_game: VecDeque<String>,
     text_input: String,
     username: String,
-    users: Vec<String>,
+    users: Vec<User>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -387,18 +387,27 @@ impl Client {
                         }
                         Some("display_users") => {
                             let users: Vec<&str> = text.collect();
-                            let mut users_wins_losses_rating = Vec::new();
+                            self.users.clear();
                             for user_wins_losses_rating in users.chunks_exact(4) {
-                                let user = user_wins_losses_rating[0];
-                                let wins = user_wins_losses_rating[1];
-                                let losses = user_wins_losses_rating[2];
                                 let rating = user_wins_losses_rating[3];
+                                let Some((rating, deviation)) = rating.split_once("±") else {
+                                    panic!("the ratings has this form");
+                                };
+                                let (Ok(rating), Ok(deviation)) =
+                                    (rating.parse::<f64>(), deviation.parse::<f64>())
+                                else {
+                                    panic!("the ratings has this form");
+                                };
 
-                                users_wins_losses_rating.push(format!(
-                                    "{user}: wins {wins}, losses {losses}, rating {rating}"
-                                ));
+                                self.users.push(User {
+                                    name: user_wins_losses_rating[0].to_string(),
+                                    wins: user_wins_losses_rating[1].to_string(),
+                                    losses: user_wins_losses_rating[2].to_string(),
+                                    rating: (rating, deviation),
+                                });
                             }
-                            self.users = users_wins_losses_rating;
+                            self.users
+                                .sort_by(|a, b| b.rating.0.partial_cmp(&a.rating.0).unwrap());
                         }
                         // = join_game david abby rated fischer 900_000 10
                         Some("join_game") => {
@@ -666,6 +675,28 @@ impl Client {
     }
 
     #[must_use]
+    fn users(&self) -> Row<Message> {
+        let mut ratings = Column::new();
+        let mut usernames = Column::new();
+        let mut wins = Column::new();
+        let mut losses = Column::new();
+
+        for user in &self.users {
+            ratings = ratings.push(text(format!("{} ± {}", user.rating.0, user.rating.1)));
+            usernames = usernames.push(text(&user.name));
+            wins = wins.push(text(&user.wins));
+            losses = losses.push(text(&user.losses));
+        }
+
+        let ratings = column![text("rating"), text("------"), ratings].padding(PADDING);
+        let usernames = column![text("username"), text("--------"), usernames].padding(PADDING);
+        let wins = column![text("wins"), text("----"), wins].padding(PADDING);
+        let losses = column![text("losses"), text("------"), losses].padding(PADDING);
+
+        row![ratings, usernames, wins, losses]
+    }
+
+    #[must_use]
     fn user_area(&self, in_game: bool) -> Container<Message> {
         let mut games = Column::new();
         for game in &self.games_pending {
@@ -677,13 +708,7 @@ impl Client {
         let games = column![text("pending games:"), games].padding(PADDING);
 
         let texting = self.texting(in_game).padding(PADDING);
-
-        let mut users = Column::new();
-        for user in &self.users {
-            users = users.push(text(user));
-        }
-        let users = scrollable(users);
-        let users = column![text("users:"), users].padding(PADDING);
+        let users = self.users();
 
         let user_area = row![games, texting, users];
         container(user_area)
@@ -908,4 +933,12 @@ fn init_logger() {
     }
 
     builder.init();
+}
+
+#[derive(Clone, Debug)]
+struct User {
+    name: String,
+    wins: String,
+    losses: String,
+    rating: (f64, f64),
 }
