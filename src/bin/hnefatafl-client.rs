@@ -32,7 +32,7 @@ use iced::{
     stream,
     widget::{
         button, checkbox, column, container, radio, row, scrollable, text, text_input, Column,
-        Container, Row,
+        Container, Row, Scrollable,
     },
     Element, Subscription, Theme,
 };
@@ -41,6 +41,7 @@ use log::{debug, error, info, LevelFilter};
 const PORT: &str = ":49152";
 const PADDING: u16 = 10;
 const SPACING: u16 = 10;
+const SPACING_B: u16 = 20;
 
 /// A Hnefatafl Copenhagen Client
 ///
@@ -674,15 +675,14 @@ impl Client {
         }
     }
 
-    // make scrollable
     #[must_use]
-    fn games(&self) -> Row<Message> {
-        let mut game_ids = Column::new();
-        let mut attackers = Column::new();
-        let mut defenders = Column::new();
-        let mut ratings = Column::new();
-        let mut timings = Column::new();
-        let mut joins = Column::new();
+    fn games(&self) -> Scrollable<Message> {
+        let mut game_ids = Column::new().spacing(SPACING_B);
+        let mut attackers = Column::new().spacing(SPACING_B);
+        let mut defenders = Column::new().spacing(SPACING_B);
+        let mut ratings = Column::new().spacing(SPACING_B);
+        let mut timings = Column::new().spacing(SPACING_B);
+        let mut joins = Column::new().spacing(SPACING);
 
         for game in &self.games_pending {
             let id = game.id;
@@ -711,12 +711,13 @@ impl Client {
         let timings = column![text("timed"), text("-----"), timings].padding(PADDING);
         let joins = column![text(""), text(""), joins].padding(PADDING);
 
-        row![game_ids, attackers, defenders, ratings, timings, joins]
+        scrollable(row![
+            game_ids, attackers, defenders, ratings, timings, joins
+        ])
     }
 
-    // make scrollable
     #[must_use]
-    fn users(&self) -> Row<Message> {
+    fn users(&self) -> Scrollable<Message> {
         let mut ratings = Column::new();
         let mut usernames = Column::new();
         let mut wins = Column::new();
@@ -734,7 +735,7 @@ impl Client {
         let wins = column![text("wins"), text("----"), wins].padding(PADDING);
         let losses = column![text("losses"), text("------"), losses].padding(PADDING);
 
-        row![ratings, usernames, wins, losses]
+        scrollable(row![ratings, usernames, wins, losses])
     }
 
     #[must_use]
