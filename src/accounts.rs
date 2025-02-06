@@ -10,7 +10,12 @@ impl fmt::Display for Accounts {
         for (name, account) in &self.0 {
             if account.logged_in.is_some() {
                 accounts.push(format!(
-                    "{name} {} {} {}",
+                    "{name} {} {} {} logged_in",
+                    account.wins, account.losses, account.rating
+                ));
+            } else {
+                accounts.push(format!(
+                    "{name} {} {} {} logged_out",
                     account.wins, account.losses, account.rating
                 ));
             }

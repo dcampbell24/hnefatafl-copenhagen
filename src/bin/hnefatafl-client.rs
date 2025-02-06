@@ -104,6 +104,7 @@ enum Screen {
     GameNew,
     GameNewFrozen,
     Games,
+    Users,
 }
 
 impl Client {
@@ -243,7 +244,10 @@ impl Client {
                     handle_error(tx.send(format!("join_game {id}\n")));
                 }
             }
-            Message::GameLeave => self.screen = Screen::Games,
+            Message::Leave => match self.screen {
+                Screen::Game | Screen::Users => self.screen = Screen::Games,
+                Screen::GameNew | Screen::GameNewFrozen | Screen::Games | Screen::Login => {}
+            },
             Message::GameNew => self.screen = Screen::GameNew,
             Message::GameSubmit => {
                 if let (Some(role), Some(tx)) = (self.role_selected, &self.tx) {
@@ -389,7 +393,7 @@ impl Client {
                         Some("display_users") => {
                             let users: Vec<&str> = text.collect();
                             self.users.clear();
-                            for user_wins_losses_rating in users.chunks_exact(4) {
+                            for user_wins_losses_rating in users.chunks_exact(5) {
                                 let rating = user_wins_losses_rating[3];
                                 let Some((rating, deviation)) = rating.split_once("±") else {
                                     panic!("the ratings has this form");
@@ -400,11 +404,14 @@ impl Client {
                                     panic!("the ratings has this form");
                                 };
 
+                                let logged_in = "logged_in" == user_wins_losses_rating[4];
+
                                 self.users.push(User {
                                     name: user_wins_losses_rating[0].to_string(),
                                     wins: user_wins_losses_rating[1].to_string(),
                                     losses: user_wins_losses_rating[2].to_string(),
                                     rating: (rating, deviation),
+                                    logged_in,
                                 });
                             }
                             self.users
@@ -672,6 +679,7 @@ impl Client {
                     self.time_minutes = string;
                 }
             }
+            Message::Users => self.screen = Screen::Users,
         }
     }
 
@@ -717,17 +725,19 @@ impl Client {
     }
 
     #[must_use]
-    fn users(&self) -> Scrollable<Message> {
+    fn users(&self, logged_in: bool) -> Scrollable<Message> {
         let mut ratings = Column::new();
         let mut usernames = Column::new();
         let mut wins = Column::new();
         let mut losses = Column::new();
 
         for user in &self.users {
-            ratings = ratings.push(text(format!("{} ± {}", user.rating.0, user.rating.1)));
-            usernames = usernames.push(text(&user.name));
-            wins = wins.push(text(&user.wins));
-            losses = losses.push(text(&user.losses));
+            if logged_in == user.logged_in {
+                ratings = ratings.push(text(format!("{} ± {}", user.rating.0, user.rating.1)));
+                usernames = usernames.push(text(&user.name));
+                wins = wins.push(text(&user.wins));
+                losses = losses.push(text(&user.losses));
+            }
         }
 
         let ratings = column![text("rating"), text("------"), ratings].padding(PADDING);
@@ -742,7 +752,7 @@ impl Client {
     fn user_area(&self, in_game: bool) -> Container<Message> {
         let games = self.games();
         let texting = self.texting(in_game).padding(PADDING);
-        let users = self.users();
+        let users = self.users(true);
 
         let user_area = row![games, texting, users];
         container(user_area)
@@ -755,7 +765,7 @@ impl Client {
     pub fn view(&self) -> Element<Message> {
         match self.screen {
             Screen::Game => {
-                let leave_game = button("Leave Game").on_press(Message::GameLeave);
+                let leave_game = button("Leave").on_press(Message::Leave);
                 let user_area = row![
                     text(format!(
                         "username: {}, attacker: {}, defender: {}",
@@ -836,7 +846,8 @@ impl Client {
             Screen::Games => {
                 let username = row![text("username: "), text(&self.username)];
                 let create_game = button("Create Game").on_press(Message::GameNew);
-                let top = row![username, create_game].spacing(SPACING);
+                let users = button("Users").on_press(Message::Users);
+                let top = row![username, create_game, users].spacing(SPACING);
                 let top = container(top)
                     .padding(PADDING)
                     .style(container::bordered_box);
@@ -877,6 +888,14 @@ impl Client {
                     .spacing(SPACING)
                     .into()
             }
+            Screen::Users => column![
+                row![button("Leave").on_press(Message::Leave)].padding(PADDING),
+                text("logged in"),
+                self.users(true),
+                text("logged out"),
+                self.users(false),
+            ]
+            .into(),
         }
     }
 }
@@ -884,9 +903,9 @@ impl Client {
 #[derive(Clone, Debug)]
 enum Message {
     GameJoin(u64),
-    GameLeave,
     GameNew,
     GameSubmit,
+    Leave,
     PasswordChanged(String),
     PasswordShow(bool),
     PlayMoveFrom(Vertex),
@@ -901,6 +920,7 @@ enum Message {
     TimeAddSeconds(String),
     TimeCheckbox(bool),
     TimeMinutes(String),
+    Users,
 }
 
 fn pass_messages() -> impl Stream<Item = Message> {
@@ -975,4 +995,5 @@ struct User {
     wins: String,
     losses: String,
     rating: (f64, f64),
+    logged_in: bool,
 }

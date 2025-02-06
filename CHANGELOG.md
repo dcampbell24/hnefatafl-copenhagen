@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Make a users screen.
 - hnefatafl-client: Give the option of Hiding the password.
 - hnefatafl-client: Do logging.
 
