@@ -39,7 +39,7 @@ use iced::{
 use log::{debug, error, info, LevelFilter};
 
 const PORT: &str = ":49152";
-const PADDING: u16 = 20;
+const PADDING: u16 = 10;
 const SPACING: u16 = 10;
 
 /// A Hnefatafl Copenhagen Client
@@ -674,6 +674,47 @@ impl Client {
         }
     }
 
+    // make scrollable
+    #[must_use]
+    fn games(&self) -> Row<Message> {
+        let mut game_ids = Column::new();
+        let mut attackers = Column::new();
+        let mut defenders = Column::new();
+        let mut ratings = Column::new();
+        let mut timings = Column::new();
+        let mut joins = Column::new();
+
+        for game in &self.games_pending {
+            let id = game.id;
+            game_ids = game_ids.push(text(id));
+
+            attackers = if let Some(attacker) = &game.attacker {
+                attackers.push(text(attacker))
+            } else {
+                attackers.push(text("none"))
+            };
+            defenders = if let Some(defender) = &game.defender {
+                defenders.push(text(defender))
+            } else {
+                defenders.push(text("none"))
+            };
+
+            ratings = ratings.push(text(game.rated.to_string()));
+            timings = timings.push(text(game.timed.to_string()));
+            joins = joins.push(button("join").on_press(Message::GameJoin(id)));
+        }
+
+        let game_ids = column![text("game_id"), text("-------"), game_ids].padding(PADDING);
+        let attackers = column![text("attacker"), text("--------"), attackers].padding(PADDING);
+        let defenders = column![text("defender"), text("--------"), defenders].padding(PADDING);
+        let ratings = column![text("rated"), text("-----"), ratings].padding(PADDING);
+        let timings = column![text("timed"), text("-----"), timings].padding(PADDING);
+        let joins = column![text(""), text(""), joins].padding(PADDING);
+
+        row![game_ids, attackers, defenders, ratings, timings, joins]
+    }
+
+    // make scrollable
     #[must_use]
     fn users(&self) -> Row<Message> {
         let mut ratings = Column::new();
@@ -698,15 +739,7 @@ impl Client {
 
     #[must_use]
     fn user_area(&self, in_game: bool) -> Container<Message> {
-        let mut games = Column::new();
-        for game in &self.games_pending {
-            let id = game.id;
-            let join = button("join").on_press(Message::GameJoin(id));
-            games = games.push(row![text(game.to_string()), join].spacing(SPACING));
-        }
-        let games = scrollable(games);
-        let games = column![text("pending games:"), games].padding(PADDING);
-
+        let games = self.games();
         let texting = self.texting(in_game).padding(PADDING);
         let users = self.users();
 
