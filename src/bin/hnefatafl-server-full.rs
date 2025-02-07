@@ -107,7 +107,7 @@ fn login(
     let mut buf = String::new();
 
     reader.read_line(&mut buf)?;
-    for ch in buf.chars() {
+    for ch in buf.trim().chars() {
         if ch.is_control() || ch == '\0' {
             return Err(anyhow::Error::msg(
                 "there are control characters in the username or password",
