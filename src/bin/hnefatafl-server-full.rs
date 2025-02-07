@@ -106,9 +106,20 @@ fn login(
     let mut reader = BufReader::new(stream.try_clone()?);
 
     let mut buf = String::new();
+
+    for ch in buf.chars() {
+        if ch.is_control() || ch == '\0' {
+            return Err(anyhow::Error::msg(
+                "there are control characters in the username or password",
+            ));
+        }
+    }
+
     reader.read_line(&mut buf)?;
     if buf.trim().is_empty() {
-        return Ok(());
+        return Err(anyhow::Error::msg(
+            "the user tried to login with white space alone",
+        ));
     }
 
     buf.make_ascii_lowercase();
@@ -143,6 +154,13 @@ fn login(
         let mut buf = String::new();
         for _ in 0..1_000_000 {
             reader.read_line(&mut buf)?;
+
+            for char in buf.chars() {
+                if char.is_control() || char == '\0' {
+                    return Err(anyhow::Error::msg("a control character was passed"));
+                }
+            }
+
             tx.send((format!("{index} {username} {}", buf.trim()), None))?;
             buf.clear();
         }

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-server-full: Ignore control characters and the null character.
+
 ## [0.5.0] - 2025-02-05
 
 ### Added
