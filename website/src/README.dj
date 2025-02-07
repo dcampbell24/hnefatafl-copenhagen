@@ -23,6 +23,12 @@ You will automatically connect to the main server.
 At the moment their may be fairly regular updates. If you run into problems,
 make sure you are running the latest version.
 
+## Discourse
+
+The website has a [discourse forum][4].
+
+[4]: https://discourse.hnefatafl.org
+
 ## Help Me
 
 If you have any issues with the software, open an issue on [github][3].

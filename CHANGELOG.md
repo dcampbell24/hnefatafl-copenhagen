@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add a discourse link to the website.
 - hnefatafl-server-full: Throw an error if we encounter a control character or
   the null character.
 
