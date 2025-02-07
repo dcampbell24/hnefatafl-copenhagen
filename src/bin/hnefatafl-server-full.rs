@@ -104,9 +104,9 @@ fn login(
     tx: &mpsc::Sender<(String, Option<mpsc::Sender<String>>)>,
 ) -> anyhow::Result<()> {
     let mut reader = BufReader::new(stream.try_clone()?);
-
     let mut buf = String::new();
 
+    reader.read_line(&mut buf)?;
     for ch in buf.chars() {
         if ch.is_control() || ch == '\0' {
             return Err(anyhow::Error::msg(
@@ -115,7 +115,6 @@ fn login(
         }
     }
 
-    reader.read_line(&mut buf)?;
     if buf.trim().is_empty() {
         return Err(anyhow::Error::msg(
             "the user tried to login with white space alone",
