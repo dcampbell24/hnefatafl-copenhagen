@@ -151,16 +151,17 @@ fn login(
         thread::spawn(move || receiving_and_writing(stream, &client_rx));
 
         let mut buf = String::new();
-        for _ in 0..1_000_000_000 {
+        for _ in 0..1_000_000 {
             reader.read_line(&mut buf)?;
 
-            for char in buf.chars() {
+            let buf_str = buf.trim();
+            for char in buf_str.chars() {
                 if char.is_control() || char == '\0' {
                     return Err(anyhow::Error::msg("a control character was passed"));
                 }
             }
 
-            tx.send((format!("{index} {username} {}", buf.trim()), None))?;
+            tx.send((format!("{index} {username} {buf_str}"), None))?;
             buf.clear();
         }
 
@@ -499,6 +500,7 @@ impl Server {
                         ))
                     }
                 }
+                // new_game attacker rated fischer 900000 10
                 "new_game" => {
                     let mut the_rest = the_rest.split_ascii_whitespace();
                     let Some(role) = the_rest.next() else {
