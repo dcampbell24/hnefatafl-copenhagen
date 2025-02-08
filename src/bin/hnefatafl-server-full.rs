@@ -124,7 +124,7 @@ fn login(
     buf.make_ascii_lowercase();
     let mut username_password = buf.split_ascii_whitespace();
 
-    if let Some(username) = username_password.next() {
+    if let (Some("login"), Some(username)) = (username_password.next(), username_password.next()) {
         let password: Vec<&str> = username_password.collect();
         let password = password.join(" ");
 
@@ -151,7 +151,7 @@ fn login(
         thread::spawn(move || receiving_and_writing(stream, &client_rx));
 
         let mut buf = String::new();
-        for _ in 0..1_000_000 {
+        for _ in 0..1_000_000_000 {
             reader.read_line(&mut buf)?;
 
             for char in buf.chars() {
@@ -167,7 +167,7 @@ fn login(
         tx.send((format!("{index} {username} logout"), None))?;
     }
 
-    Ok(())
+    Err(anyhow::Error::msg("the user didn't pass 'login username'"))
 }
 
 fn receiving_and_writing(

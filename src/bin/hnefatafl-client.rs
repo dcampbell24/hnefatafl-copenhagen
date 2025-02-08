@@ -603,7 +603,9 @@ impl Client {
                     if self.screen == Screen::Login {
                         if let Some(username) = self.text_input.split_ascii_whitespace().next() {
                             let username = username.to_ascii_lowercase();
-                            handle_error(tx.send(format!("{username} {}\n", self.password_real)));
+                            handle_error(
+                                tx.send(format!("login {username} {}\n", self.password_real)),
+                            );
                             self.username = username;
                         }
                     } else if self.screen == Screen::Game {

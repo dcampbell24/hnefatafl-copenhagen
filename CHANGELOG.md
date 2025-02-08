@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Add a discourse link to the website.
+## [0.5.1] - 2025-02-07
+
+### Added
+
+- Make the user pass "login" to login.
+- A discourse link to the website.
 - hnefatafl-server-full: Throw an error if we encounter a control character or
   the null character.
 
@@ -37,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.5.0...main
+[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.5.1...main
+[0.5.1]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.4.0...v0.4.1
