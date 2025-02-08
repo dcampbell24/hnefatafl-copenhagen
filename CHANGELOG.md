@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Check the VERSION_ID and report if it is wrong.
 - Make the user pass "login" to login.
 - A discourse link to the website.
 - hnefatafl-server-full: Throw an error if we encounter a control character or

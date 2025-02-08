@@ -25,6 +25,7 @@ use hnefatafl_copenhagen::{
     server_game::{ArchivedGame, ServerGame, ServerGameLight},
     status::Status,
     time::TimeSettings,
+    VERSION_ID,
 };
 use log::{debug, info, LevelFilter};
 use password_hash::SaltString;
@@ -54,6 +55,9 @@ struct Args {
 // 4. Figure out some way of testing.
 // 4. Get SSL working.
 fn main() -> anyhow::Result<()> {
+    // println!("{:x}", rand::random::<u32>());
+    // return Ok(());
+
     init_logger();
     let mut args = Args::parse();
 
@@ -124,14 +128,23 @@ fn login(
     buf.make_ascii_lowercase();
     let mut username_password = buf.split_ascii_whitespace();
 
-    if let (Some("login"), Some(username)) = (username_password.next(), username_password.next()) {
+    if let (Some(version_id), Some(username)) = (username_password.next(), username_password.next())
+    {
+        println!("{version_id} == {VERSION_ID}");
+        if version_id != VERSION_ID {
+            stream.write_all(b"? login wrong version, try running 'cargo install hnefatafl-copenhagen --features client'\n")?;
+            return Err(anyhow::Error::msg("wrong version"));
+        }
+
         let password: Vec<&str> = username_password.collect();
         let password = password.join(" ");
 
         if username.len() > 32 {
+            stream.write_all(b"? login username is more than 32 characters\n")?;
             return Err(anyhow::Error::msg("username is greater than 32 characters"));
         }
         if password.len() > 32 {
+            stream.write_all(b"? login password is more than 32 characters\n")?;
             return Err(anyhow::Error::msg("password is greater than 32 characters"));
         }
 
@@ -157,7 +170,7 @@ fn login(
             let buf_str = buf.trim();
             for char in buf_str.chars() {
                 if char.is_control() || char == '\0' {
-                    return Err(anyhow::Error::msg("a control character was passed"));
+                    break;
                 }
             }
 

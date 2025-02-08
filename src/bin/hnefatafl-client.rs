@@ -25,6 +25,7 @@ use hnefatafl_copenhagen::{
     space::Space,
     status::Status,
     time::{Time, TimeSettings},
+    VERSION_ID,
 };
 use iced::{
     font::Font,
@@ -604,7 +605,10 @@ impl Client {
                         if let Some(username) = self.text_input.split_ascii_whitespace().next() {
                             let username = username.to_ascii_lowercase();
                             handle_error(
-                                tx.send(format!("login {username} {}\n", self.password_real)),
+                                tx.send(format!(
+                                    "{VERSION_ID} {username} {}\n",
+                                    self.password_real
+                                )),
                             );
                             self.username = username;
                         }
