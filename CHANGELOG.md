@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3] - 2025-02-08
+
+- Don't set the window size to infinity, it crashes on MacOS.
+- Pass the VERSION_ID when you login.
+
 ## [0.5.2] - 2025-02-07
 
 ### Changed
 
-- Don't set the window size to infinity, it crashes on MacOS.
 - Fix errors in logic.
 
 ## [0.5.1] - 2025-02-07 (yanked)
@@ -50,7 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.5.2...main
+[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.5.3...main
+[0.5.3]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.4.1...v0.5.0
