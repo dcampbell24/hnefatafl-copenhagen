@@ -61,7 +61,7 @@ fn main() -> anyhow::Result<()> {
     iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
         .default_font(Font::MONOSPACE)
         .subscription(Client::subscriptions)
-        .window_size(iced::Size::INFINITY)
+        // .window_size(iced::Size::INFINITY)
         .theme(Client::theme)
         .run()?;
 

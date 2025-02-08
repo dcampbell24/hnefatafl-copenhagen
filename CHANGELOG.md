@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Don't set the window size to infinity, it crashes on MacOS.
 - Fix errors in logic.
 
 ## [0.5.1] - 2025-02-07 (yanked)
