@@ -130,7 +130,6 @@ fn login(
 
     if let (Some(version_id), Some(username)) = (username_password.next(), username_password.next())
     {
-        println!("{version_id} == {VERSION_ID}");
         if version_id != VERSION_ID {
             stream.write_all(b"? login wrong version, try running 'cargo install hnefatafl-copenhagen --features client'\n")?;
             return Err(anyhow::Error::msg("wrong version"));
