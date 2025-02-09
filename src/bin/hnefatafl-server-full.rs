@@ -44,6 +44,10 @@ struct Args {
     /// Listen for HTP drivers on host
     #[arg(default_value = "0.0.0.0", long)]
     host: String,
+
+    /// Whether the application is being run by systemd
+    #[arg(long)]
+    systemd: bool,
 }
 
 // 1. Handles the leave issue... if you periodically check the time.
@@ -58,8 +62,8 @@ fn main() -> anyhow::Result<()> {
     // println!("{:x}", rand::random::<u32>());
     // return Ok(());
 
-    init_logger();
     let mut args = Args::parse();
+    init_logger(args.systemd);
 
     let data_file = data_file();
     let mut server = if exists(&data_file)? {
@@ -847,19 +851,25 @@ pub struct LoggedIn {
     _game_open: Option<Game>,
 }
 
-fn init_logger() {
+fn init_logger(systemd: bool) {
     let mut builder = Builder::new();
 
-    builder.format(|formatter, record| {
-        writeln!(
-            formatter,
-            "{} [{}] ({}): {}",
-            Utc::now().format("%Y-%m-%d %H:%M:%S %z"),
-            record.level(),
-            record.target(),
-            record.args()
-        )
-    });
+    if systemd {
+        builder.format(|formatter, record| {
+            writeln!(formatter, "[{}]: {}", record.level(), record.args())
+        });
+    } else {
+        builder.format(|formatter, record| {
+            writeln!(
+                formatter,
+                "{} [{}] ({}): {}",
+                Utc::now().format("%Y-%m-%d %H:%M:%S %z"),
+                record.level(),
+                record.target(),
+                record.args()
+            )
+        });
+    }
 
     if let Ok(var) = env::var("RUST_LOG") {
         builder.parse_filters(&var);
