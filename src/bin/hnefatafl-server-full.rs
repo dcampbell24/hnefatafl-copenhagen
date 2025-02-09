@@ -272,8 +272,8 @@ impl Server {
                 .parse::<u64>()
                 .expect("the index should be a valid u64");
 
-            let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
-            let the_rest = the_rest.join(" ");
+            let mut the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
+
             match *command {
                 "display_server" => {
                     debug!("0 {username} display_server");
@@ -290,9 +290,10 @@ impl Server {
                     (*username).to_string(),
                     index_supplied,
                     (*command).to_string(),
-                    &the_rest,
+                    the_rest.as_slice(),
                 ),
                 "login" => {
+                    let password_1 = the_rest.join(" ");
                     if let Some(tx) = option_tx {
                         if let Some(index_database) = self.accounts.0.get_mut(*username) {
                             // The username is in the database and already logged in.
@@ -304,7 +305,6 @@ impl Server {
                                 Some(((tx), false, (*command).to_string()))
                             // The username is in the database, but not logged in yet.
                             } else {
-                                let password_1 = the_rest;
                                 let Some(password_2) = self.passwords.get(*username) else {
                                     panic!("we already know the username is in the database.");
                                 };
@@ -333,11 +333,10 @@ impl Server {
                         } else {
                             info!("{index_supplied} {username} created user account");
 
-                            let password = the_rest;
                             let ctx = Argon2::default();
                             let salt = SaltString::generate(&mut OsRng);
                             let hash = ctx
-                                .hash_password(password.as_bytes(), &salt)
+                                .hash_password(password_1.as_bytes(), &salt)
                                 .unwrap()
                                 .to_string();
 
@@ -416,30 +415,14 @@ impl Server {
                 }
                 // new_game attacker rated fischer 900000 10
                 "new_game" => {
-                    let mut the_rest = the_rest.split_ascii_whitespace();
-                    let Some(role) = the_rest.next() else {
+                    let Some(role) = the_rest.first() else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
                         ));
                     };
-                    let Ok(role) = Role::try_from(role) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let Some(rated) = the_rest.next() else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Ok(rated) = Rated::try_from(rated) else {
+                    let Ok(role) = Role::try_from(*role) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -447,21 +430,36 @@ impl Server {
                         ));
                     };
 
-                    let Some(timed) = the_rest.next() else {
+                    let Some(rated) = the_rest.get(1) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
                         ));
                     };
-                    let Some(minutes) = the_rest.next() else {
+                    let Ok(rated) = Rated::try_from(*rated) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
                         ));
                     };
-                    let Some(add_seconds) = the_rest.next() else {
+
+                    let Some(timed) = the_rest.get(2) else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+                    let Some(minutes) = the_rest.get(3) else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+                    let Some(add_seconds) = the_rest.get(4) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -499,8 +497,7 @@ impl Server {
                 }
                 // game 0 play black a4 a2
                 "game" => {
-                    let words: Vec<&str> = the_rest.split_ascii_whitespace().collect();
-                    let Some(index) = words.first() else {
+                    let Some(index) = the_rest.first() else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -514,7 +511,7 @@ impl Server {
                             (*command).to_string(),
                         ));
                     };
-                    let Some(color) = words.get(2) else {
+                    let Some(color) = the_rest.get(2) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -528,14 +525,14 @@ impl Server {
                             (*command).to_string(),
                         ));
                     };
-                    let Some(from) = words.get(3) else {
+                    let Some(from) = the_rest.get(3) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
                         ));
                     };
-                    let Some(to) = words.get(4) else {
+                    let Some(to) = the_rest.get(4) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -702,6 +699,7 @@ impl Server {
                     ))
                 }
                 "text" => {
+                    let the_rest = the_rest.join(" ");
                     info!("{index_supplied} {username} text {the_rest}");
                     for tx in &mut self.clients.values() {
                         let _ok = tx.send(format!("= text {username}: {the_rest}"));
@@ -709,8 +707,7 @@ impl Server {
                     None
                 }
                 "text_game" => {
-                    let mut text = the_rest.split_ascii_whitespace();
-                    let Some(id) = text.next() else {
+                    let Some(id) = the_rest.first() else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -725,7 +722,7 @@ impl Server {
                         ));
                     };
 
-                    let text: Vec<&str> = text.collect();
+                    let text = the_rest.split_off(1);
                     let mut text = text.join(" ");
                     text = format!("{username}: {text}");
                     info!("{index_supplied} {username} text_game {id} {text}");
@@ -756,9 +753,9 @@ impl Server {
         username: String,
         index_supplied: u64,
         command: String,
-        the_rest: &str,
+        the_rest: &[&str],
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
-        let Some(id) = the_rest.split_ascii_whitespace().next() else {
+        let Some(id) = the_rest.first() else {
             return Some((self.clients[&index_supplied].clone(), false, command));
         };
         let Ok(id) = id.parse::<u64>() else {
