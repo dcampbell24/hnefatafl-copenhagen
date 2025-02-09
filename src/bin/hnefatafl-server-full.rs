@@ -482,27 +482,15 @@ impl Server {
                         "{index_supplied} {username} new_game {} {role} {rated} {timed:?}",
                         self.game_id
                     );
-                    let game = if role == Role::Attacker {
-                        ServerGameLight {
-                            id: self.game_id,
-                            attacker: Some((*username).to_string()),
-                            defender: None,
-                            challenges: Accounts::default(),
-                            rated,
-                            timed,
-                            channel: Some(index_supplied),
-                        }
-                    } else {
-                        ServerGameLight {
-                            id: self.game_id,
-                            attacker: None,
-                            defender: Some((*username).to_string()),
-                            challenges: Accounts::default(),
-                            rated,
-                            timed,
-                            channel: Some(index_supplied),
-                        }
-                    };
+                    let game = ServerGameLight::new(
+                        self.game_id,
+                        (*username).to_string(),
+                        rated,
+                        timed,
+                        index_supplied,
+                        role,
+                    );
+
                     let command = format!("{command} {}", game.protocol());
                     self.pending_games.0.insert(self.game_id, game);
                     self.game_id += 1;

@@ -7,6 +7,7 @@ use crate::{
     game::Game,
     play::Play,
     rating::Rated,
+    role::Role,
     status::Status,
     time::{Time, TimeSettings},
 };
@@ -111,6 +112,38 @@ pub struct ServerGameLight {
 }
 
 impl ServerGameLight {
+    #[must_use]
+    pub fn new(
+        game_id: u64,
+        username: String,
+        rated: Rated,
+        timed: TimeSettings,
+        index_supplied: u64,
+        role: Role,
+    ) -> Self {
+        if role == Role::Attacker {
+            ServerGameLight {
+                id: game_id,
+                attacker: Some(username),
+                defender: None,
+                challenges: Accounts::default(),
+                rated,
+                timed,
+                channel: Some(index_supplied),
+            }
+        } else {
+            ServerGameLight {
+                id: game_id,
+                attacker: None,
+                defender: Some(username),
+                challenges: Accounts::default(),
+                rated,
+                timed,
+                channel: Some(index_supplied),
+            }
+        }
+    }
+
     #[must_use]
     pub fn protocol(&self) -> String {
         let attacker = if let Some(name) = &self.attacker {
