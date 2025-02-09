@@ -8,22 +8,12 @@ impl fmt::Display for Accounts {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut accounts = Vec::new();
         for (name, account) in &self.0 {
-            if account.logged_in.is_some() {
-                accounts.push(format!(
-                    "{name} {} {} {} logged_in",
-                    account.wins, account.losses, account.rating
-                ));
-            } else {
-                accounts.push(format!(
-                    "{name} {} {} {} logged_out",
-                    account.wins, account.losses, account.rating
-                ));
-            }
+            accounts.push(format!("{name} {account}"));
         }
         accounts.sort_unstable();
-        let names = accounts.join(" ");
+        let accounts = accounts.join(" ");
 
-        write!(f, "{names}")
+        write!(f, "{accounts}")
     }
 }
 
@@ -33,6 +23,20 @@ pub struct Account {
     pub wins: u64,
     pub losses: u64,
     pub rating: Rating,
+}
+
+impl fmt::Display for Account {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.logged_in.is_some() {
+            write!(f, "{} {} {} logged_in", self.wins, self.losses, self.rating)
+        } else {
+            write!(
+                f,
+                "{} {} {} logged_out",
+                self.wins, self.losses, self.rating
+            )
+        }
+    }
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
