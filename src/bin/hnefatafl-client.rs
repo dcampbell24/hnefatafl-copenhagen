@@ -1,4 +1,3 @@
-use core::panic;
 use std::{
     collections::VecDeque,
     env, f64,
@@ -72,6 +71,8 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     attacker: String,
     defender: String,
+    // fixme!
+    // challengers: Accounts,
     error: Option<String>,
     game: Option<Game>,
     game_id: u64,
@@ -846,7 +847,7 @@ impl Client {
                 let Some(role) = self.role_selected else {
                     panic!("You can't get to GameNewFrozen unless you have selected a role!");
                 };
-
+                // Fixme!!!
                 row![text(format!("role: {role}"))].padding(PADDING).into()
             }
             Screen::Games => {

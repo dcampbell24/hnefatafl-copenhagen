@@ -1,8 +1,9 @@
-use std::{fmt, sync::mpsc::Sender};
+use std::{fmt, sync::mpsc::Sender, time::Instant};
 
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    accounts::Accounts,
     game::Game,
     play::Play,
     rating::Rated,
@@ -41,6 +42,51 @@ impl ServerGame {
             self.id, self.attacker, self.defender, self.rated
         )
     }
+
+    #[allow(clippy::missing_panics_doc)]
+    #[must_use]
+    pub fn new(
+        username: String,
+        attacker_tx: Sender<String>,
+        defender_tx: Sender<String>,
+        game: ServerGameLight,
+    ) -> Self {
+        if let Some(attacker) = game.attacker {
+            Self {
+                id: game.id,
+                attacker,
+                attacker_tx,
+                defender: username,
+                defender_tx,
+                rated: game.rated,
+                game: Game {
+                    black_time: game.timed.clone(),
+                    white_time: game.timed,
+                    timer: Some(Instant::now()),
+                    ..Game::default()
+                },
+                text: String::new(),
+            }
+        } else if let Some(defender) = game.defender {
+            ServerGame {
+                id: game.id,
+                attacker: username,
+                attacker_tx,
+                defender,
+                defender_tx,
+                rated: game.rated,
+                game: Game {
+                    black_time: game.timed.clone(),
+                    white_time: game.timed,
+                    timer: Some(Instant::now()),
+                    ..Game::default()
+                },
+                text: String::new(),
+            }
+        } else {
+            panic!("there has to be an attacker or defender")
+        }
+    }
 }
 
 impl fmt::Display for ServerGame {
@@ -58,6 +104,7 @@ pub struct ServerGameLight {
     pub id: u64,
     pub attacker: Option<String>,
     pub defender: Option<String>,
+    pub challenges: Accounts,
     pub rated: Rated,
     pub timed: TimeSettings,
     pub channel: Option<u64>,
@@ -142,6 +189,7 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
             id,
             attacker,
             defender,
+            challenges: Accounts::default(),
             rated: Rated::try_from(rated)?,
             timed,
             channel: None,
