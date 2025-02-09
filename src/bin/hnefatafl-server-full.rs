@@ -17,7 +17,6 @@ use env_logger::Builder;
 use hnefatafl_copenhagen::{
     accounts::{Account, Accounts},
     color::Color,
-    game::Game,
     glicko::Outcome,
     handle_error,
     rating::Rated,
@@ -626,16 +625,7 @@ impl Server {
                                 }
                             }
 
-                            self.archived_games.push(ArchivedGame {
-                                id: game.id,
-                                attacker: game.attacker.to_string(),
-                                defender: game.defender.to_string(),
-                                rated: game.rated,
-                                plays: game.game.plays.clone(),
-                                status: game.game.status.clone(),
-                                text: game.text.clone(),
-                            });
-
+                            self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
                         }
                         Status::Draw => {}
@@ -844,11 +834,6 @@ impl Server {
             }
         }
     }
-}
-
-pub struct LoggedIn {
-    _username: String,
-    _game_open: Option<Game>,
 }
 
 fn init_logger(systemd: bool) {

@@ -23,6 +23,21 @@ pub struct ArchivedGame {
     pub text: String,
 }
 
+impl ArchivedGame {
+    #[must_use]
+    pub fn new(game: &ServerGame) -> Self {
+        Self {
+            id: game.id,
+            attacker: game.attacker.to_string(),
+            defender: game.defender.to_string(),
+            rated: game.rated,
+            plays: game.game.plays.clone(),
+            status: game.game.status.clone(),
+            text: game.text.clone(),
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct ServerGame {
     pub id: u64,
