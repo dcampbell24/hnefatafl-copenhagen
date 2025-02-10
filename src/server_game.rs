@@ -158,7 +158,7 @@ impl fmt::Display for Challengers {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ServerGameLight {
     pub id: usize,
     pub attacker: Option<String>,
@@ -201,9 +201,11 @@ impl ServerGameLight {
             }
         }
     }
+}
 
-    #[must_use]
-    pub fn protocol(&self) -> String {
+// Fixme!
+impl fmt::Debug for ServerGameLight {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let attacker = if let Some(name) = &self.attacker {
             name
         } else {
@@ -216,7 +218,8 @@ impl ServerGameLight {
             "none"
         };
 
-        format!(
+        write!(
+            f,
             "game {} {attacker} {defender} {} {:?}",
             self.id, self.rated, self.timed
         )
@@ -288,17 +291,15 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Default)]
 pub struct ServerGamesLight(pub HashMap<usize, ServerGameLight>);
 
-impl fmt::Display for ServerGamesLight {
+impl fmt::Debug for ServerGamesLight {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut games = Vec::new();
         for game in self.0.values() {
-            games.push(game.protocol());
+            write!(f, "{game:?} ")?;
         }
-        let games = games.join(" ");
 
-        write!(f, "{games}")
+        Ok(())
     }
 }

@@ -251,7 +251,7 @@ impl Server {
                 "display_server" => {
                     debug!("0 {username} display_server");
                     for tx in &mut self.clients.values() {
-                        tx.send(format!("= display_pending_games {}", &self.pending_games))
+                        tx.send(format!("= display_pending_games {:?}", &self.pending_games))
                             .ok()?;
                         tx.send(format!("= display_games {}", &self.games)).ok()?;
                         tx.send(format!("= display_users {}", &self.accounts))
@@ -468,7 +468,7 @@ impl Server {
                         role,
                     );
 
-                    let command = format!("{command} {}", game.protocol());
+                    let command = format!("{command} {game:?}");
                     self.pending_games.0.insert(self.game_id, game);
                     self.game_id += 1;
 
