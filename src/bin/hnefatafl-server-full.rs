@@ -837,24 +837,35 @@ impl Server {
         };
 
         info!("{index_supplied} {username} leave_game {id}");
-        let Some(game) = self.pending_games.0.get_mut(&id) else {
-            return (self.clients[&index_supplied].clone(), false, command);
+
+        let mut remove = false;
+        match self.pending_games.0.get_mut(&id) {
+            Some(game) => {
+                if let Some(attacker) = &game.attacker {
+                    if username == attacker {
+                        game.attacker = None;
+                    }
+                }
+                if let Some(defender) = &game.defender {
+                    if username == defender {
+                        game.defender = None;
+                    }
+                }
+                if let Some(challenger) = &game.challenger.0 {
+                    if username == challenger {
+                        game.challenger.0 = None;
+                    }
+                }
+
+                if game.attacker.is_none() && game.defender.is_none() {
+                    remove = true;
+                }
+            }
+            None => return (self.clients[&index_supplied].clone(), false, command),
         };
 
-        if let Some(attacker) = &game.attacker {
-            if username == attacker {
-                game.attacker = None;
-            }
-        }
-        if let Some(defender) = &game.defender {
-            if username == defender {
-                game.defender = None;
-            }
-        }
-        if let Some(challenger) = &game.challenger.0 {
-            if username == challenger {
-                game.challenger.0 = None;
-            }
+        if remove {
+            self.pending_games.0.remove(&id);
         }
 
         command.push(' ');
