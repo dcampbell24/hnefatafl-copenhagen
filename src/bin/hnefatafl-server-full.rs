@@ -271,6 +271,12 @@ impl Server {
                     (*command).to_string(),
                     the_rest.as_slice(),
                 )),
+                "leave_game" => Some(self.leave_game(
+                    username,
+                    index_supplied,
+                    (*command).to_string(),
+                    the_rest.as_slice(),
+                )),
                 "login" => {
                     let password_1 = the_rest.join(" ");
                     if let Some(tx) = option_tx {
@@ -810,6 +816,46 @@ impl Server {
             game.defender = Some(username.clone());
         }
         game.challenger.0 = Some(username);
+
+        command.push(' ');
+        command.push_str(the_rest[0]);
+        (self.clients[&index_supplied].clone(), true, command)
+    }
+
+    fn leave_game(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        mut command: String,
+        the_rest: &[&str],
+    ) -> (mpsc::Sender<String>, bool, String) {
+        let Some(id) = the_rest.first() else {
+            return (self.clients[&index_supplied].clone(), false, command);
+        };
+        let Ok(id) = id.parse::<usize>() else {
+            return (self.clients[&index_supplied].clone(), false, command);
+        };
+
+        info!("{index_supplied} {username} leave_game {id}");
+        let Some(game) = self.pending_games.0.get_mut(&id) else {
+            return (self.clients[&index_supplied].clone(), false, command);
+        };
+
+        if let Some(attacker) = &game.attacker {
+            if username == attacker {
+                game.attacker = None;
+            }
+        }
+        if let Some(defender) = &game.defender {
+            if username == defender {
+                game.defender = None;
+            }
+        }
+        if let Some(challenger) = &game.challenger.0 {
+            if username == challenger {
+                game.challenger.0 = None;
+            }
+        }
 
         command.push(' ');
         command.push_str(the_rest[0]);

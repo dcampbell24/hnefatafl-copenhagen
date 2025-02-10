@@ -257,9 +257,14 @@ impl Client {
                 }
             }
             Message::Leave => match self.screen {
-                Screen::Game | Screen::GameNewFrozen | Screen::Users => {
-                    // Fixme: if you created the game, remove it.
+                Screen::Game | Screen::Users => {
                     self.screen = Screen::Games;
+                }
+                Screen::GameNewFrozen => {
+                    if let Some(tx) = &self.tx {
+                        handle_error(tx.send(format!("leave_game {}\n", self.game_id)));
+                        self.screen = Screen::Games;
+                    }
                 }
                 Screen::GameNew | Screen::Games | Screen::Login => {}
             },
@@ -488,6 +493,7 @@ impl Client {
                             };
                             self.game_id = id;
                         }
+                        Some("leave_game") => self.game_id = 0,
                         Some("login") => self.screen = Screen::Games,
                         Some("new_game") => {
                             // = new_game game 15 none david rated fischer 900_000 10
