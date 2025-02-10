@@ -1,9 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    fmt,
-    sync::mpsc::Sender,
-    time::Instant,
-};
+use std::{collections::HashMap, fmt, sync::mpsc::Sender, time::Instant};
 
 use serde::{Deserialize, Serialize};
 
@@ -135,23 +130,27 @@ impl fmt::Display for ServerGames {
 }
 
 #[derive(Clone, Default)]
-pub struct Challengers(pub HashSet<String>);
+pub struct Challenger(pub Option<String>);
 
-impl fmt::Debug for Challengers {
+impl fmt::Debug for Challenger {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for challenger in &self.0 {
-            write!(f, "{challenger} ")?;
+        if let Some(challenger) = &self.0 {
+            write!(f, "{challenger}")?;
+        } else {
+            write!(f, "_")?;
         }
 
         Ok(())
     }
 }
 
-impl fmt::Display for Challengers {
+impl fmt::Display for Challenger {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "challengers: ")?;
-        for challenger in &self.0 {
-            write!(f, "{challenger} ")?;
+        write!(f, "challenger: ")?;
+        if let Some(challenger) = &self.0 {
+            write!(f, "{challenger}")?;
+        } else {
+            write!(f, "none")?;
         }
 
         Ok(())
@@ -163,7 +162,7 @@ pub struct ServerGameLight {
     pub id: usize,
     pub attacker: Option<String>,
     pub defender: Option<String>,
-    pub challengers: Challengers,
+    pub challenger: Challenger,
     pub rated: Rated,
     pub timed: TimeSettings,
     pub channel: Option<usize>,
@@ -184,7 +183,7 @@ impl ServerGameLight {
                 id: game_id,
                 attacker: Some(username),
                 defender: None,
-                challengers: Challengers::default(),
+                challenger: Challenger::default(),
                 rated,
                 timed,
                 channel: Some(index_supplied),
@@ -194,7 +193,7 @@ impl ServerGameLight {
                 id: game_id,
                 attacker: None,
                 defender: Some(username),
-                challengers: Challengers::default(),
+                challenger: Challenger::default(),
                 rated,
                 timed,
                 channel: Some(index_supplied),
@@ -203,7 +202,6 @@ impl ServerGameLight {
     }
 }
 
-// Fixme!
 impl fmt::Debug for ServerGameLight {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let attacker = if let Some(name) = &self.attacker {
@@ -220,8 +218,8 @@ impl fmt::Debug for ServerGameLight {
 
         write!(
             f,
-            "game {} {attacker} {defender} {} {:?}",
-            self.id, self.rated, self.timed
+            "game {} {attacker} {defender} {} {:?} {:?}",
+            self.id, self.rated, self.timed, self.challenger
         )
     }
 }
@@ -242,8 +240,8 @@ impl fmt::Display for ServerGameLight {
 
         write!(
             f,
-            "{}: {attacker}, {defender}, {}, {:?}, {}",
-            self.id, self.rated, self.timed, self.challengers
+            "{}: {attacker}, {defender}, {}, time: {}, {}",
+            self.id, self.rated, self.timed, self.challenger
         )
     }
 }
@@ -283,7 +281,7 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
             id,
             attacker,
             defender,
-            challengers: Challengers::default(),
+            challenger: Challenger::default(),
             rated: Rated::try_from(rated)?,
             timed,
             channel: None,

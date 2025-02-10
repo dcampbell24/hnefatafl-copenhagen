@@ -225,7 +225,7 @@ impl Client {
             }
         }
 
-        let text_input = column![text("texts:"), text_input,];
+        let text_input = column![text("texts"), text("-----"), text_input,];
 
         column![text_input, scrollable(texting),]
     }
@@ -257,8 +257,11 @@ impl Client {
                 }
             }
             Message::Leave => match self.screen {
-                Screen::Game | Screen::Users => self.screen = Screen::Games,
-                Screen::GameNew | Screen::GameNewFrozen | Screen::Games | Screen::Login => {}
+                Screen::Game | Screen::GameNewFrozen | Screen::Users => {
+                    // Fixme: if you created the game, remove it.
+                    self.screen = Screen::Games;
+                }
+                Screen::GameNew | Screen::Games | Screen::Login => {}
             },
             Message::GameNew => self.screen = Screen::GameNew,
             Message::GameSubmit => {
@@ -857,13 +860,12 @@ impl Client {
                 let Some(role) = self.role_selected else {
                     panic!("You can't get to GameNewFrozen unless you have selected a role!");
                 };
-                // Fixme!!!
+
                 let mut game_display = column![text(format!("role: {role}"))].padding(PADDING);
                 if let Some(game) = self.games_pending.0.get(&self.game_id) {
-                    for challenger in &game.challengers.0 {
-                        game_display = game_display.push(text(format!("challenger: {challenger}")));
-                    }
+                    game_display = game_display.push(text(game.to_string()));
                 };
+                game_display = game_display.push(button("Leave").on_press(Message::Leave));
 
                 game_display.into()
             }

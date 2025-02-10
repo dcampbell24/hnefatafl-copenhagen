@@ -804,9 +804,7 @@ impl Server {
             panic!("the id must refer to a valid pending game");
         };
 
-        game.challengers.0.insert(username);
-        println!("{game}");
-
+        game.challenger.0 = Some(username);
         None
     }
 
