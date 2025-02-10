@@ -860,7 +860,7 @@ impl Client {
                 // Fixme!!!
                 let mut game_display = column![text(format!("role: {role}"))].padding(PADDING);
                 if let Some(game) = self.games_pending.0.get(&self.game_id) {
-                    for challenger in &game.challengers {
+                    for challenger in &game.challengers.0 {
                         game_display = game_display.push(text(format!("challenger: {challenger}")));
                     }
                 };

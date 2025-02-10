@@ -134,12 +134,36 @@ impl fmt::Display for ServerGames {
     }
 }
 
+#[derive(Clone, Default)]
+pub struct Challengers(pub HashSet<String>);
+
+impl fmt::Debug for Challengers {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for challenger in &self.0 {
+            write!(f, "{challenger} ")?;
+        }
+
+        Ok(())
+    }
+}
+
+impl fmt::Display for Challengers {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "challengers: ")?;
+        for challenger in &self.0 {
+            write!(f, "{challenger} ")?;
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct ServerGameLight {
     pub id: usize,
     pub attacker: Option<String>,
     pub defender: Option<String>,
-    pub challengers: HashSet<String>,
+    pub challengers: Challengers,
     pub rated: Rated,
     pub timed: TimeSettings,
     pub channel: Option<usize>,
@@ -160,7 +184,7 @@ impl ServerGameLight {
                 id: game_id,
                 attacker: Some(username),
                 defender: None,
-                challengers: HashSet::new(),
+                challengers: Challengers::default(),
                 rated,
                 timed,
                 channel: Some(index_supplied),
@@ -170,7 +194,7 @@ impl ServerGameLight {
                 id: game_id,
                 attacker: None,
                 defender: Some(username),
-                challengers: HashSet::new(),
+                challengers: Challengers::default(),
                 rated,
                 timed,
                 channel: Some(index_supplied),
@@ -215,7 +239,7 @@ impl fmt::Display for ServerGameLight {
 
         write!(
             f,
-            "{}: {attacker}, {defender}, {}, {:?}, {:?}",
+            "{}: {attacker}, {defender}, {}, {:?}, {}",
             self.id, self.rated, self.timed, self.challengers
         )
     }
@@ -256,7 +280,7 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
             id,
             attacker,
             defender,
-            challengers: HashSet::new(),
+            challengers: Challengers::default(),
             rated: Rated::try_from(rated)?,
             timed,
             channel: None,
