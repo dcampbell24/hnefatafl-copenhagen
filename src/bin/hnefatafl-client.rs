@@ -20,7 +20,7 @@ use hnefatafl_copenhagen::{
     play::Vertex,
     rating::Rated,
     role::Role,
-    server_game::ServerGameLight,
+    server_game::{ServerGameLight, ServerGamesLight},
     space::Space,
     status::Status,
     time::{Time, TimeSettings},
@@ -71,12 +71,10 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     attacker: String,
     defender: String,
-    // fixme!
-    // challengers: Accounts,
     error: Option<String>,
     game: Option<Game>,
-    game_id: u64,
-    games_pending: Vec<ServerGameLight>,
+    game_id: usize,
+    games_pending: ServerGamesLight,
     my_turn: bool,
     password: String,
     password_real: String,
@@ -243,7 +241,19 @@ impl Client {
         match message {
             Message::GameJoin(id) => {
                 if let Some(tx) = &self.tx {
-                    handle_error(tx.send(format!("join_game {id}\n")));
+                    handle_error(tx.send(format!("join_game_pending {id}\n")));
+
+                    let Some(game) = self.games_pending.0.get(&id) else {
+                        panic!("the game must exist");
+                    };
+
+                    self.role_selected = if game.attacker.is_some() {
+                        Some(Role::Defender)
+                    } else {
+                        Some(Role::Attacker)
+                    };
+
+                    self.screen = Screen::GameNewFrozen;
                 }
             }
             Message::Leave => match self.screen {
@@ -367,7 +377,7 @@ impl Client {
                 match text.next() {
                     Some("=") => match text.next() {
                         Some("display_pending_games") => {
-                            self.games_pending.clear();
+                            self.games_pending.0.clear();
                             let games: Vec<&str> = text.collect();
                             for chunks in games.chunks_exact(8) {
                                 let id = chunks[1];
@@ -378,18 +388,18 @@ impl Client {
                                 let minutes = chunks[6];
                                 let add_seconds = chunks[7];
 
-                                self.games_pending.push(
-                                    ServerGameLight::try_from((
-                                        id,
-                                        attacker,
-                                        defender,
-                                        rated,
-                                        timed,
-                                        minutes,
-                                        add_seconds,
-                                    ))
-                                    .expect("the value should be a valid ServerGameLight"),
-                                );
+                                let game = ServerGameLight::try_from((
+                                    id,
+                                    attacker,
+                                    defender,
+                                    rated,
+                                    timed,
+                                    minutes,
+                                    add_seconds,
+                                ))
+                                .expect("the value should be a valid ServerGameLight");
+
+                                self.games_pending.0.insert(game.id, game);
                             }
                         }
                         Some("display_users") => {
@@ -494,7 +504,7 @@ impl Client {
                                     panic!("the game id should be next");
                                 };
                                 let Ok(game_id) = game_id.parse() else {
-                                    panic!("the game_id should be a u64")
+                                    panic!("the game_id should be a usize")
                                 };
                                 self.game_id = game_id;
                             }
@@ -521,7 +531,7 @@ impl Client {
                         let Some(index) = text.next() else {
                             return;
                         };
-                        let Ok(id) = index.parse::<u64>() else {
+                        let Ok(id) = index.parse::<usize>() else {
                             panic!("the game_id should be a valid u64");
                         };
                         self.game_id = id;
@@ -699,7 +709,7 @@ impl Client {
         let mut timings = Column::new().spacing(SPACING_B);
         let mut joins = Column::new().spacing(SPACING);
 
-        for game in &self.games_pending {
+        for game in self.games_pending.0.values() {
             let id = game.id;
             game_ids = game_ids.push(text(id));
 
@@ -848,7 +858,14 @@ impl Client {
                     panic!("You can't get to GameNewFrozen unless you have selected a role!");
                 };
                 // Fixme!!!
-                row![text(format!("role: {role}"))].padding(PADDING).into()
+                let mut game_display = column![text(format!("role: {role}"))].padding(PADDING);
+                if let Some(game) = self.games_pending.0.get(&self.game_id) {
+                    for challenger in &game.challengers {
+                        game_display = game_display.push(text(format!("challenger: {challenger}")));
+                    }
+                };
+
+                game_display.into()
             }
             Screen::Games => {
                 let username = row![text("username: "), text(&self.username)];
@@ -909,7 +926,7 @@ impl Client {
 
 #[derive(Clone, Debug)]
 enum Message {
-    GameJoin(u64),
+    GameJoin(usize),
     GameNew,
     GameSubmit,
     Leave,

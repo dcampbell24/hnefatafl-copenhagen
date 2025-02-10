@@ -19,7 +19,7 @@ impl fmt::Display for Accounts {
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Account {
-    pub logged_in: Option<u64>,
+    pub logged_in: Option<usize>,
     pub wins: u64,
     pub losses: u64,
     pub rating: Rating,

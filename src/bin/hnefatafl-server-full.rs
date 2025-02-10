@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    env, fmt,
+    env,
     fs::{exists, read_to_string, File},
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
@@ -21,7 +21,7 @@ use hnefatafl_copenhagen::{
     handle_error,
     rating::Rated,
     role::Role,
-    server_game::{ArchivedGame, ServerGame, ServerGameLight},
+    server_game::{ArchivedGame, ServerGame, ServerGameLight, ServerGames, ServerGamesLight},
     status::Status,
     time::TimeSettings,
     VERSION_ID,
@@ -106,7 +106,7 @@ fn data_file() -> PathBuf {
 }
 
 fn login(
-    index: u64,
+    index: usize,
     mut stream: TcpStream,
     tx: &mpsc::Sender<(String, Option<mpsc::Sender<String>>)>,
 ) -> anyhow::Result<()> {
@@ -198,46 +198,16 @@ fn receiving_and_writing(
 
 #[derive(Clone, Default, Deserialize, Serialize)]
 struct Server {
-    game_id: u64,
+    game_id: usize,
     accounts: Accounts,
     #[serde(skip)]
-    clients: HashMap<u64, mpsc::Sender<String>>,
+    clients: HashMap<usize, mpsc::Sender<String>>,
     #[serde(skip)]
     games: ServerGames,
     passwords: HashMap<String, String>,
     #[serde(skip)]
     pending_games: ServerGamesLight,
     archived_games: Vec<ArchivedGame>,
-}
-
-#[derive(Clone, Debug, Default)]
-struct ServerGames(HashMap<u64, ServerGame>);
-
-impl fmt::Display for ServerGames {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut games = Vec::new();
-        for game in self.0.values() {
-            games.push(game.protocol());
-        }
-        let games = games.join(" ");
-
-        write!(f, "{games}")
-    }
-}
-
-#[derive(Clone, Debug, Default)]
-struct ServerGamesLight(HashMap<u64, ServerGameLight>);
-
-impl fmt::Display for ServerGamesLight {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut games = Vec::new();
-        for game in self.0.values() {
-            games.push(game.protocol());
-        }
-        let games = games.join(" ");
-
-        write!(f, "{games}")
-    }
 }
 
 impl Server {
@@ -272,8 +242,8 @@ impl Server {
             let command = command_option?;
 
             let index_supplied = index_supplied
-                .parse::<u64>()
-                .expect("the index should be a valid u64");
+                .parse::<usize>()
+                .expect("the index should be a valid usize");
 
             let mut the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
 
@@ -290,6 +260,12 @@ impl Server {
                     None
                 }
                 "join_game" => self.join_game(
+                    (*username).to_string(),
+                    index_supplied,
+                    (*command).to_string(),
+                    the_rest.as_slice(),
+                ),
+                "join_game_pending" => self.join_game_pending(
                     (*username).to_string(),
                     index_supplied,
                     (*command).to_string(),
@@ -593,7 +569,6 @@ impl Server {
                         ));
                     }
 
-                    // Fixme!
                     match game.game.status {
                         Status::BlackWins => {
                             let accounts = &mut self.accounts.0;
@@ -672,16 +647,7 @@ impl Server {
                                 }
                             }
 
-                            self.archived_games.push(ArchivedGame {
-                                id: game.id,
-                                attacker: game.attacker.to_string(),
-                                defender: game.defender.to_string(),
-                                rated: game.rated,
-                                plays: game.game.plays.clone(),
-                                status: game.game.status.clone(),
-                                text: game.text.clone(),
-                            });
-
+                            self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
                         }
                     }
@@ -708,7 +674,7 @@ impl Server {
                             (*command).to_string(),
                         ));
                     };
-                    let Ok(id) = id.parse::<u64>() else {
+                    let Ok(id) = id.parse::<usize>() else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -745,14 +711,14 @@ impl Server {
     fn join_game(
         &mut self,
         username: String,
-        index_supplied: u64,
+        index_supplied: usize,
         command: String,
         the_rest: &[&str],
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let Some(id) = the_rest.first() else {
             return Some((self.clients[&index_supplied].clone(), false, command));
         };
-        let Ok(id) = id.parse::<u64>() else {
+        let Ok(id) = id.parse::<usize>() else {
             return Some((self.clients[&index_supplied].clone(), false, command));
         };
 
@@ -776,7 +742,7 @@ impl Server {
                 self.clients[&channel].clone(),
             )
         };
-        // fixme
+
         let new_game = if let Some(attacker) = &game.attacker {
             self.clients[&channel]
                 .send(format!(
@@ -815,6 +781,31 @@ impl Server {
         attacker_tx
             .send(format!("game {id} generate_move black"))
             .ok()?;
+
+        None
+    }
+
+    fn join_game_pending(
+        &mut self,
+        username: String,
+        index_supplied: usize,
+        command: String,
+        the_rest: &[&str],
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        let Some(id) = the_rest.first() else {
+            return Some((self.clients[&index_supplied].clone(), false, command));
+        };
+        let Ok(id) = id.parse::<usize>() else {
+            return Some((self.clients[&index_supplied].clone(), false, command));
+        };
+
+        info!("{index_supplied} {username} join_game_pending {id}");
+        let Some(game) = self.pending_games.0.get_mut(&id) else {
+            panic!("the id must refer to a valid pending game");
+        };
+
+        game.challengers.insert(username);
+        println!("{game}");
 
         None
     }

@@ -1,9 +1,13 @@
-use std::{fmt, sync::mpsc::Sender, time::Instant};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt,
+    sync::mpsc::Sender,
+    time::Instant,
+};
 
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    accounts::Accounts,
     game::Game,
     play::Play,
     rating::Rated,
@@ -14,7 +18,7 @@ use crate::{
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArchivedGame {
-    pub id: u64,
+    pub id: usize,
     pub attacker: String,
     pub defender: String,
     pub rated: Rated,
@@ -40,7 +44,7 @@ impl ArchivedGame {
 
 #[derive(Clone, Debug)]
 pub struct ServerGame {
-    pub id: u64,
+    pub id: usize,
     pub attacker: String,
     pub attacker_tx: Sender<String>,
     pub defender: String,
@@ -115,25 +119,40 @@ impl fmt::Display for ServerGame {
     }
 }
 
+#[derive(Clone, Debug, Default)]
+pub struct ServerGames(pub HashMap<usize, ServerGame>);
+
+impl fmt::Display for ServerGames {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut games = Vec::new();
+        for game in self.0.values() {
+            games.push(game.protocol());
+        }
+        let games = games.join(" ");
+
+        write!(f, "{games}")
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct ServerGameLight {
-    pub id: u64,
+    pub id: usize,
     pub attacker: Option<String>,
     pub defender: Option<String>,
-    pub challenges: Accounts,
+    pub challengers: HashSet<String>,
     pub rated: Rated,
     pub timed: TimeSettings,
-    pub channel: Option<u64>,
+    pub channel: Option<usize>,
 }
 
 impl ServerGameLight {
     #[must_use]
     pub fn new(
-        game_id: u64,
+        game_id: usize,
         username: String,
         rated: Rated,
         timed: TimeSettings,
-        index_supplied: u64,
+        index_supplied: usize,
         role: Role,
     ) -> Self {
         if role == Role::Attacker {
@@ -141,7 +160,7 @@ impl ServerGameLight {
                 id: game_id,
                 attacker: Some(username),
                 defender: None,
-                challenges: Accounts::default(),
+                challengers: HashSet::new(),
                 rated,
                 timed,
                 channel: Some(index_supplied),
@@ -151,7 +170,7 @@ impl ServerGameLight {
                 id: game_id,
                 attacker: None,
                 defender: Some(username),
-                challenges: Accounts::default(),
+                challengers: HashSet::new(),
                 rated,
                 timed,
                 channel: Some(index_supplied),
@@ -196,8 +215,8 @@ impl fmt::Display for ServerGameLight {
 
         write!(
             f,
-            "{}: {attacker}, {defender}, {}, {:?}",
-            self.id, self.rated, self.timed
+            "{}: {attacker}, {defender}, {}, {:?}, {:?}",
+            self.id, self.rated, self.timed, self.challengers
         )
     }
 }
@@ -210,7 +229,7 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
     ) -> anyhow::Result<Self> {
         let (id, attacker, defender, rated, timed, minutes, add_seconds) =
             id_attacker_defender_rated;
-        let id = id.parse::<u64>()?;
+        let id = id.parse::<usize>()?;
 
         let attacker = if attacker == "none" {
             None
@@ -237,10 +256,25 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
             id,
             attacker,
             defender,
-            challenges: Accounts::default(),
+            challengers: HashSet::new(),
             rated: Rated::try_from(rated)?,
             timed,
             channel: None,
         })
+    }
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct ServerGamesLight(pub HashMap<usize, ServerGameLight>);
+
+impl fmt::Display for ServerGamesLight {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut games = Vec::new();
+        for game in self.0.values() {
+            games.push(game.protocol());
+        }
+        let games = games.join(" ");
+
+        write!(f, "{games}")
     }
 }
