@@ -479,6 +479,15 @@ impl Client {
                             self.time_attacker = timed.clone();
                             self.time_defender = timed;
                         }
+                        Some("join_game_pending") => {
+                            let Some(id) = text.next() else {
+                                panic!("there should be an id supplied");
+                            };
+                            let Ok(id) = id.parse() else {
+                                panic!("id should be a valid usize");
+                            };
+                            self.game_id = id;
+                        }
                         Some("login") => self.screen = Screen::Games,
                         Some("new_game") => {
                             // = new_game game 15 none david rated fischer 900_000 10

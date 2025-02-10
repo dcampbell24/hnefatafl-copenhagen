@@ -265,12 +265,12 @@ impl Server {
                     (*command).to_string(),
                     the_rest.as_slice(),
                 ),
-                "join_game_pending" => self.join_game_pending(
+                "join_game_pending" => Some(self.join_game_pending(
                     (*username).to_string(),
                     index_supplied,
                     (*command).to_string(),
                     the_rest.as_slice(),
-                ),
+                )),
                 "login" => {
                     let password_1 = the_rest.join(" ");
                     if let Some(tx) = option_tx {
@@ -789,14 +789,14 @@ impl Server {
         &mut self,
         username: String,
         index_supplied: usize,
-        command: String,
+        mut command: String,
         the_rest: &[&str],
-    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+    ) -> (mpsc::Sender<String>, bool, String) {
         let Some(id) = the_rest.first() else {
-            return Some((self.clients[&index_supplied].clone(), false, command));
+            return (self.clients[&index_supplied].clone(), false, command);
         };
         let Ok(id) = id.parse::<usize>() else {
-            return Some((self.clients[&index_supplied].clone(), false, command));
+            return (self.clients[&index_supplied].clone(), false, command);
         };
 
         info!("{index_supplied} {username} join_game_pending {id}");
@@ -804,17 +804,16 @@ impl Server {
             panic!("the id must refer to a valid pending game");
         };
 
-        game.challenger.0 = Some(username.clone());
-
         if game.attacker.is_none() {
             game.attacker = Some(username.clone());
-        }
-        if game.defender.is_none() {
+        } else if game.defender.is_none() {
             game.defender = Some(username.clone());
         }
         game.challenger.0 = Some(username);
 
-        None
+        command.push(' ');
+        command.push_str(the_rest[0]);
+        (self.clients[&index_supplied].clone(), true, command)
     }
 
     fn save_server(&self) {
