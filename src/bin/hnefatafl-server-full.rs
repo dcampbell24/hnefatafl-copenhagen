@@ -804,7 +804,16 @@ impl Server {
             panic!("the id must refer to a valid pending game");
         };
 
+        game.challenger.0 = Some(username.clone());
+
+        if game.attacker.is_none() {
+            game.attacker = Some(username.clone());
+        }
+        if game.defender.is_none() {
+            game.defender = Some(username.clone());
+        }
         game.challenger.0 = Some(username);
+
         None
     }
 

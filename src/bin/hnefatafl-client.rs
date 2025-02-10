@@ -225,7 +225,7 @@ impl Client {
             }
         }
 
-        let text_input = column![text("texts"), text("-----"), text_input,];
+        let text_input = column![text("texts"), text("-----"), text_input];
 
         column![text_input, scrollable(texting),]
     }
@@ -382,7 +382,7 @@ impl Client {
                         Some("display_pending_games") => {
                             self.games_pending.0.clear();
                             let games: Vec<&str> = text.collect();
-                            for chunks in games.chunks_exact(8) {
+                            for chunks in games.chunks_exact(9) {
                                 let id = chunks[1];
                                 let attacker = chunks[2];
                                 let defender = chunks[3];
@@ -390,6 +390,7 @@ impl Client {
                                 let timed = chunks[5];
                                 let minutes = chunks[6];
                                 let add_seconds = chunks[7];
+                                let challenger = chunks[8];
 
                                 let game = ServerGameLight::try_from((
                                     id,
@@ -399,6 +400,7 @@ impl Client {
                                     timed,
                                     minutes,
                                     add_seconds,
+                                    challenger,
                                 ))
                                 .expect("the value should be a valid ServerGameLight");
 

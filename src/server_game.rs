@@ -207,13 +207,13 @@ impl fmt::Debug for ServerGameLight {
         let attacker = if let Some(name) = &self.attacker {
             name
         } else {
-            "none"
+            "_"
         };
 
         let defender = if let Some(name) = &self.defender {
             name
         } else {
-            "none"
+            "_"
         };
 
         write!(
@@ -246,23 +246,23 @@ impl fmt::Display for ServerGameLight {
     }
 }
 
-impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
+impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
     type Error = anyhow::Error;
 
     fn try_from(
-        id_attacker_defender_rated: (&str, &str, &str, &str, &str, &str, &str),
+        id_attacker_defender_rated: (&str, &str, &str, &str, &str, &str, &str, &str),
     ) -> anyhow::Result<Self> {
-        let (id, attacker, defender, rated, timed, minutes, add_seconds) =
+        let (id, attacker, defender, rated, timed, minutes, add_seconds, challenger) =
             id_attacker_defender_rated;
         let id = id.parse::<usize>()?;
 
-        let attacker = if attacker == "none" {
+        let attacker = if attacker == "_" {
             None
         } else {
             Some(attacker.to_string())
         };
 
-        let defender = if defender == "none" {
+        let defender = if defender == "_" {
             None
         } else {
             Some(defender.to_string())
@@ -277,7 +277,7 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
             _ => TimeSettings(None),
         };
 
-        Ok(Self {
+        let mut game = Self {
             id,
             attacker,
             defender,
@@ -285,7 +285,13 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
             rated: Rated::try_from(rated)?,
             timed,
             channel: None,
-        })
+        };
+
+        if challenger != "_" {
+            game.challenger.0 = Some(challenger.to_string());
+        }
+
+        Ok(game)
     }
 }
 
