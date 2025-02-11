@@ -51,10 +51,11 @@ struct Args {
     systemd: bool,
 }
 
-// 2. Run update_rd on every account once every two months and calculate the
+// 1. Run update_rd on every account once every two months and calculate the
 //    average rating and rd, we assume rd is 50.
-// 3. watch_game 1
-// 3. Display in game users.
+// 2. watch_game 1
+// 2. Display in game users.
+// 3. Make it so you can resume a game.
 // 4. Figure out some way of testing.
 // 4. Get SSL working.
 fn main() -> anyhow::Result<()> {
@@ -588,12 +589,10 @@ impl Server {
                         Status::Draw => {}
                         Status::Ongoing => {
                             if blacks_turn_next {
-                                // Todo: if a player quits he loses.
                                 let _ok = game
                                     .attacker_tx
                                     .send(format!("game {index} generate_move black"));
                             } else {
-                                // Todo: if a player quits he loses.
                                 let _ok = game
                                     .defender_tx
                                     .send(format!("game {index} generate_move white"));

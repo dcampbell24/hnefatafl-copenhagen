@@ -577,7 +577,6 @@ impl Client {
                         // game 0 generate_move black
                         let text_word = text.next();
                         if text_word == Some("generate_move") {
-                            // Todo: send back an ok, otherwise the player resigns.
                             let username_start: String = self.username.chars().take(3).collect();
                             if username_start == "ai-" {
                                 let Some(color) = text.next() else {
