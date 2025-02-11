@@ -733,59 +733,30 @@ impl Server {
             panic!("the id must refer to a valid pending game");
         };
 
-        let Some(channel) = game.channel else {
-            panic!("a pending game has to have a waiting channel");
+        let (Some(attacker_tx), Some(defender_tx)) = (game.attacker_channel, game.defender_channel)
+        else {
+            panic!("the attacker and defender channels must be set")
         };
 
-        // fixme!
-        let (attacker_tx, defender_tx) = if game.attacker.is_some() {
-            (
-                self.clients[&index_supplied].clone(),
-                self.clients[&channel].clone(),
-            )
-        } else {
-            (
-                self.clients[&channel].clone(),
-                self.clients[&index_supplied].clone(),
-            )
-        };
-
-        let new_game = if let Some(attacker) = &game.attacker {
-            self.clients[&channel]
+        for tx in [&attacker_tx, &defender_tx] {
+            self.clients[tx]
                 .send(format!(
-                    "= new_game ready {attacker} {username} {}",
-                    game.rated
+                    "= join_game {} {} {} {:?}",
+                    game.attacker.clone().unwrap(),
+                    game.defender.clone().unwrap(),
+                    game.rated,
+                    game.timed,
                 ))
                 .ok()?;
-            self.clients[&index_supplied]
-                .send(format!(
-                    "= join_game {attacker} {username} {} {:?}",
-                    game.rated, game.timed
-                ))
-                .ok()?;
-
-            ServerGame::new(attacker_tx.clone(), defender_tx, game)
-        } else if let Some(defender) = &game.defender {
-            self.clients[&channel]
-                .send(format!(
-                    "= new_game ready {username} {defender} {}",
-                    game.rated
-                ))
-                .ok()?;
-            self.clients[&index_supplied]
-                .send(format!(
-                    "= join_game {username} {defender} {} {:?}",
-                    game.rated, game.timed
-                ))
-                .ok()?;
-
-            ServerGame::new(attacker_tx.clone(), defender_tx, game)
-        } else {
-            panic!("there has to be an attacker or defender")
-        };
+        }
+        let new_game = ServerGame::new(
+            self.clients[&attacker_tx].clone(),
+            self.clients[&defender_tx].clone(),
+            game,
+        );
 
         self.games.0.insert(id, new_game);
-        attacker_tx
+        self.clients[&attacker_tx]
             .send(format!("game {id} generate_move black"))
             .ok()?;
 
@@ -811,11 +782,12 @@ impl Server {
             panic!("the id must refer to a valid pending game");
         };
 
-        game.channel = Some(index_supplied);
         if game.attacker.is_none() {
             game.attacker = Some(username.clone());
+            game.attacker_channel = Some(index_supplied);
         } else if game.defender.is_none() {
             game.defender = Some(username.clone());
+            game.defender_channel = Some(index_supplied);
         }
         game.challenger.0 = Some(username);
 

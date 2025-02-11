@@ -506,29 +506,7 @@ impl Client {
                         Some("login") => self.screen = Screen::Games,
                         Some("new_game") => {
                             // = new_game game 15 none david rated fischer 900_000 10
-                            let next_word = text.next();
-                            if Some("ready") == next_word {
-                                self.game = Some(Game {
-                                    black_time: self.timed.clone(),
-                                    white_time: self.timed.clone(),
-                                    timer: Some(Instant::now()),
-                                    ..Game::default()
-                                });
-                                self.time_attacker = self.timed.clone();
-                                self.time_defender = self.timed.clone();
-
-                                self.texts_game = VecDeque::new();
-                                self.screen = Screen::Game;
-
-                                let Some(attacker) = text.next() else {
-                                    panic!("the attacker should be supplied");
-                                };
-                                let Some(defender) = text.next() else {
-                                    panic!("the defender should be supplied");
-                                };
-                                self.attacker = attacker.to_string();
-                                self.defender = defender.to_string();
-                            } else if Some("game") == next_word {
+                            if Some("game") == text.next() {
                                 self.challenger = false;
                                 let Some(game_id) = text.next() else {
                                     panic!("the game id should be next");
@@ -826,11 +804,7 @@ impl Client {
                     .style(container::bordered_box);
 
                 let texting = self.texting(true);
-                /* fixme!
-                if self.game.is_some() {
-                    panic!("you are in a game");
-                };
-                */
+
                 let time = row![
                     text(format!("black time: {}", self.time_attacker)),
                     text(format!("white time: {}", self.time_defender)),
@@ -900,23 +874,24 @@ impl Client {
                     }
                 };
 
-                if self.challenger {
-                    game_display = game_display.push(button("Leave").on_press(Message::Leave));
+                let mut buttons = if self.challenger {
+                    row![button("Leave").on_press(Message::Leave)]
                 } else if buttons_live {
-                    game_display = game_display.push(row![
+                    row![
                         button("Accept").on_press(Message::GameAccept(self.game_id)),
                         button("Decline").on_press(Message::GameDecline(self.game_id)),
                         button("Leave").on_press(Message::Leave),
-                    ]);
+                    ]
                 } else {
-                    game_display = game_display.push(row![
+                    row![
                         button("Accept"),
                         button("Decline"),
                         button("Leave").on_press(Message::Leave),
-                    ]);
-                }
+                    ]
+                };
+                buttons = buttons.padding(PADDING).spacing(SPACING);
 
-                game_display.padding(PADDING).spacing(SPACING).into()
+                game_display.push(buttons).into()
             }
             Screen::Games => {
                 let username = row![text("username: "), text(&self.username)];

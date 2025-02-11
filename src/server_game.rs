@@ -148,7 +148,8 @@ pub struct ServerGameLight {
     pub challenger: Challenger,
     pub rated: Rated,
     pub timed: TimeSettings,
-    pub channel: Option<usize>,
+    pub attacker_channel: Option<usize>,
+    pub defender_channel: Option<usize>,
 }
 
 impl ServerGameLight {
@@ -169,7 +170,8 @@ impl ServerGameLight {
                 challenger: Challenger::default(),
                 rated,
                 timed,
-                channel: Some(index_supplied),
+                attacker_channel: Some(index_supplied),
+                defender_channel: None,
             }
         } else {
             ServerGameLight {
@@ -179,7 +181,8 @@ impl ServerGameLight {
                 challenger: Challenger::default(),
                 rated,
                 timed,
-                channel: Some(index_supplied),
+                attacker_channel: None,
+                defender_channel: Some(index_supplied),
             }
         }
     }
@@ -267,7 +270,8 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str)> for ServerGameLig
             challenger: Challenger::default(),
             rated: Rated::try_from(rated)?,
             timed,
-            channel: None,
+            attacker_channel: None,
+            defender_channel: None,
         };
 
         if challenger != "_" {
