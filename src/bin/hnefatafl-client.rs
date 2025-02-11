@@ -175,7 +175,7 @@ impl Client {
                                 button = button.on_press(Message::PlayMoveTo(vertex));
                             }
                         }
-                    } else if let Some(_vertexes) = legal_moves.moves.get(&vertex) {
+                    } else if legal_moves.moves.contains_key(&vertex) {
                         button = button.on_press(Message::PlayMoveFrom(vertex));
                     }
                 }
