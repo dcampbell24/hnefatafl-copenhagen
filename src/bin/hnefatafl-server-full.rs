@@ -574,6 +574,8 @@ impl Server {
 
                             self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
+
+                            return None;
                         }
                         Status::Draw => {}
                         Status::Ongoing => {
@@ -628,6 +630,8 @@ impl Server {
 
                             self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
+
+                            return None;
                         }
                     }
 

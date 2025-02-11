@@ -248,7 +248,11 @@ impl Client {
                 self.screen = Screen::Game;
                 self.status = Status::Ongoing;
             }
-            Message::GameDecline(_id) => {}
+            Message::GameDecline(id) => {
+                if let Some(tx) = &self.tx {
+                    handle_error(tx.send(format!("decline_game {id}\n")));
+                }
+            }
             Message::GameJoin(id) => {
                 if let Some(tx) = &self.tx {
                     handle_error(tx.send(format!("join_game_pending {id}\n")));
@@ -377,6 +381,19 @@ impl Client {
                 self.play_from = None;
                 self.my_turn = false;
             }
+            Message::PlayResign => {
+                let Some(game) = &mut self.game else {
+                    panic!("you have to be in a game to make a move");
+                };
+                let Some(tx) = self.tx.as_mut() else {
+                    panic!("you have to have a sender at this point")
+                };
+
+                handle_error(tx.send(format!(
+                    "game {} play {} resigns _\n",
+                    self.game_id, game.turn
+                )));
+            }
             Message::TcpConnected(tx) => {
                 info!("TCP connected...");
                 self.tx = Some(tx);
@@ -450,6 +467,8 @@ impl Client {
                                 .sort_by(|a, b| b.rating.0.partial_cmp(&a.rating.0).unwrap());
                         }
                         Some("game_over") => {
+                            self.my_turn = false;
+
                             text.next();
                             match text.next() {
                                 Some("attacker_wins") => self.status = Status::BlackWins,
@@ -802,14 +821,10 @@ impl Client {
     pub fn view(&self) -> Element<Message> {
         match self.screen {
             Screen::Game => {
-                let leave_game = button("Leave").on_press(Message::Leave);
-                let user_area_ = row![
-                    text(format!(
-                        "username: {}, attacker: {}, defender: {}",
-                        &self.username, &self.attacker, &self.defender
-                    )),
-                    leave_game,
-                ]
+                let user_area_ = row![text(format!(
+                    "username: {}, attacker: {}, defender: {}",
+                    &self.username, &self.attacker, &self.defender
+                )),]
                 .spacing(SPACING);
                 let user_area_ = container(user_area_)
                     .padding(PADDING)
@@ -825,6 +840,22 @@ impl Client {
 
                 let mut user_area = Column::new().spacing(SPACING);
                 user_area = user_area.push(user_area_);
+
+                if self.my_turn {
+                    user_area = user_area.push(
+                        row![
+                            button("Resign").on_press(Message::PlayResign),
+                            button("Leave").on_press(Message::Leave),
+                        ]
+                        .spacing(SPACING),
+                    );
+                } else {
+                    user_area = user_area.push(
+                        row![button("Resign"), button("Leave").on_press(Message::Leave),]
+                            .spacing(SPACING),
+                    );
+                }
+
                 if self.status == Status::WhiteWins {
                     user_area = user_area.push(text("Defender Wins!"));
                 }
@@ -984,6 +1015,7 @@ enum Message {
     PasswordShow(bool),
     PlayMoveFrom(Vertex),
     PlayMoveTo(Vertex),
+    PlayResign,
     RatedSelected(bool),
     RoleSelected(Role),
     TcpConnected(mpsc::Sender<String>),
