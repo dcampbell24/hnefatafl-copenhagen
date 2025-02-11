@@ -400,14 +400,16 @@ impl Server {
                 }
                 // new_game attacker rated fischer 900000 10
                 "new_game" => {
-                    let Some(role) = the_rest.first() else {
+                    if the_rest.len() < 5 {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
                         ));
-                    };
-                    let Ok(role) = Role::try_from(*role) else {
+                    }
+
+                    let role = the_rest[0];
+                    let Ok(role) = Role::try_from(role) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -415,14 +417,8 @@ impl Server {
                         ));
                     };
 
-                    let Some(rated) = the_rest.get(1) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Ok(rated) = Rated::try_from(*rated) else {
+                    let rated = the_rest[1];
+                    let Ok(rated) = Rated::try_from(rated) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -430,27 +426,10 @@ impl Server {
                         ));
                     };
 
-                    let Some(timed) = the_rest.get(2) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Some(minutes) = the_rest.get(3) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Some(add_seconds) = the_rest.get(4) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
+                    let timed = the_rest[2];
+                    let minutes = the_rest[3];
+                    let add_seconds = the_rest[4];
+
                     let Ok(timed) =
                         TimeSettings::try_from(vec!["time-settings", timed, minutes, add_seconds])
                     else {
@@ -482,13 +461,15 @@ impl Server {
                 }
                 // game 0 play black a4 a2
                 "game" => {
-                    let Some(index) = the_rest.first() else {
+                    if the_rest.len() < 5 {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
                         ));
-                    };
+                    }
+
+                    let index = the_rest[0];
                     let Ok(index) = index.parse() else {
                         return Some((
                             self.clients[&index_supplied].clone(),
@@ -496,35 +477,17 @@ impl Server {
                             (*command).to_string(),
                         ));
                     };
-                    let Some(color) = the_rest.get(2) else {
+                    let color = the_rest[2];
+                    let Ok(color) = Color::try_from(color) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
                         ));
                     };
-                    let Ok(color) = Color::try_from(*color) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Some(from) = the_rest.get(3) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Some(to) = the_rest.get(4) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let mut to = (*to).to_string();
+                    let from = the_rest[3];
+                    let to = the_rest[4];
+                    let mut to = to.to_string();
                     if to == "_" {
                         to = String::new();
                     }
