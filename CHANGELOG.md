@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - hnefatafl-server-full: Reduce the information logged when run under systemd.
 
+### Fixed
+
+- hnefatafl-client: If AI resigns it doesn't crash the client.
+
 ## [0.5.3] - 2025-02-08
 
 - Don't set the window size to infinity, it crashes on MacOS.

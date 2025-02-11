@@ -599,7 +599,7 @@ impl Client {
                                     panic!("there should be an established channel by now");
                                 };
 
-                                handle_error(tx.send(format!("game {index} play {result}\n")));
+                                handle_error(tx.send(format!("game {index} play {result} _\n")));
                             } else {
                                 self.my_turn = true;
                             }
