@@ -84,6 +84,7 @@ struct Client {
     rated: Rated,
     role_selected: Option<Role>,
     screen: Screen,
+    status: Status,
     timed: TimeSettings,
     time_minutes: String,
     time_add_seconds: String,
@@ -245,6 +246,7 @@ impl Client {
                     handle_error(tx.send(format!("join_game {id}\n")));
                 }
                 self.screen = Screen::Game;
+                self.status = Status::Ongoing;
             }
             Message::GameDecline(_id) => {}
             Message::GameJoin(id) => {
@@ -447,10 +449,19 @@ impl Client {
                             self.users
                                 .sort_by(|a, b| b.rating.0.partial_cmp(&a.rating.0).unwrap());
                         }
+                        Some("game_over") => {
+                            text.next();
+                            match text.next() {
+                                Some("attacker_wins") => self.status = Status::BlackWins,
+                                Some("defender_wins") => self.status = Status::WhiteWins,
+                                _ => {}
+                            }
+                        }
                         // = join_game david abby rated fischer 900_000 10
                         Some("join_game") => {
                             self.texts_game = VecDeque::new();
                             self.screen = Screen::Game;
+                            self.status = Status::Ongoing;
 
                             let Some(attacker) = text.next() else {
                                 panic!("the attacker should be supplied");
@@ -547,6 +558,7 @@ impl Client {
                         // game 0 generate_move black
                         let text_word = text.next();
                         if text_word == Some("generate_move") {
+                            // Todo: send back an ok, otherwise the player resigns.
                             let username_start: String = self.username.chars().take(3).collect();
                             if username_start == "ai-" {
                                 let Some(color) = text.next() else {
@@ -791,7 +803,7 @@ impl Client {
         match self.screen {
             Screen::Game => {
                 let leave_game = button("Leave").on_press(Message::Leave);
-                let user_area = row![
+                let user_area_ = row![
                     text(format!(
                         "username: {}, attacker: {}, defender: {}",
                         &self.username, &self.attacker, &self.defender
@@ -799,7 +811,7 @@ impl Client {
                     leave_game,
                 ]
                 .spacing(SPACING);
-                let user_area = container(user_area)
+                let user_area_ = container(user_area_)
                     .padding(PADDING)
                     .style(container::bordered_box);
 
@@ -810,7 +822,17 @@ impl Client {
                     text(format!("white time: {}", self.time_defender)),
                 ]
                 .spacing(SPACING);
-                let user_area = column![user_area, time, texting].spacing(SPACING);
+
+                let mut user_area = Column::new().spacing(SPACING);
+                user_area = user_area.push(user_area_);
+                if self.status == Status::WhiteWins {
+                    user_area = user_area.push(text("Defender Wins!"));
+                }
+                if self.status == Status::BlackWins {
+                    user_area = user_area.push(text("Attacker Wins!"));
+                }
+                user_area = user_area.push(time);
+                user_area = user_area.push(texting);
                 let user_area = container(user_area)
                     .padding(PADDING)
                     .style(container::bordered_box);

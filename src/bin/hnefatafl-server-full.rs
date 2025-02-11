@@ -49,8 +49,6 @@ struct Args {
     systemd: bool,
 }
 
-// 1. Handles the leave issue... if you periodically check the time.
-// 1. Send a message when the game is over.
 // 2. Run update_rd on every account once every two months and calculate the
 //    average rating and rd, we assume rd is 50.
 // 3. watch_game 1
@@ -507,7 +505,6 @@ impl Server {
                                 })
                                 .ok()?;
                             blacks_turn_next = false;
-                            // Todo: if a player quits he loses.
                             let _ok = game
                                 .defender_tx
                                 .send(format!("game {index} play black {from} {to}"));
@@ -526,7 +523,6 @@ impl Server {
                                 error
                             })
                             .ok()?;
-                        // Todo: if a player quits he loses.
                         let _ok = game
                             .attacker_tx
                             .send(format!("game {index} play white {from} {to}"));
@@ -568,6 +564,13 @@ impl Server {
                                         .update_rating(attacker_rating, &Outcome::Loss);
                                 }
                             }
+
+                            let _ok = game
+                                .attacker_tx
+                                .send(format!("game_over {index} attacker_wins"));
+                            let _ok = game
+                                .defender_tx
+                                .send(format!("game_over {index} attacker_wins"));
 
                             self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
@@ -615,6 +618,13 @@ impl Server {
                                         .update_rating(attacker_rating, &Outcome::Win);
                                 }
                             }
+
+                            let _ok = game
+                                .attacker_tx
+                                .send(format!("= game_over {index} defender_wins"));
+                            let _ok = game
+                                .defender_tx
+                                .send(format!("= game_over {index} defender_wins"));
 
                             self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
