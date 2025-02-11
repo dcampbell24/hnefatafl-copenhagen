@@ -71,6 +71,7 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     attacker: String,
     defender: String,
+    challenger: bool,
     error: Option<String>,
     game: Option<Game>,
     game_id: usize,
@@ -239,6 +240,13 @@ impl Client {
         self.error = None;
 
         match message {
+            Message::GameAccept(id) => {
+                if let Some(tx) = &self.tx {
+                    handle_error(tx.send(format!("join_game {id}\n")));
+                }
+                self.screen = Screen::Game;
+            }
+            Message::GameDecline(_id) => {}
             Message::GameJoin(id) => {
                 if let Some(tx) = &self.tx {
                     handle_error(tx.send(format!("join_game_pending {id}\n")));
@@ -485,6 +493,7 @@ impl Client {
                             self.time_defender = timed;
                         }
                         Some("join_game_pending") => {
+                            self.challenger = true;
                             let Some(id) = text.next() else {
                                 panic!("there should be an id supplied");
                             };
@@ -520,6 +529,7 @@ impl Client {
                                 self.attacker = attacker.to_string();
                                 self.defender = defender.to_string();
                             } else if Some("game") == next_word {
+                                self.challenger = false;
                                 let Some(game_id) = text.next() else {
                                     panic!("the game id should be next");
                                 };
@@ -816,9 +826,11 @@ impl Client {
                     .style(container::bordered_box);
 
                 let texting = self.texting(true);
-                let Some(_game) = &self.game else {
+                /* fixme!
+                if self.game.is_some() {
                     panic!("you are in a game");
                 };
+                */
                 let time = row![
                     text(format!("black time: {}", self.time_attacker)),
                     text(format!("white time: {}", self.time_defender)),
@@ -878,13 +890,33 @@ impl Client {
                     panic!("You can't get to GameNewFrozen unless you have selected a role!");
                 };
 
+                let mut buttons_live = false;
                 let mut game_display = column![text(format!("role: {role}"))].padding(PADDING);
                 if let Some(game) = self.games_pending.0.get(&self.game_id) {
                     game_display = game_display.push(text(game.to_string()));
-                };
-                game_display = game_display.push(button("Leave").on_press(Message::Leave));
 
-                game_display.into()
+                    if game.attacker.is_some() && game.defender.is_some() {
+                        buttons_live = true;
+                    }
+                };
+
+                if self.challenger {
+                    game_display = game_display.push(button("Leave").on_press(Message::Leave));
+                } else if buttons_live {
+                    game_display = game_display.push(row![
+                        button("Accept").on_press(Message::GameAccept(self.game_id)),
+                        button("Decline").on_press(Message::GameDecline(self.game_id)),
+                        button("Leave").on_press(Message::Leave),
+                    ]);
+                } else {
+                    game_display = game_display.push(row![
+                        button("Accept"),
+                        button("Decline"),
+                        button("Leave").on_press(Message::Leave),
+                    ]);
+                }
+
+                game_display.padding(PADDING).spacing(SPACING).into()
             }
             Screen::Games => {
                 let username = row![text("username: "), text(&self.username)];
@@ -945,6 +977,8 @@ impl Client {
 
 #[derive(Clone, Debug)]
 enum Message {
+    GameAccept(usize),
+    GameDecline(usize),
     GameJoin(usize),
     GameNew,
     GameSubmit,

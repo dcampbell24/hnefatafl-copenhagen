@@ -260,7 +260,7 @@ impl Server {
                     None
                 }
                 "join_game" => self.join_game(
-                    (*username).to_string(),
+                    username,
                     index_supplied,
                     (*command).to_string(),
                     the_rest.as_slice(),
@@ -716,7 +716,7 @@ impl Server {
 
     fn join_game(
         &mut self,
-        username: String,
+        username: &str,
         index_supplied: usize,
         command: String,
         the_rest: &[&str],
@@ -737,15 +737,16 @@ impl Server {
             panic!("a pending game has to have a waiting channel");
         };
 
+        // fixme!
         let (attacker_tx, defender_tx) = if game.attacker.is_some() {
             (
-                self.clients[&channel].clone(),
                 self.clients[&index_supplied].clone(),
+                self.clients[&channel].clone(),
             )
         } else {
             (
-                self.clients[&index_supplied].clone(),
                 self.clients[&channel].clone(),
+                self.clients[&index_supplied].clone(),
             )
         };
 
@@ -763,7 +764,7 @@ impl Server {
                 ))
                 .ok()?;
 
-            ServerGame::new(username, attacker_tx.clone(), defender_tx, game)
+            ServerGame::new(attacker_tx.clone(), defender_tx, game)
         } else if let Some(defender) = &game.defender {
             self.clients[&channel]
                 .send(format!(
@@ -778,7 +779,7 @@ impl Server {
                 ))
                 .ok()?;
 
-            ServerGame::new(username, attacker_tx.clone(), defender_tx, game)
+            ServerGame::new(attacker_tx.clone(), defender_tx, game)
         } else {
             panic!("there has to be an attacker or defender")
         };
@@ -810,6 +811,7 @@ impl Server {
             panic!("the id must refer to a valid pending game");
         };
 
+        game.channel = Some(index_supplied);
         if game.attacker.is_none() {
             game.attacker = Some(username.clone());
         } else if game.defender.is_none() {

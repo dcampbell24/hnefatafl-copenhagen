@@ -61,45 +61,28 @@ impl ServerGame {
     #[allow(clippy::missing_panics_doc)]
     #[must_use]
     pub fn new(
-        username: String,
         attacker_tx: Sender<String>,
         defender_tx: Sender<String>,
         game: ServerGameLight,
     ) -> Self {
-        if let Some(attacker) = game.attacker {
-            Self {
-                id: game.id,
-                attacker,
-                attacker_tx,
-                defender: username,
-                defender_tx,
-                rated: game.rated,
-                game: Game {
-                    black_time: game.timed.clone(),
-                    white_time: game.timed,
-                    timer: Some(Instant::now()),
-                    ..Game::default()
-                },
-                text: String::new(),
-            }
-        } else if let Some(defender) = game.defender {
-            ServerGame {
-                id: game.id,
-                attacker: username,
-                attacker_tx,
-                defender,
-                defender_tx,
-                rated: game.rated,
-                game: Game {
-                    black_time: game.timed.clone(),
-                    white_time: game.timed,
-                    timer: Some(Instant::now()),
-                    ..Game::default()
-                },
-                text: String::new(),
-            }
-        } else {
-            panic!("there has to be an attacker or defender")
+        let (Some(attacker), Some(defender)) = (game.attacker, game.defender) else {
+            panic!("attacker and defender should be set");
+        };
+
+        Self {
+            id: game.id,
+            attacker,
+            attacker_tx,
+            defender,
+            defender_tx,
+            rated: game.rated,
+            game: Game {
+                black_time: game.timed.clone(),
+                white_time: game.timed,
+                timer: Some(Instant::now()),
+                ..Game::default()
+            },
+            text: String::new(),
         }
     }
 }
