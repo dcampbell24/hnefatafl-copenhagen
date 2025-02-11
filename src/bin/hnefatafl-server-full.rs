@@ -21,7 +21,9 @@ use hnefatafl_copenhagen::{
     handle_error,
     rating::Rated,
     role::Role,
-    server_game::{ArchivedGame, ServerGame, ServerGameLight, ServerGames, ServerGamesLight},
+    server_game::{
+        ArchivedGame, Challenger, ServerGame, ServerGameLight, ServerGames, ServerGamesLight,
+    },
     status::Status,
     time::TimeSettings,
     VERSION_ID,
@@ -246,6 +248,12 @@ impl Server {
             let mut the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
 
             match *command {
+                "decline_game" => Some(self.decline_game(
+                    username,
+                    index_supplied,
+                    (*command).to_string(),
+                    the_rest.as_slice(),
+                )),
                 "display_server" => {
                     debug!("0 {username} display_server");
                     for tx in &mut self.clients.values() {
@@ -689,6 +697,54 @@ impl Server {
         } else {
             panic!("we pass the arguments in that form");
         }
+    }
+
+    fn decline_game(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        mut command: String,
+        the_rest: &[&str],
+    ) -> (mpsc::Sender<String>, bool, String) {
+        let Some(id) = the_rest.first() else {
+            return (self.clients[&index_supplied].clone(), false, command);
+        };
+        let Ok(id) = id.parse::<usize>() else {
+            return (self.clients[&index_supplied].clone(), false, command);
+        };
+
+        info!("{index_supplied} {username} decline_game {id}");
+
+        if let Some(game_old) = self.pending_games.0.remove(&id) {
+            let mut attacker = None;
+            let mut attacker_channel = None;
+            let mut defender = None;
+            let mut defender_channel = None;
+
+            if Some(username.to_string()) == game_old.attacker {
+                attacker = game_old.attacker;
+                attacker_channel = game_old.attacker_channel;
+            } else {
+                defender = game_old.defender;
+                defender_channel = game_old.defender_channel;
+            }
+
+            let game = ServerGameLight {
+                id,
+                attacker,
+                defender,
+                challenger: Challenger::default(),
+                rated: game_old.rated,
+                timed: game_old.timed,
+                attacker_channel,
+                defender_channel,
+            };
+
+            command = format!("{command} {game:?}");
+            self.pending_games.0.insert(id, game);
+        }
+
+        (self.clients[&index_supplied].clone(), true, command)
     }
 
     fn join_game(
