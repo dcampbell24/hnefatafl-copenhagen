@@ -285,6 +285,7 @@ impl Client {
                 }
                 Screen::GameNew | Screen::Games | Screen::Login => {}
             },
+            Message::OpenWebsite => open_url("https://hnefatafl.org"),
             Message::GameNew => self.screen = Screen::GameNew,
             Message::GameSubmit => {
                 if let (Some(role), Some(tx)) = (self.role_selected, &self.tx) {
@@ -961,7 +962,9 @@ impl Client {
                 let username = row![text("username: "), text(&self.username)];
                 let create_game = button("Create Game").on_press(Message::GameNew);
                 let users = button("Users").on_press(Message::Users);
-                let top = row![username, create_game, users].spacing(SPACING);
+                let website = button("Website").on_press(Message::OpenWebsite);
+
+                let top = row![username, create_game, users, website].spacing(SPACING);
                 let top = container(top)
                     .padding(PADDING)
                     .style(container::bordered_box);
@@ -1023,6 +1026,7 @@ enum Message {
     GameSubmit,
     GameWatch(usize),
     Leave,
+    OpenWebsite,
     PasswordChanged(String),
     PasswordShow(bool),
     PlayMoveFrom(Vertex),
@@ -1105,6 +1109,12 @@ fn init_logger() {
     }
 
     builder.init();
+}
+
+fn open_url(url: &str) {
+    if let Err(error) = webbrowser::open(url) {
+        error!("{error}");
+    }
 }
 
 #[derive(Clone, Debug)]
