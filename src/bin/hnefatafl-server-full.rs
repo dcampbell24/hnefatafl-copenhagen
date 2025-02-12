@@ -615,6 +615,8 @@ impl Server {
                                 }
                             }
 
+                            self.games_light.0.remove(&index);
+
                             let _ok = game
                                 .attacker_tx
                                 .send(format!("game_over {index} attacker_wins"));
@@ -668,6 +670,8 @@ impl Server {
                                         .update_rating(attacker_rating, &Outcome::Win);
                                 }
                             }
+
+                            self.games_light.0.remove(&index);
 
                             let _ok = game
                                 .attacker_tx
