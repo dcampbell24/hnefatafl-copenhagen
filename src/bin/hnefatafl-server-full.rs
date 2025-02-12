@@ -82,7 +82,7 @@ fn main() -> anyhow::Result<()> {
     let tx_messages_1 = tx.clone();
     thread::spawn(move || loop {
         handle_error(tx_messages_1.send(("0 server display_server".to_string(), None)));
-        thread::sleep(Duration::from_secs(4));
+        thread::sleep(Duration::from_secs(1));
     });
 
     let tx_messages_2 = tx.clone();
