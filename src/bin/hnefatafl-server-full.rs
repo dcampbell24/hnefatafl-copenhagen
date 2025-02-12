@@ -88,7 +88,7 @@ fn main() -> anyhow::Result<()> {
     let tx_messages_2 = tx.clone();
     thread::spawn(move || loop {
         handle_error(tx_messages_2.send(("0 server check_update_rd".to_string(), None)));
-        thread::sleep(Duration::from_secs(60 * 60));
+        thread::sleep(Duration::from_secs(60 * 60 * 24));
     });
 
     for (index, stream) in (1..).zip(listener.incoming()) {
