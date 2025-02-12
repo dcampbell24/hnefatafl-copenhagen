@@ -893,9 +893,7 @@ impl Client {
                     .padding(PADDING)
                     .style(container::bordered_box);
 
-                row![self.board(), user_area]
-                    .spacing(SPACING)
-                    .into()
+                row![self.board(), user_area].spacing(SPACING).into()
             }
             Screen::GameNew => {
                 let attacker = radio(
