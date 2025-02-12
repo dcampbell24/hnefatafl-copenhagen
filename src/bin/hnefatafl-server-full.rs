@@ -6,12 +6,12 @@ use std::{
     net::{TcpListener, TcpStream},
     path::PathBuf,
     sync::mpsc::{self, Receiver},
-    thread::{self, sleep},
+    thread,
     time::Duration,
 };
 
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
-use chrono::Utc;
+use chrono::{Local, Utc};
 use clap::{command, Parser};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
@@ -51,13 +51,11 @@ struct Args {
     systemd: bool,
 }
 
-// 1. Run update_rd on every account once every two months and calculate the
-//    average rating and rd, we assume rd is 50.
-// 2. watch_game 1
-// 2. Display in game users.
-// 3. Make it so you can resume a game.
-// 4. Figure out some way of testing.
-// 4. Get SSL working.
+// 1. watch_game 1
+// 1. Display in game users.
+// 2. Make it so you can resume a game.
+// 3. Figure out some way of testing.
+// 3. Get SSL working.
 fn main() -> anyhow::Result<()> {
     // println!("{:x}", rand::random::<u32>());
     // return Ok(());
@@ -81,10 +79,16 @@ fn main() -> anyhow::Result<()> {
 
     thread::spawn(move || server.handle_messages(&rx));
 
-    let tx_messages = tx.clone();
+    let tx_messages_1 = tx.clone();
     thread::spawn(move || loop {
-        handle_error(tx_messages.send(("0 server display_server".to_string(), None)));
-        sleep(Duration::from_secs(4));
+        handle_error(tx_messages_1.send(("0 server display_server".to_string(), None)));
+        thread::sleep(Duration::from_secs(4));
+    });
+
+    let tx_messages_2 = tx.clone();
+    thread::spawn(move || loop {
+        handle_error(tx_messages_2.send(("0 server check_update_rd".to_string(), None)));
+        thread::sleep(Duration::from_secs(60 * 60));
     });
 
     for (index, stream) in (1..).zip(listener.incoming()) {
@@ -197,21 +201,54 @@ fn receiving_and_writing(
     }
 }
 
+/// Non-leap seconds since January 1, 1970 0:00:00 UTC.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct UnixTimestamp(pub i64);
+
+impl Default for UnixTimestamp {
+    fn default() -> Self {
+        Self(Local::now().to_utc().timestamp())
+    }
+}
+
 #[derive(Clone, Default, Deserialize, Serialize)]
 struct Server {
     game_id: usize,
+    ran_update_rd: UnixTimestamp,
+    passwords: HashMap<String, String>,
     accounts: Accounts,
+    archived_games: Vec<ArchivedGame>,
     #[serde(skip)]
     clients: HashMap<usize, mpsc::Sender<String>>,
     #[serde(skip)]
     games: ServerGames,
-    passwords: HashMap<String, String>,
     #[serde(skip)]
     pending_games: ServerGamesLight,
-    archived_games: Vec<ArchivedGame>,
 }
 
 impl Server {
+    /// c = 63.2
+    ///
+    /// This assumes 30 2 month periods must pass before one's rating
+    /// deviation is the same as a new player and that a typical RD is 50.
+    #[must_use]
+    pub fn check_update_rd(&mut self) -> bool {
+        // Seconds in two months:
+        // 60.0 * 60.0 * 24.0 * 30.417 * 2.0 = 5_256_057.6
+        let two_months = 5_256_058;
+
+        let now = Local::now().to_utc().timestamp();
+        if now - self.ran_update_rd.0 >= two_months {
+            for account in self.accounts.0.values_mut() {
+                account.rating.update_rd();
+            }
+            self.ran_update_rd = UnixTimestamp(now);
+            true
+        } else {
+            false
+        }
+    }
+
     fn handle_messages(
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
@@ -249,6 +286,11 @@ impl Server {
             let mut the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
 
             match *command {
+                "check_update_rd" => {
+                    let bool = self.check_update_rd();
+                    info!("0 {username} check_update_rd {bool}");
+                    None
+                }
                 "decline_game" => Some(self.decline_game(
                     username,
                     index_supplied,
