@@ -75,7 +75,7 @@ struct Client {
     error: Option<String>,
     game: Option<Game>,
     game_id: usize,
-    games_pending: ServerGamesLight,
+    games_light: ServerGamesLight,
     my_turn: bool,
     password: String,
     password_real: String,
@@ -85,15 +85,15 @@ struct Client {
     role_selected: Option<Role>,
     screen: Screen,
     status: Status,
+    texts: VecDeque<String>,
+    texts_game: VecDeque<String>,
+    text_input: String,
     timed: TimeSettings,
     time_minutes: String,
     time_add_seconds: String,
     time_attacker: TimeSettings,
     time_defender: TimeSettings,
     tx: Option<mpsc::Sender<String>>,
-    texts: VecDeque<String>,
-    texts_game: VecDeque<String>,
-    text_input: String,
     username: String,
     users: Vec<User>,
 }
@@ -257,7 +257,7 @@ impl Client {
                 if let Some(tx) = &self.tx {
                     handle_error(tx.send(format!("join_game_pending {id}\n")));
 
-                    let Some(game) = self.games_pending.0.get(&id) else {
+                    let Some(game) = self.games_light.0.get(&id) else {
                         panic!("the game must exist");
                     };
 
@@ -269,6 +269,9 @@ impl Client {
 
                     self.screen = Screen::GameNewFrozen;
                 }
+            }
+            Message::GameWatch(_id) => {
+                // Todo:
             }
             Message::Leave => match self.screen {
                 Screen::Game | Screen::Users => {
@@ -411,10 +414,10 @@ impl Client {
                 let mut text = string.split_ascii_whitespace();
                 match text.next() {
                     Some("=") => match text.next() {
-                        Some("display_pending_games") => {
-                            self.games_pending.0.clear();
+                        Some("display_games") => {
+                            self.games_light.0.clear();
                             let games: Vec<&str> = text.collect();
-                            for chunks in games.chunks_exact(9) {
+                            for chunks in games.chunks_exact(10) {
                                 let id = chunks[1];
                                 let attacker = chunks[2];
                                 let defender = chunks[3];
@@ -423,6 +426,7 @@ impl Client {
                                 let minutes = chunks[6];
                                 let add_seconds = chunks[7];
                                 let challenger = chunks[8];
+                                let challenge_accepted = chunks[9];
 
                                 let game = ServerGameLight::try_from((
                                     id,
@@ -433,10 +437,11 @@ impl Client {
                                     minutes,
                                     add_seconds,
                                     challenger,
+                                    challenge_accepted,
                                 ))
                                 .expect("the value should be a valid ServerGameLight");
 
-                                self.games_pending.0.insert(game.id, game);
+                                self.games_light.0.insert(game.id, game);
                             }
                         }
                         Some("display_users") => {
@@ -745,9 +750,9 @@ impl Client {
         let mut defenders = Column::new().spacing(SPACING_B);
         let mut ratings = Column::new().spacing(SPACING_B);
         let mut timings = Column::new().spacing(SPACING_B);
-        let mut joins = Column::new().spacing(SPACING);
+        let mut buttons = Column::new().spacing(SPACING);
 
-        for game in self.games_pending.0.values() {
+        for game in self.games_light.0.values() {
             let id = game.id;
             game_ids = game_ids.push(text(id));
 
@@ -764,7 +769,14 @@ impl Client {
 
             ratings = ratings.push(text(game.rated.to_string()));
             timings = timings.push(text(game.timed.to_string()));
-            joins = joins.push(button("join").on_press(Message::GameJoin(id)));
+
+            if game.challenge_accepted {
+                buttons = buttons.push(button("watch").on_press(Message::GameWatch(id)));
+            } else if game.attacker.is_some() && game.defender.is_some() {
+                buttons = buttons.push(button("join"));
+            } else {
+                buttons = buttons.push(button("join").on_press(Message::GameJoin(id)));
+            }
         }
 
         let game_ids = column![text("game_id"), text("-------"), game_ids].padding(PADDING);
@@ -772,10 +784,10 @@ impl Client {
         let defenders = column![text("defender"), text("--------"), defenders].padding(PADDING);
         let ratings = column![text("rated"), text("-----"), ratings].padding(PADDING);
         let timings = column![text("timed"), text("-----"), timings].padding(PADDING);
-        let joins = column![text(""), text(""), joins].padding(PADDING);
+        let buttons = column![text(""), text(""), buttons].padding(PADDING);
 
         scrollable(row![
-            game_ids, attackers, defenders, ratings, timings, joins
+            game_ids, attackers, defenders, ratings, timings, buttons
         ])
     }
 
@@ -918,7 +930,7 @@ impl Client {
 
                 let mut buttons_live = false;
                 let mut game_display = column![text(format!("role: {role}"))].padding(PADDING);
-                if let Some(game) = self.games_pending.0.get(&self.game_id) {
+                if let Some(game) = self.games_light.0.get(&self.game_id) {
                     game_display = game_display.push(text(game.to_string()));
 
                     if game.attacker.is_some() && game.defender.is_some() {
@@ -1009,6 +1021,7 @@ enum Message {
     GameJoin(usize),
     GameNew,
     GameSubmit,
+    GameWatch(usize),
     Leave,
     PasswordChanged(String),
     PasswordShow(bool),

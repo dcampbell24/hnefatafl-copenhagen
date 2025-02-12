@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt, sync::mpsc::Sender, time::Instant};
+use std::{collections::HashMap, fmt, str::FromStr, sync::mpsc::Sender, time::Instant};
 
 use serde::{Deserialize, Serialize};
 
@@ -100,18 +100,6 @@ impl fmt::Display for ServerGame {
 #[derive(Clone, Debug, Default)]
 pub struct ServerGames(pub HashMap<usize, ServerGame>);
 
-impl fmt::Display for ServerGames {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut games = Vec::new();
-        for game in self.0.values() {
-            games.push(game.protocol());
-        }
-        let games = games.join(" ");
-
-        write!(f, "{games}")
-    }
-}
-
 #[derive(Clone, Default)]
 pub struct Challenger(pub Option<String>);
 
@@ -140,6 +128,13 @@ impl fmt::Display for Challenger {
     }
 }
 
+// Todo:
+#[derive(Clone, Debug)]
+pub struct Spectator {
+    _name: String,
+    _tx: Sender<String>,
+}
+
 #[derive(Clone)]
 pub struct ServerGameLight {
     pub id: usize,
@@ -150,6 +145,7 @@ pub struct ServerGameLight {
     pub timed: TimeSettings,
     pub attacker_channel: Option<usize>,
     pub defender_channel: Option<usize>,
+    pub challenge_accepted: bool,
 }
 
 impl ServerGameLight {
@@ -172,6 +168,7 @@ impl ServerGameLight {
                 timed,
                 attacker_channel: Some(index_supplied),
                 defender_channel: None,
+                challenge_accepted: false,
             }
         } else {
             ServerGameLight {
@@ -183,6 +180,7 @@ impl ServerGameLight {
                 timed,
                 attacker_channel: None,
                 defender_channel: Some(index_supplied),
+                challenge_accepted: false,
             }
         }
     }
@@ -204,8 +202,8 @@ impl fmt::Debug for ServerGameLight {
 
         write!(
             f,
-            "game {} {attacker} {defender} {} {:?} {:?}",
-            self.id, self.rated, self.timed, self.challenger
+            "game {} {attacker} {defender} {} {:?} {:?} {}",
+            self.id, self.rated, self.timed, self.challenger, self.challenge_accepted
         )
     }
 }
@@ -232,14 +230,23 @@ impl fmt::Display for ServerGameLight {
     }
 }
 
-impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
+impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
     type Error = anyhow::Error;
 
     fn try_from(
-        id_attacker_defender_rated: (&str, &str, &str, &str, &str, &str, &str, &str),
+        id_attacker_defender_rated: (&str, &str, &str, &str, &str, &str, &str, &str, &str),
     ) -> anyhow::Result<Self> {
-        let (id, attacker, defender, rated, timed, minutes, add_seconds, challenger) =
-            id_attacker_defender_rated;
+        let (
+            id,
+            attacker,
+            defender,
+            rated,
+            timed,
+            minutes,
+            add_seconds,
+            challenger,
+            challenge_accepted,
+        ) = id_attacker_defender_rated;
         let id = id.parse::<usize>()?;
 
         let attacker = if attacker == "_" {
@@ -263,6 +270,10 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str)> for ServerGameLig
             _ => TimeSettings(None),
         };
 
+        let Ok(challenge_accepted) = <bool as FromStr>::from_str(challenge_accepted) else {
+            panic!("the value should be a bool");
+        };
+
         let mut game = Self {
             id,
             attacker,
@@ -272,6 +283,7 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str)> for ServerGameLig
             timed,
             attacker_channel: None,
             defender_channel: None,
+            challenge_accepted,
         };
 
         if challenger != "_" {

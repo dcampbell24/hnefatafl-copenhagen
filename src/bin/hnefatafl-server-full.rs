@@ -223,7 +223,7 @@ struct Server {
     #[serde(skip)]
     games: ServerGames,
     #[serde(skip)]
-    pending_games: ServerGamesLight,
+    games_light: ServerGamesLight,
 }
 
 impl Server {
@@ -300,9 +300,8 @@ impl Server {
                 "display_server" => {
                     debug!("0 {username} display_server");
                     for tx in &mut self.clients.values() {
-                        tx.send(format!("= display_pending_games {:?}", &self.pending_games))
+                        tx.send(format!("= display_games {:?}", &self.games_light))
                             .ok()?;
-                        tx.send(format!("= display_games {}", &self.games)).ok()?;
                         tx.send(format!("= display_users {}", &self.accounts))
                             .ok()?;
                     }
@@ -407,7 +406,7 @@ impl Server {
                                 self.clients.remove(&index_database);
                                 // Remove the pending game if there is one.
                                 let mut index_option = None;
-                                for (index, game) in self.pending_games.0.clone() {
+                                for (index, game) in self.games_light.0.clone() {
                                     if let Some(attacker) = &game.attacker {
                                         if attacker == username {
                                             index_option = Some(index);
@@ -421,7 +420,7 @@ impl Server {
                                 }
 
                                 if let Some(index) = index_option {
-                                    self.pending_games.0.remove(&index);
+                                    self.games_light.0.remove(&index);
                                 }
 
                                 None
@@ -503,7 +502,7 @@ impl Server {
                     );
 
                     let command = format!("{command} {game:?}");
-                    self.pending_games.0.insert(self.game_id, game);
+                    self.games_light.0.insert(self.game_id, game);
                     self.game_id += 1;
 
                     Some((self.clients[&index_supplied].clone(), true, command))
@@ -756,7 +755,7 @@ impl Server {
 
         info!("{index_supplied} {username} decline_game {id}");
 
-        if let Some(game_old) = self.pending_games.0.remove(&id) {
+        if let Some(game_old) = self.games_light.0.remove(&id) {
             let mut attacker = None;
             let mut attacker_channel = None;
             let mut defender = None;
@@ -779,10 +778,11 @@ impl Server {
                 timed: game_old.timed,
                 attacker_channel,
                 defender_channel,
+                challenge_accepted: false,
             };
 
             command = format!("{command} {game:?}");
-            self.pending_games.0.insert(id, game);
+            self.games_light.0.insert(id, game);
         }
 
         (self.clients[&index_supplied].clone(), true, command)
@@ -803,9 +803,10 @@ impl Server {
         };
 
         info!("{index_supplied} {username} join_game {id}");
-        let Some(game) = self.pending_games.0.remove(&id) else {
+        let Some(game) = self.games_light.0.get_mut(&id) else {
             panic!("the id must refer to a valid pending game");
         };
+        game.challenge_accepted = true;
 
         let (Some(attacker_tx), Some(defender_tx)) = (game.attacker_channel, game.defender_channel)
         else {
@@ -826,7 +827,7 @@ impl Server {
         let new_game = ServerGame::new(
             self.clients[&attacker_tx].clone(),
             self.clients[&defender_tx].clone(),
-            game,
+            game.clone(),
         );
 
         self.games.0.insert(id, new_game);
@@ -852,7 +853,7 @@ impl Server {
         };
 
         info!("{index_supplied} {username} join_game_pending {id}");
-        let Some(game) = self.pending_games.0.get_mut(&id) else {
+        let Some(game) = self.games_light.0.get_mut(&id) else {
             panic!("the id must refer to a valid pending game");
         };
 
@@ -887,7 +888,7 @@ impl Server {
         info!("{index_supplied} {username} leave_game {id}");
 
         let mut remove = false;
-        match self.pending_games.0.get_mut(&id) {
+        match self.games_light.0.get_mut(&id) {
             Some(game) => {
                 if let Some(attacker) = &game.attacker {
                     if username == attacker {
@@ -913,7 +914,7 @@ impl Server {
         };
 
         if remove {
-            self.pending_games.0.remove(&id);
+            self.games_light.0.remove(&id);
         }
 
         command.push(' ');
