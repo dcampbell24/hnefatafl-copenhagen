@@ -84,6 +84,7 @@ struct Client {
     rated: Rated,
     role_selected: Option<Role>,
     screen: Screen,
+    screen_size: Size,
     status: Status,
     texts: VecDeque<String>,
     texts_game: VecDeque<String>,
@@ -112,7 +113,10 @@ enum Screen {
 impl Client {
     #[must_use]
     fn board(&self) -> Column<Message> {
-        let board_size = 50;
+        let (board_size, spacing) = match self.screen_size {
+            Size::Large => (50, 23),
+            Size::Small => (35, 22),
+        };
 
         let letters = " ABCDEFGHJKL";
         let mut row_letters_1 = Row::new();
@@ -129,7 +133,7 @@ impl Client {
         };
 
         let mut game_display = Column::new();
-        game_display = game_display.push(row_letters_1.spacing(23));
+        game_display = game_display.push(row_letters_1.spacing(spacing));
 
         let mut possible_moves = None;
         if self.my_turn {
@@ -189,7 +193,7 @@ impl Client {
             game_display = game_display.push(row);
         }
 
-        game_display = game_display.push(row_letters_2.spacing(23));
+        game_display = game_display.push(row_letters_2.spacing(spacing));
         game_display
     }
 
@@ -398,6 +402,7 @@ impl Client {
                     self.game_id, game.turn
                 )));
             }
+            Message::ScreenSize(size) => self.screen_size = size,
             Message::TcpConnected(tx) => {
                 info!("TCP connected...");
                 self.tx = Some(tx);
@@ -822,7 +827,8 @@ impl Client {
         let texting = self.texting(in_game).padding(PADDING);
         let users = self.users(true);
 
-        let user_area = row![games, texting, users];
+        let user_area = column![games, users];
+        let user_area = row![texting, user_area];
         container(user_area)
             .padding(PADDING)
             .style(container::bordered_box)
@@ -858,13 +864,20 @@ impl Client {
                         row![
                             button("Resign").on_press(Message::PlayResign),
                             button("Leave").on_press(Message::Leave),
+                            button("Small Screen").on_press(Message::ScreenSize(Size::Small)),
+                            button("Large Screen").on_press(Message::ScreenSize(Size::Large)),
                         ]
                         .spacing(SPACING),
                     );
                 } else {
                     user_area = user_area.push(
-                        row![button("Resign"), button("Leave").on_press(Message::Leave),]
-                            .spacing(SPACING),
+                        row![
+                            button("Resign"),
+                            button("Leave").on_press(Message::Leave),
+                            button("Small Screen").on_press(Message::ScreenSize(Size::Small)),
+                            button("Large Screen").on_press(Message::ScreenSize(Size::Large)),
+                        ]
+                        .spacing(SPACING),
                     );
                 }
 
@@ -880,7 +893,9 @@ impl Client {
                     .padding(PADDING)
                     .style(container::bordered_box);
 
-                row![self.board(), user_area].spacing(SPACING).into()
+                row![self.board(), user_area]
+                    .spacing(SPACING)
+                    .into()
             }
             Screen::GameNew => {
                 let attacker = radio(
@@ -1032,6 +1047,7 @@ enum Message {
     PlayMoveFrom(Vertex),
     PlayMoveTo(Vertex),
     PlayResign,
+    ScreenSize(Size),
     RatedSelected(bool),
     RoleSelected(Role),
     TcpConnected(mpsc::Sender<String>),
@@ -1115,6 +1131,13 @@ fn open_url(url: &str) {
     if let Err(error) = webbrowser::open(url) {
         error!("{error}");
     }
+}
+
+#[derive(Clone, Debug, Default)]
+enum Size {
+    #[default]
+    Small,
+    Large,
 }
 
 #[derive(Clone, Debug)]
