@@ -51,11 +51,6 @@ struct Args {
     systemd: bool,
 }
 
-// 1. watch_game 1
-// 1. Display in game users.
-// 2. Make it so you can resume a game.
-// 3. Figure out some way of testing.
-// 3. Get SSL working.
 fn main() -> anyhow::Result<()> {
     // println!("{:x}", rand::random::<u32>());
     // return Ok(());
