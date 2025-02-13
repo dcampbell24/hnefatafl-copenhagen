@@ -853,7 +853,7 @@ impl Client {
                 };
                 let sound = stream_handle.play_once(file).unwrap();
                 sound.set_volume(1.0);
-                thread::sleep(Duration::from_millis(500));
+                thread::sleep(Duration::from_secs(1));
             }
         });
     }
