@@ -18,10 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Displays when the game is over.
 - The option to leave, accept, or decline a game.
 
-### Changed
-
-- hnefatafl-server-full: Reduce the information logged when run under systemd.
-
 ### Fixed
 
 - hnefatafl-server-full: fixed game_over error.
