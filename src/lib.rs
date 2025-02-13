@@ -28,7 +28,8 @@ pub mod space;
 pub mod status;
 pub mod time;
 
-pub const VERSION_ID: &str = "b35cd471";
+pub static HOME: &str = "hnefatafl-copenhagen";
+pub static VERSION_ID: &str = "b35cd471";
 
 pub fn handle_error<T, E: fmt::Display>(result: Result<T, E>) -> T {
     match result {

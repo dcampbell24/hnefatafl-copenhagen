@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- hnefatafl-client: add sound.
 - hnefatafl-client: make the board size adjustable.
 - hnefatafl-server-full: do less logging when --systemd is passed.
 - A link to the website.

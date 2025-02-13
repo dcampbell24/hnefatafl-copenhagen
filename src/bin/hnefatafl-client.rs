@@ -1,12 +1,12 @@
 use std::{
     collections::VecDeque,
-    env, f64,
+    env, f64, fs,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
     sync::mpsc,
     thread,
-    time::Instant,
+    time::{Duration, Instant},
 };
 
 use chrono::Utc;
@@ -24,7 +24,7 @@ use hnefatafl_copenhagen::{
     space::Space,
     status::Status,
     time::{Time, TimeSettings},
-    VERSION_ID,
+    HOME, VERSION_ID,
 };
 use iced::{
     font::Font,
@@ -67,6 +67,7 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Debug, Default)]
 struct Client {
     attacker: String,
@@ -85,6 +86,7 @@ struct Client {
     role_selected: Option<Role>,
     screen: Screen,
     screen_size: Size,
+    sound_muted: bool,
     status: Status,
     texts: VecDeque<String>,
     texts_game: VecDeque<String>,
@@ -354,21 +356,24 @@ impl Client {
             }
             Message::PlayMoveFrom(vertex) => self.play_from = Some(vertex),
             Message::PlayMoveTo(to) => {
-                let Some(game) = &mut self.game else {
-                    panic!("you have to be in a game to make a move");
-                };
-                let Some(from) = self.play_from.as_ref() else {
+                let Some(from) = self.play_from.clone() else {
                     panic!("you have to have a from to get to to");
                 };
+
+                self.handle_play(None, &from.to_string(), &to.to_string());
+                let Some(game) = &mut self.game else {
+                    panic!("you have to be in a game to play a move")
+                };
+
                 let Some(tx) = self.tx.as_mut() else {
                     panic!("you have to have a sender at this point")
                 };
 
                 handle_error(tx.send(format!(
                     "game {} play {} {from} {to}\n",
-                    self.game_id, game.turn
+                    self.game_id,
+                    game.turn.opposite()
                 )));
-                handle_error(game.read_line(&format!("play {} {from} {to}\n", game.turn)));
 
                 if game.status == Status::Ongoing {
                     match game.turn {
@@ -403,6 +408,7 @@ impl Client {
                 )));
             }
             Message::ScreenSize(size) => self.screen_size = size,
+            Message::SoundMuted(muted) => self.sound_muted = muted,
             Message::TcpConnected(tx) => {
                 info!("TCP connected...");
                 self.tx = Some(tx);
@@ -627,13 +633,11 @@ impl Client {
                             let Some(to) = text.next() else {
                                 return;
                             };
-                            let Some(game) = &mut self.game else {
-                                panic!("a game should exist to play in one");
-                            };
 
-                            game.read_line(&format!("play {color} {from} {to}"))
-                                .expect("play should be valid")
-                                .expect("an empty string wasn't passed");
+                            self.handle_play(Some(&color.to_string()), from, to);
+                            let Some(game) = &mut self.game else {
+                                panic!("you have to be in a game to play a move")
+                            };
 
                             if game.status == Status::Ongoing {
                                 match game.turn {
@@ -797,6 +801,63 @@ impl Client {
         ])
     }
 
+    fn handle_play(&mut self, color: Option<&str>, from: &str, to: &str) {
+        let mut capture = false;
+
+        let Some(game) = &mut self.game else {
+            panic!("you have to be in a game to play a move")
+        };
+
+        match color {
+            Some(color) => match game.read_line(&format!("play {color} {from} {to}\n")) {
+                Ok(value) => {
+                    if let Some(value) = value {
+                        if !value.trim().is_empty() {
+                            capture = true;
+                        }
+                    }
+                }
+                Err(error) => {
+                    eprintln!("error: {error}");
+                    exit(1)
+                }
+            },
+            None => match game.read_line(&format!("play {} {from} {to}\n", game.turn)) {
+                Ok(value) => {
+                    if let Some(value) = value {
+                        if !value.trim().is_empty() {
+                            capture = true;
+                        }
+                    }
+                }
+                Err(error) => {
+                    eprintln!("error: {error}");
+                    exit(1)
+                }
+            },
+        }
+
+        if self.sound_muted {
+            return;
+        }
+
+        thread::spawn(move || {
+            if let Some(mut path) = dirs::data_dir() {
+                path = path.join(HOME);
+
+                let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
+                let file = if capture {
+                    fs::File::open(path.join("capture.ogg")).unwrap()
+                } else {
+                    fs::File::open(path.join("move.ogg")).unwrap()
+                };
+                let sound = stream_handle.play_once(file).unwrap();
+                sound.set_volume(1.0);
+                thread::sleep(Duration::from_millis(500));
+            }
+        });
+    }
+
     #[must_use]
     fn users(&self, logged_in: bool) -> Scrollable<Message> {
         let mut ratings = Column::new();
@@ -880,6 +941,9 @@ impl Client {
                         .spacing(SPACING),
                     );
                 }
+
+                user_area = user_area
+                    .push(checkbox("sound muted", self.sound_muted).on_toggle(Message::SoundMuted));
 
                 if self.status == Status::WhiteWins {
                     user_area = user_area.push(text("Defender Wins!"));
@@ -1046,6 +1110,7 @@ enum Message {
     PlayMoveTo(Vertex),
     PlayResign,
     ScreenSize(Size),
+    SoundMuted(bool),
     RatedSelected(bool),
     RoleSelected(Role),
     TcpConnected(mpsc::Sender<String>),
