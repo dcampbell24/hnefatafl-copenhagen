@@ -19,4 +19,6 @@ jobs:
           persist-credentials: false
 
       - name: Run clippy
-        run: cargo clippy --all-targets --all-features
+        run: |
+          sudo apt-get install libasound2-dev
+          cargo clippy --all-targets --all-features
