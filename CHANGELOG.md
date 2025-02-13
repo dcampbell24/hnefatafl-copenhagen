@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: make the board size adjustable.
 - hnefatafl-server-full: do less logging when --systemd is passed.
 - A link to the website.
-- Run update_rd every two months.
+- Breaking Change: run update_rd every two months, track when it was last run.
 - You're allowed to resign.
 - Displays when the game is over.
 - The option to leave, accept, or decline a game.
