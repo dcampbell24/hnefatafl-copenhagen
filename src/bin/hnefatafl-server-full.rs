@@ -619,10 +619,10 @@ impl Server {
 
                             let _ok = game
                                 .attacker_tx
-                                .send(format!("game_over {index} attacker_wins"));
+                                .send(format!("= game_over {index} attacker_wins"));
                             let _ok = game
                                 .defender_tx
-                                .send(format!("game_over {index} attacker_wins"));
+                                .send(format!("= game_over {index} attacker_wins"));
 
                             self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
