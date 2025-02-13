@@ -15,4 +15,6 @@ jobs:
             persist-credentials: false
 
       - name: Run cargo fmt
-        run: cargo fmt --all --check
+        run: |
+          sudo apt-get install libasound2-dev
+          cargo fmt --all --check
