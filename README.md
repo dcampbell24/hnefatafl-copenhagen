@@ -16,6 +16,15 @@ An [engine] similar to the [Go Text Protocol], a [client], and a [server].
 [client]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-client.rs
 [server]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-server.rs
 
+## Build Dependencies (Linux)
+
+ALSA development files are needed to build cpal on Linux (rodio dependency,
+hnefatafl-client dependency). These are provided as part of the libasound2-dev
+package on Debian and Ubuntu distributions and alsa-lib-devel on Fedora.
+
+Also, the package uses the mold linker. This is provided via the mold package
+on Debian, Ubuntu, and Fedora.
+
 ## Differences from the Go Text Protocol
 
 * The character set is UTF-8.

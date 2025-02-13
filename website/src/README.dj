@@ -2,11 +2,17 @@ This is a website for a [Copenhagen Hnefatafl][1] server and client.
 
 [1]: https://aagenielsen.dk/copenhagen_rules.php
 
-## Install
 
-ALSA development files are needed to build cpal on Linux. These are provided as
-part of the libasound2-dev package on Debian and Ubuntu distributions and
-alsa-lib-devel on Fedora.
+## Build Dependencies (Linux)
+
+ALSA development files are needed to build cpal on Linux (rodio dependency,
+hnefatafl-client dependency). These are provided as part of the libasound2-dev
+package on Debian and Ubuntu distributions and alsa-lib-devel on Fedora.
+
+Also, the package uses the mold linker. This is provided via the mold package
+on Debian, Ubuntu, and Fedora.
+
+## Install
 
 Install the client with [Rust's][2] cargo:
 

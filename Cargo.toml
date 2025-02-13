@@ -29,7 +29,6 @@ serde = { version = "1", features = ["derive"] }
 # client only
 futures = { version = "0.3", optional = true }
 iced = { version = "0.13", features = ["smol"], optional = true }
-# Dependent on libasound2-dev for Debian and alsa-lib-devel for Fedora.
 rodio = { version = "0.20", optional = true }
 webbrowser = { version = "1", optional = true }
 
