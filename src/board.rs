@@ -1,6 +1,8 @@
 use std::{collections::HashMap, fmt};
 
 use rustc_hash::{FxBuildHasher, FxHashSet};
+use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 
 use crate::{
     color::Color,
@@ -41,8 +43,10 @@ const RESTRICTED_SQUARES: [Vertex; 5] = [
     THRONE,
 ];
 
-#[derive(Clone, Eq, Hash, PartialEq)]
+#[serde_as]
+#[derive(Clone, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Board {
+    #[serde_as(as = "[_; 121]")]
     spaces: [Space; 11 * 11],
 }
 

@@ -25,6 +25,7 @@ log = "0.4"
 ron = "0.8"
 rustc-hash = "2"
 serde = { version = "1", features = ["derive"] }
+serde_with = "3"
 
 # client only
 futures = { version = "0.3", optional = true }

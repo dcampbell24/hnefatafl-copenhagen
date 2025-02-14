@@ -975,6 +975,15 @@ impl Server {
             game.spectators.insert(username.to_string(), index_supplied);
         }
 
+        let Some(server_game) = self.games.0.get(&id) else {
+            panic!("we must have a board at this point")
+        };
+
+        let board = &server_game.game.board;
+        let Ok(board) = ron::ser::to_string(&board) else {
+            panic!("we should be able to serialize the board")
+        };
+
         info!("{index_supplied} {username} watch_game {id}");
         let Some(game) = self.games_light.0.get_mut(&id) else {
             panic!("the id must refer to a valid pending game");
@@ -982,11 +991,12 @@ impl Server {
 
         self.clients[&index_supplied]
             .send(format!(
-                "= watch_game {} {} {} {:?}",
+                "= watch_game {} {} {} {:?} {}",
                 game.attacker.clone().unwrap(),
                 game.defender.clone().unwrap(),
                 game.rated,
                 game.timed,
+                board,
             ))
             .ok()?;
 

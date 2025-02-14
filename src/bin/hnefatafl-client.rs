@@ -519,14 +519,24 @@ impl Client {
                                 panic!("there should be a valid time settings");
                             };
 
-                            self.game = Some(Game {
+                            let mut game = Game {
                                 black_time: timed.clone(),
                                 white_time: timed.clone(),
                                 timer: Some(Instant::now()),
                                 ..Game::default()
-                            });
+                            };
+
                             self.time_attacker = timed.clone();
                             self.time_defender = timed;
+
+                            if let Some(board) = text.next() {
+                                let board = ron::from_str(board)
+                                    .expect("we should be able to deserialize the board");
+
+                                game.board = board;
+                            }
+
+                            self.game = Some(game);
                         }
                         Some("join_game_pending") => {
                             self.challenger = true;
