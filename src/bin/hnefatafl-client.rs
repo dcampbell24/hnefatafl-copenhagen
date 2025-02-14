@@ -536,6 +536,15 @@ impl Client {
                                 game.board = board;
                             }
 
+                            let texts: Vec<&str> = text.collect();
+                            let texts = texts.join(" ");
+                            if !texts.is_empty() {
+                                let texts = ron::from_str(&texts)
+                                    .expect("we should be able to deserialize the text");
+                                println!("{texts:?}");
+                                self.texts_game = texts;
+                            }
+
                             self.game = Some(game);
                         }
                         Some("join_game_pending") => {

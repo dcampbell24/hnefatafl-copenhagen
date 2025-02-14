@@ -1,4 +1,10 @@
-use std::{collections::HashMap, fmt, str::FromStr, sync::mpsc::Sender, time::Instant};
+use std::{
+    collections::{HashMap, VecDeque},
+    fmt,
+    str::FromStr,
+    sync::mpsc::Sender,
+    time::Instant,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -19,7 +25,7 @@ pub struct ArchivedGame {
     pub rated: Rated,
     pub plays: Vec<Play>,
     pub status: Status,
-    pub text: String,
+    pub texts: VecDeque<String>,
 }
 
 impl ArchivedGame {
@@ -32,7 +38,7 @@ impl ArchivedGame {
             rated: game.rated,
             plays: game.game.plays.clone(),
             status: game.game.status.clone(),
-            text: game.text.clone(),
+            texts: game.texts.clone(),
         }
     }
 }
@@ -46,7 +52,7 @@ pub struct ServerGame {
     pub defender_tx: Sender<String>,
     pub rated: Rated,
     pub game: Game,
-    pub text: String,
+    pub texts: VecDeque<String>,
 }
 
 impl ServerGame {
@@ -82,7 +88,7 @@ impl ServerGame {
                 timer: Some(Instant::now()),
                 ..Game::default()
             },
-            text: String::new(),
+            texts: VecDeque::new(),
         }
     }
 }

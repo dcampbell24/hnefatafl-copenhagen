@@ -733,7 +733,7 @@ impl Server {
                     info!("{index_supplied} {username} text_game {id} {text}");
 
                     if let Some(game) = self.games.0.get_mut(&id) {
-                        game.text.push_str(&text);
+                        game.texts.push_front(text.clone());
                         text = format!("= text_game {text}");
                         let _ok = game.attacker_tx.send(text.clone());
                         let _ok = game.defender_tx.send(text);
@@ -985,6 +985,10 @@ impl Server {
         let Ok(board) = ron::ser::to_string(&board) else {
             panic!("we should be able to serialize the board")
         };
+        let texts = &server_game.texts;
+        let Ok(texts) = ron::ser::to_string(&texts) else {
+            panic!("we should be able to serialize the texts")
+        };
 
         info!("{index_supplied} {username} watch_game {id}");
         let Some(game) = self.games_light.0.get_mut(&id) else {
@@ -993,12 +997,11 @@ impl Server {
 
         self.clients[&index_supplied]
             .send(format!(
-                "= watch_game {} {} {} {:?} {}",
+                "= watch_game {} {} {} {:?} {board} {texts}",
                 game.attacker.clone().unwrap(),
                 game.defender.clone().unwrap(),
                 game.rated,
                 game.timed,
-                board,
             ))
             .ok()?;
 
