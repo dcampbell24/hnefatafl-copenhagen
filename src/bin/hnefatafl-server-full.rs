@@ -627,15 +627,17 @@ impl Server {
                                 }
                             }
 
+                            let message = format!("= game_over {index} attacker_wins");
+                            let _ok = game.attacker_tx.send(message.clone());
+                            let _ok = game.defender_tx.send(message.clone());
+
+                            for spectator in game_light.spectators.values() {
+                                if let Some(sender) = self.clients.get(spectator) {
+                                    let _ok = sender.send(message.clone());
+                                }
+                            }
+
                             self.games_light.0.remove(&index);
-
-                            let _ok = game
-                                .attacker_tx
-                                .send(format!("= game_over {index} attacker_wins"));
-                            let _ok = game
-                                .defender_tx
-                                .send(format!("= game_over {index} attacker_wins"));
-
                             self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
 
@@ -683,15 +685,17 @@ impl Server {
                                 }
                             }
 
+                            let message = format!("= game_over {index} defender_wins");
+                            let _ok = game.attacker_tx.send(message.clone());
+                            let _ok = game.defender_tx.send(message.clone());
+
+                            for spectator in game_light.spectators.values() {
+                                if let Some(sender) = self.clients.get(spectator) {
+                                    let _ok = sender.send(message.clone());
+                                }
+                            }
+
                             self.games_light.0.remove(&index);
-
-                            let _ok = game
-                                .attacker_tx
-                                .send(format!("= game_over {index} defender_wins"));
-                            let _ok = game
-                                .defender_tx
-                                .send(format!("= game_over {index} defender_wins"));
-
                             self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
 
