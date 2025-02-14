@@ -1,6 +1,8 @@
-use std::{borrow::Cow, fmt, process::exit, time::Instant};
+use std::{borrow::Cow, fmt, process::exit};
 
+use chrono::Local;
 use rustc_hash::FxHashSet;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     board::Board,
@@ -11,19 +13,19 @@ use crate::{
     time::TimeSettings,
 };
 
-#[derive(Debug, Default, Clone, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Game {
     pub board: Board,
     pub plays: Vec<Play>,
     pub previous_boards: PreviousBoards,
     pub status: Status,
-    pub timer: Option<Instant>,
+    pub time: Option<i64>,
     pub black_time: TimeSettings,
     pub white_time: TimeSettings,
     pub turn: Color,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct PreviousBoards(pub FxHashSet<Board>);
 
 impl Default for PreviousBoards {
@@ -98,11 +100,11 @@ impl Game {
 
     fn play(&mut self, play: Plae) -> anyhow::Result<Option<String>> {
         if self.status == Status::Ongoing {
-            if let (status, Some(time), Some(timer)) = match self.turn {
+            if let (status, Some(timer), Some(time)) = match self.turn {
                 Color::Black => (
                     Status::WhiteWins,
                     self.black_time.0.as_mut(),
-                    &mut self.timer,
+                    self.time.as_mut(),
                 ),
                 Color::Colorless => {
                     unreachable!("It can't be no one's turn when the game is ongoing!")
@@ -110,20 +112,19 @@ impl Game {
                 Color::White => (
                     Status::BlackWins,
                     self.white_time.0.as_mut(),
-                    &mut self.timer,
+                    self.time.as_mut(),
                 ),
             } {
-                time.milliseconds_left = time
-                    .milliseconds_left
-                    .saturating_sub(timer.elapsed().as_millis());
+                let now = Local::now().to_utc().timestamp_millis();
+                timer.milliseconds_left -= now - *time;
 
-                if time.milliseconds_left == 0 {
+                if timer.milliseconds_left <= 0 {
                     self.status = status;
                     return Ok(Some(String::new()));
                 }
 
-                time.milliseconds_left += time.add_seconds * 1_000;
-                *timer = Instant::now();
+                timer.milliseconds_left += timer.add_seconds * 1_000;
+                *time = Local::now().to_utc().timestamp_millis();
             }
 
             match play {
@@ -222,11 +223,11 @@ impl Game {
                 if let Some(time) = time_settings.0.take() {
                     self.black_time.0 = Some(time.clone());
                     self.white_time.0 = Some(time);
-                    self.timer = Some(Instant::now());
+                    self.time = Some(Local::now().to_utc().timestamp_millis());
                 } else {
                     self.black_time.0 = None;
                     self.white_time.0 = None;
-                    self.timer = None;
+                    self.time = None;
                 }
 
                 Ok(Some(String::new()))

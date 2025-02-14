@@ -3,9 +3,9 @@ use std::{
     fmt,
     str::FromStr,
     sync::mpsc::Sender,
-    time::Instant,
 };
 
+use chrono::Local;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -85,7 +85,7 @@ impl ServerGame {
             game: Game {
                 black_time: game.timed.clone(),
                 white_time: game.timed,
-                timer: Some(Instant::now()),
+                time: Some(Local::now().to_utc().timestamp_millis()),
                 ..Game::default()
             },
             texts: VecDeque::new(),
@@ -272,8 +272,8 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str, &str)> for ServerG
 
         let timed = match timed {
             "fischer" => TimeSettings(Some(Time {
-                add_seconds: add_seconds.parse::<u128>()?,
-                milliseconds_left: minutes.parse::<u128>()?,
+                add_seconds: add_seconds.parse::<i64>()?,
+                milliseconds_left: minutes.parse::<i64>()?,
             })),
             // "un-timed"
             _ => TimeSettings(None),

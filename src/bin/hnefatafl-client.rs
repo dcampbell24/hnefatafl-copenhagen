@@ -6,10 +6,10 @@ use std::{
     process::exit,
     sync::mpsc,
     thread,
-    time::{Duration, Instant},
+    time::Duration,
 };
 
-use chrono::Utc;
+use chrono::{Local, Utc};
 use clap::{command, Parser};
 use env_logger::Builder;
 use futures::executor;
@@ -200,7 +200,7 @@ impl Client {
 
     fn subscriptions(&self) -> Subscription<Message> {
         let subscription_1 = if let Some(game) = &self.game {
-            if game.timer.is_some() {
+            if game.time.is_some() {
                 iced::time::every(iced::time::Duration::from_millis(100))
                     .map(|_instant| Message::Tick)
             } else {
@@ -289,8 +289,8 @@ impl Client {
                 if let Some(role) = self.role_selected {
                     if self.timed.0.is_some() {
                         match (
-                            self.time_minutes.parse::<u128>(),
-                            self.time_add_seconds.parse::<u128>(),
+                            self.time_minutes.parse::<i64>(),
+                            self.time_add_seconds.parse::<i64>(),
                         ) {
                             (Ok(minutes), Ok(add_seconds)) => {
                                 self.timed.0 = Some(Time {
@@ -523,18 +523,21 @@ impl Client {
                             let mut game = Game {
                                 black_time: timed.clone(),
                                 white_time: timed.clone(),
-                                timer: Some(Instant::now()),
+                                time: Some(Local::now().to_utc().timestamp_millis()),
                                 ..Game::default()
                             };
 
                             self.time_attacker = timed.clone();
                             self.time_defender = timed;
 
-                            if let Some(board) = text.next() {
-                                let board = ron::from_str(board)
-                                    .expect("we should be able to deserialize the board");
+                            if let Some(game_serialized) = text.next() {
+                                let game_deserialized = ron::from_str(game_serialized)
+                                    .expect("we should be able to deserialize the game");
 
-                                game.board = board;
+                                game = game_deserialized;
+
+                                self.time_attacker = game.black_time.clone();
+                                self.time_defender = game.white_time.clone();
                             }
 
                             let texts: Vec<&str> = text.collect();
@@ -689,9 +692,9 @@ impl Client {
                     match game.turn {
                         Color::Black => {
                             if let Some(time) = &mut self.time_attacker.0 {
-                                time.milliseconds_left = time.milliseconds_left.saturating_sub(100);
+                                time.milliseconds_left -= 100;
 
-                                if self.my_turn && time.milliseconds_left == 0 {
+                                if self.my_turn && time.milliseconds_left <= 0 {
                                     if let Some(tx) = &mut self.tx {
                                         handle_error(tx.send(format!(
                                             "game {} play black resigns _\n",
@@ -707,9 +710,9 @@ impl Client {
                         Color::Colorless => {}
                         Color::White => {
                             if let Some(time) = &mut self.time_defender.0 {
-                                time.milliseconds_left = time.milliseconds_left.saturating_sub(100);
+                                time.milliseconds_left -= 100;
 
-                                if self.my_turn && time.milliseconds_left == 0 {
+                                if self.my_turn && time.milliseconds_left <= 0 {
                                     if let Some(tx) = &mut self.tx {
                                         handle_error(tx.send(format!(
                                             "game {} play white resigns _\n",

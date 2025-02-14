@@ -2,9 +2,9 @@ use std::{
     io::{self, BufReader},
     net::TcpStream,
     process::{Command, ExitStatus},
-    time::Instant,
 };
 
+use chrono::Local;
 use clap::command;
 use clap::{self, Parser};
 
@@ -86,7 +86,7 @@ fn main() -> anyhow::Result<()> {
             add_seconds: 10,
             milliseconds_left: 15 * 60_000,
         })),
-        timer: Some(Instant::now()),
+        time: Some(Local::now().to_utc().timestamp_millis()),
         ..Game::default()
     };
 

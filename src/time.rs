@@ -1,11 +1,12 @@
 use std::fmt;
 
 use anyhow::Context;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Time {
-    pub add_seconds: u128,
-    pub milliseconds_left: u128,
+    pub add_seconds: i64,
+    pub milliseconds_left: i64,
 }
 
 impl fmt::Display for Time {
@@ -18,7 +19,7 @@ impl fmt::Display for Time {
     }
 }
 
-#[derive(Clone, Default, Eq, PartialEq)]
+#[derive(Clone, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TimeSettings(pub Option<Time>);
 
 impl fmt::Debug for TimeSettings {
@@ -63,11 +64,11 @@ impl TryFrom<Vec<&str>> for TimeSettings {
 
         if "fischer" == args[1] {
             let arg_2 = args[2]
-                .parse::<u128>()
+                .parse::<i64>()
                 .context("time_settings: arg 2 is not an integer")?;
 
             let arg_3 = args[3]
-                .parse::<u128>()
+                .parse::<i64>()
                 .context("time_settings: arg 3 is not an integer")?;
 
             Ok(Self(Some(Time {

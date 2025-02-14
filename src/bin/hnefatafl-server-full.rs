@@ -560,7 +560,9 @@ impl Server {
 
                             let message = format!("game {index} play black {from} {to}");
                             for spectator in game_light.spectators.values() {
-                                let _ok = self.clients[spectator].send(message.clone());
+                                if let Some(client) = self.clients.get(spectator) {
+                                    let _ok = client.send(message.clone());
+                                }
                             }
                             let _ok = game.defender_tx.send(message);
                         } else {
@@ -987,8 +989,8 @@ impl Server {
             panic!("we must have a board at this point")
         };
 
-        let board = &server_game.game.board;
-        let Ok(board) = ron::ser::to_string(&board) else {
+        let game = &server_game.game;
+        let Ok(board) = ron::ser::to_string(game) else {
             panic!("we should be able to serialize the board")
         };
         let texts = &server_game.texts;
