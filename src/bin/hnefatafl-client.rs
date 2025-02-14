@@ -60,7 +60,6 @@ fn main() -> anyhow::Result<()> {
     iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
         .default_font(Font::MONOSPACE)
         .subscription(Client::subscriptions)
-        // .window_size(iced::Size::INFINITY)
         .theme(Client::theme)
         .run()?;
 
@@ -248,53 +247,45 @@ impl Client {
 
         match message {
             Message::GameAccept(id) => {
-                if let Some(tx) = &self.tx {
-                    handle_error(tx.send(format!("join_game {id}\n")));
-                }
+                self.send(format!("join_game {id}\n"));
                 self.screen = Screen::Game;
                 self.status = Status::Ongoing;
             }
             Message::GameDecline(id) => {
-                if let Some(tx) = &self.tx {
-                    handle_error(tx.send(format!("decline_game {id}\n")));
-                }
+                self.send(format!("decline_game {id}\n"));
             }
             Message::GameJoin(id) => {
-                if let Some(tx) = &self.tx {
-                    handle_error(tx.send(format!("join_game_pending {id}\n")));
+                self.send(format!("join_game_pending {id}\n"));
 
-                    let Some(game) = self.games_light.0.get(&id) else {
-                        panic!("the game must exist");
-                    };
+                let Some(game) = self.games_light.0.get(&id) else {
+                    panic!("the game must exist");
+                };
 
-                    self.role_selected = if game.attacker.is_some() {
-                        Some(Role::Defender)
-                    } else {
-                        Some(Role::Attacker)
-                    };
+                self.role_selected = if game.attacker.is_some() {
+                    Some(Role::Defender)
+                } else {
+                    Some(Role::Attacker)
+                };
 
-                    self.screen = Screen::GameNewFrozen;
-                }
+                self.screen = Screen::GameNewFrozen;
             }
-            Message::GameWatch(_id) => {
-                // Todo:
+            Message::GameWatch(id) => {
+                self.send(format!("watch_game {id}"));
             }
             Message::Leave => match self.screen {
                 Screen::Game | Screen::Users => {
                     self.screen = Screen::Games;
                 }
                 Screen::GameNewFrozen => {
-                    if let Some(tx) = &self.tx {
-                        handle_error(tx.send(format!("leave_game {}\n", self.game_id)));
-                        self.screen = Screen::Games;
-                    }
+                    self.send(format!("leave_game {}\n", self.game_id));
+                    self.screen = Screen::Games;
                 }
                 Screen::GameNew | Screen::Games | Screen::Login => {}
             },
             Message::OpenWebsite => open_url("https://hnefatafl.org"),
             Message::GameNew => self.screen = Screen::GameNew,
             Message::GameSubmit => {
-                if let (Some(role), Some(tx)) = (self.role_selected, &self.tx) {
+                if let Some(role) = self.role_selected {
                     if self.timed.0.is_some() {
                         match (
                             self.time_minutes.parse::<u128>(),
@@ -330,9 +321,7 @@ impl Client {
                     self.screen = Screen::GameNewFrozen;
 
                     // new_game (attacker | defender) (rated | unrated) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-                    handle_error(
-                        tx.send(format!("new_game {role} {} {:?}\n", self.rated, self.timed)),
-                    );
+                    self.send(format!("new_game {role} {} {:?}\n", self.rated, self.timed));
                 }
             }
             Message::PasswordChanged(mut password) => {
@@ -611,11 +600,7 @@ impl Client {
                                     .expect("generate_move should be valid")
                                     .expect("an empty string wasn't passed");
 
-                                let Some(tx) = &self.tx else {
-                                    panic!("there should be an established channel by now");
-                                };
-
-                                handle_error(tx.send(format!("game {index} play {result} _\n")));
+                                self.send(format!("game {index} play {result} _\n"));
                             } else {
                                 self.my_turn = true;
                             }
@@ -660,33 +645,24 @@ impl Client {
                 }
             }
             Message::TextSend => {
-                if let Some(tx) = &self.tx {
-                    if self.text_input.trim().is_empty() {
-                        return;
-                    }
-
-                    if self.screen == Screen::Login {
-                        if let Some(username) = self.text_input.split_ascii_whitespace().next() {
-                            let username = username.to_ascii_lowercase();
-                            handle_error(
-                                tx.send(format!(
-                                    "{VERSION_ID} {username} {}\n",
-                                    self.password_real
-                                )),
-                            );
-                            self.username = username;
-                        }
-                    } else if self.screen == Screen::Game {
-                        self.text_input.push('\n');
-                        handle_error(
-                            tx.send(format!("text_game {} {}", self.game_id, self.text_input)),
-                        );
-                    } else {
-                        self.text_input.push('\n');
-                        handle_error(tx.send(format!("text {}", self.text_input)));
-                    }
-                    self.text_input.clear();
+                if self.text_input.trim().is_empty() {
+                    return;
                 }
+
+                if self.screen == Screen::Login {
+                    if let Some(username) = self.text_input.split_ascii_whitespace().next() {
+                        let username = username.to_ascii_lowercase();
+                        self.send(format!("{VERSION_ID} {username} {}\n", self.password_real));
+                        self.username = username;
+                    }
+                } else if self.screen == Screen::Game {
+                    self.text_input.push('\n');
+                    self.send(format!("text_game {} {}", self.game_id, self.text_input));
+                } else {
+                    self.text_input.push('\n');
+                    self.send(format!("text {}", self.text_input));
+                }
+                self.text_input.clear();
             }
             Message::Tick => {
                 if let Some(game) = &mut self.game {
@@ -1091,6 +1067,14 @@ impl Client {
             ]
             .into(),
         }
+    }
+
+    fn send(&mut self, string: String) {
+        self.tx
+            .as_mut()
+            .expect("you should have a tx available by now")
+            .send(string)
+            .unwrap();
     }
 }
 
