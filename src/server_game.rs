@@ -145,6 +145,7 @@ pub struct ServerGameLight {
     pub timed: TimeSettings,
     pub attacker_channel: Option<usize>,
     pub defender_channel: Option<usize>,
+    pub spectators: HashMap<String, usize>,
     pub challenge_accepted: bool,
 }
 
@@ -168,6 +169,7 @@ impl ServerGameLight {
                 timed,
                 attacker_channel: Some(index_supplied),
                 defender_channel: None,
+                spectators: HashMap::new(),
                 challenge_accepted: false,
             }
         } else {
@@ -180,6 +182,7 @@ impl ServerGameLight {
                 timed,
                 attacker_channel: None,
                 defender_channel: Some(index_supplied),
+                spectators: HashMap::new(),
                 challenge_accepted: false,
             }
         }
@@ -283,6 +286,8 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str, &str)> for ServerG
             timed,
             attacker_channel: None,
             defender_channel: None,
+            // Fixme: display the spectators.
+            spectators: HashMap::new(),
             challenge_accepted,
         };
 

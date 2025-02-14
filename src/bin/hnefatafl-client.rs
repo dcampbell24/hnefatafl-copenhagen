@@ -270,7 +270,7 @@ impl Client {
                 self.screen = Screen::GameNewFrozen;
             }
             Message::GameWatch(id) => {
-                self.send(format!("watch_game {id}"));
+                self.send(format!("watch_game {id}\n"));
             }
             Message::Leave => match self.screen {
                 Screen::Game | Screen::Users => {
@@ -483,7 +483,7 @@ impl Client {
                             }
                         }
                         // = join_game david abby rated fischer 900_000 10
-                        Some("join_game") => {
+                        Some("join_game" | "watch_game") => {
                             self.texts_game = VecDeque::new();
                             self.screen = Screen::Game;
                             self.status = Status::Ongoing;

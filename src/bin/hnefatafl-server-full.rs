@@ -36,6 +36,10 @@ use serde::{Deserialize, Serialize};
 
 const PORT: &str = ":49152";
 
+// There is a game_light that is active...
+// Player x says he wants to watch it...
+// send the ServerGameLight, send the current state, send updates
+
 /// A Hnefatafl Copenhagen Server
 ///
 /// This is a TCP server that listens client connections.
@@ -538,6 +542,9 @@ impl Server {
                     let Some(game) = self.games.0.get_mut(&index) else {
                         panic!("the index should be valid")
                     };
+                    let Some(game_light) = self.games_light.0.get_mut(&index) else {
+                        panic!("the index should be valid")
+                    };
 
                     let mut blacks_turn_next = true;
                     if color == Color::Black {
@@ -550,9 +557,12 @@ impl Server {
                                 })
                                 .ok()?;
                             blacks_turn_next = false;
-                            let _ok = game
-                                .defender_tx
-                                .send(format!("game {index} play black {from} {to}"));
+
+                            let message = format!("game {index} play black {from} {to}");
+                            for spectator in game_light.spectators.values() {
+                                let _ok = self.clients[spectator].send(message.clone());
+                            }
+                            let _ok = game.defender_tx.send(message);
                         } else {
                             return Some((
                                 self.clients[&index_supplied].clone(),
@@ -568,9 +578,12 @@ impl Server {
                                 error
                             })
                             .ok()?;
-                        let _ok = game
-                            .attacker_tx
-                            .send(format!("game {index} play white {from} {to}"));
+
+                        let message = format!("game {index} play white {from} {to}");
+                        for spectator in game_light.spectators.values() {
+                            let _ok = self.clients[spectator].send(message.clone());
+                        }
+                        let _ok = game.attacker_tx.send(message);
                     } else {
                         return Some((
                             self.clients[&index_supplied].clone(),
@@ -726,6 +739,12 @@ impl Server {
 
                     None
                 }
+                "watch_game" => self.watch_game(
+                    username,
+                    index_supplied,
+                    (*command).to_string(),
+                    the_rest.as_slice(),
+                ),
                 "=" => None,
                 _ => Some((
                     self.clients[&index_supplied].clone(),
@@ -777,6 +796,7 @@ impl Server {
                 timed: game_old.timed,
                 attacker_channel,
                 defender_channel,
+                spectators: game_old.spectators,
                 challenge_accepted: false,
             };
 
@@ -935,6 +955,42 @@ impl Server {
                 }
             }
         }
+    }
+
+    fn watch_game(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        command: String,
+        the_rest: &[&str],
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        let Some(id) = the_rest.first() else {
+            return Some((self.clients[&index_supplied].clone(), false, command));
+        };
+        let Ok(id) = id.parse::<usize>() else {
+            return Some((self.clients[&index_supplied].clone(), false, command));
+        };
+
+        if let Some(game) = self.games_light.0.get_mut(&id) {
+            game.spectators.insert(username.to_string(), index_supplied);
+        }
+
+        info!("{index_supplied} {username} watch_game {id}");
+        let Some(game) = self.games_light.0.get_mut(&id) else {
+            panic!("the id must refer to a valid pending game");
+        };
+
+        self.clients[&index_supplied]
+            .send(format!(
+                "= watch_game {} {} {} {:?}",
+                game.attacker.clone().unwrap(),
+                game.defender.clone().unwrap(),
+                game.rated,
+                game.timed,
+            ))
+            .ok()?;
+
+        None
     }
 }
 
