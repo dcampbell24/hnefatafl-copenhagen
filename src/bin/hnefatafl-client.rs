@@ -475,6 +475,9 @@ impl Client {
                         }
                         Some("game_over") => {
                             self.my_turn = false;
+                            if let Some(game) = &mut self.game {
+                                game.turn = Color::Colorless;
+                            }
 
                             text.next();
                             match text.next() {
@@ -703,7 +706,7 @@ impl Client {
                                     }
 
                                     handle_error(game.read_line("play black resigns"));
-                                    self.time_attacker = TimeSettings(None);
+                                    game.turn = Color::Colorless;
                                 }
                             }
                         }
@@ -721,7 +724,7 @@ impl Client {
                                     }
 
                                     handle_error(game.read_line("play white resigns"));
-                                    self.time_defender = TimeSettings(None);
+                                    game.turn = Color::Colorless;
                                 }
                             }
                         }
