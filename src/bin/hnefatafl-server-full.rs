@@ -736,7 +736,13 @@ impl Server {
                         game.texts.push_front(text.clone());
                         text = format!("= text_game {text}");
                         let _ok = game.attacker_tx.send(text.clone());
-                        let _ok = game.defender_tx.send(text);
+                        let _ok = game.defender_tx.send(text.clone());
+                    }
+
+                    if let Some(game) = self.games_light.0.get(&id) {
+                        for spectator in game.spectators.values() {
+                            let _ok = self.clients[spectator].send(text.clone());
+                        }
                     }
 
                     None

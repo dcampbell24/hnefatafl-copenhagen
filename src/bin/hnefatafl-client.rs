@@ -270,6 +270,7 @@ impl Client {
                 self.screen = Screen::GameNewFrozen;
             }
             Message::GameWatch(id) => {
+                self.game_id = id;
                 self.send(format!("watch_game {id}\n"));
             }
             Message::Leave => match self.screen {
