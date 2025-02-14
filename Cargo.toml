@@ -71,9 +71,15 @@ suspicious = "deny"
 
 multiple_crate_versions = { level = "allow", priority = 1 }
 
+[profile.dev]
+panic = "abort"
+
 [profile.profiling]
 inherits = "release"
 debug = true
+
+[profile.release]
+panic = "abort"
 
 [package.metadata.deb]
 copyright = "2025 David Lawrence Campbell"
