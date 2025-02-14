@@ -581,7 +581,9 @@ impl Server {
 
                         let message = format!("game {index} play white {from} {to}");
                         for spectator in game_light.spectators.values() {
-                            let _ok = self.clients[spectator].send(message.clone());
+                            if let Some(client) = self.clients.get(spectator) {
+                                let _ok = client.send(message.clone());
+                            }
                         }
                         let _ok = game.attacker_tx.send(message);
                     } else {
