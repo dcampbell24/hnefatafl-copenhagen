@@ -368,13 +368,13 @@ impl Client {
                 if game.status == Status::Ongoing {
                     match game.turn {
                         Color::Black => {
-                            if let Some(time) = &mut self.time_attacker.0 {
+                            if let Some(time) = &mut self.time_defender.0 {
                                 time.milliseconds_left += time.add_seconds * 1_000;
                             }
                         }
                         Color::Colorless => {}
                         Color::White => {
-                            if let Some(time) = &mut self.time_defender.0 {
+                            if let Some(time) = &mut self.time_attacker.0 {
                                 time.milliseconds_left += time.add_seconds * 1_000;
                             }
                         }
@@ -541,6 +541,26 @@ impl Client {
 
                                 self.time_attacker = game.black_time.clone();
                                 self.time_defender = game.white_time.clone();
+
+                                match game.turn {
+                                    Color::Black => {
+                                        if let (Some(time), Some(time_ago)) =
+                                            (&mut self.time_attacker.0, game.time)
+                                        {
+                                            let now = Local::now().to_utc().timestamp_millis();
+                                            time.milliseconds_left -= now - time_ago;
+                                        }
+                                    }
+                                    Color::Colorless => {}
+                                    Color::White => {
+                                        if let (Some(time), Some(time_ago)) =
+                                            (&mut self.time_defender.0, game.time)
+                                        {
+                                            let now = Local::now().to_utc().timestamp_millis();
+                                            time.milliseconds_left -= now - time_ago;
+                                        }
+                                    }
+                                }
                             }
 
                             let texts: Vec<&str> = text.collect();
@@ -653,13 +673,13 @@ impl Client {
                             if game.status == Status::Ongoing {
                                 match game.turn {
                                     Color::Black => {
-                                        if let Some(time) = &mut self.time_attacker.0 {
+                                        if let Some(time) = &mut self.time_defender.0 {
                                             time.milliseconds_left += time.add_seconds * 1_000;
                                         }
                                     }
                                     Color::Colorless => {}
                                     Color::White => {
-                                        if let Some(time) = &mut self.time_defender.0 {
+                                        if let Some(time) = &mut self.time_attacker.0 {
                                             time.milliseconds_left += time.add_seconds * 1_000;
                                         }
                                     }
