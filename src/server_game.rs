@@ -134,13 +134,6 @@ impl fmt::Display for Challenger {
     }
 }
 
-// Todo:
-#[derive(Clone, Debug)]
-pub struct Spectator {
-    _name: String,
-    _tx: Sender<String>,
-}
-
 #[derive(Clone)]
 pub struct ServerGameLight {
     pub id: usize,
@@ -209,9 +202,13 @@ impl fmt::Debug for ServerGameLight {
             "_"
         };
 
+        let Ok(spectators) = ron::ser::to_string(&self.spectators) else {
+            panic!("we should be able to serialize the spectators")
+        };
+
         write!(
             f,
-            "game {} {attacker} {defender} {} {:?} {:?} {}",
+            "game {} {attacker} {defender} {} {:?} {:?} {} {spectators}",
             self.id, self.rated, self.timed, self.challenger, self.challenge_accepted
         )
     }
@@ -239,23 +236,21 @@ impl fmt::Display for ServerGameLight {
     }
 }
 
-impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str, &str)> for ServerGameLight {
+impl TryFrom<&[&str]> for ServerGameLight {
     type Error = anyhow::Error;
 
-    fn try_from(
-        id_attacker_defender_rated: (&str, &str, &str, &str, &str, &str, &str, &str, &str),
-    ) -> anyhow::Result<Self> {
-        let (
-            id,
-            attacker,
-            defender,
-            rated,
-            timed,
-            minutes,
-            add_seconds,
-            challenger,
-            challenge_accepted,
-        ) = id_attacker_defender_rated;
+    fn try_from(vector: &[&str]) -> anyhow::Result<Self> {
+        let id = vector[1];
+        let attacker = vector[2];
+        let defender = vector[3];
+        let rated = vector[4];
+        let timed = vector[5];
+        let minutes = vector[6];
+        let add_seconds = vector[7];
+        let challenger = vector[8];
+        let challenge_accepted = vector[9];
+        let spectators = vector[10];
+
         let id = id.parse::<usize>()?;
 
         let attacker = if attacker == "_" {
@@ -283,6 +278,9 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str, &str)> for ServerG
             panic!("the value should be a bool");
         };
 
+        let spectators =
+            ron::from_str(spectators).expect("we should be able to deserialize the spectators");
+
         let mut game = Self {
             id,
             attacker,
@@ -292,8 +290,7 @@ impl TryFrom<(&str, &str, &str, &str, &str, &str, &str, &str, &str)> for ServerG
             timed,
             attacker_channel: None,
             defender_channel: None,
-            // Fixme: display the spectators.
-            spectators: HashMap::new(),
+            spectators,
             challenge_accepted,
         };
 

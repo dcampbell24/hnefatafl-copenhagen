@@ -301,6 +301,7 @@ impl Server {
                     for tx in &mut self.clients.values() {
                         tx.send(format!("= display_games {:?}", &self.games_light))
                             .ok()?;
+
                         tx.send(format!("= display_users {}", &self.accounts))
                             .ok()?;
                     }

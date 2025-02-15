@@ -86,6 +86,7 @@ struct Client {
     screen: Screen,
     screen_size: Size,
     sound_muted: bool,
+    spectators: Vec<String>,
     status: Status,
     texts: VecDeque<String>,
     texts_game: VecDeque<String>,
@@ -419,31 +420,16 @@ impl Client {
                         Some("display_games") => {
                             self.games_light.0.clear();
                             let games: Vec<&str> = text.collect();
-                            for chunks in games.chunks_exact(10) {
-                                let id = chunks[1];
-                                let attacker = chunks[2];
-                                let defender = chunks[3];
-                                let rated = chunks[4];
-                                let timed = chunks[5];
-                                let minutes = chunks[6];
-                                let add_seconds = chunks[7];
-                                let challenger = chunks[8];
-                                let challenge_accepted = chunks[9];
-
-                                let game = ServerGameLight::try_from((
-                                    id,
-                                    attacker,
-                                    defender,
-                                    rated,
-                                    timed,
-                                    minutes,
-                                    add_seconds,
-                                    challenger,
-                                    challenge_accepted,
-                                ))
-                                .expect("the value should be a valid ServerGameLight");
+                            for chunks in games.chunks_exact(11) {
+                                let game = ServerGameLight::try_from(chunks)
+                                    .expect("the value should be a valid ServerGameLight");
 
                                 self.games_light.0.insert(game.id, game);
+                            }
+
+                            if let Some(game) = self.games_light.0.get(&self.game_id) {
+                                self.spectators =
+                                    game.spectators.keys().map(ToString::to_string).collect();
                             }
                         }
                         Some("display_users") => {
@@ -922,11 +908,19 @@ impl Client {
     pub fn view(&self) -> Element<Message> {
         match self.screen {
             Screen::Game => {
-                let user_area_ = row![text(format!(
-                    "username: {}, attacker: {}, defender: {}",
-                    &self.username, &self.attacker, &self.defender
-                )),]
-                .spacing(SPACING);
+                let mut user_area_ = column![
+                    text(format!("username: {}", &self.username)),
+                    text(format!(
+                        "attacker: {}, defender: {}",
+                        &self.attacker, &self.defender
+                    )),
+                    text("spectators:".to_string()),
+                ];
+
+                for spectator in &self.spectators {
+                    user_area_ = user_area_.push(text(spectator.clone()));
+                }
+
                 let user_area_ = container(user_area_)
                     .padding(PADDING)
                     .style(container::bordered_box);
