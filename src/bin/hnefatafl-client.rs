@@ -103,6 +103,7 @@ struct Client {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 enum Screen {
+    AccountSettings,
     #[default]
     Login,
     Game,
@@ -247,6 +248,7 @@ impl Client {
         self.error = None;
 
         match message {
+            Message::AccountSettings => self.screen = Screen::AccountSettings,
             Message::GameAccept(id) => {
                 self.send(format!("join_game {id}\n"));
                 self.screen = Screen::Game;
@@ -275,7 +277,7 @@ impl Client {
                 self.send(format!("watch_game {id}\n"));
             }
             Message::Leave => match self.screen {
-                Screen::Game | Screen::GameNew | Screen::Users => {
+                Screen::AccountSettings | Screen::Game | Screen::GameNew | Screen::Users => {
                     self.screen = Screen::Games;
                 }
                 Screen::GameNewFrozen => {
@@ -907,6 +909,30 @@ impl Client {
     #[allow(clippy::too_many_lines)]
     pub fn view(&self) -> Element<Message> {
         match self.screen {
+            Screen::AccountSettings => {
+                let mut rating = String::new();
+                let mut wins = String::new();
+                let mut losses = String::new();
+
+                for user in &self.users {
+                    if self.username == user.name {
+                        rating = format!("{} ± {}", user.rating.0, user.rating.1);
+                        wins = user.wins.to_string();
+                        losses = user.losses.to_string();
+                    }
+                }
+
+                column![
+                    button("Leave").on_press(Message::Leave),
+                    text(format!("username: {}", &self.username)),
+                    text(format!("rating: {rating}")),
+                    text(format!("wins: {wins}")),
+                    text(format!("losses: {losses}")),
+                ]
+                .padding(PADDING)
+                .spacing(SPACING)
+                .into()
+            }
             Screen::Game => {
                 let mut user_area_ = column![
                     text(format!("username: {}", &self.username)),
@@ -1065,9 +1091,12 @@ impl Client {
                 let username = row![text("username: "), text(&self.username)];
                 let create_game = button("Create Game").on_press(Message::GameNew);
                 let users = button("Users").on_press(Message::Users);
+                let account_setting = button("Account Settings").on_press(Message::AccountSettings);
                 let website = button("Website").on_press(Message::OpenWebsite);
 
-                let top = row![username, create_game, users, website].spacing(SPACING);
+                let top =
+                    row![username, create_game, users, account_setting, website].spacing(SPACING);
+
                 let top = container(top)
                     .padding(PADDING)
                     .style(container::bordered_box);
@@ -1130,6 +1159,7 @@ impl Client {
 
 #[derive(Clone, Debug)]
 enum Message {
+    AccountSettings,
     GameAccept(usize),
     GameDecline(usize),
     GameJoin(usize),
