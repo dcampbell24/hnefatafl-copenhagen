@@ -684,23 +684,38 @@ impl Client {
                 }
             }
             Message::TextSend => {
-                if self.text_input.trim().is_empty() {
-                    return;
+                match self.screen {
+                    Screen::AccountSettings => {
+                        self.send(format!("change_password {}\n", self.password_real));
+                    }
+                    Screen::Game => {
+                        if !self.text_input.trim().is_empty() {
+                            self.text_input.push('\n');
+                            self.send(format!("text_game {} {}", self.game_id, self.text_input));
+                        }
+                    }
+                    Screen::Games => {
+                        if !self.text_input.trim().is_empty() {
+                            self.text_input.push('\n');
+                            self.send(format!("text {}", self.text_input));
+                        }
+                    }
+                    Screen::Login => {
+                        if !self.text_input.trim().is_empty() {
+                            if let Some(username) = self.text_input.split_ascii_whitespace().next()
+                            {
+                                let username = username.to_ascii_lowercase();
+                                self.send(format!(
+                                    "{VERSION_ID} {username} {}\n",
+                                    self.password_real
+                                ));
+                                self.username = username;
+                            }
+                        }
+                    }
+                    Screen::GameNew | Screen::GameNewFrozen | Screen::Users => {}
                 }
 
-                if self.screen == Screen::Login {
-                    if let Some(username) = self.text_input.split_ascii_whitespace().next() {
-                        let username = username.to_ascii_lowercase();
-                        self.send(format!("{VERSION_ID} {username} {}\n", self.password_real));
-                        self.username = username;
-                    }
-                } else if self.screen == Screen::Game {
-                    self.text_input.push('\n');
-                    self.send(format!("text_game {} {}", self.game_id, self.text_input));
-                } else {
-                    self.text_input.push('\n');
-                    self.send(format!("text {}", self.text_input));
-                }
                 self.text_input.clear();
             }
             Message::Tick => {
@@ -927,7 +942,7 @@ impl Client {
                     }
                 }
 
-                column![
+                let mut columns = column![
                     button("Leave").on_press(Message::Leave),
                     text(format!("username: {}", &self.username)),
                     text(format!("rating: {rating}")),
@@ -935,8 +950,28 @@ impl Client {
                     text(format!("losses: {losses}")),
                 ]
                 .padding(PADDING)
-                .spacing(SPACING)
-                .into()
+                .spacing(SPACING);
+
+                if self.password_show {
+                    columns = columns.push(row![
+                        text("change password:"),
+                        text_input("", &self.password_real)
+                            .on_input(Message::PasswordChanged)
+                            .on_submit(Message::TextSend),
+                    ]);
+                } else {
+                    columns = columns.push(row![
+                        text("change password:"),
+                        text_input("", &self.password)
+                            .on_input(Message::PasswordChanged)
+                            .on_submit(Message::TextSend),
+                    ]);
+                };
+                columns = columns.push(
+                    checkbox("show password", self.password_show).on_toggle(Message::PasswordShow),
+                );
+
+                columns.into()
             }
             Screen::Game => {
                 let mut user_area_ = column![
@@ -1132,6 +1167,7 @@ impl Client {
                     text("username:"),
                     text_input("", &self.text_input)
                         .on_input(Message::TextChanged)
+                        .on_paste(Message::TextChanged)
                         .on_submit(Message::TextSend),
                 ];
 
