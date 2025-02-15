@@ -275,14 +275,14 @@ impl Client {
                 self.send(format!("watch_game {id}\n"));
             }
             Message::Leave => match self.screen {
-                Screen::Game | Screen::Users => {
+                Screen::Game | Screen::GameNew | Screen::Users => {
                     self.screen = Screen::Games;
                 }
                 Screen::GameNewFrozen => {
                     self.send(format!("leave_game {}\n", self.game_id));
                     self.screen = Screen::Games;
                 }
-                Screen::GameNew | Screen::Games | Screen::Login => {}
+                Screen::Games | Screen::Login => {}
             },
             Message::OpenWebsite => open_url("https://hnefatafl.org"),
             Message::GameNew => self.screen = Screen::GameNew,
@@ -997,6 +997,8 @@ impl Client {
                     new_game = new_game.on_press(Message::GameSubmit);
                 }
 
+                let leave = button("Leave").on_press(Message::Leave);
+
                 let mut time =
                     row![checkbox("timed ", self.timed.clone().into())
                         .on_toggle(Message::TimeCheckbox)];
@@ -1012,10 +1014,18 @@ impl Client {
                 }
                 time = time.spacing(SPACING);
 
-                row![new_game, text("role: "), attacker, defender, rated, time]
-                    .padding(PADDING)
-                    .spacing(SPACING)
-                    .into()
+                row![
+                    new_game,
+                    leave,
+                    text("role: "),
+                    attacker,
+                    defender,
+                    rated,
+                    time
+                ]
+                .padding(PADDING)
+                .spacing(SPACING)
+                .into()
             }
             Screen::GameNewFrozen => {
                 let Some(role) = self.role_selected else {

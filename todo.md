@@ -8,3 +8,5 @@
 4. Get SSL working.
 
 ## Add Hoc
+
+- If the creator of a pending_game leaves, end the game.
