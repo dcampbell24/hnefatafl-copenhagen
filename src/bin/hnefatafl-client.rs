@@ -34,7 +34,7 @@ use iced::{
         button, checkbox, column, container, radio, row, scrollable, text, text_input, Column,
         Container, Row, Scrollable,
     },
-    Element, Subscription, Theme,
+    Element, Subscription,
 };
 use log::{debug, error, info, LevelFilter};
 
@@ -91,6 +91,7 @@ struct Client {
     texts: VecDeque<String>,
     texts_game: VecDeque<String>,
     text_input: String,
+    theme: Theme,
     timed: TimeSettings,
     time_minutes: String,
     time_add_seconds: String,
@@ -239,8 +240,11 @@ impl Client {
         column![text_input, scrollable(texting),]
     }
 
-    pub fn theme(_self: &Self) -> Theme {
-        Theme::SolarizedLight
+    pub fn theme(&self) -> iced::Theme {
+        match self.theme {
+            Theme::Dark => iced::Theme::SolarizedDark,
+            Theme::Light => iced::Theme::SolarizedLight,
+        }
     }
 
     #[allow(clippy::too_many_lines)]
@@ -249,6 +253,7 @@ impl Client {
 
         match message {
             Message::AccountSettings => self.screen = Screen::AccountSettings,
+            Message::ChangeTheme(theme) => self.theme = theme,
             Message::GameAccept(id) => {
                 self.send(format!("join_game {id}\n"));
                 self.screen = Screen::Game;
@@ -1094,8 +1099,25 @@ impl Client {
                 let account_setting = button("Account Settings").on_press(Message::AccountSettings);
                 let website = button("Website").on_press(Message::OpenWebsite);
 
-                let top =
-                    row![username, create_game, users, account_setting, website].spacing(SPACING);
+                let mut dark = button("☾");
+                let mut light = button("☀");
+
+                if self.theme == Theme::Light {
+                    dark = dark.on_press(Message::ChangeTheme(Theme::Dark));
+                } else {
+                    light = light.on_press(Message::ChangeTheme(Theme::Light));
+                }
+
+                let top = row![
+                    username,
+                    create_game,
+                    users,
+                    account_setting,
+                    website,
+                    dark,
+                    light
+                ]
+                .spacing(SPACING);
 
                 let top = container(top)
                     .padding(PADDING)
@@ -1160,6 +1182,7 @@ impl Client {
 #[derive(Clone, Debug)]
 enum Message {
     AccountSettings,
+    ChangeTheme(Theme),
     GameAccept(usize),
     GameDecline(usize),
     GameJoin(usize),
@@ -1265,6 +1288,13 @@ enum Size {
     #[default]
     Small,
     Large,
+}
+
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+enum Theme {
+    #[default]
+    Dark,
+    Light,
 }
 
 #[derive(Clone, Debug)]
