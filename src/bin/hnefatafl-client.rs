@@ -949,7 +949,6 @@ impl Client {
                 }
 
                 let mut columns = column![
-                    button("Leave").on_press(Message::Leave),
                     text(format!("connected to {} via TCP", &self.connected_to)),
                     text(format!("username: {}", &self.username)),
                     text(format!("rating: {rating}")),
@@ -977,6 +976,7 @@ impl Client {
                 columns = columns.push(
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow),
                 );
+                columns = columns.push(button("Leave").on_press(Message::Leave));
 
                 columns.into()
             }
@@ -1013,9 +1013,9 @@ impl Client {
                     user_area = user_area.push(
                         row![
                             button("Resign").on_press(Message::PlayResign),
-                            button("Leave").on_press(Message::Leave),
                             button("Small Screen").on_press(Message::ScreenSize(Size::Small)),
                             button("Large Screen").on_press(Message::ScreenSize(Size::Large)),
+                            button("Leave").on_press(Message::Leave),
                         ]
                         .spacing(SPACING),
                     );
@@ -1023,9 +1023,9 @@ impl Client {
                     user_area = user_area.push(
                         row![
                             button("Resign"),
-                            button("Leave").on_press(Message::Leave),
                             button("Small Screen").on_press(Message::ScreenSize(Size::Small)),
                             button("Large Screen").on_press(Message::ScreenSize(Size::Large)),
+                            button("Leave").on_press(Message::Leave),
                         ]
                         .spacing(SPACING),
                     );
@@ -1089,12 +1089,12 @@ impl Client {
 
                 row![
                     new_game,
-                    leave,
                     text("role: "),
                     attacker,
                     defender,
                     rated,
-                    time
+                    time,
+                    leave,
                 ]
                 .padding(PADDING)
                 .spacing(SPACING)
@@ -1203,11 +1203,11 @@ impl Client {
                     .into()
             }
             Screen::Users => column![
-                row![button("Leave").on_press(Message::Leave)].padding(PADDING),
                 text("logged in"),
                 self.users(true),
                 text("logged out"),
                 self.users(false),
+                row![button("Leave").on_press(Message::Leave)].padding(PADDING),
             ]
             .into(),
         }
