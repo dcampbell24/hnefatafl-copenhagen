@@ -4,7 +4,7 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
-    sync::mpsc,
+    sync::{mpsc, Arc},
     thread,
     time::Duration,
 };
@@ -37,6 +37,7 @@ use iced::{
     Element, Subscription,
 };
 use log::{debug, error, info, LevelFilter};
+use rustls::{pki_types::ServerName, RootCertStore};
 
 const PORT: &str = ":49152";
 const PADDING: u16 = 10;
@@ -1263,19 +1264,41 @@ fn pass_messages() -> impl Stream<Item = Message> {
         let mut reader = BufReader::new(reader);
         info!("connected to {address} ...");
 
+        let root_store = RootCertStore::empty();
+        let mut config = rustls::ClientConfig::builder()
+            .with_root_certificates(root_store)
+            .with_no_client_auth();
+
+        if let Some(mut path) = dirs::data_dir() {
+            path = path.join(HOME);
+            path = path.join("ssl-keys.log");
+
+            env::set_var("SSLKEYLOGFILE", path);
+            config.key_log = Arc::new(rustls::KeyLogFile::new());
+        }
+
+        let mut conn = rustls::ClientConnection::new(
+            Arc::new(config),
+            ServerName::DnsName("hnefatafl.org".try_into().unwrap()),
+        )
+        .unwrap();
+
         let (tx, rx) = mpsc::channel();
         let _ = sender.send(Message::TcpConnected(tx)).await;
+
         thread::spawn(move || loop {
+            let mut tls = rustls::Stream::new(&mut conn, &mut tcp_stream);
             let message = handle_error(rx.recv());
             let message_trim = message.trim();
             debug!("<- {message_trim}");
 
-            handle_error(tcp_stream.write_all(message.as_bytes()));
+            handle_error(tls.write_all(message.as_bytes()));
         });
 
         thread::spawn(move || {
             let mut buffer = String::new();
             loop {
+                // Fixme!
                 let bytes = handle_error(reader.read_line(&mut buffer));
                 if bytes > 0 {
                     let buffer_trim = buffer.trim();

@@ -2,10 +2,13 @@ use std::{
     collections::HashMap,
     env,
     fs::{exists, read_to_string, File},
-    io::{BufRead, BufReader, Write},
+    io::{BufRead, Write},
     net::{TcpListener, TcpStream},
     path::PathBuf,
-    sync::mpsc::{self, Receiver},
+    sync::{
+        mpsc::{self, Receiver},
+        Arc,
+    },
     thread,
     time::Duration,
 };
@@ -32,6 +35,7 @@ use log::{debug, info, LevelFilter};
 use password_hash::SaltString;
 use rand::rngs::OsRng;
 use ron::ser::{to_string_pretty, PrettyConfig};
+use rustls::pki_types::{pem::PemObject, CertificateDer, PrivateKeyDer};
 use serde::{Deserialize, Serialize};
 
 const PORT: &str = ":49152";
@@ -114,10 +118,23 @@ fn login(
     mut stream: TcpStream,
     tx: &mpsc::Sender<(String, Option<mpsc::Sender<String>>)>,
 ) -> anyhow::Result<()> {
-    let mut reader = BufReader::new(stream.try_clone()?);
+    let certs = CertificateDer::pem_file_iter("ssl/cert.pem")
+        .unwrap()
+        .map(|cert| cert.unwrap())
+        .collect();
+
+    let private_key = PrivateKeyDer::from_pem_file("ssl/key.pem").unwrap();
+
+    let config = rustls::ServerConfig::builder()
+        .with_no_client_auth()
+        .with_single_cert(certs, private_key)?;
+
+    let mut conn = rustls::ServerConnection::new(Arc::new(config))?;
+    conn.complete_io(&mut stream)?;
+
     let mut buf = String::new();
 
-    reader.read_line(&mut buf)?;
+    conn.reader().read_line(&mut buf)?;
     for ch in buf.trim().chars() {
         if ch.is_control() || ch == '\0' {
             return Err(anyhow::Error::msg(
@@ -138,7 +155,7 @@ fn login(
     if let (Some(version_id), Some(username)) = (username_password.next(), username_password.next())
     {
         if version_id != VERSION_ID {
-            stream.write_all(b"? login wrong version, try running 'cargo install hnefatafl-copenhagen --features client'\n")?;
+            conn.writer().write_all(b"? login wrong version, try running 'cargo install hnefatafl-copenhagen --features client'\n")?;
             return Err(anyhow::Error::msg("wrong version"));
         }
 
@@ -146,11 +163,13 @@ fn login(
         let password = password.join(" ");
 
         if username.len() > 32 {
-            stream.write_all(b"? login username is more than 32 characters\n")?;
+            conn.writer()
+                .write_all(b"? login username is more than 32 characters\n")?;
             return Err(anyhow::Error::msg("username is greater than 32 characters"));
         }
         if password.len() > 32 {
-            stream.write_all(b"? login password is more than 32 characters\n")?;
+            conn.writer()
+                .write_all(b"? login password is more than 32 characters\n")?;
             return Err(anyhow::Error::msg("password is greater than 32 characters"));
         }
 
@@ -162,16 +181,17 @@ fn login(
 
         let message = client_rx.recv()?;
         if "= login" != message.as_str() {
-            stream.write_all(b"? login\n")?;
+            conn.writer().write_all(b"? login\n")?;
             return Err(anyhow::Error::msg("failed to login"));
         }
-        stream.write_all(b"= login\n")?;
+        conn.writer().write_all(b"= login\n")?;
 
+        // Fixme
         thread::spawn(move || receiving_and_writing(stream, &client_rx));
 
         let mut buf = String::new();
         for _ in 0..1_000_000 {
-            reader.read_line(&mut buf)?;
+            conn.reader().read_line(&mut buf)?;
 
             let buf_str = buf.trim();
             for char in buf_str.chars() {

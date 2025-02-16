@@ -24,8 +24,10 @@ log = "0.4"
 # rayon = "1"
 ron = "0.8"
 rustc-hash = "2"
+rustls = "0.23"
 serde = { version = "1", features = ["derive"] }
 serde_with = "3"
+# webpki-roots = "0.26"
 
 # client only
 futures = { version = "0.3", optional = true }
