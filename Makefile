@@ -20,9 +20,12 @@ ssl:
 	openssl \
 	req -x509 \
 	-newkey rsa:4096 \
-	-keyout ssl/key.pem \
-	-out ssl/cert.pem \
+	-keyout ssl/localhost.key \
+	-out ssl/localhost.crt \
 	-sha256 \
 	-days 3650 \
 	-nodes \
-	-subj "/C=US/ST=Maine/L=Portland/O=Hnefatafl Org/CN=hnefatafl.org"
+	-subj '/CN=localhost'
+	
+	sudo cp ssl/localhost.crt /usr/local/share/ca-certificates/
+	sudo update-ca-certificates
