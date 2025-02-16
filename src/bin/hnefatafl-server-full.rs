@@ -285,6 +285,27 @@ impl Server {
             let mut the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
 
             match *command {
+                "change_password" => {
+                    info!("{index_supplied} {username} change_password");
+
+                    let password = the_rest.join(" ");
+                    let ctx = Argon2::default();
+                    let salt = SaltString::generate(&mut OsRng);
+                    let hash = ctx
+                        .hash_password(password.as_bytes(), &salt)
+                        .unwrap()
+                        .to_string();
+
+                    self.passwords.remove(*username);
+                    self.passwords.insert((*username).to_string(), hash);
+                    self.save_server();
+
+                    Some((
+                        self.clients[&index_supplied].clone(),
+                        true,
+                        (*command).to_string(),
+                    ))
+                }
                 "check_update_rd" => {
                     let bool = self.check_update_rd();
                     info!("0 {username} check_update_rd {bool}");

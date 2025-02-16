@@ -687,6 +687,8 @@ impl Client {
                 match self.screen {
                     Screen::AccountSettings => {
                         self.send(format!("change_password {}\n", self.password_real));
+                        self.password.clear();
+                        self.password_real.clear();
                     }
                     Screen::Game => {
                         if !self.text_input.trim().is_empty() {
@@ -710,6 +712,8 @@ impl Client {
                                     self.password_real
                                 ));
                                 self.username = username;
+                                self.password.clear();
+                                self.password_real.clear();
                             }
                         }
                     }
