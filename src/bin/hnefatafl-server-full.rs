@@ -186,7 +186,7 @@ fn login(
         }
         conn.writer().write_all(b"= login\n")?;
 
-        // Fixme
+        // Fixme!
         thread::spawn(move || receiving_and_writing(stream, &client_rx));
 
         let mut buf = String::new();
