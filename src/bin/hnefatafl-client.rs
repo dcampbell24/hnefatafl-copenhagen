@@ -72,6 +72,7 @@ struct Client {
     attacker: String,
     defender: String,
     challenger: bool,
+    connected_to: String,
     error: Option<String>,
     game: Option<Game>,
     game_id: usize,
@@ -254,6 +255,7 @@ impl Client {
         match message {
             Message::AccountSettings => self.screen = Screen::AccountSettings,
             Message::ChangeTheme(theme) => self.theme = theme,
+            Message::ConnectedTo(address) => self.connected_to = address,
             Message::GameAccept(id) => {
                 self.send(format!("join_game {id}\n"));
                 self.screen = Screen::Game;
@@ -948,6 +950,7 @@ impl Client {
 
                 let mut columns = column![
                     button("Leave").on_press(Message::Leave),
+                    text(format!("connected to {} via TCP", &self.connected_to)),
                     text(format!("username: {}", &self.username)),
                     text(format!("rating: {rating}")),
                     text(format!("wins: {wins}")),
@@ -1223,6 +1226,7 @@ impl Client {
 enum Message {
     AccountSettings,
     ChangeTheme(Theme),
+    ConnectedTo(String),
     GameAccept(usize),
     GameDecline(usize),
     GameJoin(usize),
@@ -1275,6 +1279,9 @@ fn pass_messages() -> impl Stream<Item = Message> {
 
         thread::spawn(move || {
             let mut buffer = String::new();
+            handle_error(executor::block_on(
+                sender.send(Message::ConnectedTo(address.to_string())),
+            ));
             loop {
                 let bytes = handle_error(reader.read_line(&mut buffer));
                 if bytes > 0 {
