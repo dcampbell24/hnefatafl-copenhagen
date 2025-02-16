@@ -20,8 +20,8 @@ ssl:
 	openssl \
 	req -x509 \
 	-newkey rsa:4096 \
-	-keyout testing-ssl/key.pem \
-	-out testing-ssl/cert.pem \
+	-keyout ssl/key.pem \
+	-out ssl/cert.pem \
 	-sha256 \
 	-days 3650 \
 	-nodes \
