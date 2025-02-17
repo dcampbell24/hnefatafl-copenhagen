@@ -544,10 +544,18 @@ impl Server {
                     }
 
                     let Some(game) = self.games.0.get_mut(&index) else {
-                        panic!("the index should be valid")
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
                     };
                     let Some(game_light) = self.games_light.0.get_mut(&index) else {
-                        panic!("the index should be valid")
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
                     };
 
                     let mut blacks_turn_next = true;

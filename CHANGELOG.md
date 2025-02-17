@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- When resuming, joining, or creating a game set the game_id.
 - hnefatafl-server-full: fixed game_over error.
 - hnefatafl-client: If AI resigns it doesn't crash the client.
 

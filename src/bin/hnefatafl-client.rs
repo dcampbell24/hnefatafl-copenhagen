@@ -257,6 +257,7 @@ impl Client {
             Message::ChangeTheme(theme) => self.theme = theme,
             Message::ConnectedTo(address) => self.connected_to = address,
             Message::GameAccept(id) => {
+                self.game_id = id;
                 self.send(format!("join_game {id}\n"));
                 self.screen = Screen::Game;
                 self.status = Status::Ongoing;
@@ -265,6 +266,7 @@ impl Client {
                 self.send(format!("decline_game {id}\n"));
             }
             Message::GameJoin(id) => {
+                self.game_id = id;
                 self.send(format!("join_game_pending {id}\n"));
 
                 let Some(game) = self.games_light.0.get(&id) else {
@@ -297,6 +299,7 @@ impl Client {
             Message::OpenWebsite => open_url("https://hnefatafl.org"),
             Message::GameNew => self.screen = Screen::GameNew,
             Message::GameResume(id) => {
+                self.game_id = id;
                 self.send(format!("resume_game {id}\n"));
             }
             Message::GameSubmit => {
