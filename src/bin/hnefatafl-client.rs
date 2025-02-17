@@ -821,7 +821,10 @@ impl Client {
         let mut timings = Column::new().spacing(SPACING_B);
         let mut buttons = Column::new().spacing(SPACING);
 
-        for game in self.games_light.0.values() {
+        let mut server_games: Vec<&ServerGameLight> = self.games_light.0.values().collect();
+        server_games.sort_by(|a, b| b.id.cmp(&a.id));
+
+        for game in server_games {
             let id = game.id;
             game_ids = game_ids.push(text(id));
 
