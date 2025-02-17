@@ -373,8 +373,6 @@ impl Client {
                 handle_error(tx.send(format!("request_draw {} {}\n", self.game_id, game.turn,)));
             }
             Message::PlayDrawDecision(accept) => {
-                // fixme
-                let _game = get_game(&mut self.game);
                 let tx = get_tx(&mut self.tx);
 
                 if accept {
