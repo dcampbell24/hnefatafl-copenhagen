@@ -361,6 +361,9 @@ impl Client {
             Message::PasswordShow(show_password) => {
                 self.password_show = show_password;
             }
+            Message::PlayDraw => {
+                // Todo!
+            }
             Message::PlayMoveFrom(vertex) => self.play_from = Some(vertex),
             Message::PlayMoveTo(to) => {
                 let Some(from) = self.play_from.clone() else {
@@ -1044,23 +1047,23 @@ impl Client {
                     user_area = user_area.push(
                         row![
                             button("Resign").on_press(Message::PlayResign),
-                            button("Small Screen").on_press(Message::ScreenSize(Size::Small)),
-                            button("Large Screen").on_press(Message::ScreenSize(Size::Large)),
-                            button("Leave").on_press(Message::Leave),
+                            button("Request Draw").on_press(Message::PlayDraw),
                         ]
                         .spacing(SPACING),
                     );
                 } else {
-                    user_area = user_area.push(
-                        row![
-                            button("Resign"),
-                            button("Small Screen").on_press(Message::ScreenSize(Size::Small)),
-                            button("Large Screen").on_press(Message::ScreenSize(Size::Large)),
-                            button("Leave").on_press(Message::Leave),
-                        ]
-                        .spacing(SPACING),
-                    );
+                    user_area = user_area
+                        .push(row![button("Resign"), button("Request Draw"),].spacing(SPACING));
                 }
+
+                user_area = user_area.push(
+                    row![
+                        button("Small Screen").on_press(Message::ScreenSize(Size::Small)),
+                        button("Large Screen").on_press(Message::ScreenSize(Size::Large)),
+                        button("Leave").on_press(Message::Leave),
+                    ]
+                    .spacing(SPACING),
+                );
 
                 user_area = user_area
                     .push(checkbox("sound muted", self.sound_muted).on_toggle(Message::SoundMuted));
@@ -1269,6 +1272,7 @@ enum Message {
     OpenWebsite,
     PasswordChanged(String),
     PasswordShow(bool),
+    PlayDraw,
     PlayMoveFrom(Vertex),
     PlayMoveTo(Vertex),
     PlayResign,

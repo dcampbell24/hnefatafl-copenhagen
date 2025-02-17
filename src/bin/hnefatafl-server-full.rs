@@ -755,6 +755,18 @@ impl Server {
                         panic!("the id must refer to a valid pending game");
                     };
 
+                    if Some((*username).to_string()) == game_light.attacker {
+                        if let Some(server_game) = self.games.0.get_mut(&id) {
+                            server_game.attacker_tx = self.clients[&index_supplied].clone();
+                        }
+                        game_light.attacker_channel = Some(index_supplied);
+                    } else if Some((*username).to_string()) == game_light.defender {
+                        if let Some(server_game) = self.games.0.get_mut(&id) {
+                            server_game.defender_tx = self.clients[&index_supplied].clone();
+                        }
+                        game_light.defender_channel = Some(index_supplied);
+                    }
+
                     self.clients[&index_supplied]
                         .send(format!(
                             "= resume_game {} {} {} {:?} {board} {texts}",
