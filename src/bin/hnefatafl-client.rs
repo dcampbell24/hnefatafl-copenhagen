@@ -377,9 +377,7 @@ impl Client {
                 handle_error(tx.send(format!("request_draw {} {}\n", self.game_id, game.turn,)));
             }
             Message::PlayDrawDecision(accept) => {
-                let Some(_game) = &mut self.game else {
-                    panic!("you have to be in a game to play a move")
-                };
+                let _game = get_game(&mut self.game);
                 let Some(tx) = self.tx.as_mut() else {
                     panic!("you have to have a sender at this point")
                 };
@@ -402,9 +400,7 @@ impl Client {
                 }
 
                 self.handle_play(None, &from.to_string(), &to.to_string());
-                let Some(game) = &mut self.game else {
-                    panic!("you have to be in a game to play a move")
-                };
+                let game = get_game(&mut self.game);
 
                 let Some(tx) = self.tx.as_mut() else {
                     panic!("you have to have a sender at this point")
@@ -432,9 +428,8 @@ impl Client {
                 self.my_turn = false;
             }
             Message::PlayResign => {
-                let Some(game) = &mut self.game else {
-                    panic!("you have to be in a game to make a move");
-                };
+                let game = get_game(&mut self.game);
+
                 let Some(tx) = self.tx.as_mut() else {
                     panic!("you have to have a sender at this point")
                 };
@@ -684,9 +679,7 @@ impl Client {
                                 let Ok(color) = Color::try_from(color) else {
                                     return;
                                 };
-                                let Some(game) = &mut self.game else {
-                                    panic!("a game should exist to play in one");
-                                };
+                                let game = get_game(&mut self.game);
 
                                 let result = game
                                     .read_line(&format!("generate_move {color}"))
@@ -713,9 +706,7 @@ impl Client {
                             };
 
                             self.handle_play(Some(&color.to_string()), from, to);
-                            let Some(game) = &mut self.game else {
-                                panic!("you have to be in a game to play a move")
-                            };
+                            let game = get_game(&mut self.game);
 
                             if game.status == Status::Ongoing {
                                 match game.turn {
@@ -918,9 +909,7 @@ impl Client {
     fn handle_play(&mut self, color: Option<&str>, from: &str, to: &str) {
         let mut capture = false;
 
-        let Some(game) = &mut self.game else {
-            panic!("you have to be in a game to play a move")
-        };
+        let game = get_game(&mut self.game);
 
         match color {
             Some(color) => match game.read_line(&format!("play {color} {from} {to}\n")) {
@@ -1354,6 +1343,13 @@ enum Message {
     TimeCheckbox(bool),
     TimeMinutes(String),
     Users,
+}
+
+fn get_game(game: &mut Option<Game>) -> &mut Game {
+    let Some(game) = game else {
+        panic!("you have to be in a game to play a move")
+    };
+    game
 }
 
 fn pass_messages() -> impl Stream<Item = Message> {
