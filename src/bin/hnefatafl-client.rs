@@ -410,11 +410,7 @@ impl Client {
                     panic!("you have to have a sender at this point")
                 };
 
-                handle_error(tx.send(format!(
-                    "game {} play {} {from} {to}\n",
-                    self.game_id,
-                    turn
-                )));
+                handle_error(tx.send(format!("game {} play {} {from} {to}\n", self.game_id, turn)));
 
                 if game.status == Status::Ongoing {
                     match game.turn {
@@ -1393,7 +1389,9 @@ fn pass_messages() -> impl Stream<Item = Message> {
                     let buffer_trim = buffer.trim();
                     let buffer_trim_vec: Vec<_> = buffer_trim.split_ascii_whitespace().collect();
 
-                    if buffer_trim_vec[1] == "display_users" || buffer_trim_vec[1] == "display_games" {
+                    if buffer_trim_vec[1] == "display_users"
+                        || buffer_trim_vec[1] == "display_games"
+                    {
                         trace!("-> {buffer_trim}");
                     } else {
                         debug!("-> {buffer_trim}");
