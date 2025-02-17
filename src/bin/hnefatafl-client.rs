@@ -939,7 +939,7 @@ impl Client {
 
         for user in &self.users {
             if logged_in == user.logged_in {
-                ratings = ratings.push(text(format!("{} ± {}", user.rating.0, user.rating.1)));
+                ratings = ratings.push(text(format!("{} ± {:.0}", user.rating.0, user.rating.1)));
                 usernames = usernames.push(text(&user.name));
                 wins = wins.push(text(&user.wins));
                 losses = losses.push(text(&user.losses));
