@@ -286,6 +286,7 @@ impl Client {
             Message::Leave => match self.screen {
                 Screen::AccountSettings | Screen::Game | Screen::GameNew | Screen::Users => {
                     self.screen = Screen::Games;
+                    self.my_turn = false;
                 }
                 Screen::GameNewFrozen => {
                     self.send(format!("leave_game {}\n", self.game_id));
@@ -295,6 +296,9 @@ impl Client {
             },
             Message::OpenWebsite => open_url("https://hnefatafl.org"),
             Message::GameNew => self.screen = Screen::GameNew,
+            Message::GameResume(id) => {
+                self.send(format!("resume_game {id}\n"));
+            }
             Message::GameSubmit => {
                 if let Some(role) = self.role_selected {
                     if self.timed.0.is_some() {
@@ -425,187 +429,200 @@ impl Client {
             Message::TextReceived(string) => {
                 let mut text = string.split_ascii_whitespace();
                 match text.next() {
-                    Some("=") => match text.next() {
-                        Some("display_games") => {
-                            self.games_light.0.clear();
-                            let games: Vec<&str> = text.collect();
-                            for chunks in games.chunks_exact(11) {
-                                let game = ServerGameLight::try_from(chunks)
-                                    .expect("the value should be a valid ServerGameLight");
+                    Some("=") => {
+                        let text_next = text.next();
+                        match text_next {
+                            Some("display_games") => {
+                                self.games_light.0.clear();
+                                let games: Vec<&str> = text.collect();
+                                for chunks in games.chunks_exact(11) {
+                                    let game = ServerGameLight::try_from(chunks)
+                                        .expect("the value should be a valid ServerGameLight");
 
-                                self.games_light.0.insert(game.id, game);
-                            }
+                                    self.games_light.0.insert(game.id, game);
+                                }
 
-                            if let Some(game) = self.games_light.0.get(&self.game_id) {
-                                self.spectators =
-                                    game.spectators.keys().map(ToString::to_string).collect();
+                                if let Some(game) = self.games_light.0.get(&self.game_id) {
+                                    self.spectators =
+                                        game.spectators.keys().map(ToString::to_string).collect();
+                                }
                             }
-                        }
-                        Some("display_users") => {
-                            let users: Vec<&str> = text.collect();
-                            self.users.clear();
-                            for user_wins_losses_rating in users.chunks_exact(5) {
-                                let rating = user_wins_losses_rating[3];
-                                let Some((rating, deviation)) = rating.split_once("±") else {
-                                    panic!("the ratings has this form");
+                            Some("display_users") => {
+                                let users: Vec<&str> = text.collect();
+                                self.users.clear();
+                                for user_wins_losses_rating in users.chunks_exact(5) {
+                                    let rating = user_wins_losses_rating[3];
+                                    let Some((rating, deviation)) = rating.split_once("±") else {
+                                        panic!("the ratings has this form");
+                                    };
+                                    let (Ok(rating), Ok(deviation)) =
+                                        (rating.parse::<f64>(), deviation.parse::<f64>())
+                                    else {
+                                        panic!("the ratings has this form");
+                                    };
+
+                                    let logged_in = "logged_in" == user_wins_losses_rating[4];
+
+                                    self.users.push(User {
+                                        name: user_wins_losses_rating[0].to_string(),
+                                        wins: user_wins_losses_rating[1].to_string(),
+                                        losses: user_wins_losses_rating[2].to_string(),
+                                        rating: (rating, deviation),
+                                        logged_in,
+                                    });
+                                }
+                                self.users
+                                    .sort_by(|a, b| b.rating.0.partial_cmp(&a.rating.0).unwrap());
+                            }
+                            Some("game_over") => {
+                                self.my_turn = false;
+                                if let Some(game) = &mut self.game {
+                                    game.turn = Color::Colorless;
+                                }
+
+                                text.next();
+                                match text.next() {
+                                    Some("attacker_wins") => self.status = Status::BlackWins,
+                                    Some("defender_wins") => self.status = Status::WhiteWins,
+                                    _ => {}
+                                }
+                            }
+                            // = join_game david abby rated fischer 900_000 10
+                            Some("join_game" | "resume_game" | "watch_game") => {
+                                self.texts_game = VecDeque::new();
+                                self.screen = Screen::Game;
+                                self.status = Status::Ongoing;
+
+                                let Some(attacker) = text.next() else {
+                                    panic!("the attacker should be supplied");
                                 };
-                                let (Ok(rating), Ok(deviation)) =
-                                    (rating.parse::<f64>(), deviation.parse::<f64>())
-                                else {
-                                    panic!("the ratings has this form");
+                                let Some(defender) = text.next() else {
+                                    panic!("the defender should be supplied");
+                                };
+                                self.attacker = attacker.to_string();
+                                self.defender = defender.to_string();
+
+                                let Some(rated) = text.next() else {
+                                    panic!("there should be rated or unrated supplied");
+                                };
+                                let Ok(rated) = Rated::try_from(rated) else {
+                                    panic!("rated should be valid");
+                                };
+                                self.rated = rated;
+
+                                let Some(timed) = text.next() else {
+                                    panic!("there should be a time setting supplied");
+                                };
+                                let Some(minutes) = text.next() else {
+                                    panic!("there should be a minutes supplied");
+                                };
+                                let Some(add_seconds) = text.next() else {
+                                    panic!("there should be a add_seconds supplied");
+                                };
+                                let Ok(timed) = TimeSettings::try_from(vec![
+                                    "time_settings",
+                                    timed,
+                                    minutes,
+                                    add_seconds,
+                                ]) else {
+                                    panic!("there should be a valid time settings");
                                 };
 
-                                let logged_in = "logged_in" == user_wins_losses_rating[4];
+                                let mut game = Game {
+                                    black_time: timed.clone(),
+                                    white_time: timed.clone(),
+                                    time: Some(Local::now().to_utc().timestamp_millis()),
+                                    ..Game::default()
+                                };
 
-                                self.users.push(User {
-                                    name: user_wins_losses_rating[0].to_string(),
-                                    wins: user_wins_losses_rating[1].to_string(),
-                                    losses: user_wins_losses_rating[2].to_string(),
-                                    rating: (rating, deviation),
-                                    logged_in,
-                                });
-                            }
-                            self.users
-                                .sort_by(|a, b| b.rating.0.partial_cmp(&a.rating.0).unwrap());
-                        }
-                        Some("game_over") => {
-                            self.my_turn = false;
-                            if let Some(game) = &mut self.game {
-                                game.turn = Color::Colorless;
-                            }
+                                self.time_attacker = timed.clone();
+                                self.time_defender = timed;
 
-                            text.next();
-                            match text.next() {
-                                Some("attacker_wins") => self.status = Status::BlackWins,
-                                Some("defender_wins") => self.status = Status::WhiteWins,
-                                _ => {}
-                            }
-                        }
-                        // = join_game david abby rated fischer 900_000 10
-                        Some("join_game" | "watch_game") => {
-                            self.texts_game = VecDeque::new();
-                            self.screen = Screen::Game;
-                            self.status = Status::Ongoing;
+                                if let Some(game_serialized) = text.next() {
+                                    let game_deserialized = ron::from_str(game_serialized)
+                                        .expect("we should be able to deserialize the game");
 
-                            let Some(attacker) = text.next() else {
-                                panic!("the attacker should be supplied");
-                            };
-                            let Some(defender) = text.next() else {
-                                panic!("the defender should be supplied");
-                            };
-                            self.attacker = attacker.to_string();
-                            self.defender = defender.to_string();
+                                    game = game_deserialized;
 
-                            let Some(_rated) = text.next() else {
-                                panic!("there should be rated or unrated supplied");
-                            };
+                                    self.time_attacker = game.black_time.clone();
+                                    self.time_defender = game.white_time.clone();
 
-                            let Some(timed) = text.next() else {
-                                panic!("there should be a time setting supplied");
-                            };
-                            let Some(minutes) = text.next() else {
-                                panic!("there should be a minutes supplied");
-                            };
-                            let Some(add_seconds) = text.next() else {
-                                panic!("there should be a add_seconds supplied");
-                            };
-                            let Ok(timed) = TimeSettings::try_from(vec![
-                                "time_settings",
-                                timed,
-                                minutes,
-                                add_seconds,
-                            ]) else {
-                                panic!("there should be a valid time settings");
-                            };
-
-                            let mut game = Game {
-                                black_time: timed.clone(),
-                                white_time: timed.clone(),
-                                time: Some(Local::now().to_utc().timestamp_millis()),
-                                ..Game::default()
-                            };
-
-                            self.time_attacker = timed.clone();
-                            self.time_defender = timed;
-
-                            if let Some(game_serialized) = text.next() {
-                                let game_deserialized = ron::from_str(game_serialized)
-                                    .expect("we should be able to deserialize the game");
-
-                                game = game_deserialized;
-
-                                self.time_attacker = game.black_time.clone();
-                                self.time_defender = game.white_time.clone();
-
-                                match game.turn {
-                                    Color::Black => {
-                                        if let (Some(time), Some(time_ago)) =
-                                            (&mut self.time_attacker.0, game.time)
-                                        {
-                                            let now = Local::now().to_utc().timestamp_millis();
-                                            time.milliseconds_left -= now - time_ago;
+                                    match game.turn {
+                                        Color::Black => {
+                                            if let (Some(time), Some(time_ago)) =
+                                                (&mut self.time_attacker.0, game.time)
+                                            {
+                                                let now = Local::now().to_utc().timestamp_millis();
+                                                time.milliseconds_left -= now - time_ago;
+                                            }
                                         }
-                                    }
-                                    Color::Colorless => {}
-                                    Color::White => {
-                                        if let (Some(time), Some(time_ago)) =
-                                            (&mut self.time_defender.0, game.time)
-                                        {
-                                            let now = Local::now().to_utc().timestamp_millis();
-                                            time.milliseconds_left -= now - time_ago;
+                                        Color::Colorless => {}
+                                        Color::White => {
+                                            if let (Some(time), Some(time_ago)) =
+                                                (&mut self.time_defender.0, game.time)
+                                            {
+                                                let now = Local::now().to_utc().timestamp_millis();
+                                                time.milliseconds_left -= now - time_ago;
+                                            }
                                         }
                                     }
                                 }
-                            }
 
-                            let texts: Vec<&str> = text.collect();
-                            let texts = texts.join(" ");
-                            if !texts.is_empty() {
-                                let texts = ron::from_str(&texts)
-                                    .expect("we should be able to deserialize the text");
-                                println!("{texts:?}");
-                                self.texts_game = texts;
-                            }
+                                let texts: Vec<&str> = text.collect();
+                                let texts = texts.join(" ");
+                                if !texts.is_empty() {
+                                    let texts = ron::from_str(&texts)
+                                        .expect("we should be able to deserialize the text");
+                                    println!("{texts:?}");
+                                    self.texts_game = texts;
+                                }
 
-                            self.game = Some(game);
-                        }
-                        Some("join_game_pending") => {
-                            self.challenger = true;
-                            let Some(id) = text.next() else {
-                                panic!("there should be an id supplied");
-                            };
-                            let Ok(id) = id.parse() else {
-                                panic!("id should be a valid usize");
-                            };
-                            self.game_id = id;
-                        }
-                        Some("leave_game") => self.game_id = 0,
-                        Some("login") => self.screen = Screen::Games,
-                        Some("new_game") => {
-                            // = new_game game 15 none david rated fischer 900_000 10
-                            if Some("game") == text.next() {
-                                self.challenger = false;
-                                let Some(game_id) = text.next() else {
-                                    panic!("the game id should be next");
-                                };
-                                let Ok(game_id) = game_id.parse() else {
-                                    panic!("the game_id should be a usize")
-                                };
-                                self.game_id = game_id;
+                                if (self.username == attacker && game.turn == Color::Black)
+                                    || (self.username == defender && game.turn == Color::White)
+                                {
+                                    self.my_turn = true;
+                                }
+
+                                self.game = Some(game);
                             }
+                            Some("join_game_pending") => {
+                                self.challenger = true;
+                                let Some(id) = text.next() else {
+                                    panic!("there should be an id supplied");
+                                };
+                                let Ok(id) = id.parse() else {
+                                    panic!("id should be a valid usize");
+                                };
+                                self.game_id = id;
+                            }
+                            Some("leave_game") => self.game_id = 0,
+                            Some("login") => self.screen = Screen::Games,
+                            Some("new_game") => {
+                                // = new_game game 15 none david rated fischer 900_000 10
+                                if Some("game") == text.next() {
+                                    self.challenger = false;
+                                    let Some(game_id) = text.next() else {
+                                        panic!("the game id should be next");
+                                    };
+                                    let Ok(game_id) = game_id.parse() else {
+                                        panic!("the game_id should be a usize")
+                                    };
+                                    self.game_id = game_id;
+                                }
+                            }
+                            Some("text") => {
+                                let text: Vec<&str> = text.collect();
+                                let text = text.join(" ");
+                                self.texts.push_front(text);
+                            }
+                            Some("text_game") => {
+                                let text: Vec<&str> = text.collect();
+                                let text = text.join(" ");
+                                self.texts_game.push_front(text);
+                            }
+                            _ => {}
                         }
-                        Some("text") => {
-                            let text: Vec<&str> = text.collect();
-                            let text = text.join(" ");
-                            self.texts.push_front(text);
-                        }
-                        Some("text_game") => {
-                            let text: Vec<&str> = text.collect();
-                            let text = text.join(" ");
-                            self.texts_game.push_front(text);
-                        }
-                        _ => {}
-                    },
+                    }
                     Some("?") => {
                         if Some("login") == text.next() {
                             exit(1);
@@ -816,13 +833,23 @@ impl Client {
             ratings = ratings.push(text(game.rated.to_string()));
             timings = timings.push(text(game.timed.to_string()));
 
+            let mut buttons_row = Row::new().spacing(SPACING);
+
             if game.challenge_accepted {
-                buttons = buttons.push(button("watch").on_press(Message::GameWatch(id)));
+                buttons_row = buttons_row.push(button("watch").on_press(Message::GameWatch(id)));
             } else if game.attacker.is_some() && game.defender.is_some() {
-                buttons = buttons.push(button("join"));
+                buttons_row = buttons_row.push(button("join"));
             } else {
-                buttons = buttons.push(button("join").on_press(Message::GameJoin(id)));
+                buttons_row = buttons_row.push(button("join").on_press(Message::GameJoin(id)));
             }
+
+            if game.attacker.as_ref() == Some(&self.username)
+                || game.defender.as_ref() == Some(&self.username)
+            {
+                buttons_row = buttons_row.push(button("resume").on_press(Message::GameResume(id)));
+            }
+
+            buttons = buttons.push(buttons_row);
         }
 
         let game_ids = column![text("game_id"), text("-------"), game_ids].padding(PADDING);
@@ -982,6 +1009,7 @@ impl Client {
             }
             Screen::Game => {
                 let mut user_area_ = column![
+                    text(format!("game #{} {}", self.game_id, self.rated)),
                     text(format!("username: {}", &self.username)),
                     text(format!(
                         "attacker: {}, defender: {}",
@@ -1231,6 +1259,7 @@ enum Message {
     GameDecline(usize),
     GameJoin(usize),
     GameNew,
+    GameResume(usize),
     GameSubmit,
     GameWatch(usize),
     Leave,

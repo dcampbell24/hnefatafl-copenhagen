@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- hnefatafl-client: say what address you're connected to..
+- Allow resuming a game.
+- hnefatafl-client: say wether the gme is rated or not.
+- hnefatafl-client: say what address you're connected to.
 - hnefatafl-client: make the theme configurable.
 - Display all users in a game.
 - hnefatafl-client: add sound.
