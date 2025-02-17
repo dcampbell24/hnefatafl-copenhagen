@@ -83,6 +83,7 @@ struct Client {
     password_show: bool,
     play_from: Option<Vertex>,
     rated: Rated,
+    request_draw: bool,
     role_selected: Option<Role>,
     screen: Screen,
     screen_size: Size,
@@ -286,9 +287,13 @@ impl Client {
                 self.send(format!("watch_game {id}\n"));
             }
             Message::Leave => match self.screen {
-                Screen::AccountSettings | Screen::Game | Screen::GameNew | Screen::Users => {
+                Screen::AccountSettings | Screen::GameNew | Screen::Users => {
+                    self.screen = Screen::Games;
+                }
+                Screen::Game => {
                     self.screen = Screen::Games;
                     self.my_turn = false;
+                    self.request_draw = false;
                 }
                 Screen::GameNewFrozen => {
                     self.send(format!("leave_game {}\n", self.game_id));
@@ -362,7 +367,29 @@ impl Client {
                 self.password_show = show_password;
             }
             Message::PlayDraw => {
-                // Todo!
+                let Some(game) = &mut self.game else {
+                    panic!("you have to be in a game to play a move")
+                };
+                let Some(tx) = self.tx.as_mut() else {
+                    panic!("you have to have a sender at this point")
+                };
+
+                handle_error(tx.send(format!("request_draw {} {}\n", self.game_id, game.turn,)));
+            }
+            Message::PlayDrawDecision(accept) => {
+                // fixme
+                let Some(_game) = &mut self.game else {
+                    panic!("you have to be in a game to play a move")
+                };
+                let Some(tx) = self.tx.as_mut() else {
+                    panic!("you have to have a sender at this point")
+                };
+
+                if accept {
+                    handle_error(tx.send(format!("draw {} accept\n", self.game_id)));
+                } else {
+                    handle_error(tx.send(format!("draw {} decline\n", self.game_id)));
+                }
             }
             Message::PlayMoveFrom(vertex) => self.play_from = Some(vertex),
             Message::PlayMoveTo(to) => {
@@ -451,6 +478,7 @@ impl Client {
                                 if let Some(game) = self.games_light.0.get(&self.game_id) {
                                     self.spectators =
                                         game.spectators.keys().map(ToString::to_string).collect();
+                                    self.spectators.sort();
                                 }
                             }
                             Some("display_users") => {
@@ -647,6 +675,7 @@ impl Client {
                         // game 0 generate_move black
                         let text_word = text.next();
                         if text_word == Some("generate_move") {
+                            self.request_draw = false;
                             let username_start: String = self.username.chars().take(3).collect();
                             if username_start == "ai-" {
                                 let Some(color) = text.next() else {
@@ -703,6 +732,18 @@ impl Client {
                                     }
                                 }
                             }
+                        }
+                    }
+                    Some("request_draw") => {
+                        let Some(id) = text.next() else {
+                            return;
+                        };
+                        let Ok(id) = id.parse::<usize>() else {
+                            panic!("the game_id should be a valid u64");
+                        };
+
+                        if id == self.game_id {
+                            self.request_draw = true;
                         }
                     }
                     _ => {}
@@ -844,11 +885,12 @@ impl Client {
 
             let mut buttons_row = Row::new().spacing(SPACING);
 
-            if game.challenge_accepted {
+            if game.challenge_accepted
+                && !(Some(&self.username) == game.attacker.as_ref()
+                    || Some(&self.username) == game.defender.as_ref())
+            {
                 buttons_row = buttons_row.push(button("watch").on_press(Message::GameWatch(id)));
-            } else if game.attacker.is_some() && game.defender.is_some() {
-                buttons_row = buttons_row.push(button("join"));
-            } else {
+            } else if game.attacker.is_none() || game.defender.is_none() {
                 buttons_row = buttons_row.push(button("join").on_press(Message::GameJoin(id)));
             }
 
@@ -1031,7 +1073,11 @@ impl Client {
                     text("spectators:".to_string()),
                 ];
 
+                let mut watching = false;
                 for spectator in &self.spectators {
+                    if self.username.as_str() == spectator.as_str() {
+                        watching = true;
+                    }
                     user_area_ = user_area_.push(text(spectator.clone()));
                 }
 
@@ -1050,17 +1096,28 @@ impl Client {
                 let mut user_area = Column::new().spacing(SPACING);
                 user_area = user_area.push(user_area_);
 
-                if self.my_turn {
-                    user_area = user_area.push(
-                        row![
-                            button("Resign").on_press(Message::PlayResign),
-                            button("Request Draw").on_press(Message::PlayDraw),
-                        ]
-                        .spacing(SPACING),
-                    );
-                } else {
-                    user_area = user_area
-                        .push(row![button("Resign"), button("Request Draw"),].spacing(SPACING));
+                if !watching {
+                    if self.my_turn {
+                        user_area = user_area.push(
+                            row![
+                                button("Resign").on_press(Message::PlayResign),
+                                button("Request Draw").on_press(Message::PlayDraw),
+                            ]
+                            .spacing(SPACING),
+                        );
+                    } else {
+                        let row = if self.request_draw {
+                            row![
+                                button("Resign"),
+                                button("Accept Draw").on_press(Message::PlayDrawDecision(true)),
+                                button("Decline Draw").on_press(Message::PlayDrawDecision(false)),
+                            ]
+                            .spacing(SPACING)
+                        } else {
+                            row![button("Resign"), button("Request Draw")].spacing(SPACING)
+                        };
+                        user_area = user_area.push(row.spacing(SPACING));
+                    }
                 }
 
                 user_area = user_area.push(
@@ -1280,6 +1337,7 @@ enum Message {
     PasswordChanged(String),
     PasswordShow(bool),
     PlayDraw,
+    PlayDrawDecision(bool),
     PlayMoveFrom(Vertex),
     PlayMoveTo(Vertex),
     PlayResign,

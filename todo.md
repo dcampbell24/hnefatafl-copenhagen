@@ -9,4 +9,5 @@
 
 ## Add Hoc
 
+- Notify the other play when a player joins or leavers a game.
 - If the creator of a pending_game leaves, end the game.
