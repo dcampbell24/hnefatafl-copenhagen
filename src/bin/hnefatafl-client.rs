@@ -36,7 +36,7 @@ use iced::{
     },
     Element, Subscription,
 };
-use log::{debug, error, info, LevelFilter};
+use log::{debug, error, info, trace, LevelFilter};
 
 const PORT: &str = ":49152";
 const PADDING: u16 = 10;
@@ -377,7 +377,6 @@ impl Client {
                 handle_error(tx.send(format!("request_draw {} {}\n", self.game_id, game.turn,)));
             }
             Message::PlayDrawDecision(accept) => {
-                // fixme
                 let Some(_game) = &mut self.game else {
                     panic!("you have to be in a game to play a move")
                 };
@@ -397,6 +396,11 @@ impl Client {
                     panic!("you have to have a from to get to to");
                 };
 
+                let mut turn = Color::Colorless;
+                if let Some(game) = &self.game {
+                    turn = game.turn.clone();
+                }
+
                 self.handle_play(None, &from.to_string(), &to.to_string());
                 let Some(game) = &mut self.game else {
                     panic!("you have to be in a game to play a move")
@@ -409,7 +413,7 @@ impl Client {
                 handle_error(tx.send(format!(
                     "game {} play {} {from} {to}\n",
                     self.game_id,
-                    game.turn.opposite()
+                    turn
                 )));
 
                 if game.status == Status::Ongoing {
@@ -1387,7 +1391,14 @@ fn pass_messages() -> impl Stream<Item = Message> {
                 let bytes = handle_error(reader.read_line(&mut buffer));
                 if bytes > 0 {
                     let buffer_trim = buffer.trim();
-                    debug!("-> {buffer_trim}");
+                    let buffer_trim_vec: Vec<_> = buffer_trim.split_ascii_whitespace().collect();
+
+                    if buffer_trim_vec[1] == "display_users" || buffer_trim_vec[1] == "display_games" {
+                        trace!("-> {buffer_trim}");
+                    } else {
+                        debug!("-> {buffer_trim}");
+                    }
+
                     handle_error(executor::block_on(
                         sender.send(Message::TextReceived(buffer.clone())),
                     ));
