@@ -4,7 +4,7 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
-    sync::mpsc,
+    sync::mpsc::{self, Sender},
     thread,
     time::Duration,
 };
@@ -367,20 +367,15 @@ impl Client {
                 self.password_show = show_password;
             }
             Message::PlayDraw => {
-                let Some(game) = &mut self.game else {
-                    panic!("you have to be in a game to play a move")
-                };
-                let Some(tx) = self.tx.as_mut() else {
-                    panic!("you have to have a sender at this point")
-                };
+                let game = get_game(&mut self.game);
+                let tx = get_tx(&mut self.tx);
 
                 handle_error(tx.send(format!("request_draw {} {}\n", self.game_id, game.turn,)));
             }
             Message::PlayDrawDecision(accept) => {
+                // fixme
                 let _game = get_game(&mut self.game);
-                let Some(tx) = self.tx.as_mut() else {
-                    panic!("you have to have a sender at this point")
-                };
+                let tx = get_tx(&mut self.tx);
 
                 if accept {
                     handle_error(tx.send(format!("draw {} accept\n", self.game_id)));
@@ -401,10 +396,7 @@ impl Client {
 
                 self.handle_play(None, &from.to_string(), &to.to_string());
                 let game = get_game(&mut self.game);
-
-                let Some(tx) = self.tx.as_mut() else {
-                    panic!("you have to have a sender at this point")
-                };
+                let tx = get_tx(&mut self.tx);
 
                 handle_error(tx.send(format!("game {} play {} {from} {to}\n", self.game_id, turn)));
 
@@ -429,10 +421,7 @@ impl Client {
             }
             Message::PlayResign => {
                 let game = get_game(&mut self.game);
-
-                let Some(tx) = self.tx.as_mut() else {
-                    panic!("you have to have a sender at this point")
-                };
+                let tx = get_tx(&mut self.tx);
 
                 handle_error(tx.send(format!(
                     "game {} play {} resigns _\n",
@@ -1350,6 +1339,13 @@ fn get_game(game: &mut Option<Game>) -> &mut Game {
         panic!("you have to be in a game to play a move")
     };
     game
+}
+
+fn get_tx(tx: &mut Option<Sender<String>>) -> &mut Sender<String> {
+    let Some(tx) = tx.as_mut() else {
+        panic!("you have to have a sender at this point")
+    };
+    tx
 }
 
 fn pass_messages() -> impl Stream<Item = Message> {
