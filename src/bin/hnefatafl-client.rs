@@ -1,6 +1,8 @@
 use std::{
     collections::VecDeque,
-    env, f64, fs,
+    env, f64,
+    fmt::Debug,
+    fs,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
@@ -82,6 +84,8 @@ struct Client {
     password_real: String,
     password_show: bool,
     play_from: Option<Vertex>,
+    play_from_previous: Option<Vertex>,
+    play_to_previous: Option<Vertex>,
     rated: Rated,
     request_draw: bool,
     role_selected: Option<Role>,
@@ -161,7 +165,7 @@ impl Client {
             for x in 0..11 {
                 let vertex = Vertex { x, y };
 
-                let mut button = match game.board.get(&vertex) {
+                let mut button_ = match game.board.get(&vertex) {
                     Space::Empty => {
                         if (y, x) == (0, 0)
                             || (y, x) == (10, 0)
@@ -179,19 +183,39 @@ impl Client {
                     Space::White => button(text("○").size(board_size)),
                 };
 
+                if let (Some(from), Some(to)) = (&self.play_from_previous, &self.play_to_previous) {
+                    let y_diff = from.y as i128 - to.y as i128;
+                    let x_diff = from.x as i128 - to.x as i128;
+                    let mut arrow = " ";
+
+                    if y_diff < 0 {
+                        arrow = "↓";
+                    } else if y_diff > 0 {
+                        arrow = "↑";
+                    } else if x_diff < 0 {
+                        arrow = "→";
+                    } else if x_diff > 0 {
+                        arrow = "←";
+                    }
+
+                    if (y, x) == (from.y, from.x) {
+                        button_ = button(text(arrow).size(board_size));
+                    }
+                }
+
                 if let Some(Ok(legal_moves)) = &possible_moves {
                     if let Some(vertex_from) = self.play_from.as_ref() {
                         if let Some(vertexes) = legal_moves.moves.get(vertex_from) {
                             if vertexes.contains(&vertex) {
-                                button = button.on_press(Message::PlayMoveTo(vertex));
+                                button_ = button_.on_press(Message::PlayMoveTo(vertex));
                             }
                         }
                     } else if legal_moves.moves.contains_key(&vertex) {
-                        button = button.on_press(Message::PlayMoveFrom(vertex));
+                        button_ = button_.on_press(Message::PlayMoveFrom(vertex));
                     }
                 }
 
-                row = row.push(button);
+                row = row.push(button_);
             }
 
             row = row.push(text(format!("{y_label:2}")).size(board_size).center());
@@ -414,6 +438,8 @@ impl Client {
                     }
                 }
 
+                self.play_from_previous = self.play_from.clone();
+                self.play_to_previous = Some(to);
                 self.play_from = None;
                 self.my_turn = false;
             }
@@ -691,6 +717,13 @@ impl Client {
                             let Some(to) = text.next() else {
                                 return;
                             };
+
+                            if let (Ok(from), Ok(to)) =
+                                (Vertex::try_from(from), Vertex::try_from(to))
+                            {
+                                self.play_from_previous = Some(from);
+                                self.play_to_previous = Some(to);
+                            }
 
                             self.handle_play(Some(&color.to_string()), from, to);
                             let game = get_game(&mut self.game);
