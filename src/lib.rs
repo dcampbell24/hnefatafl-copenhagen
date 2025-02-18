@@ -1710,6 +1710,34 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn white_wins_escape_fort_3() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "........X.O",
+            ".........O.",
+            ".......X.OK",
+            "..........O",
+            "...........",
+            "...........",
+            "...........",
+        ];
+
+        let mut game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        game.read_line("play white l5 l6")?;
+        assert_eq!(game.status, Status::WhiteWins);
+
+        Ok(())
+    }
+
     // Seven
 
     #[test]

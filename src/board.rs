@@ -671,6 +671,7 @@ impl Board {
     /// # Errors
     ///
     /// If the vertex is out of bounds.
+    #[allow(clippy::too_many_lines)]
     pub fn flood_fill_white_wins(&self, vertex: &Vertex) -> anyhow::Result<bool> {
         let mut black_has_enough_pieces = false;
         let mut count = 0;
@@ -689,7 +690,7 @@ impl Board {
         }
 
         let mut already_checked = FxHashSet::default();
-        let mut stack = Vec::new();
+        let mut stack = vec![];
 
         if let Some(vertex) = vertex.up() {
             stack.push((vertex, Direction::LeftRight));
@@ -742,11 +743,15 @@ impl Board {
                         if self.get(&vertex).color() == Color::White {
                             vertex_1 = true;
                         }
+                    } else {
+                        vertex_1 = true;
                     }
                     if let Some(vertex) = vertex.down() {
                         if self.get(&vertex).color() == Color::White {
                             vertex_2 = true;
                         }
+                    } else {
+                        vertex_2 = true;
                     }
 
                     if !vertex_1 && !vertex_2 && black_has_enough_pieces {
@@ -760,11 +765,15 @@ impl Board {
                         if self.get(&vertex).color() == Color::White {
                             vertex_1 = true;
                         }
+                    } else {
+                        vertex_1 = true;
                     }
                     if let Some(vertex) = vertex.left() {
                         if self.get(&vertex).color() == Color::White {
                             vertex_2 = true;
                         }
+                    } else {
+                        vertex_2 = true;
                     }
 
                     if !vertex_1 && !vertex_2 && black_has_enough_pieces {
