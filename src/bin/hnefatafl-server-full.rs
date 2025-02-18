@@ -445,24 +445,6 @@ impl Server {
                                 info!("{index_supplied} {username} logged out");
                                 account.logged_in = None;
                                 self.clients.remove(&index_database);
-                                // Remove the pending game if there is one.
-                                let mut index_option = None;
-                                for (index, game) in self.games_light.0.clone() {
-                                    if let Some(attacker) = &game.attacker {
-                                        if attacker == username {
-                                            index_option = Some(index);
-                                        }
-                                    }
-                                    if let Some(defender) = &game.defender {
-                                        if defender == username {
-                                            index_option = Some(index);
-                                        }
-                                    }
-                                }
-
-                                if let Some(index) = index_option {
-                                    self.games_light.0.remove(&index);
-                                }
 
                                 None
                             } else {
@@ -582,10 +564,18 @@ impl Server {
                     }
 
                     let Some(game) = self.games.0.get_mut(&index) else {
-                        panic!("the index should be valid")
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
                     };
                     let Some(game_light) = self.games_light.0.get_mut(&index) else {
-                        panic!("the index should be valid")
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
                     };
 
                     let mut blacks_turn_next = true;
@@ -742,6 +732,116 @@ impl Server {
                             self.save_server();
 
                             return None;
+                        }
+                    }
+
+                    Some((
+                        self.clients[&index_supplied].clone(),
+                        true,
+                        (*command).to_string(),
+                    ))
+                }
+                "resume_game" => {
+                    let Some(id) = the_rest.first() else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+                    let Ok(id) = id.parse::<usize>() else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+
+                    let Some(server_game) = self.games.0.get(&id) else {
+                        panic!("we must have a board at this point")
+                    };
+
+                    let game = &server_game.game;
+                    let Ok(board) = ron::ser::to_string(game) else {
+                        panic!("we should be able to serialize the board")
+                    };
+                    let texts = &server_game.texts;
+                    let Ok(texts) = ron::ser::to_string(&texts) else {
+                        panic!("we should be able to serialize the texts")
+                    };
+
+                    info!("{index_supplied} {username} watch_game {id}");
+                    let Some(game_light) = self.games_light.0.get_mut(&id) else {
+                        panic!("the id must refer to a valid pending game");
+                    };
+
+                    if Some((*username).to_string()) == game_light.attacker {
+                        if let Some(server_game) = self.games.0.get_mut(&id) {
+                            server_game.attacker_tx = self.clients[&index_supplied].clone();
+                        }
+                        game_light.attacker_channel = Some(index_supplied);
+                    } else if Some((*username).to_string()) == game_light.defender {
+                        if let Some(server_game) = self.games.0.get_mut(&id) {
+                            server_game.defender_tx = self.clients[&index_supplied].clone();
+                        }
+                        game_light.defender_channel = Some(index_supplied);
+                    }
+
+                    self.clients[&index_supplied]
+                        .send(format!(
+                            "= resume_game {} {} {} {:?} {board} {texts}",
+                            game_light.attacker.clone().unwrap(),
+                            game_light.defender.clone().unwrap(),
+                            game_light.rated,
+                            game_light.timed,
+                        ))
+                        .ok()?;
+
+                    None
+                }
+                "request_draw" => {
+                    let Some(id) = the_rest.first() else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+                    let Ok(id) = id.parse::<usize>() else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+
+                    let Some(color) = the_rest.get(1) else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+                    let Ok(color) = Color::try_from(*color) else {
+                        return Some((
+                            self.clients[&index_supplied].clone(),
+                            false,
+                            (*command).to_string(),
+                        ));
+                    };
+
+                    info!("{index_supplied} {username} request_draw {id} {color}");
+
+                    let message = format!("request_draw {id} {color}");
+                    if let Some(game) = self.games.0.get(&id) {
+                        match color {
+                            Color::Black => {
+                                let _ok = game.defender_tx.send(message);
+                            }
+                            Color::Colorless => {}
+                            Color::White => {
+                                let _ok = game.attacker_tx.send(message);
+                            }
                         }
                     }
 

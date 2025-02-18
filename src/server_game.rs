@@ -230,7 +230,7 @@ impl fmt::Display for ServerGameLight {
 
         write!(
             f,
-            "{}: {attacker}, {defender}, {}, time: {}, {}",
+            "#{}: {attacker}, {defender}, {}, time: {}, {}",
             self.id, self.rated, self.timed, self.challenger
         )
     }
