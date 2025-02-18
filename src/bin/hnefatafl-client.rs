@@ -315,6 +315,7 @@ impl Client {
                     self.screen = Screen::Games;
                 }
                 Screen::Game => {
+                    self.send(format!("text_game {} I'm leaving.\n", self.game_id));
                     self.screen = Screen::Games;
                     self.my_turn = false;
                     self.request_draw = false;
@@ -330,6 +331,7 @@ impl Client {
             Message::GameResume(id) => {
                 self.game_id = id;
                 self.send(format!("resume_game {id}\n"));
+                self.send(format!("text_game {id} I rejoined.\n"));
             }
             Message::GameSubmit => {
                 if let Some(role) = self.role_selected {

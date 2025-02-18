@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- hnefatafl-client: say when you leave or rejoin a game.
 - Allow resuming a game.
 - hnefatafl-client: say wether the gme is rated or not.
 - hnefatafl-client: say what address you're connected to.
