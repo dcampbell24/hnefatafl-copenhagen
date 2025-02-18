@@ -16,6 +16,7 @@ use status::Status;
 pub mod accounts;
 pub mod board;
 pub mod color;
+pub mod draw;
 pub mod game;
 pub mod game_record;
 pub mod glicko;

@@ -20,20 +20,26 @@ impl fmt::Display for Accounts {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Account {
     pub logged_in: Option<usize>,
+    pub draws: u64,
     pub wins: u64,
     pub losses: u64,
     pub rating: Rating,
 }
 
+// Fixme: add draws.
 impl fmt::Display for Account {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.logged_in.is_some() {
-            write!(f, "{} {} {} logged_in", self.wins, self.losses, self.rating)
+            write!(
+                f,
+                "{} {} {} {} logged_in",
+                self.wins, self.losses, self.draws, self.rating
+            )
         } else {
             write!(
                 f,
-                "{} {} {} logged_out",
-                self.wins, self.losses, self.rating
+                "{} {} {} {} logged_out",
+                self.wins, self.losses, self.draws, self.rating
             )
         }
     }

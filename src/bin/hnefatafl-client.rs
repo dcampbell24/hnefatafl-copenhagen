@@ -1,8 +1,6 @@
 use std::{
     collections::VecDeque,
-    env, f64,
-    fmt::Debug,
-    fs,
+    env, f64, fs,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     process::exit,
@@ -17,6 +15,7 @@ use env_logger::Builder;
 use futures::executor;
 use hnefatafl_copenhagen::{
     color::Color,
+    draw::Draw,
     game::Game,
     handle_error,
     play::Vertex,
@@ -401,14 +400,9 @@ impl Client {
 
                 handle_error(tx.send(format!("request_draw {} {}\n", self.game_id, game.turn,)));
             }
-            Message::PlayDrawDecision(accept) => {
+            Message::PlayDrawDecision(draw) => {
                 let tx = get_tx(&mut self.tx);
-
-                if accept {
-                    handle_error(tx.send(format!("draw {} accept\n", self.game_id)));
-                } else {
-                    handle_error(tx.send(format!("draw {} decline\n", self.game_id)));
-                }
+                handle_error(tx.send(format!("draw {} {draw}\n", self.game_id)));
             }
             Message::PlayMoveFrom(vertex) => self.play_from = Some(vertex),
             Message::PlayMoveTo(to) => {
@@ -498,8 +492,8 @@ impl Client {
                             Some("display_users") => {
                                 let users: Vec<&str> = text.collect();
                                 self.users.clear();
-                                for user_wins_losses_rating in users.chunks_exact(5) {
-                                    let rating = user_wins_losses_rating[3];
+                                for user_wins_losses_rating in users.chunks_exact(6) {
+                                    let rating = user_wins_losses_rating[4];
                                     let Some((rating, deviation)) = rating.split_once("±") else {
                                         panic!("the ratings has this form");
                                     };
@@ -509,18 +503,30 @@ impl Client {
                                         panic!("the ratings has this form");
                                     };
 
-                                    let logged_in = "logged_in" == user_wins_losses_rating[4];
+                                    let logged_in = "logged_in" == user_wins_losses_rating[5];
 
                                     self.users.push(User {
                                         name: user_wins_losses_rating[0].to_string(),
                                         wins: user_wins_losses_rating[1].to_string(),
                                         losses: user_wins_losses_rating[2].to_string(),
+                                        draws: user_wins_losses_rating[3].to_string(),
                                         rating: (rating, deviation),
                                         logged_in,
                                     });
                                 }
                                 self.users
                                     .sort_by(|a, b| b.rating.0.partial_cmp(&a.rating.0).unwrap());
+                            }
+                            Some("draw") => {
+                                self.request_draw = false;
+                                if let Some("accept") = text.next() {
+                                    self.my_turn = false;
+                                    self.status = Status::Draw;
+
+                                    if let Some(game) = &mut self.game {
+                                        game.turn = Color::Colorless;
+                                    }
+                                }
                             }
                             Some("game_over") => {
                                 self.my_turn = false;
@@ -993,6 +999,7 @@ impl Client {
         let mut usernames = Column::new();
         let mut wins = Column::new();
         let mut losses = Column::new();
+        let mut draws = Column::new();
 
         for user in &self.users {
             if logged_in == user.logged_in {
@@ -1004,6 +1011,7 @@ impl Client {
                 usernames = usernames.push(text(&user.name));
                 wins = wins.push(text(&user.wins));
                 losses = losses.push(text(&user.losses));
+                draws = draws.push(text(&user.draws));
             }
         }
 
@@ -1011,8 +1019,9 @@ impl Client {
         let usernames = column![text("username"), text("--------"), usernames].padding(PADDING);
         let wins = column![text("wins"), text("----"), wins].padding(PADDING);
         let losses = column![text("losses"), text("------"), losses].padding(PADDING);
+        let draws = column![text("draws"), text("-----"), draws].padding(PADDING);
 
-        scrollable(row![ratings, usernames, wins, losses])
+        scrollable(row![ratings, usernames, wins, losses, draws])
     }
 
     #[must_use]
@@ -1035,6 +1044,7 @@ impl Client {
             Screen::AccountSettings => {
                 let mut rating = String::new();
                 let mut wins = String::new();
+                let mut draws = String::new();
                 let mut losses = String::new();
 
                 for user in &self.users {
@@ -1042,6 +1052,7 @@ impl Client {
                         rating = format!("{} ± {}", user.rating.0, user.rating.1);
                         wins = user.wins.to_string();
                         losses = user.losses.to_string();
+                        draws = user.draws.to_string();
                     }
                 }
 
@@ -1051,6 +1062,7 @@ impl Client {
                     text(format!("rating: {rating}")),
                     text(format!("wins: {wins}")),
                     text(format!("losses: {losses}")),
+                    text(format!("draws: {draws}")),
                 ]
                 .padding(PADDING)
                 .spacing(SPACING);
@@ -1124,8 +1136,10 @@ impl Client {
                         let row = if self.request_draw {
                             row![
                                 button("Resign"),
-                                button("Accept Draw").on_press(Message::PlayDrawDecision(true)),
-                                button("Decline Draw").on_press(Message::PlayDrawDecision(false)),
+                                button("Accept Draw")
+                                    .on_press(Message::PlayDrawDecision(Draw::Accept)),
+                                button("Decline Draw")
+                                    .on_press(Message::PlayDrawDecision(Draw::Decline)),
                             ]
                             .spacing(SPACING)
                         } else {
@@ -1147,12 +1161,13 @@ impl Client {
                 user_area = user_area
                     .push(checkbox("sound muted", self.sound_muted).on_toggle(Message::SoundMuted));
 
-                if self.status == Status::WhiteWins {
-                    user_area = user_area.push(text("Defender Wins!"));
+                match self.status {
+                    Status::BlackWins => user_area = user_area.push(text("Attacker Wins!")),
+                    Status::Draw => user_area = user_area.push(text("It's a draw.")),
+                    Status::Ongoing => {}
+                    Status::WhiteWins => user_area = user_area.push(text("Defender Wins!")),
                 }
-                if self.status == Status::BlackWins {
-                    user_area = user_area.push(text("Attacker Wins!"));
-                }
+
                 user_area = user_area.push(time);
                 user_area = user_area.push(texting);
                 let user_area = container(user_area)
@@ -1352,7 +1367,7 @@ enum Message {
     PasswordChanged(String),
     PasswordShow(bool),
     PlayDraw,
-    PlayDrawDecision(bool),
+    PlayDrawDecision(Draw),
     PlayMoveFrom(Vertex),
     PlayMoveTo(Vertex),
     PlayMoveRevert,
@@ -1489,6 +1504,7 @@ struct User {
     name: String,
     wins: String,
     losses: String,
+    draws: String,
     rating: (f64, f64),
     logged_in: bool,
 }
