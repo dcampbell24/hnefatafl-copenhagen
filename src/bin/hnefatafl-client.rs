@@ -206,6 +206,9 @@ impl Client {
                 if let Some(Ok(legal_moves)) = &possible_moves {
                     if let Some(vertex_from) = self.play_from.as_ref() {
                         if let Some(vertexes) = legal_moves.moves.get(vertex_from) {
+                            if vertex == *vertex_from {
+                                button_ = button_.on_press(Message::PlayMoveRevert);
+                            }
                             if vertexes.contains(&vertex) {
                                 button_ = button_.on_press(Message::PlayMoveTo(vertex));
                             }
@@ -445,6 +448,7 @@ impl Client {
                 self.play_from = None;
                 self.my_turn = false;
             }
+            Message::PlayMoveRevert => self.play_from = None,
             Message::PlayResign => {
                 let game = get_game(&mut self.game);
                 let tx = get_tx(&mut self.tx);
@@ -1351,6 +1355,7 @@ enum Message {
     PlayDrawDecision(bool),
     PlayMoveFrom(Vertex),
     PlayMoveTo(Vertex),
+    PlayMoveRevert,
     PlayResign,
     ScreenSize(Size),
     SoundMuted(bool),
