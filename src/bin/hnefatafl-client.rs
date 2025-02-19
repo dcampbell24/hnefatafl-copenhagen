@@ -1090,12 +1090,21 @@ impl Client {
                 columns.into()
             }
             Screen::Game => {
+                let mut rated = "rated: ".to_string();
+                match self.rated {
+                    Rated::No => rated.push_str("no"),
+                    Rated::Yes => rated.push_str("yes"),
+                }
+
                 let mut user_area_ = column![
-                    text(format!("game #{} {}", self.game_id, self.rated)),
-                    text(format!("username: {}", &self.username)),
+                    text(rated),
                     text(format!(
-                        "attacker: {}, defender: {}",
-                        &self.attacker, &self.defender
+                        "attacker: {} {}",
+                        &self.attacker, &self.time_attacker,
+                    )),
+                    text(format!(
+                        "defender: {} {}",
+                        &self.defender, &self.time_defender,
                     )),
                     text("spectators:".to_string()),
                 ];
@@ -1114,13 +1123,8 @@ impl Client {
 
                 let texting = self.texting(true);
 
-                let time = row![
-                    text(format!("black time: {}", self.time_attacker)),
-                    text(format!("white time: {}", self.time_defender)),
-                ]
-                .spacing(SPACING);
-
-                let mut user_area = Column::new().spacing(SPACING);
+                let mut user_area = column![text(format!("#{} {}", self.game_id, &self.username,))]
+                    .spacing(SPACING);
                 user_area = user_area.push(user_area_);
 
                 if !watching {
@@ -1168,7 +1172,6 @@ impl Client {
                     Status::WhiteWins => user_area = user_area.push(text("Defender Wins!")),
                 }
 
-                user_area = user_area.push(time);
                 user_area = user_area.push(texting);
                 let user_area = container(user_area)
                     .padding(PADDING)
