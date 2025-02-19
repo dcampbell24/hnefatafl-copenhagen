@@ -17,7 +17,7 @@ const ADDRESS: &str = "localhost:49152";
 fn main() -> anyhow::Result<()> {
     let child = std::process::Command::new("./target/debug/hnefatafl-server-full").spawn()?;
 
-    thread::sleep(Duration::from_millis(100));
+    thread::sleep(Duration::from_millis(10));
     // new_game user 1
     // join game user 2
     // accept user_1
@@ -32,7 +32,7 @@ fn main() -> anyhow::Result<()> {
     reader_1.read_line(&mut buf_1)?;
     println!("{buf_1}");
 
-    thread::sleep(Duration::from_millis(100));
+    thread::sleep(Duration::from_millis(10));
 
     let mut tcp_2 = TcpStream::connect(ADDRESS)?;
     let mut reader_2 = BufReader::new(tcp_2.try_clone()?);
@@ -42,7 +42,7 @@ fn main() -> anyhow::Result<()> {
     reader_2.read_line(&mut buf_2)?;
     println!("{buf_2}");
 
-    thread::sleep(Duration::from_millis(100));
+    thread::sleep(Duration::from_millis(10));
 
     signal::kill(Pid::from_raw(i32::try_from(child.id())?), Signal::SIGTERM)?;
     Ok(())
