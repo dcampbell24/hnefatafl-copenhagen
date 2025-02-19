@@ -420,7 +420,7 @@ impl Server {
                         ));
                     };
 
-                    let Some(game) = self.games.0.get_mut(&id) else {
+                    let Some(mut game) = self.games.0.remove(&id) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
@@ -699,7 +699,7 @@ impl Server {
                         to = String::new();
                     }
 
-                    let Some(game) = self.games.0.get_mut(&index) else {
+                    let Some(mut game) = self.games.0.remove(&index) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,

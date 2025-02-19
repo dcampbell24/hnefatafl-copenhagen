@@ -30,15 +30,15 @@ pub struct ArchivedGame {
 
 impl ArchivedGame {
     #[must_use]
-    pub fn new(game: &ServerGame) -> Self {
+    pub fn new(game: ServerGame) -> Self {
         Self {
             id: game.id,
-            attacker: game.attacker.to_string(),
-            defender: game.defender.to_string(),
+            attacker: game.attacker,
+            defender: game.defender,
             rated: game.rated,
-            plays: game.game.plays.clone(),
-            status: game.game.status.clone(),
-            texts: game.texts.clone(),
+            plays: game.game.plays,
+            status: game.game.status,
+            texts: game.texts,
         }
     }
 }
