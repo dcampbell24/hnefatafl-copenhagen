@@ -15,7 +15,7 @@ impl fmt::Display for Time {
         let mut seconds = self.milliseconds_left % 60_000;
         seconds /= 1_000;
 
-        write!(f, "{minutes}:{seconds:02} / {}s", self.add_seconds)
+        write!(f, "{minutes:02}:{seconds:02} / {}s", self.add_seconds)
     }
 }
 

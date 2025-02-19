@@ -1100,11 +1100,11 @@ impl Client {
                     text(rated),
                     text(format!(
                         "attacker: {} {}",
-                        &self.attacker, &self.time_attacker,
+                        &self.time_attacker, &self.attacker
                     )),
                     text(format!(
                         "defender: {} {}",
-                        &self.defender, &self.time_defender,
+                        &self.time_defender, &self.defender
                     )),
                     text("spectators:".to_string()),
                 ];
