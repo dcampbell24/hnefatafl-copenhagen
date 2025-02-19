@@ -47,6 +47,14 @@ const PORT: &str = ":49152";
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Args {
+    /// Whether to skip advertising updates
+    #[arg(default_value_t = false, long)]
+    skip_advertising_updates: bool,
+
+    /// Whether to load the data file
+    #[arg(default_value_t = false, long)]
+    skip_loading_data_file: bool,
+
     /// Listen for HTP drivers on host
     #[arg(default_value = "0.0.0.0", long)]
     host: String,
@@ -64,7 +72,7 @@ fn main() -> anyhow::Result<()> {
     init_logger(args.systemd);
 
     let data_file = data_file();
-    let mut server = if exists(&data_file)? {
+    let mut server = if exists(&data_file)? && !args.skip_loading_data_file {
         ron::from_str(&read_to_string(&data_file)?)?
     } else {
         Server::default()
@@ -80,11 +88,13 @@ fn main() -> anyhow::Result<()> {
 
     thread::spawn(move || server.handle_messages(&rx));
 
-    let tx_messages_1 = tx.clone();
-    thread::spawn(move || loop {
-        handle_error(tx_messages_1.send(("0 server display_server".to_string(), None)));
-        thread::sleep(Duration::from_secs(1));
-    });
+    if !args.skip_advertising_updates {
+        let tx_messages_1 = tx.clone();
+        thread::spawn(move || loop {
+            handle_error(tx_messages_1.send(("0 server display_server".to_string(), None)));
+            thread::sleep(Duration::from_secs(1));
+        });
+    }
 
     let tx_messages_2 = tx.clone();
     thread::spawn(move || loop {
@@ -315,12 +325,12 @@ impl Server {
                     info!("0 {username} check_update_rd {bool}");
                     None
                 }
-                "decline_game" => Some(self.decline_game(
+                "decline_game" => self.decline_game(
                     username,
                     index_supplied,
                     (*command).to_string(),
                     the_rest.as_slice(),
-                )),
+                ),
                 "display_server" => {
                     debug!("0 {username} display_server");
                     for tx in &mut self.clients.values() {
@@ -490,12 +500,12 @@ impl Server {
                     (*command).to_string(),
                     the_rest.as_slice(),
                 ),
-                "join_game_pending" => Some(self.join_game_pending(
+                "join_game_pending" => self.join_game_pending(
                     (*username).to_string(),
                     index_supplied,
                     (*command).to_string(),
                     the_rest.as_slice(),
-                )),
+                ),
                 "leave_game" => Some(self.leave_game(
                     username,
                     index_supplied,
@@ -1055,12 +1065,14 @@ impl Server {
         index_supplied: usize,
         mut command: String,
         the_rest: &[&str],
-    ) -> (mpsc::Sender<String>, bool, String) {
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        let channel = self.clients.get(&index_supplied)?;
+
         let Some(id) = the_rest.first() else {
-            return (self.clients[&index_supplied].clone(), false, command);
+            return Some((channel.clone(), false, command));
         };
         let Ok(id) = id.parse::<usize>() else {
-            return (self.clients[&index_supplied].clone(), false, command);
+            return Some((channel.clone(), false, command));
         };
 
         info!("{index_supplied} {username} decline_game {id}");
@@ -1096,7 +1108,7 @@ impl Server {
             self.games_light.0.insert(id, game);
         }
 
-        (self.clients[&index_supplied].clone(), true, command)
+        Some((channel.clone(), true, command))
     }
 
     fn join_game(
@@ -1155,17 +1167,20 @@ impl Server {
         index_supplied: usize,
         mut command: String,
         the_rest: &[&str],
-    ) -> (mpsc::Sender<String>, bool, String) {
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        let channel = self.clients.get(&index_supplied)?;
+
         let Some(id) = the_rest.first() else {
-            return (self.clients[&index_supplied].clone(), false, command);
+            return Some((channel.clone(), false, command));
         };
         let Ok(id) = id.parse::<usize>() else {
-            return (self.clients[&index_supplied].clone(), false, command);
+            return Some((channel.clone(), false, command));
         };
 
         info!("{index_supplied} {username} join_game_pending {id}");
         let Some(game) = self.games_light.0.get_mut(&id) else {
-            panic!("the id must refer to a valid pending game");
+            command.push_str(" the id doesn't refer to a pending game");
+            return Some((channel.clone(), false, command));
         };
 
         if game.attacker.is_none() {
@@ -1179,7 +1194,8 @@ impl Server {
 
         command.push(' ');
         command.push_str(the_rest[0]);
-        (self.clients[&index_supplied].clone(), true, command)
+
+        Some((channel.clone(), true, command))
     }
 
     fn leave_game(
