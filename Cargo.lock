@@ -2009,6 +2009,7 @@ dependencies = [
  "futures",
  "iced",
  "log",
+ "nix",
  "password-hash",
  "rand",
  "rodio",
