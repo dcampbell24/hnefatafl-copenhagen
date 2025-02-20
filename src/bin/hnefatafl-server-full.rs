@@ -709,13 +709,14 @@ impl Server {
                         to = String::new();
                     }
 
-                    let Some(mut game) = self.games.0.remove(&index) else {
+                    let Some(game) = self.games.0.get_mut(&index) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
                             false,
                             (*command).to_string(),
                         ));
                     };
+
                     let Some(game_light) = self.games_light.0.get_mut(&index) else {
                         return Some((
                             self.clients[&index_supplied].clone(),
@@ -815,6 +816,9 @@ impl Server {
                                 }
                             }
 
+                            let Some(game) = self.games.0.remove(&index) else {
+                                panic!("the game should exist")
+                            };
                             self.games_light.0.remove(&index);
                             self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
@@ -873,6 +877,9 @@ impl Server {
                                 }
                             }
 
+                            let Some(game) = self.games.0.remove(&index) else {
+                                panic!("the game should exist")
+                            };
                             self.games_light.0.remove(&index);
                             self.archived_games.push(ArchivedGame::new(game));
                             self.save_server();
