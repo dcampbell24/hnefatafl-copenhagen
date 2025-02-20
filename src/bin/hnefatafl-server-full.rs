@@ -1271,13 +1271,13 @@ impl Server {
             account.logged_in = None;
         }
 
-        let data_file = data_file();
-
         if !self.skip_the_data_file {
             if let Ok(string) =
                 ron::ser::to_string_pretty(&server, ron::ser::PrettyConfig::default())
             {
                 if !string.trim().is_empty() {
+                    let data_file = data_file();
+
                     if let Ok(mut file) = File::create(&data_file) {
                         if let Err(error) = file.write_all(string.as_bytes()) {
                             log::error!("{error}");
