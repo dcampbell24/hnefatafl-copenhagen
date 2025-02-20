@@ -11,6 +11,12 @@ fn main() -> Result<(), Error> {
             Path::new("sound").join("capture.ogg"),
             path.join("capture.ogg"),
         )?;
+
+        fs::copy(
+            Path::new("sound").join("game_over.ogg"),
+            path.join("game_over.ogg"),
+        )?;
+
         fs::copy(Path::new("sound").join("move.ogg"), path.join("move.ogg"))?;
     }
 

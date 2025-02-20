@@ -540,6 +540,21 @@ impl Client {
                                     Some("defender_wins") => self.status = Status::WhiteWins,
                                     _ => {}
                                 }
+
+                                if !self.sound_muted {
+                                    thread::spawn(move || {
+                                        if let Some(mut path) = dirs::data_dir() {
+                                            path = path.join(HOME);
+                                            let (_stream, stream_handle) =
+                                                rodio::OutputStream::try_default().unwrap();
+                                            let file =
+                                                fs::File::open(path.join("game_over.ogg")).unwrap();
+                                            let sound = stream_handle.play_once(file).unwrap();
+                                            sound.set_volume(1.0);
+                                            thread::sleep(Duration::from_secs(1));
+                                        }
+                                    });
+                                }
                             }
                             // = join_game david abby rated fischer 900_000 10
                             Some("join_game" | "resume_game" | "watch_game") => {
