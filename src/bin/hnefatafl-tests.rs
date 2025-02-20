@@ -15,6 +15,15 @@ use nix::{
 const ADDRESS: &str = "localhost:49152";
 
 fn main() -> anyhow::Result<()> {
+    std::process::Command::new("cargo")
+        .arg("build")
+        .arg("--bin")
+        .arg("hnefatafl-server-full")
+        .arg("--features")
+        .arg("server")
+        .arg("--release")
+        .output()?;
+
     let child = std::process::Command::new("./target/release/hnefatafl-server-full")
         .arg("--skip-loading-data-file")
         .arg("--skip-advertising-updates")
