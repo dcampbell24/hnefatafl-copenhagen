@@ -8,7 +8,7 @@ use std::{
 };
 
 use game::Game;
-use game_record::{game_records_from_path, Captures};
+use game_record::{Captures, game_records_from_path};
 use message::Message;
 use play::{Plae, Vertex};
 use status::Status;

@@ -541,63 +541,64 @@ impl Board {
     ) -> anyhow::Result<bool> {
         let mut played_to_capture = false;
 
-        if let Some(kings_vertex) = self.find_the_king()? {
-            if let Some(vertex) = kings_vertex.up() {
-                if play_to == &vertex {
-                    played_to_capture = true;
-                }
+        match self.find_the_king()? {
+            Some(kings_vertex) => {
+                if let Some(vertex) = kings_vertex.up() {
+                    if play_to == &vertex {
+                        played_to_capture = true;
+                    }
 
-                if vertex != THRONE && self.get(&vertex) != Space::Black {
+                    if vertex != THRONE && self.get(&vertex) != Space::Black {
+                        return Ok(false);
+                    }
+                } else {
                     return Ok(false);
                 }
-            } else {
-                return Ok(false);
-            }
 
-            if let Some(vertex) = kings_vertex.left() {
-                if play_to == &vertex {
-                    played_to_capture = true;
-                }
+                if let Some(vertex) = kings_vertex.left() {
+                    if play_to == &vertex {
+                        played_to_capture = true;
+                    }
 
-                if vertex != THRONE && self.get(&vertex) != Space::Black {
+                    if vertex != THRONE && self.get(&vertex) != Space::Black {
+                        return Ok(false);
+                    }
+                } else {
                     return Ok(false);
                 }
-            } else {
-                return Ok(false);
-            }
 
-            if let Some(vertex) = kings_vertex.down() {
-                if play_to == &vertex {
-                    played_to_capture = true;
-                }
+                if let Some(vertex) = kings_vertex.down() {
+                    if play_to == &vertex {
+                        played_to_capture = true;
+                    }
 
-                if vertex != THRONE && self.get(&vertex) != Space::Black {
+                    if vertex != THRONE && self.get(&vertex) != Space::Black {
+                        return Ok(false);
+                    }
+                } else {
                     return Ok(false);
                 }
-            } else {
-                return Ok(false);
-            }
 
-            if let Some(vertex) = kings_vertex.right() {
-                if play_to == &vertex {
-                    played_to_capture = true;
-                }
+                if let Some(vertex) = kings_vertex.right() {
+                    if play_to == &vertex {
+                        played_to_capture = true;
+                    }
 
-                if vertex != THRONE && self.get(&vertex) != Space::Black {
+                    if vertex != THRONE && self.get(&vertex) != Space::Black {
+                        return Ok(false);
+                    }
+                } else {
                     return Ok(false);
                 }
-            } else {
-                return Ok(false);
-            }
 
-            if played_to_capture {
-                captures.push(kings_vertex);
-                return Ok(true);
-            }
+                if played_to_capture {
+                    captures.push(kings_vertex);
+                    return Ok(true);
+                }
 
-            Ok(false)
-        } else {
-            Ok(false)
+                Ok(false)
+            }
+            _ => Ok(false),
         }
     }
 
@@ -605,17 +606,18 @@ impl Board {
     ///
     /// If the vertex is out of bounds.
     fn exit_forts(&self) -> anyhow::Result<bool> {
-        if let Some(kings_vertex) = self.find_the_king()? {
-            if !kings_vertex.touches_wall()
-                || !self.able_to_move(&kings_vertex)
-                || !self.flood_fill_white_wins(&kings_vertex)?
-            {
-                return Ok(false);
-            }
+        match self.find_the_king()? {
+            Some(kings_vertex) => {
+                if !kings_vertex.touches_wall()
+                    || !self.able_to_move(&kings_vertex)
+                    || !self.flood_fill_white_wins(&kings_vertex)?
+                {
+                    return Ok(false);
+                }
 
-            Ok(true)
-        } else {
-            Ok(false)
+                Ok(true)
+            }
+            _ => Ok(false),
         }
     }
 
@@ -623,48 +625,50 @@ impl Board {
     ///
     /// If the vertex is out of bounds.
     fn flood_fill_black_wins(&self) -> anyhow::Result<bool> {
-        if let Some(kings_vertex) = self.find_the_king()? {
-            let hasher = FxBuildHasher;
-            let mut already_checked = FxHashSet::with_capacity_and_hasher(11 * 11, hasher);
+        match self.find_the_king()? {
+            Some(kings_vertex) => {
+                let hasher = FxBuildHasher;
+                let mut already_checked = FxHashSet::with_capacity_and_hasher(11 * 11, hasher);
 
-            already_checked.insert(kings_vertex.clone());
-            let mut stack = Vec::new();
-            stack.push(kings_vertex);
+                already_checked.insert(kings_vertex.clone());
+                let mut stack = Vec::new();
+                stack.push(kings_vertex);
 
-            while !stack.is_empty() {
-                if let Some(vertex) = stack.pop() {
-                    let space = self.get(&vertex);
-                    if space == Space::Empty || space.color() == Color::White {
-                        if !expand_flood_fill(vertex.up(), &mut already_checked, &mut stack) {
-                            return Ok(false);
+                while !stack.is_empty() {
+                    if let Some(vertex) = stack.pop() {
+                        let space = self.get(&vertex);
+                        if space == Space::Empty || space.color() == Color::White {
+                            if !expand_flood_fill(vertex.up(), &mut already_checked, &mut stack) {
+                                return Ok(false);
+                            }
+                            if !expand_flood_fill(vertex.left(), &mut already_checked, &mut stack) {
+                                return Ok(false);
+                            }
+                            if !expand_flood_fill(vertex.down(), &mut already_checked, &mut stack) {
+                                return Ok(false);
+                            }
+                            if !expand_flood_fill(vertex.right(), &mut already_checked, &mut stack)
+                            {
+                                return Ok(false);
+                            }
                         }
-                        if !expand_flood_fill(vertex.left(), &mut already_checked, &mut stack) {
-                            return Ok(false);
-                        }
-                        if !expand_flood_fill(vertex.down(), &mut already_checked, &mut stack) {
-                            return Ok(false);
-                        }
-                        if !expand_flood_fill(vertex.right(), &mut already_checked, &mut stack) {
+                    }
+                }
+
+                for y in 0..11 {
+                    for x in 0..11 {
+                        let vertex = Vertex { x, y };
+                        if self.get(&vertex).color() == Color::White
+                            && !already_checked.contains(&vertex)
+                        {
                             return Ok(false);
                         }
                     }
                 }
-            }
 
-            for y in 0..11 {
-                for x in 0..11 {
-                    let vertex = Vertex { x, y };
-                    if self.get(&vertex).color() == Color::White
-                        && !already_checked.contains(&vertex)
-                    {
-                        return Ok(false);
-                    }
-                }
+                Ok(true)
             }
-
-            Ok(true)
-        } else {
-            Ok(false)
+            _ => Ok(false),
         }
     }
 

@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     env,
-    fs::{exists, read_to_string, File},
+    fs::{File, exists, read_to_string},
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     path::PathBuf,
@@ -12,9 +12,10 @@ use std::{
 
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use chrono::{Local, Utc};
-use clap::{command, Parser};
+use clap::{Parser, command};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
+    VERSION_ID,
     accounts::{Account, Accounts},
     color::Color,
     draw::Draw,
@@ -27,9 +28,8 @@ use hnefatafl_copenhagen::{
     },
     status::Status,
     time::TimeSettings,
-    VERSION_ID,
 };
-use log::{debug, info, LevelFilter};
+use log::{LevelFilter, debug, info};
 use password_hash::SaltString;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
@@ -89,16 +89,20 @@ fn main() -> anyhow::Result<()> {
 
     if !args.skip_advertising_updates {
         let tx_messages_1 = tx.clone();
-        thread::spawn(move || loop {
-            handle_error(tx_messages_1.send(("0 server display_server".to_string(), None)));
-            thread::sleep(Duration::from_secs(1));
+        thread::spawn(move || {
+            loop {
+                handle_error(tx_messages_1.send(("0 server display_server".to_string(), None)));
+                thread::sleep(Duration::from_secs(1));
+            }
         });
     }
 
     let tx_messages_2 = tx.clone();
-    thread::spawn(move || loop {
-        handle_error(tx_messages_2.send(("0 server check_update_rd".to_string(), None)));
-        thread::sleep(Duration::from_secs(60 * 60 * 24));
+    thread::spawn(move || {
+        loop {
+            handle_error(tx_messages_2.send(("0 server check_update_rd".to_string(), None)));
+            thread::sleep(Duration::from_secs(60 * 60 * 24));
+        }
     });
 
     for (index, stream) in (1..).zip(listener.incoming()) {
@@ -518,8 +522,8 @@ impl Server {
                             // The username is in the database and already logged in.
                             if let Some(index_database) = index_database.logged_in {
                                 info!(
-                                        "{index_supplied} {username} login failed, {index_database} is logged in"
-                                    );
+                                    "{index_supplied} {username} login failed, {index_database} is logged in"
+                                );
 
                                 Some(((tx), false, (*command).to_string()))
                             // The username is in the database, but not logged in yet.

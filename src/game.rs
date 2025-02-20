@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use crate::{
     board::Board,
     color::Color,
-    message::{Message, COMMANDS},
-    play::{Captures, Plae, Play, BOARD_LETTERS},
+    message::{COMMANDS, Message},
+    play::{BOARD_LETTERS, Captures, Plae, Play},
     status::Status,
     time::TimeSettings,
 };

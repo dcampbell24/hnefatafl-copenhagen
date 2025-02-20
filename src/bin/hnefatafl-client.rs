@@ -10,10 +10,11 @@ use std::{
 };
 
 use chrono::{Local, Utc};
-use clap::{command, Parser};
+use clap::{Parser, command};
 use env_logger::Builder;
 use futures::executor;
 use hnefatafl_copenhagen::{
+    HOME, VERSION_ID,
     color::Color,
     draw::Draw,
     game::Game,
@@ -25,19 +26,18 @@ use hnefatafl_copenhagen::{
     space::Space,
     status::Status,
     time::{Time, TimeSettings},
-    HOME, VERSION_ID,
 };
 use iced::{
+    Element, Subscription,
     font::Font,
     futures::{SinkExt, Stream},
     stream,
     widget::{
-        button, checkbox, column, container, radio, row, scrollable, text, text_input, Column,
-        Container, Row, Scrollable,
+        Column, Container, Row, Scrollable, button, checkbox, column, container, radio, row,
+        scrollable, text, text_input,
     },
-    Element, Subscription,
 };
-use log::{debug, error, info, trace, LevelFilter};
+use log::{LevelFilter, debug, error, info, trace};
 
 const PORT: &str = ":49152";
 const PADDING: u16 = 10;
@@ -1218,9 +1218,9 @@ impl Client {
 
                 let leave = button("Leave").on_press(Message::Leave);
 
-                let mut time =
-                    row![checkbox("timed ", self.timed.clone().into())
-                        .on_toggle(Message::TimeCheckbox)];
+                let mut time = row![
+                    checkbox("timed ", self.timed.clone().into()).on_toggle(Message::TimeCheckbox)
+                ];
 
                 if self.timed.0.is_some() {
                     time = time.push(text("minutes"));
@@ -1433,12 +1433,14 @@ fn pass_messages() -> impl Stream<Item = Message> {
 
         let (tx, rx) = mpsc::channel();
         let _ = sender.send(Message::TcpConnected(tx)).await;
-        thread::spawn(move || loop {
-            let message = handle_error(rx.recv());
-            let message_trim = message.trim();
-            debug!("<- {message_trim}");
+        thread::spawn(move || {
+            loop {
+                let message = handle_error(rx.recv());
+                let message_trim = message.trim();
+                debug!("<- {message_trim}");
 
-            handle_error(tcp_stream.write_all(message.as_bytes()));
+                handle_error(tcp_stream.write_all(message.as_bytes()));
+            }
         });
 
         thread::spawn(move || {
