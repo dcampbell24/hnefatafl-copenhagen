@@ -1383,7 +1383,6 @@ mod tests {
     impl Drop for Server {
         fn drop(&mut self) {
             self.0.kill().unwrap();
-            println!("drop");
         }
     }
 
