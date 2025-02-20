@@ -47,11 +47,11 @@ const PORT: &str = ":49152";
 #[command(version, about)]
 struct Args {
     /// Whether to skip advertising updates
-    #[arg(default_value_t = false, long)]
+    #[arg(long)]
     skip_advertising_updates: bool,
 
     /// Whether to load the data file
-    #[arg(default_value_t = false, long)]
+    #[arg(long)]
     skip_loading_data_file: bool,
 
     /// Listen for HTP drivers on host
