@@ -1264,7 +1264,7 @@ impl Server {
         let data_file = data_file();
 
         if let Ok(string) = ron::ser::to_string_pretty(&server, ron::ser::PrettyConfig::default()) {
-            if !string.is_empty() {
+            if !string.trim().is_empty() {
                 if let Ok(mut file) = File::create(&data_file) {
                     if let Err(error) = file.write_all(string.as_bytes()) {
                         log::error!("{error}");
