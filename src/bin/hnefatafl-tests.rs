@@ -25,7 +25,7 @@ fn main() -> anyhow::Result<()> {
         .output()?;
 
     let child = std::process::Command::new("./target/release/hnefatafl-server-full")
-        .arg("--skip-loading-data-file")
+        .arg("--skip-the-data-file")
         .arg("--skip-advertising-updates")
         .spawn()?;
 

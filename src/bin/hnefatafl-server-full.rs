@@ -50,9 +50,9 @@ struct Args {
     #[arg(long)]
     skip_advertising_updates: bool,
 
-    /// Whether to load the data file
+    /// Whether to use the data file
     #[arg(long)]
-    skip_loading_data_file: bool,
+    skip_the_data_file: bool,
 
     /// Listen for HTP drivers on host
     #[arg(default_value = "0.0.0.0", long)]
@@ -71,11 +71,15 @@ fn main() -> anyhow::Result<()> {
     init_logger(args.systemd);
 
     let data_file = data_file();
-    let mut server = if exists(&data_file)? && !args.skip_loading_data_file {
+    let mut server = if exists(&data_file)? && !args.skip_the_data_file {
         ron::from_str(&read_to_string(&data_file)?)?
     } else {
         Server::default()
     };
+
+    if args.skip_the_data_file {
+        server.skip_the_data_file = true;
+    }
 
     args.host.push_str(PORT);
     let address = args.host;
@@ -238,6 +242,8 @@ struct Server {
     games: ServerGames,
     #[serde(skip)]
     games_light: ServerGamesLight,
+    #[serde(skip)]
+    skip_the_data_file: bool,
     #[serde(skip)]
     tx: Option<mpsc::Sender<(String, Option<mpsc::Sender<String>>)>>,
 }
@@ -1267,11 +1273,15 @@ impl Server {
 
         let data_file = data_file();
 
-        if let Ok(string) = ron::ser::to_string_pretty(&server, ron::ser::PrettyConfig::default()) {
-            if !string.trim().is_empty() {
-                if let Ok(mut file) = File::create(&data_file) {
-                    if let Err(error) = file.write_all(string.as_bytes()) {
-                        log::error!("{error}");
+        if !self.skip_the_data_file {
+            if let Ok(string) =
+                ron::ser::to_string_pretty(&server, ron::ser::PrettyConfig::default())
+            {
+                if !string.trim().is_empty() {
+                    if let Ok(mut file) = File::create(&data_file) {
+                        if let Err(error) = file.write_all(string.as_bytes()) {
+                            log::error!("{error}");
+                        }
                     }
                 }
             }
