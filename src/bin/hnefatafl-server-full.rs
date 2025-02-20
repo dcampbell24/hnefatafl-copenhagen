@@ -32,7 +32,6 @@ use hnefatafl_copenhagen::{
 use log::{debug, info, LevelFilter};
 use password_hash::SaltString;
 use rand::rngs::OsRng;
-use ron::ser::{to_string_pretty, PrettyConfig};
 use serde::{Deserialize, Serialize};
 
 const PORT: &str = ":49152";
@@ -1263,10 +1262,13 @@ impl Server {
         }
 
         let data_file = data_file();
-        if let Ok(mut file) = File::create(&data_file) {
-            if let Ok(string) = to_string_pretty(&server, PrettyConfig::default()) {
-                if let Err(error) = file.write_all(string.as_bytes()) {
-                    log::error!("{error}");
+
+        if let Ok(string) = ron::ser::to_string_pretty(&server, ron::ser::PrettyConfig::default()) {
+            if !string.is_empty() {
+                if let Ok(mut file) = File::create(&data_file) {
+                    if let Err(error) = file.write_all(string.as_bytes()) {
+                        log::error!("{error}");
+                    }
                 }
             }
         }
