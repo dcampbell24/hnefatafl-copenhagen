@@ -40,10 +40,9 @@ make sure you are running the latest version.
 
 ## Install .deb Package
 
-```sh
-# You may have to install cargo-deb
-# cargo install cargo-deb
+You may have to install `cargo-deb`.
 
+```sh
 git https://github.com/dcampbell24/hnefatafl-copenhagen.git
 cd hnefatafl-copenhagen/
 git checkout v0.6.1
