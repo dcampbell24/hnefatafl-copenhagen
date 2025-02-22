@@ -1,0 +1,72 @@
+---
+hnefatafl-copenhagen:
+  description: A client and server for Copenhagen Hnefatafl.
+  source: 
+    Types: deb
+    URIs: https://deb.example.com/debian/
+    Suites: stable
+    Components: main
+    Architectures: amd64
+
+  suites:
+  - bookworm
+
+  policies:
+    main: main
+
+  contact: dcampbell24@gmail.com
+  bugs: https://github.com/dcampbell24/hnefatafl-copenhagen/issues
+
+  gpg-key: |
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+
+    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
+    3XoOYG6W02BgCow=
+    =I4Mu
+    -----END PGP PUBLIC KEY BLOCK-----
