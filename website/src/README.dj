@@ -11,8 +11,11 @@ ALSA development files are needed to build `cpal` on Linux (`rodio` dependency,
 `libasound2-dev` package on Debian and Ubuntu distributions and
 `alsa-lib-devel` on Fedora.
 
-Also, the package uses the `mold` linker. This is provided via the `mold`
+The package uses the `mold` linker. This is provided via the `mold`
 package on Debian, Ubuntu, and Fedora.
+
+To build the man pages you will need a version of pandoc that supports building
+Djot files.
 
 ## Install
 
