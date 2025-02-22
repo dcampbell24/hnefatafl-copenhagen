@@ -3,6 +3,7 @@ use std::{
     env, f64, fs,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
+    path::{Path, PathBuf},
     process::exit,
     sync::mpsc::{self, Sender},
     thread,
@@ -547,8 +548,8 @@ impl Client {
                                             path = path.join(HOME);
                                             let (_stream, stream_handle) =
                                                 rodio::OutputStream::try_default().unwrap();
-                                            let file =
-                                                fs::File::open(path.join("game_over.ogg")).unwrap();
+
+                                            let file = open_system_data(&path, "game_over.ogg");
                                             let sound = stream_handle.play_once(file).unwrap();
                                             sound.set_volume(1.0);
                                             thread::sleep(Duration::from_secs(1));
@@ -997,9 +998,9 @@ impl Client {
 
                 let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
                 let file = if capture {
-                    fs::File::open(path.join("capture.ogg")).unwrap()
+                    open_system_data(&path, "capture.ogg")
                 } else {
-                    fs::File::open(path.join("move.ogg")).unwrap()
+                    open_system_data(&path, "move.ogg")
                 };
                 let sound = stream_handle.play_once(file).unwrap();
                 sound.set_volume(1.0);
@@ -1497,6 +1498,20 @@ fn init_logger() {
     }
 
     builder.init();
+}
+
+fn open_system_data(path: &Path, file: &str) -> fs::File {
+    #[cfg(not(target_os = "linux"))]
+    let file_ok = fs::File::open(path.join("move.ogg"));
+
+    #[cfg(target_os = "linux")]
+    let mut file_ok = fs::File::open(path.join(file));
+    #[cfg(target_os = "linux")]
+    if file_ok.is_err() {
+        file_ok = fs::File::open(PathBuf::from("/usr/share/hnefatafl-copenhagen").join(file));
+    }
+
+    file_ok.unwrap()
 }
 
 fn open_url(url: &str) {
