@@ -93,7 +93,7 @@ icon = [
   "icons/king_64x64.png",
   "icons/king_128x128.png",
 ]
-resources = ["sound/*"]
+resources = ["sound/*.ogg"]
 copyright =  "2025 David Lawrence Campbell"
 category = "Game"
 
