@@ -82,8 +82,8 @@ debug = true
 [profile.release]
 panic = "abort"
 
-[package.metadata.bundle]
-identifier = "org.hnefatafl.hnefatafl-copenhagen"
+[package.metadata.bundle.bin.hnefatafl-client]
+identifier = "org.hnefatafl.hnefatafl-client"
 icon = [
   "icons/king_16x16.png",
   "icons/king_22x22.png",
