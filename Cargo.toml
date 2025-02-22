@@ -82,6 +82,21 @@ debug = true
 [profile.release]
 panic = "abort"
 
+[package.metadata.bundle]
+identifier = "org.hnefatafl.hnefatafl-copenhagen"
+icon = [
+  "icons/king_16x16.png",
+  "icons/king_22x22.png",
+  "icons/king_24x24.png",
+  "icons/king_32x32.png",
+  "icons/king_42x42.png",
+  "icons/king_64x64.png",
+  "icons/king_128x128.png",
+]
+resources = ["sound/*"]
+copyright =  "2025 David Lawrence Campbell"
+category = "Game"
+
 [package.metadata.deb]
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
