@@ -2,7 +2,7 @@
 Name=Hnefatafl Copenhagen
 Comment=Viking Game
 Exec=hnefatafl-client
-Icon=hnefatafl-copenhagen
+Icon=hnefatafl-client
 Type=Application
 StartupNotify=true
 Categories=Game;BoardGame
