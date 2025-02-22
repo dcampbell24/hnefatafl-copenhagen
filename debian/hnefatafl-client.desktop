@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Hnefatafl Copenhagen
+Comment=Viking Game
+Exec=hnefatafl-client
+Icon=hnefatafl-copenhagen
+Type=Application
+StartupNotify=true
+Categories=Game;BoardGame

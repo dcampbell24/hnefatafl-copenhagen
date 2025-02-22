@@ -7,9 +7,9 @@ profile:
 	echo '1' | sudo tee /proc/sys/kernel/perf_event_paranoid
 	samply record cargo test hnef --profile profiling
 
-.PHONY: deb
-deb:
-	cargo deb -- --features server
+.PHONY: debian
+debian:
+	cargo deb -- --features client,server
 
 .PHONY: logs
 logs:

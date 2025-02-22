@@ -4,7 +4,7 @@ Description=Copenhagen Hnefatafl Server
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/bin/hnefatafl-server-full --systemd
+ExecStart=/usr/games/hnefatafl-server-full --systemd
 
 [Install]
 WantedBy=multi-user.target
