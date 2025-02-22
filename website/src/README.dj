@@ -38,6 +38,22 @@ You will automatically connect to the main server.
 At the moment their may be fairly regular updates. If you run into problems,
 make sure you are running the latest version.
 
+## Install .deb Package
+
+```sh
+# You may have to install cargo-deb
+# cargo install cargo-deb
+
+git https://github.com/dcampbell24/hnefatafl-copenhagen.git
+cd hnefatafl-copenhagen/
+git checkout v0.6.1
+make debian
+sudo dpkg --install ./target/debian/hnefatafl-copenhagen_0.6.1-1_amd64.deb
+
+# To remove the package:
+# sudo dpkg --remove hnefatafl-copenhagen
+```
+
 ## Discourse
 
 The website has a [discourse forum][4].
