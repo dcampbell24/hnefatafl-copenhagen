@@ -3,12 +3,15 @@ use std::{
     env, f64, fs,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
-    path::{Path, PathBuf},
+    path::Path,
     process::exit,
     sync::mpsc::{self, Sender},
     thread,
     time::Duration,
 };
+
+#[cfg(target_os = "linux")]
+use std::path::PathBuf;
 
 use chrono::{Local, Utc};
 use clap::{Parser, command};
@@ -1502,7 +1505,7 @@ fn init_logger() {
 
 fn open_system_data(path: &Path, file: &str) -> fs::File {
     #[cfg(not(target_os = "linux"))]
-    let file_ok = fs::File::open(path.join("move.ogg"));
+    let file_ok = fs::File::open(path.join(file));
 
     #[cfg(target_os = "linux")]
     let mut file_ok = fs::File::open(path.join(file));
