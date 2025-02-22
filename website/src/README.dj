@@ -49,9 +49,6 @@ cd hnefatafl-copenhagen/
 git checkout v0.6.1
 make debian
 sudo dpkg --install ./target/debian/hnefatafl-copenhagen_0.6.1-1_amd64.deb
-
-# To remove the package:
-# sudo dpkg --remove hnefatafl-copenhagen
 ```
 
 ## Discourse
