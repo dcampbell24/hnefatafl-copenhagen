@@ -46,19 +46,19 @@ const PORT: &str = ":49152";
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Args {
-    /// Whether to skip advertising updates
+    /// Whether to skip advertising updates.
     #[arg(long)]
     skip_advertising_updates: bool,
 
-    /// Whether to use the data file
+    /// Whether to use the data file.
     #[arg(long)]
     skip_the_data_file: bool,
 
-    /// Listen for HTP drivers on host
+    /// Listen for HTP drivers on host.
     #[arg(default_value = "0.0.0.0", long)]
     host: String,
 
-    /// Whether the application is being run by systemd
+    /// Whether the application is being run by systemd.
     #[arg(long)]
     systemd: bool,
 }

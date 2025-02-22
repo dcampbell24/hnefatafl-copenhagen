@@ -4,7 +4,7 @@ version = "0.6.1"
 authors = ["David Campbell <dcampbell24@gmail.com>"]
 edition = "2024"
 rust-version =  "1.85"
-description = "Copenhagen Hnefatafl engine similar to the Go Text Protocol."
+description = "Copenhagen Hnefatafl client, engine, and server."
 documentation = "https://docs.rs/hnefatafl-copenhagen/"
 readme = "README.md"
 homepage = "https://hnefatafl.org"
@@ -85,11 +85,11 @@ panic = "abort"
 [package.metadata.deb]
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
-extended-description = "Also included are a server and client."
+extended-description = "The engine is similar to the Go Text Protocol."
 assets = [
-    ["README.md", "usr/share/doc/hnefatafl-copenhagen/", "644"],
-    # ["debian/hnefatafl-client.1.gz", "usr/share/man/man1/", "644"],
-    # ["debian/hnefatafl-server-full.1.gz", "usr/share/man/man1/", "644"],
+    ["debian/README.txt", "usr/share/doc/hnefatafl-copenhagen/", "644"],
+    ["debian/hnefatafl-client.1.gz", "usr/share/man/man1/", "644"],
+    ["debian/hnefatafl-server-full.1.gz", "usr/share/man/man1/", "644"],
     ["debian/hnefatafl-client.desktop", "usr/share/applications/", "644"],
     ["icons/king_16x16.png", "/usr/share/icons/hicolor/16x16/apps/hnefatafl-client.png", "644"],
     ["icons/king_22x22.png", "/usr/share/icons/hicolor/22x22/apps/hnefatafl-client.png", "644"],

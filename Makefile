@@ -9,7 +9,7 @@ profile:
 
 .PHONY: debian
 debian:
-	cargo deb -- --features client,server
+	debian/build.sh
 
 .PHONY: logs
 logs:

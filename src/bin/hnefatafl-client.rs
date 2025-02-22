@@ -51,7 +51,7 @@ const SPACING_B: u16 = 20;
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Args {
-    /// Connect to the HTP server at host
+    /// Connect to the HTP server at host.
     #[arg(default_value = "hnefatafl.org", long)]
     host: String,
 }
