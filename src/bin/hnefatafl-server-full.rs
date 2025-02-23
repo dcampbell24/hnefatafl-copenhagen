@@ -36,10 +36,6 @@ use serde::{Deserialize, Serialize};
 
 const PORT: &str = ":49152";
 
-// There is a game_light that is active...
-// Player x says he wants to watch it...
-// send the ServerGameLight, send the current state, send updates
-
 /// A Hnefatafl Copenhagen Server
 ///
 /// This is a TCP server that listens client connections.
