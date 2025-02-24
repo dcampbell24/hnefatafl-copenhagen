@@ -137,6 +137,7 @@ fn login(
 
     for _ in 0..10 {
         reader.read_line(&mut buf)?;
+
         for ch in buf.trim().chars() {
             if ch.is_control() || ch == '\0' {
                 return Err(anyhow::Error::msg(
@@ -159,7 +160,7 @@ fn login(
         let create_account_login = username_password_etc.next();
         let username_option = username_password_etc.next();
 
-        if let (Some(version_id), Some(_create_account_login), Some(username)) =
+        if let (Some(version_id), Some(create_account_login), Some(username)) =
             (version_id, create_account_login, username_option)
         {
             username_proper = username.to_string();
@@ -183,21 +184,33 @@ fn login(
                 continue;
             }
 
-            // Fixme!
-            info!("{index} {username} login {password}");
+            info!("{index} {username} {create_account_login} {password}");
             tx.send((
-                format!("{index} {username} login {password}"),
+                format!("{index} {username} {create_account_login} {password}"),
                 Some(client_tx.clone()),
             ))?;
 
             let message = client_rx.recv()?;
-            if "= login" == message.as_str() {
-                login_successful = true;
-                buf.clear();
-                break;
+            buf.clear();
+            if create_account_login == "login" {
+                if "= login" == message.as_str() {
+                    login_successful = true;
+                    break;
+                }
+
+                stream.write_all(b"? login password is wrong or account doesn't exist\n")?;
+                continue;
+            } else if create_account_login == "create_account" {
+                if "= create_account" == message.as_str() {
+                    login_successful = true;
+                    break;
+                }
+
+                stream.write_all(b"? create_account account already exists\n")?;
+                continue;
             }
 
-            stream.write_all(b"? login password is wrong\n")?;
+            stream.write_all(b"? login\n")?;
         }
 
         buf.clear();
@@ -541,6 +554,45 @@ impl Server {
                     (*command).to_string(),
                     the_rest.as_slice(),
                 )),
+                "create_account" => {
+                    let password = the_rest.join(" ");
+                    if let Some(tx) = option_tx {
+                        if self.accounts.0.contains_key(*username) {
+                            info!("{index_supplied} {username} is already in the database");
+                            Some((tx, false, (*command).to_string()))
+                        } else {
+                            info!("{index_supplied} {username} created user account");
+
+                            let ctx = Argon2::default();
+                            let salt = SaltString::generate(&mut OsRng);
+                            let hash = ctx
+                                .hash_password(password.as_bytes(), &salt)
+                                .unwrap()
+                                .to_string();
+
+                            self.passwords.insert((*username).to_string(), hash);
+
+                            self.clients.insert(index_supplied, tx);
+                            self.accounts.0.insert(
+                                (*username).to_string(),
+                                Account {
+                                    logged_in: Some(index_supplied),
+                                    ..Default::default()
+                                },
+                            );
+
+                            self.save_server();
+
+                            Some((
+                                self.clients[&index_supplied].clone(),
+                                true,
+                                (*command).to_string(),
+                            ))
+                        }
+                    } else {
+                        panic!("there is no channel to send on")
+                    }
+                }
                 "login" => {
                     let password_1 = the_rest.join(" ");
                     if let Some(tx) = option_tx {
@@ -580,33 +632,8 @@ impl Server {
                             }
                         // The username is not in the database.
                         } else {
-                            info!("{index_supplied} {username} created user account");
-
-                            let ctx = Argon2::default();
-                            let salt = SaltString::generate(&mut OsRng);
-                            let hash = ctx
-                                .hash_password(password_1.as_bytes(), &salt)
-                                .unwrap()
-                                .to_string();
-
-                            self.passwords.insert((*username).to_string(), hash);
-
-                            self.clients.insert(index_supplied, tx);
-                            self.accounts.0.insert(
-                                (*username).to_string(),
-                                Account {
-                                    logged_in: Some(index_supplied),
-                                    ..Default::default()
-                                },
-                            );
-
-                            self.save_server();
-
-                            Some((
-                                self.clients[&index_supplied].clone(),
-                                true,
-                                (*command).to_string(),
-                            ))
+                            info!("{index_supplied} {username} is not in the database");
+                            Some((tx, false, (*command).to_string()))
                         }
                     } else {
                         panic!("there is no channel to send on")
@@ -1084,11 +1111,10 @@ impl Server {
                     the_rest.as_slice(),
                 ),
                 "=" => None,
-                _ => Some((
-                    self.clients[&index_supplied].clone(),
-                    false,
-                    (*command).to_string(),
-                )),
+                _ => self
+                    .clients
+                    .get(&index_supplied)
+                    .map(|channel| (channel.clone(), false, (*command).to_string())),
             }
         } else {
             panic!("we pass the arguments in that form");

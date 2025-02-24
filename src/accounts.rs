@@ -26,7 +26,6 @@ pub struct Account {
     pub rating: Rating,
 }
 
-// Fixme: add draws.
 impl fmt::Display for Account {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.logged_in.is_some() {
