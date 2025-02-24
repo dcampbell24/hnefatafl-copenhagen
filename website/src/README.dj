@@ -15,7 +15,9 @@ The package uses the `mold` linker. This is provided via the `mold`
 package on Debian, Ubuntu, and Fedora.
 
 To build the man pages you will need a version of `pandoc` that supports
-building Djot files.
+building Djot files. It can be downloaded from [pandoc][4].
+
+[4]: https://github.com/jgm/pandoc/releases/latest
 
 ## Install
 
