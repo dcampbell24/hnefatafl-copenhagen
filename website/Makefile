@@ -2,6 +2,8 @@
 website:
 	mdbook build --dest-dir /var/www/html/
 	touch /var/www/html/robots.txt
+	mkdir --parents /var/www/html/binaries/debian/
+	cp ../../debian/hnefatafl-copenhagen_0.7.0-1_amd64.deb /var/www/html/binaries/debian/
 	sscli -b https://hnefatafl.org -r /var/www/html/
 
 # Install sscli with "npm i -g static-sitemap-cli".
