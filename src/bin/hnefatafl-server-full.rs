@@ -131,76 +131,100 @@ fn login(
 ) -> anyhow::Result<()> {
     let mut reader = BufReader::new(stream.try_clone()?);
     let mut buf = String::new();
+    let (client_tx, client_rx) = mpsc::channel();
+    let mut username_proper = "_".to_string();
+    let mut login_successful = false;
 
-    reader.read_line(&mut buf)?;
-    for ch in buf.trim().chars() {
-        if ch.is_control() || ch == '\0' {
+    for _ in 0..10 {
+        reader.read_line(&mut buf)?;
+        for ch in buf.trim().chars() {
+            if ch.is_control() || ch == '\0' {
+                return Err(anyhow::Error::msg(
+                    "there are control characters in the username or password",
+                ));
+            }
+        }
+
+        if buf.trim().is_empty() {
             return Err(anyhow::Error::msg(
-                "there are control characters in the username or password",
+                "the user tried to login with white space alone",
             ));
         }
-    }
 
-    if buf.trim().is_empty() {
-        return Err(anyhow::Error::msg(
-            "the user tried to login with white space alone",
-        ));
-    }
+        buf.make_ascii_lowercase();
+        let buf_clone = buf.clone();
+        let mut username_password_etc = buf_clone.split_ascii_whitespace();
 
-    buf.make_ascii_lowercase();
-    let mut username_password = buf.split_ascii_whitespace();
+        let version_id = username_password_etc.next();
+        let create_account_login = username_password_etc.next();
+        let username_option = username_password_etc.next();
 
-    if let (Some(version_id), Some(username)) = (username_password.next(), username_password.next())
-    {
-        if version_id != VERSION_ID {
-            stream.write_all(b"? login wrong version, try running 'cargo install hnefatafl-copenhagen --features client'\n")?;
-            return Err(anyhow::Error::msg("wrong version"));
-        }
-
-        let password: Vec<&str> = username_password.collect();
-        let password = password.join(" ");
-
-        if username.len() > 32 {
-            stream.write_all(b"? login username is more than 32 characters\n")?;
-            return Err(anyhow::Error::msg("username is greater than 32 characters"));
-        }
-        if password.len() > 32 {
-            stream.write_all(b"? login password is more than 32 characters\n")?;
-            return Err(anyhow::Error::msg("password is greater than 32 characters"));
-        }
-
-        let (client_tx, client_rx) = mpsc::channel();
-        tx.send((
-            format!("{index} {username} login {password}"),
-            Some(client_tx),
-        ))?;
-
-        let message = client_rx.recv()?;
-        if "= login" != message.as_str() {
-            stream.write_all(b"? login\n")?;
-            return Err(anyhow::Error::msg("failed to login"));
-        }
-        stream.write_all(b"= login\n")?;
-
-        thread::spawn(move || receiving_and_writing(stream, &client_rx));
-
-        let mut buf = String::new();
-        for _ in 0..1_000_000 {
-            reader.read_line(&mut buf)?;
-
-            let buf_str = buf.trim();
-            for char in buf_str.chars() {
-                if char.is_control() || char == '\0' {
-                    break;
-                }
+        if let (Some(version_id), Some(_create_account_login), Some(username)) =
+            (version_id, create_account_login, username_option)
+        {
+            username_proper = username.to_string();
+            if version_id != VERSION_ID {
+                stream.write_all(b"? login wrong version, try running 'cargo install hnefatafl-copenhagen --features client'\n")?;
+                buf.clear();
+                continue;
             }
 
-            tx.send((format!("{index} {username} {buf_str}"), None))?;
-            buf.clear();
+            let password: Vec<&str> = username_password_etc.collect();
+            let password = password.join(" ");
+
+            if username.len() > 32 {
+                stream.write_all(b"? login username is more than 32 characters\n")?;
+                buf.clear();
+                continue;
+            }
+            if password.len() > 32 {
+                stream.write_all(b"? login password is more than 32 characters\n")?;
+                buf.clear();
+                continue;
+            }
+
+            // Fixme!
+            info!("{index} {username} login {password}");
+            tx.send((
+                format!("{index} {username} login {password}"),
+                Some(client_tx.clone()),
+            ))?;
+
+            let message = client_rx.recv()?;
+            if "= login" == message.as_str() {
+                login_successful = true;
+                buf.clear();
+                break;
+            }
+
+            stream.write_all(b"? login password is wrong\n")?;
         }
 
-        tx.send((format!("{index} {username} logout"), None))?;
+        buf.clear();
     }
+
+    if !login_successful {
+        return Err(anyhow::Error::msg("the user failed to login"));
+    }
+
+    stream.write_all(b"= login\n")?;
+    thread::spawn(move || receiving_and_writing(stream, &client_rx));
+
+    for _ in 0..1_000_000 {
+        reader.read_line(&mut buf)?;
+
+        let buf_str = buf.trim();
+        for char in buf_str.chars() {
+            if char.is_control() || char == '\0' {
+                break;
+            }
+        }
+
+        tx.send((format!("{index} {username_proper} {buf_str}"), None))?;
+        buf.clear();
+    }
+
+    tx.send((format!("{index} {username_proper} logout"), None))?;
 
     Err(anyhow::Error::msg("the user didn't pass 'login username'"))
 }
@@ -1408,7 +1432,7 @@ mod tests {
         let mut tcp_1 = TcpStream::connect(ADDRESS)?;
         let mut reader_1 = BufReader::new(tcp_1.try_clone()?);
 
-        tcp_1.write_all(format!("{VERSION_ID} david\n").as_bytes())?;
+        tcp_1.write_all(format!("{VERSION_ID} create_account david\n").as_bytes())?;
         reader_1.read_line(&mut buf)?;
         assert_eq!(buf, "= login\n");
         buf.clear();
@@ -1429,7 +1453,7 @@ mod tests {
         let mut tcp_2 = TcpStream::connect(ADDRESS)?;
         let mut reader_2 = BufReader::new(tcp_2.try_clone()?);
 
-        tcp_2.write_all(format!("{VERSION_ID} abby\n").as_bytes())?;
+        tcp_2.write_all(format!("{VERSION_ID} create_account abby\n").as_bytes())?;
         reader_2.read_line(&mut buf)?;
         assert_eq!(buf, "= login\n");
         buf.clear();

@@ -469,7 +469,16 @@ impl Client {
                 self.role_selected = Some(role);
             }
             Message::TextChanged(string) => {
-                self.text_input = string;
+                if self.screen == Screen::Login {
+                    let string: Vec<_> = string.split_ascii_whitespace().collect();
+                    if let Some(string) = string.first() {
+                        self.text_input = string.to_ascii_lowercase();
+                    } else {
+                        self.text_input = String::new();
+                    }
+                } else {
+                    self.text_input = string;
+                }
             }
             Message::TextReceived(string) => {
                 let mut text = string.split_ascii_whitespace();
@@ -697,8 +706,11 @@ impl Client {
                         }
                     }
                     Some("?") => {
-                        if Some("login") == text.next() {
-                            exit(1);
+                        let text_next = text.next();
+                        if Some("create_account") == text_next || Some("login") == text_next {
+                            let text: Vec<_> = text.collect();
+                            let text = text.join(" ");
+                            self.error = Some(text);
                         }
                     }
                     Some("game") => {
@@ -810,24 +822,39 @@ impl Client {
                             self.send(format!("text {}", self.text_input));
                         }
                     }
-                    Screen::Login => {
-                        if !self.text_input.trim().is_empty() {
-                            if let Some(username) = self.text_input.split_ascii_whitespace().next()
-                            {
-                                let username = username.to_ascii_lowercase();
-                                self.send(format!(
-                                    "{VERSION_ID} {username} {}\n",
-                                    self.password_real
-                                ));
-                                self.username = username;
-                                self.password.clear();
-                                self.password_real.clear();
-                            }
-                        }
-                    }
-                    Screen::GameNew | Screen::GameNewFrozen | Screen::Users => {}
+                    Screen::GameNew | Screen::GameNewFrozen | Screen::Login | Screen::Users => {}
                 }
 
+                self.text_input.clear();
+            }
+            Message::TextSendCreateAccount => {
+                if !self.text_input.trim().is_empty() {
+                    if let Some(username) = self.text_input.split_ascii_whitespace().next() {
+                        let username = username.to_ascii_lowercase();
+                        self.send(format!(
+                            "{VERSION_ID} create_account {username} {}\n",
+                            self.password_real
+                        ));
+                        self.username = username;
+                        self.password.clear();
+                        self.password_real.clear();
+                    }
+                }
+                self.text_input.clear();
+            }
+            Message::TextSendLogin => {
+                if !self.text_input.trim().is_empty() {
+                    if let Some(username) = self.text_input.split_ascii_whitespace().next() {
+                        let username = username.to_ascii_lowercase();
+                        self.send(format!(
+                            "{VERSION_ID} login {username} {}\n",
+                            self.password_real
+                        ));
+                        self.username = username;
+                        self.password.clear();
+                        self.password_real.clear();
+                    }
+                }
                 self.text_input.clear();
             }
             Message::Tick => {
@@ -1324,30 +1351,42 @@ impl Client {
                     text("username:"),
                     text_input("", &self.text_input)
                         .on_input(Message::TextChanged)
-                        .on_paste(Message::TextChanged)
-                        .on_submit(Message::TextSend),
+                        .on_paste(Message::TextChanged),
                 ];
 
                 let password = if self.password_show {
                     row![
                         text("password:"),
-                        text_input("", &self.password_real)
-                            .on_input(Message::PasswordChanged)
-                            .on_submit(Message::TextSend),
+                        text_input("", &self.password_real).on_input(Message::PasswordChanged),
                     ]
                 } else {
                     row![
                         text("password:"),
-                        text_input("", &self.password)
-                            .on_input(Message::PasswordChanged)
-                            .on_submit(Message::TextSend),
+                        text_input("", &self.password).on_input(Message::PasswordChanged),
                     ]
                 };
 
                 let show_password =
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow);
 
-                column![username, password, show_password]
+                let mut login = button("Login");
+                if !self.text_input.is_empty() {
+                    login = login.on_press(Message::TextSendLogin);
+                }
+                let mut create_account = button("Create Account");
+                if !self.text_input.is_empty() {
+                    create_account = create_account.on_press(Message::TextSendCreateAccount);
+                }
+                let buttons = row![login, create_account]
+                    .spacing(SPACING)
+                    .padding(PADDING);
+
+                let mut error = text("");
+                if let Some(error_) = &self.error {
+                    error = text(error_);
+                }
+
+                column![username, password, show_password, buttons, error]
                     .padding(PADDING)
                     .spacing(SPACING)
                     .into()
@@ -1402,6 +1441,8 @@ enum Message {
     TextChanged(String),
     TextReceived(String),
     TextSend,
+    TextSendCreateAccount,
+    TextSendLogin,
     Tick,
     TimeAddSeconds(String),
     TimeCheckbox(bool),
