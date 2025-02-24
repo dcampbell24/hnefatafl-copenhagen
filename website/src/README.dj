@@ -45,9 +45,9 @@ You may have to install `cargo-deb`.
 ```sh
 git clone https://github.com/dcampbell24/hnefatafl-copenhagen.git
 cd hnefatafl-copenhagen/
-git checkout v0.6.1
+git checkout v0.7.0
 make debian
-sudo dpkg --install ./target/debian/hnefatafl-copenhagen_0.6.1-1_amd64.deb
+sudo dpkg --install ./target/debian/hnefatafl-copenhagen_0.7.0-1_amd64.deb
 ```
 
 [3]: https://github.com/dcampbell24/hnefatafl-copenhagen/issues
