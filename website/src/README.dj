@@ -4,6 +4,12 @@ This is a website for a [Copenhagen Hnefatafl][1] server and client.
 
 ![Hnefatafl Board](hnefatafl.png)
 
+## Binaries
+
+### Debian and Derivatives
+
+[0.7.0_amd64](binaries/debian/hnefatafl-copenhagen_0.7.0-1_amd64.deb)
+
 ## Build Dependencies (Linux)
 
 ALSA development files are needed to build `cpal` on Linux (`rodio` dependency,

@@ -1,4 +1,5 @@
 /ssl
 /target
 /website/book
+/website/src/binaries/debian
 profile.json
