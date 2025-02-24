@@ -135,7 +135,7 @@ fn login(
     let mut username_proper = "_".to_string();
     let mut login_successful = false;
 
-    for _ in 0..10 {
+    for _ in 0..100 {
         reader.read_line(&mut buf)?;
 
         for ch in buf.trim().chars() {
