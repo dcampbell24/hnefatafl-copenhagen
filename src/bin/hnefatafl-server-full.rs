@@ -332,6 +332,71 @@ impl Server {
         }
     }
 
+    fn display_server(&mut self, username: &str) -> Option<(mpsc::Sender<String>, bool, String)> {
+        debug!("0 {username} display_server");
+        for tx in &mut self.clients.values() {
+            tx.send(format!("= display_games {:?}", &self.games_light))
+                .ok()?;
+
+            tx.send(format!("= display_users {}", &self.accounts))
+                .ok()?;
+        }
+
+        for game in self.games.0.values_mut() {
+            match game.game.turn {
+                Color::Black => {
+                    if let Some(attacker) = self.accounts.0.get(&game.attacker) {
+                        if attacker.logged_in.is_none() && game.game.status == Status::Ongoing {
+                            if let (Some(game_time), Some(black_time)) =
+                                (&mut game.game.time, &mut game.game.black_time.0)
+                            {
+                                if black_time.milliseconds_left > 0 {
+                                    let now = Local::now().to_utc().timestamp_millis();
+                                    black_time.milliseconds_left -= now - *game_time;
+                                    *game_time = now;
+                                } else if let Some(tx) = &mut self.tx {
+                                    let _ok = tx.send((
+                                        format!(
+                                            "0 {} game {} play black resigns _",
+                                            game.attacker, game.id
+                                        ),
+                                        None,
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                }
+                Color::Colorless => {}
+                Color::White => {
+                    if let Some(defender) = self.accounts.0.get(&game.defender) {
+                        if defender.logged_in.is_none() && game.game.status == Status::Ongoing {
+                            if let (Some(game_time), Some(white_time)) =
+                                (&mut game.game.time, &mut game.game.white_time.0)
+                            {
+                                if white_time.milliseconds_left > 0 {
+                                    let now = Local::now().to_utc().timestamp_millis();
+                                    white_time.milliseconds_left -= now - *game_time;
+                                    *game_time = now;
+                                } else if let Some(tx) = &mut self.tx {
+                                    let _ok = tx.send((
+                                        format!(
+                                            "0 {} game {} play white resigns _",
+                                            game.defender, game.id
+                                        ),
+                                        None,
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        None
+    }
+
     fn handle_messages(
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
@@ -386,74 +451,7 @@ impl Server {
                     (*command).to_string(),
                     the_rest.as_slice(),
                 ),
-                "display_server" => {
-                    debug!("0 {username} display_server");
-                    for tx in &mut self.clients.values() {
-                        tx.send(format!("= display_games {:?}", &self.games_light))
-                            .ok()?;
-
-                        tx.send(format!("= display_users {}", &self.accounts))
-                            .ok()?;
-                    }
-
-                    for game in self.games.0.values_mut() {
-                        match game.game.turn {
-                            Color::Black => {
-                                if let Some(attacker) = self.accounts.0.get(&game.attacker) {
-                                    if attacker.logged_in.is_none()
-                                        && game.game.status == Status::Ongoing
-                                    {
-                                        if let (Some(game_time), Some(black_time)) =
-                                            (&mut game.game.time, &mut game.game.black_time.0)
-                                        {
-                                            if black_time.milliseconds_left > 0 {
-                                                let now = Local::now().to_utc().timestamp_millis();
-                                                black_time.milliseconds_left -= now - *game_time;
-                                                *game_time = now;
-                                            } else if let Some(tx) = &mut self.tx {
-                                                let _ok = tx.send((
-                                                    format!(
-                                                        "0 {} game {} play black resigns _",
-                                                        game.attacker, game.id
-                                                    ),
-                                                    None,
-                                                ));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            Color::Colorless => {}
-                            Color::White => {
-                                if let Some(defender) = self.accounts.0.get(&game.defender) {
-                                    if defender.logged_in.is_none()
-                                        && game.game.status == Status::Ongoing
-                                    {
-                                        if let (Some(game_time), Some(white_time)) =
-                                            (&mut game.game.time, &mut game.game.white_time.0)
-                                        {
-                                            if white_time.milliseconds_left > 0 {
-                                                let now = Local::now().to_utc().timestamp_millis();
-                                                white_time.milliseconds_left -= now - *game_time;
-                                                *game_time = now;
-                                            } else if let Some(tx) = &mut self.tx {
-                                                let _ok = tx.send((
-                                                    format!(
-                                                        "0 {} game {} play white resigns _",
-                                                        game.defender, game.id
-                                                    ),
-                                                    None,
-                                                ));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    None
-                }
+                "display_server" => self.display_server(username),
                 "draw" => {
                     let Some(id) = the_rest.first() else {
                         return Some((
