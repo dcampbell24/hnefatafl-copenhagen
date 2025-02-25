@@ -282,6 +282,34 @@ struct Server {
 }
 
 impl Server {
+    fn change_password(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        command: &str,
+        the_rest: &[&str],
+    ) -> (mpsc::Sender<String>, bool, String) {
+        info!("{index_supplied} {username} change_password");
+
+        let password = the_rest.join(" ");
+        let ctx = Argon2::default();
+        let salt = SaltString::generate(&mut OsRng);
+        let hash = ctx
+            .hash_password(password.as_bytes(), &salt)
+            .unwrap()
+            .to_string();
+
+        self.passwords.remove(username);
+        self.passwords.insert((*username).to_string(), hash);
+        self.save_server();
+
+        (
+            self.clients[&index_supplied].clone(),
+            true,
+            (*command).to_string(),
+        )
+    }
+
     /// c = 63.2
     ///
     /// This assumes 30 2 month periods must pass before one's rating
@@ -341,27 +369,12 @@ impl Server {
             let mut the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
 
             match *command {
-                "change_password" => {
-                    info!("{index_supplied} {username} change_password");
-
-                    let password = the_rest.join(" ");
-                    let ctx = Argon2::default();
-                    let salt = SaltString::generate(&mut OsRng);
-                    let hash = ctx
-                        .hash_password(password.as_bytes(), &salt)
-                        .unwrap()
-                        .to_string();
-
-                    self.passwords.remove(*username);
-                    self.passwords.insert((*username).to_string(), hash);
-                    self.save_server();
-
-                    Some((
-                        self.clients[&index_supplied].clone(),
-                        true,
-                        (*command).to_string(),
-                    ))
-                }
+                "change_password" => Some(self.change_password(
+                    username,
+                    index_supplied,
+                    command,
+                    the_rest.as_slice(),
+                )),
                 "check_update_rd" => {
                     let bool = self.check_update_rd();
                     info!("0 {username} check_update_rd {bool}");
