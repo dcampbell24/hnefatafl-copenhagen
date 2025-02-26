@@ -869,7 +869,7 @@ impl Server {
                 .parse::<usize>()
                 .expect("the index should be a valid usize");
 
-            let mut the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
+            let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
 
             match *command {
                 "change_password" => Some(self.change_password(
@@ -935,47 +935,14 @@ impl Server {
                 "text" => {
                     let the_rest = the_rest.join(" ");
                     info!("{index_supplied} {username} text {the_rest}");
+
                     for tx in &mut self.clients.values() {
                         let _ok = tx.send(format!("= text {username}: {the_rest}"));
                     }
-                    None
-                }
-                "text_game" => {
-                    let Some(id) = the_rest.first() else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Ok(id) = id.parse::<usize>() else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let text = the_rest.split_off(1);
-                    let mut text = text.join(" ");
-                    text = format!("{username}: {text}");
-                    info!("{index_supplied} {username} text_game {id} {text}");
-
-                    if let Some(game) = self.games.0.get_mut(&id) {
-                        game.texts.push_front(text.clone());
-                        text = format!("= text_game {text}");
-                        let _ok = game.attacker_tx.send(text.clone());
-                        let _ok = game.defender_tx.send(text.clone());
-                    }
-
-                    if let Some(game) = self.games_light.0.get(&id) {
-                        for spectator in game.spectators.values() {
-                            let _ok = self.clients[spectator].send(text.clone());
-                        }
-                    }
 
                     None
                 }
+                "text_game" => self.text_game(username, index_supplied, command, the_rest),
                 "watch_game" => self.watch_game(
                     username,
                     index_supplied,
@@ -1436,6 +1403,49 @@ impl Server {
                 }
             }
         }
+    }
+
+    fn text_game(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        command: &str,
+        mut the_rest: Vec<&str>,
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        let Some(id) = the_rest.first() else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+        let Ok(id) = id.parse::<usize>() else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+
+        let text = the_rest.split_off(1);
+        let mut text = text.join(" ");
+        text = format!("{username}: {text}");
+        info!("{index_supplied} {username} text_game {id} {text}");
+
+        if let Some(game) = self.games.0.get_mut(&id) {
+            game.texts.push_front(text.clone());
+            text = format!("= text_game {text}");
+            let _ok = game.attacker_tx.send(text.clone());
+            let _ok = game.defender_tx.send(text.clone());
+        }
+
+        if let Some(game) = self.games_light.0.get(&id) {
+            for spectator in game.spectators.values() {
+                let _ok = self.clients[spectator].send(text.clone());
+            }
+        }
+
+        None
     }
 
     fn watch_game(
