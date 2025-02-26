@@ -282,6 +282,11 @@ struct Server {
 }
 
 impl Server {
+    /// ```sh
+    /// # PASSWORD can be the empty string.
+    /// <- change_password PASSWORD
+    /// -> = change_password
+    /// ```
     fn change_password(
         &mut self,
         username: &str,
@@ -310,6 +315,10 @@ impl Server {
         )
     }
 
+    /// ```sh
+    /// # server internal
+    /// ```
+    ///
     /// c = 63.2
     ///
     /// This assumes 30 2 month periods must pass before one's rating
@@ -332,6 +341,10 @@ impl Server {
         }
     }
 
+    /// ```sh
+    /// <- VERSION_ID create_account david
+    /// -> = login
+    /// ```
     fn create_account(
         &mut self,
         username: &str,
