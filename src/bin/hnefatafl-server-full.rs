@@ -851,7 +851,9 @@ impl Server {
 
                             return None;
                         }
-                        Status::Draw => {}
+                        Status::Draw => {
+                            // Handled in the draw fn.
+                        }
                         Status::Ongoing => {
                             if blacks_turn_next {
                                 let _ok = game
