@@ -658,6 +658,13 @@ impl Server {
                     info!("0 {username} check_update_rd {bool}");
                     None
                 }
+                "create_account" => Some(self.create_account(
+                    username,
+                    index_supplied,
+                    command,
+                    the_rest.as_slice(),
+                    option_tx,
+                )),
                 "decline_game" => self.decline_game(
                     username,
                     index_supplied,
@@ -683,13 +690,6 @@ impl Server {
                     index_supplied,
                     (*command).to_string(),
                     the_rest.as_slice(),
-                )),
-                "create_account" => Some(self.create_account(
-                    username,
-                    index_supplied,
-                    command,
-                    the_rest.as_slice(),
-                    option_tx,
                 )),
                 "login" => {
                     let password_1 = the_rest.join(" ");
