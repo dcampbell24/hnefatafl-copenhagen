@@ -397,6 +397,106 @@ impl Server {
         None
     }
 
+    fn draw(
+        &mut self,
+        index_supplied: usize,
+        command: &str,
+        the_rest: &[&str],
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        let Some(id) = the_rest.first() else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+        let Ok(id) = id.parse::<usize>() else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+
+        let Some(draw) = the_rest.get(1) else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+        let Ok(draw) = Draw::try_from(*draw) else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+
+        let Some(mut game) = self.games.0.remove(&id) else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+
+        let message = format!("= draw {draw}");
+        let _ok = game.attacker_tx.send(message.clone());
+        let _ok = game.defender_tx.send(message.clone());
+
+        if draw == Draw::Accept {
+            let Some(game_light) = self.games_light.0.get(&id) else {
+                return Some((
+                    self.clients[&index_supplied].clone(),
+                    false,
+                    (*command).to_string(),
+                ));
+            };
+            for spectator in game_light.spectators.values() {
+                if let Some(sender) = self.clients.get(spectator) {
+                    let _ok = sender.send(message.clone());
+                }
+            }
+
+            game.game.status = Status::Draw;
+
+            let accounts = &mut self.accounts.0;
+            let (attacker_rating, defender_rating) = if let (Some(attacker), Some(defender)) =
+                (accounts.get(&game.attacker), accounts.get(&game.defender))
+            {
+                (attacker.rating.rating, defender.rating.rating)
+            } else {
+                panic!("the attacker and defender accounts should exist");
+            };
+
+            if let Some(attacker) = accounts.get_mut(&game.attacker) {
+                attacker.draws += 1;
+
+                if game.rated.into() {
+                    attacker
+                        .rating
+                        .update_rating(defender_rating, &Outcome::Draw);
+                }
+            }
+            if let Some(defender) = accounts.get_mut(&game.defender) {
+                defender.draws += 1;
+
+                if game.rated.into() {
+                    defender
+                        .rating
+                        .update_rating(attacker_rating, &Outcome::Draw);
+                }
+            }
+
+            self.games_light.0.remove(&id);
+            self.archived_games.push(ArchivedGame::new(game));
+            self.save_server();
+        }
+
+        None
+    }
+
     fn handle_messages(
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
@@ -452,101 +552,7 @@ impl Server {
                     the_rest.as_slice(),
                 ),
                 "display_server" => self.display_server(username),
-                "draw" => {
-                    let Some(id) = the_rest.first() else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Ok(id) = id.parse::<usize>() else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let Some(draw) = the_rest.get(1) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Ok(draw) = Draw::try_from(*draw) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let Some(mut game) = self.games.0.remove(&id) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let message = format!("= draw {draw}");
-                    let _ok = game.attacker_tx.send(message.clone());
-                    let _ok = game.defender_tx.send(message.clone());
-
-                    if draw == Draw::Accept {
-                        let Some(game_light) = self.games_light.0.get(&id) else {
-                            return Some((
-                                self.clients[&index_supplied].clone(),
-                                false,
-                                (*command).to_string(),
-                            ));
-                        };
-                        for spectator in game_light.spectators.values() {
-                            if let Some(sender) = self.clients.get(spectator) {
-                                let _ok = sender.send(message.clone());
-                            }
-                        }
-
-                        game.game.status = Status::Draw;
-
-                        let accounts = &mut self.accounts.0;
-                        let (attacker_rating, defender_rating) =
-                            if let (Some(attacker), Some(defender)) =
-                                (accounts.get(&game.attacker), accounts.get(&game.defender))
-                            {
-                                (attacker.rating.rating, defender.rating.rating)
-                            } else {
-                                panic!("the attacker and defender accounts should exist");
-                            };
-
-                        if let Some(attacker) = accounts.get_mut(&game.attacker) {
-                            attacker.draws += 1;
-
-                            if game.rated.into() {
-                                attacker
-                                    .rating
-                                    .update_rating(defender_rating, &Outcome::Draw);
-                            }
-                        }
-                        if let Some(defender) = accounts.get_mut(&game.defender) {
-                            defender.draws += 1;
-
-                            if game.rated.into() {
-                                defender
-                                    .rating
-                                    .update_rating(attacker_rating, &Outcome::Draw);
-                            }
-                        }
-
-                        self.games_light.0.remove(&id);
-                        self.archived_games.push(ArchivedGame::new(game));
-                        self.save_server();
-                    }
-
-                    None
-                }
+                "draw" => self.draw(index_supplied, command, the_rest.as_slice()),
                 "join_game" => self.join_game(
                     username,
                     index_supplied,
