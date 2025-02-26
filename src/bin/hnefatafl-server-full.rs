@@ -930,56 +930,7 @@ impl Server {
                 }
                 "resume_game" => self.resume_game(username, index_supplied, command, &the_rest),
                 "request_draw" => {
-                    let Some(id) = the_rest.first() else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Ok(id) = id.parse::<usize>() else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let Some(color) = the_rest.get(1) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Ok(color) = Color::try_from(*color) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    info!("{index_supplied} {username} request_draw {id} {color}");
-
-                    let message = format!("request_draw {id} {color}");
-                    if let Some(game) = self.games.0.get(&id) {
-                        match color {
-                            Color::Black => {
-                                let _ok = game.defender_tx.send(message);
-                            }
-                            Color::Colorless => {}
-                            Color::White => {
-                                let _ok = game.attacker_tx.send(message);
-                            }
-                        }
-                    }
-
-                    Some((
-                        self.clients[&index_supplied].clone(),
-                        true,
-                        (*command).to_string(),
-                    ))
+                    Some(self.request_draw(username, index_supplied, command, &the_rest))
                 }
                 "text" => {
                     let the_rest = the_rest.join(" ");
@@ -1403,6 +1354,65 @@ impl Server {
             .ok()?;
 
         None
+    }
+
+    fn request_draw(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        command: &str,
+        the_rest: &[&str],
+    ) -> (mpsc::Sender<String>, bool, String) {
+        let Some(id) = the_rest.first() else {
+            return (
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            );
+        };
+        let Ok(id) = id.parse::<usize>() else {
+            return (
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            );
+        };
+
+        let Some(color) = the_rest.get(1) else {
+            return (
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            );
+        };
+        let Ok(color) = Color::try_from(*color) else {
+            return (
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            );
+        };
+
+        info!("{index_supplied} {username} request_draw {id} {color}");
+
+        let message = format!("request_draw {id} {color}");
+        if let Some(game) = self.games.0.get(&id) {
+            match color {
+                Color::Black => {
+                    let _ok = game.defender_tx.send(message);
+                }
+                Color::Colorless => {}
+                Color::White => {
+                    let _ok = game.attacker_tx.send(message);
+                }
+            }
+        }
+
+        (
+            self.clients[&index_supplied].clone(),
+            true,
+            (*command).to_string(),
+        )
     }
 
     fn save_server(&self) {
