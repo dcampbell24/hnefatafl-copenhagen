@@ -928,64 +928,7 @@ impl Server {
                 "new_game" => {
                     Some(self.new_game(username, index_supplied, command, the_rest.as_slice()))
                 }
-                "resume_game" => {
-                    let Some(id) = the_rest.first() else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let Ok(id) = id.parse::<usize>() else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let Some(server_game) = self.games.0.get(&id) else {
-                        panic!("we must have a board at this point")
-                    };
-
-                    let game = &server_game.game;
-                    let Ok(board) = ron::ser::to_string(game) else {
-                        panic!("we should be able to serialize the board")
-                    };
-                    let texts = &server_game.texts;
-                    let Ok(texts) = ron::ser::to_string(&texts) else {
-                        panic!("we should be able to serialize the texts")
-                    };
-
-                    info!("{index_supplied} {username} watch_game {id}");
-                    let Some(game_light) = self.games_light.0.get_mut(&id) else {
-                        panic!("the id must refer to a valid pending game");
-                    };
-
-                    if Some((*username).to_string()) == game_light.attacker {
-                        if let Some(server_game) = self.games.0.get_mut(&id) {
-                            server_game.attacker_tx = self.clients[&index_supplied].clone();
-                        }
-                        game_light.attacker_channel = Some(index_supplied);
-                    } else if Some((*username).to_string()) == game_light.defender {
-                        if let Some(server_game) = self.games.0.get_mut(&id) {
-                            server_game.defender_tx = self.clients[&index_supplied].clone();
-                        }
-                        game_light.defender_channel = Some(index_supplied);
-                    }
-
-                    self.clients[&index_supplied]
-                        .send(format!(
-                            "= resume_game {} {} {} {:?} {board} {texts}",
-                            game_light.attacker.clone().unwrap(),
-                            game_light.defender.clone().unwrap(),
-                            game_light.rated,
-                            game_light.timed,
-                        ))
-                        .ok()?;
-
-                    None
-                }
+                "resume_game" => self.resume_game(username, index_supplied, command, &the_rest),
                 "request_draw" => {
                     let Some(id) = the_rest.first() else {
                         return Some((
@@ -1395,6 +1338,71 @@ impl Server {
         self.game_id += 1;
 
         (self.clients[&index_supplied].clone(), true, command)
+    }
+
+    fn resume_game(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        command: &str,
+        the_rest: &[&str],
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        let Some(id) = the_rest.first() else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+        let Ok(id) = id.parse::<usize>() else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+
+        let Some(server_game) = self.games.0.get(&id) else {
+            panic!("we must have a board at this point")
+        };
+
+        let game = &server_game.game;
+        let Ok(board) = ron::ser::to_string(game) else {
+            panic!("we should be able to serialize the board")
+        };
+        let texts = &server_game.texts;
+        let Ok(texts) = ron::ser::to_string(&texts) else {
+            panic!("we should be able to serialize the texts")
+        };
+
+        info!("{index_supplied} {username} watch_game {id}");
+        let Some(game_light) = self.games_light.0.get_mut(&id) else {
+            panic!("the id must refer to a valid pending game");
+        };
+
+        if Some((*username).to_string()) == game_light.attacker {
+            if let Some(server_game) = self.games.0.get_mut(&id) {
+                server_game.attacker_tx = self.clients[&index_supplied].clone();
+            }
+            game_light.attacker_channel = Some(index_supplied);
+        } else if Some((*username).to_string()) == game_light.defender {
+            if let Some(server_game) = self.games.0.get_mut(&id) {
+                server_game.defender_tx = self.clients[&index_supplied].clone();
+            }
+            game_light.defender_channel = Some(index_supplied);
+        }
+
+        self.clients[&index_supplied]
+            .send(format!(
+                "= resume_game {} {} {} {:?} {board} {texts}",
+                game_light.attacker.clone().unwrap(),
+                game_light.defender.clone().unwrap(),
+                game_light.rated,
+                game_light.timed,
+            ))
+            .ok()?;
+
+        None
     }
 
     fn save_server(&self) {
