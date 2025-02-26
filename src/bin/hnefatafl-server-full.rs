@@ -691,52 +691,13 @@ impl Server {
                     (*command).to_string(),
                     the_rest.as_slice(),
                 )),
-                "login" => {
-                    let password_1 = the_rest.join(" ");
-                    if let Some(tx) = option_tx {
-                        if let Some(index_database) = self.accounts.0.get_mut(*username) {
-                            // The username is in the database and already logged in.
-                            if let Some(index_database) = index_database.logged_in {
-                                info!(
-                                    "{index_supplied} {username} login failed, {index_database} is logged in"
-                                );
-
-                                Some(((tx), false, (*command).to_string()))
-                            // The username is in the database, but not logged in yet.
-                            } else {
-                                let Some(password_2) = self.passwords.get(*username) else {
-                                    panic!("we already know the username is in the database.");
-                                };
-
-                                let hash_2 = PasswordHash::try_from(password_2.as_str()).unwrap();
-                                if let Err(_error) = Argon2::default()
-                                    .verify_password(password_1.as_bytes(), &hash_2)
-                                {
-                                    info!(
-                                        "{index_supplied} {username} provided the wrong password"
-                                    );
-                                    return Some((tx, false, (*command).to_string()));
-                                }
-                                info!("{index_supplied} {username} logged in");
-
-                                self.clients.insert(index_supplied, tx);
-                                index_database.logged_in = Some(index_supplied);
-
-                                Some((
-                                    self.clients[&index_supplied].clone(),
-                                    true,
-                                    (*command).to_string(),
-                                ))
-                            }
-                        // The username is not in the database.
-                        } else {
-                            info!("{index_supplied} {username} is not in the database");
-                            Some((tx, false, (*command).to_string()))
-                        }
-                    } else {
-                        panic!("there is no channel to send on")
-                    }
-                }
+                "login" => Some(self.login(
+                    username,
+                    index_supplied,
+                    command,
+                    the_rest.as_slice(),
+                    option_tx,
+                )),
                 "logout" => {
                     // The username is in the database and already logged in.
                     if let Some(account) = self.accounts.0.get_mut(*username) {
@@ -1355,6 +1316,58 @@ impl Server {
         command.push(' ');
         command.push_str(the_rest[0]);
         (self.clients[&index_supplied].clone(), true, command)
+    }
+
+    fn login(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        command: &str,
+        the_rest: &[&str],
+        option_tx: Option<Sender<String>>,
+    ) -> (mpsc::Sender<String>, bool, String) {
+        let password_1 = the_rest.join(" ");
+        if let Some(tx) = option_tx {
+            if let Some(index_database) = self.accounts.0.get_mut(username) {
+                // The username is in the database and already logged in.
+                if let Some(index_database) = index_database.logged_in {
+                    info!(
+                        "{index_supplied} {username} login failed, {index_database} is logged in"
+                    );
+
+                    ((tx), false, (*command).to_string())
+                // The username is in the database, but not logged in yet.
+                } else {
+                    let Some(password_2) = self.passwords.get(username) else {
+                        panic!("we already know the username is in the database.");
+                    };
+
+                    let hash_2 = PasswordHash::try_from(password_2.as_str()).unwrap();
+                    if let Err(_error) =
+                        Argon2::default().verify_password(password_1.as_bytes(), &hash_2)
+                    {
+                        info!("{index_supplied} {username} provided the wrong password");
+                        return (tx, false, (*command).to_string());
+                    }
+                    info!("{index_supplied} {username} logged in");
+
+                    self.clients.insert(index_supplied, tx);
+                    index_database.logged_in = Some(index_supplied);
+
+                    (
+                        self.clients[&index_supplied].clone(),
+                        true,
+                        (*command).to_string(),
+                    )
+                }
+            // The username is not in the database.
+            } else {
+                info!("{index_supplied} {username} is not in the database");
+                (tx, false, (*command).to_string())
+            }
+        } else {
+            panic!("there is no channel to send on")
+        }
     }
 
     fn save_server(&self) {
