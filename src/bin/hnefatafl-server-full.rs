@@ -5,7 +5,7 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     path::PathBuf,
-    sync::mpsc::{self, Receiver},
+    sync::mpsc::{self, Receiver, Sender},
     thread,
     time::Duration,
 };
@@ -332,6 +332,53 @@ impl Server {
         }
     }
 
+    fn create_account(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        command: &str,
+        the_rest: &[&str],
+        option_tx: Option<Sender<String>>,
+    ) -> (mpsc::Sender<String>, bool, String) {
+        let password = the_rest.join(" ");
+        if let Some(tx) = option_tx {
+            if self.accounts.0.contains_key(username) {
+                info!("{index_supplied} {username} is already in the database");
+                (tx, false, (*command).to_string())
+            } else {
+                info!("{index_supplied} {username} created user account");
+
+                let ctx = Argon2::default();
+                let salt = SaltString::generate(&mut OsRng);
+                let hash = ctx
+                    .hash_password(password.as_bytes(), &salt)
+                    .unwrap()
+                    .to_string();
+
+                self.passwords.insert((*username).to_string(), hash);
+
+                self.clients.insert(index_supplied, tx);
+                self.accounts.0.insert(
+                    (*username).to_string(),
+                    Account {
+                        logged_in: Some(index_supplied),
+                        ..Default::default()
+                    },
+                );
+
+                self.save_server();
+
+                (
+                    self.clients[&index_supplied].clone(),
+                    true,
+                    (*command).to_string(),
+                )
+            }
+        } else {
+            panic!("there is no channel to send on")
+        }
+    }
+
     fn decline_game(
         &mut self,
         username: &str,
@@ -623,45 +670,13 @@ impl Server {
                     (*command).to_string(),
                     the_rest.as_slice(),
                 )),
-                "create_account" => {
-                    let password = the_rest.join(" ");
-                    if let Some(tx) = option_tx {
-                        if self.accounts.0.contains_key(*username) {
-                            info!("{index_supplied} {username} is already in the database");
-                            Some((tx, false, (*command).to_string()))
-                        } else {
-                            info!("{index_supplied} {username} created user account");
-
-                            let ctx = Argon2::default();
-                            let salt = SaltString::generate(&mut OsRng);
-                            let hash = ctx
-                                .hash_password(password.as_bytes(), &salt)
-                                .unwrap()
-                                .to_string();
-
-                            self.passwords.insert((*username).to_string(), hash);
-
-                            self.clients.insert(index_supplied, tx);
-                            self.accounts.0.insert(
-                                (*username).to_string(),
-                                Account {
-                                    logged_in: Some(index_supplied),
-                                    ..Default::default()
-                                },
-                            );
-
-                            self.save_server();
-
-                            Some((
-                                self.clients[&index_supplied].clone(),
-                                true,
-                                (*command).to_string(),
-                            ))
-                        }
-                    } else {
-                        panic!("there is no channel to send on")
-                    }
-                }
+                "create_account" => Some(self.create_account(
+                    username,
+                    index_supplied,
+                    command,
+                    the_rest.as_slice(),
+                    option_tx,
+                )),
                 "login" => {
                     let password_1 = the_rest.join(" ");
                     if let Some(tx) = option_tx {
