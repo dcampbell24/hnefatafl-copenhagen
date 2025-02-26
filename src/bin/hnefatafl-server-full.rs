@@ -951,7 +951,7 @@ impl Server {
                     .map(|channel| (channel.clone(), false, (*command).to_string())),
             }
         } else {
-            panic!("we pass the arguments in that form");
+            None
         }
     }
 
