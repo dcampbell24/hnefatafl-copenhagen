@@ -332,6 +332,58 @@ impl Server {
         }
     }
 
+    fn decline_game(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        mut command: String,
+        the_rest: &[&str],
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        let channel = self.clients.get(&index_supplied)?;
+
+        let Some(id) = the_rest.first() else {
+            return Some((channel.clone(), false, command));
+        };
+        let Ok(id) = id.parse::<usize>() else {
+            return Some((channel.clone(), false, command));
+        };
+
+        info!("{index_supplied} {username} decline_game {id}");
+
+        if let Some(game_old) = self.games_light.0.remove(&id) {
+            let mut attacker = None;
+            let mut attacker_channel = None;
+            let mut defender = None;
+            let mut defender_channel = None;
+
+            if Some(username.to_string()) == game_old.attacker {
+                attacker = game_old.attacker;
+                attacker_channel = game_old.attacker_channel;
+            } else {
+                defender = game_old.defender;
+                defender_channel = game_old.defender_channel;
+            }
+
+            let game = ServerGameLight {
+                id,
+                attacker,
+                defender,
+                challenger: Challenger::default(),
+                rated: game_old.rated,
+                timed: game_old.timed,
+                attacker_channel,
+                defender_channel,
+                spectators: game_old.spectators,
+                challenge_accepted: false,
+            };
+
+            command = format!("{command} {game:?}");
+            self.games_light.0.insert(id, game);
+        }
+
+        Some((channel.clone(), true, command))
+    }
+
     fn display_server(&mut self, username: &str) -> Option<(mpsc::Sender<String>, bool, String)> {
         debug!("0 {username} display_server");
         for tx in &mut self.clients.values() {
@@ -1136,58 +1188,6 @@ impl Server {
         } else {
             panic!("we pass the arguments in that form");
         }
-    }
-
-    fn decline_game(
-        &mut self,
-        username: &str,
-        index_supplied: usize,
-        mut command: String,
-        the_rest: &[&str],
-    ) -> Option<(mpsc::Sender<String>, bool, String)> {
-        let channel = self.clients.get(&index_supplied)?;
-
-        let Some(id) = the_rest.first() else {
-            return Some((channel.clone(), false, command));
-        };
-        let Ok(id) = id.parse::<usize>() else {
-            return Some((channel.clone(), false, command));
-        };
-
-        info!("{index_supplied} {username} decline_game {id}");
-
-        if let Some(game_old) = self.games_light.0.remove(&id) {
-            let mut attacker = None;
-            let mut attacker_channel = None;
-            let mut defender = None;
-            let mut defender_channel = None;
-
-            if Some(username.to_string()) == game_old.attacker {
-                attacker = game_old.attacker;
-                attacker_channel = game_old.attacker_channel;
-            } else {
-                defender = game_old.defender;
-                defender_channel = game_old.defender_channel;
-            }
-
-            let game = ServerGameLight {
-                id,
-                attacker,
-                defender,
-                challenger: Challenger::default(),
-                rated: game_old.rated,
-                timed: game_old.timed,
-                attacker_channel,
-                defender_channel,
-                spectators: game_old.spectators,
-                challenge_accepted: false,
-            };
-
-            command = format!("{command} {game:?}");
-            self.games_light.0.insert(id, game);
-        }
-
-        Some((channel.clone(), true, command))
     }
 
     fn join_game(
