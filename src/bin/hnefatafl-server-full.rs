@@ -857,12 +857,11 @@ impl Server {
         let (message, option_tx) = rx.recv().ok()?;
         let index_username_command: Vec<_> = message.split_ascii_whitespace().collect();
 
-        if let (Some(index_supplied), Some(username), command_option) = (
+        if let (Some(index_supplied), Some(username), Some(command)) = (
             index_username_command.first(),
             index_username_command.get(1),
             index_username_command.get(2),
         ) {
-            let command = command_option?;
             let index_supplied = index_supplied.parse::<usize>().ok()?;
             let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
 
@@ -945,10 +944,10 @@ impl Server {
                     the_rest.as_slice(),
                 ),
                 "=" => None,
-                _ => self
-                    .clients
-                    .get(&index_supplied)
-                    .map(|channel| (channel.clone(), false, (*command).to_string())),
+                _ => self.clients.get(&index_supplied).map(|channel| {
+                    debug!("{index_supplied} {username} {command}");
+                    (channel.clone(), false, (*command).to_string())
+                }),
             }
         } else {
             debug!("{index_username_command:?}");
