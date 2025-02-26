@@ -324,7 +324,7 @@ impl Server {
     /// This assumes 30 2 month periods must pass before one's rating
     /// deviation is the same as a new player and that a typical RD is 50.
     #[must_use]
-    pub fn check_update_rd(&mut self) -> bool {
+    fn check_update_rd(&mut self) -> bool {
         // Seconds in two months:
         // 60.0 * 60.0 * 24.0 * 30.417 * 2.0 = 5_256_057.6
         let two_months = 5_256_058;
