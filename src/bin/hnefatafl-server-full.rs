@@ -898,6 +898,7 @@ impl Server {
                 ),
                 "display_server" => self.display_server(username),
                 "draw" => self.draw(index_supplied, command, the_rest.as_slice()),
+                "game" => self.game(index_supplied, username, command, the_rest.as_slice()),
                 "join_game" => self.join_game(
                     username,
                     index_supplied,
@@ -927,7 +928,6 @@ impl Server {
                 "new_game" => {
                     Some(self.new_game(username, index_supplied, command, the_rest.as_slice()))
                 }
-                "game" => self.game(index_supplied, username, command, the_rest.as_slice()),
                 "resume_game" => {
                     let Some(id) = the_rest.first() else {
                         return Some((
