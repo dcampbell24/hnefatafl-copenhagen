@@ -951,6 +951,7 @@ impl Server {
                     .map(|channel| (channel.clone(), false, (*command).to_string())),
             }
         } else {
+            debug!("{index_username_command:?}");
             None
         }
     }
