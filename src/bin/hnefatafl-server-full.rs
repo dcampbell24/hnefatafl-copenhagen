@@ -29,7 +29,7 @@ use hnefatafl_copenhagen::{
     status::Status,
     time::TimeSettings,
 };
-use log::{LevelFilter, debug, info, trace};
+use log::{LevelFilter, debug, info};
 use password_hash::SaltString;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
@@ -446,7 +446,7 @@ impl Server {
     }
 
     fn display_server(&mut self, username: &str) -> Option<(mpsc::Sender<String>, bool, String)> {
-        trace!("0 {username} display_server");
+        debug!("0 {username} display_server");
         for tx in &mut self.clients.values() {
             tx.send(format!("= display_games {:?}", &self.games_light))
                 .ok()?;
@@ -671,7 +671,7 @@ impl Server {
                 game.game
                     .read_line(&format!("play black {from} {to}"))
                     .map_err(|error| {
-                        debug!("Error: {error}");
+                        info!("Error: {error}");
                         error
                     })
                     .ok()?;
@@ -695,7 +695,7 @@ impl Server {
             game.game
                 .read_line(&format!("play white {from} {to}"))
                 .map_err(|error| {
-                    debug!("Error: {error}");
+                    info!("Error: {error}");
                     error
                 })
                 .ok()?;
@@ -945,12 +945,12 @@ impl Server {
                 ),
                 "=" => None,
                 _ => self.clients.get(&index_supplied).map(|channel| {
-                    debug!("{index_supplied} {username} {command}");
+                    info!("{index_supplied} {username} {command}");
                     (channel.clone(), false, (*command).to_string())
                 }),
             }
         } else {
-            debug!("{index_username_command:?}");
+            info!("{index_username_command:?}");
             None
         }
     }
