@@ -863,11 +863,7 @@ impl Server {
             index_username_command.get(2),
         ) {
             let command = command_option?;
-
-            let index_supplied = index_supplied
-                .parse::<usize>()
-                .expect("the index should be a valid usize");
-
+            let index_supplied = index_supplied.parse::<usize>().ok()?;
             let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
 
             match *command {
