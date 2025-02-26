@@ -699,66 +699,8 @@ impl Server {
                     option_tx,
                 )),
                 "logout" => self.logout(username, index_supplied, command),
-                // new_game attacker rated fischer 900000 10
                 "new_game" => {
-                    if the_rest.len() < 5 {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    }
-
-                    let role = the_rest[0];
-                    let Ok(role) = Role::try_from(role) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let rated = the_rest[1];
-                    let Ok(rated) = Rated::try_from(rated) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let timed = the_rest[2];
-                    let minutes = the_rest[3];
-                    let add_seconds = the_rest[4];
-
-                    let Ok(timed) =
-                        TimeSettings::try_from(vec!["time-settings", timed, minutes, add_seconds])
-                    else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    info!(
-                        "{index_supplied} {username} new_game {} {role} {rated} {timed:?}",
-                        self.game_id
-                    );
-                    let game = ServerGameLight::new(
-                        self.game_id,
-                        (*username).to_string(),
-                        rated,
-                        timed,
-                        index_supplied,
-                        role,
-                    );
-
-                    let command = format!("{command} {game:?}");
-                    self.games_light.0.insert(self.game_id, game);
-                    self.game_id += 1;
-
-                    Some((self.clients[&index_supplied].clone(), true, command))
+                    Some(self.new_game(username, index_supplied, command, the_rest.as_slice()))
                 }
                 // game 0 play black a4 a2
                 "game" => {
@@ -1375,6 +1317,76 @@ impl Server {
                 (*command).to_string(),
             ))
         }
+    }
+
+    /// ```sh
+    /// <- new_game attacker rated fischer 900000 10
+    /// -> = new_game game 6 david _ rated fischer 900000 10 _ false {}
+    /// ```
+    fn new_game(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        command: &str,
+        the_rest: &[&str],
+    ) -> (mpsc::Sender<String>, bool, String) {
+        if the_rest.len() < 5 {
+            return (
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            );
+        }
+
+        let role = the_rest[0];
+        let Ok(role) = Role::try_from(role) else {
+            return (
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            );
+        };
+
+        let rated = the_rest[1];
+        let Ok(rated) = Rated::try_from(rated) else {
+            return (
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            );
+        };
+
+        let timed = the_rest[2];
+        let minutes = the_rest[3];
+        let add_seconds = the_rest[4];
+
+        let Ok(timed) = TimeSettings::try_from(vec!["time-settings", timed, minutes, add_seconds])
+        else {
+            return (
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            );
+        };
+
+        info!(
+            "{index_supplied} {username} new_game {} {role} {rated} {timed:?}",
+            self.game_id
+        );
+        let game = ServerGameLight::new(
+            self.game_id,
+            (*username).to_string(),
+            rated,
+            timed,
+            index_supplied,
+            role,
+        );
+
+        let command = format!("{command} {game:?}");
+        self.games_light.0.insert(self.game_id, game);
+        self.game_id += 1;
+
+        (self.clients[&index_supplied].clone(), true, command)
     }
 
     fn save_server(&self) {
