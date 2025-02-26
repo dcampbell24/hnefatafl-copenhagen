@@ -610,6 +610,231 @@ impl Server {
         None
     }
 
+    #[allow(clippy::too_many_lines)]
+    fn game(
+        &mut self,
+        index_supplied: usize,
+        username: &str,
+        command: &str,
+        the_rest: &[&str],
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        if the_rest.len() < 5 {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        }
+
+        let index = the_rest[0];
+        let Ok(index) = index.parse() else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+        let color = the_rest[2];
+        let Ok(color) = Color::try_from(color) else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+        let from = the_rest[3];
+        let to = the_rest[4];
+        let mut to = to.to_string();
+        if to == "_" {
+            to = String::new();
+        }
+
+        let Some(game) = self.games.0.get_mut(&index) else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+
+        let Some(game_light) = self.games_light.0.get_mut(&index) else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+
+        let mut blacks_turn_next = true;
+        if color == Color::Black {
+            if *username == game.attacker {
+                game.game
+                    .read_line(&format!("play black {from} {to}"))
+                    .map_err(|error| {
+                        debug!("Error: {error}");
+                        error
+                    })
+                    .ok()?;
+                blacks_turn_next = false;
+
+                let message = format!("game {index} play black {from} {to}");
+                for spectator in game_light.spectators.values() {
+                    if let Some(client) = self.clients.get(spectator) {
+                        let _ok = client.send(message.clone());
+                    }
+                }
+                let _ok = game.defender_tx.send(message);
+            } else {
+                return Some((
+                    self.clients[&index_supplied].clone(),
+                    false,
+                    (*command).to_string(),
+                ));
+            }
+        } else if *username == game.defender {
+            game.game
+                .read_line(&format!("play white {from} {to}"))
+                .map_err(|error| {
+                    debug!("Error: {error}");
+                    error
+                })
+                .ok()?;
+
+            let message = format!("game {index} play white {from} {to}");
+            for spectator in game_light.spectators.values() {
+                if let Some(client) = self.clients.get(spectator) {
+                    let _ok = client.send(message.clone());
+                }
+            }
+            let _ok = game.attacker_tx.send(message);
+        } else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        }
+
+        match game.game.status {
+            Status::BlackWins => {
+                let accounts = &mut self.accounts.0;
+                let (attacker_rating, defender_rating) = if let (Some(attacker), Some(defender)) =
+                    (accounts.get(&game.attacker), accounts.get(&game.defender))
+                {
+                    (attacker.rating.rating, defender.rating.rating)
+                } else {
+                    panic!("the attacker and defender accounts should exist");
+                };
+
+                if let Some(attacker) = accounts.get_mut(&game.attacker) {
+                    attacker.wins += 1;
+
+                    if game.rated.into() {
+                        attacker
+                            .rating
+                            .update_rating(defender_rating, &Outcome::Win);
+                    }
+                }
+                if let Some(defender) = accounts.get_mut(&game.defender) {
+                    defender.losses += 1;
+
+                    if game.rated.into() {
+                        defender
+                            .rating
+                            .update_rating(attacker_rating, &Outcome::Loss);
+                    }
+                }
+
+                let message = format!("= game_over {index} attacker_wins");
+                let _ok = game.attacker_tx.send(message.clone());
+                let _ok = game.defender_tx.send(message.clone());
+
+                for spectator in game_light.spectators.values() {
+                    if let Some(sender) = self.clients.get(spectator) {
+                        let _ok = sender.send(message.clone());
+                    }
+                }
+
+                let Some(game) = self.games.0.remove(&index) else {
+                    panic!("the game should exist")
+                };
+                self.games_light.0.remove(&index);
+                self.archived_games.push(ArchivedGame::new(game));
+                self.save_server();
+
+                return None;
+            }
+            Status::Draw => {
+                // Handled in the draw fn.
+            }
+            Status::Ongoing => {
+                if blacks_turn_next {
+                    let _ok = game
+                        .attacker_tx
+                        .send(format!("game {index} generate_move black"));
+                } else {
+                    let _ok = game
+                        .defender_tx
+                        .send(format!("game {index} generate_move white"));
+                }
+            }
+            Status::WhiteWins => {
+                let accounts = &mut self.accounts.0;
+                let (attacker_rating, defender_rating) = if let (Some(attacker), Some(defender)) =
+                    (accounts.get(&game.attacker), accounts.get(&game.defender))
+                {
+                    (attacker.rating.rating, defender.rating.rating)
+                } else {
+                    panic!("the attacker and defender accounts should exist");
+                };
+
+                if let Some(attacker) = accounts.get_mut(&game.attacker) {
+                    attacker.losses += 1;
+
+                    if game.rated.into() {
+                        attacker
+                            .rating
+                            .update_rating(defender_rating, &Outcome::Loss);
+                    }
+                }
+                if let Some(defender) = accounts.get_mut(&game.defender) {
+                    defender.wins += 1;
+
+                    if game.rated.into() {
+                        defender
+                            .rating
+                            .update_rating(attacker_rating, &Outcome::Win);
+                    }
+                }
+
+                let message = format!("= game_over {index} defender_wins");
+                let _ok = game.attacker_tx.send(message.clone());
+                let _ok = game.defender_tx.send(message.clone());
+
+                for spectator in game_light.spectators.values() {
+                    if let Some(sender) = self.clients.get(spectator) {
+                        let _ok = sender.send(message.clone());
+                    }
+                }
+
+                let Some(game) = self.games.0.remove(&index) else {
+                    panic!("the game should exist")
+                };
+                self.games_light.0.remove(&index);
+                self.archived_games.push(ArchivedGame::new(game));
+                self.save_server();
+
+                return None;
+            }
+        }
+
+        Some((
+            self.clients[&index_supplied].clone(),
+            true,
+            (*command).to_string(),
+        ))
+    }
+
     fn handle_messages(
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
@@ -702,226 +927,7 @@ impl Server {
                 "new_game" => {
                     Some(self.new_game(username, index_supplied, command, the_rest.as_slice()))
                 }
-                // game 0 play black a4 a2
-                "game" => {
-                    if the_rest.len() < 5 {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    }
-
-                    let index = the_rest[0];
-                    let Ok(index) = index.parse() else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let color = the_rest[2];
-                    let Ok(color) = Color::try_from(color) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-                    let from = the_rest[3];
-                    let to = the_rest[4];
-                    let mut to = to.to_string();
-                    if to == "_" {
-                        to = String::new();
-                    }
-
-                    let Some(game) = self.games.0.get_mut(&index) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let Some(game_light) = self.games_light.0.get_mut(&index) else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    };
-
-                    let mut blacks_turn_next = true;
-                    if color == Color::Black {
-                        if *username == game.attacker {
-                            game.game
-                                .read_line(&format!("play black {from} {to}"))
-                                .map_err(|error| {
-                                    debug!("Error: {error}");
-                                    error
-                                })
-                                .ok()?;
-                            blacks_turn_next = false;
-
-                            let message = format!("game {index} play black {from} {to}");
-                            for spectator in game_light.spectators.values() {
-                                if let Some(client) = self.clients.get(spectator) {
-                                    let _ok = client.send(message.clone());
-                                }
-                            }
-                            let _ok = game.defender_tx.send(message);
-                        } else {
-                            return Some((
-                                self.clients[&index_supplied].clone(),
-                                false,
-                                (*command).to_string(),
-                            ));
-                        }
-                    } else if *username == game.defender {
-                        game.game
-                            .read_line(&format!("play white {from} {to}"))
-                            .map_err(|error| {
-                                debug!("Error: {error}");
-                                error
-                            })
-                            .ok()?;
-
-                        let message = format!("game {index} play white {from} {to}");
-                        for spectator in game_light.spectators.values() {
-                            if let Some(client) = self.clients.get(spectator) {
-                                let _ok = client.send(message.clone());
-                            }
-                        }
-                        let _ok = game.attacker_tx.send(message);
-                    } else {
-                        return Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ));
-                    }
-
-                    match game.game.status {
-                        Status::BlackWins => {
-                            let accounts = &mut self.accounts.0;
-                            let (attacker_rating, defender_rating) =
-                                if let (Some(attacker), Some(defender)) =
-                                    (accounts.get(&game.attacker), accounts.get(&game.defender))
-                                {
-                                    (attacker.rating.rating, defender.rating.rating)
-                                } else {
-                                    panic!("the attacker and defender accounts should exist");
-                                };
-
-                            if let Some(attacker) = accounts.get_mut(&game.attacker) {
-                                attacker.wins += 1;
-
-                                if game.rated.into() {
-                                    attacker
-                                        .rating
-                                        .update_rating(defender_rating, &Outcome::Win);
-                                }
-                            }
-                            if let Some(defender) = accounts.get_mut(&game.defender) {
-                                defender.losses += 1;
-
-                                if game.rated.into() {
-                                    defender
-                                        .rating
-                                        .update_rating(attacker_rating, &Outcome::Loss);
-                                }
-                            }
-
-                            let message = format!("= game_over {index} attacker_wins");
-                            let _ok = game.attacker_tx.send(message.clone());
-                            let _ok = game.defender_tx.send(message.clone());
-
-                            for spectator in game_light.spectators.values() {
-                                if let Some(sender) = self.clients.get(spectator) {
-                                    let _ok = sender.send(message.clone());
-                                }
-                            }
-
-                            let Some(game) = self.games.0.remove(&index) else {
-                                panic!("the game should exist")
-                            };
-                            self.games_light.0.remove(&index);
-                            self.archived_games.push(ArchivedGame::new(game));
-                            self.save_server();
-
-                            return None;
-                        }
-                        Status::Draw => {
-                            // Handled in the draw fn.
-                        }
-                        Status::Ongoing => {
-                            if blacks_turn_next {
-                                let _ok = game
-                                    .attacker_tx
-                                    .send(format!("game {index} generate_move black"));
-                            } else {
-                                let _ok = game
-                                    .defender_tx
-                                    .send(format!("game {index} generate_move white"));
-                            }
-                        }
-                        Status::WhiteWins => {
-                            let accounts = &mut self.accounts.0;
-                            let (attacker_rating, defender_rating) =
-                                if let (Some(attacker), Some(defender)) =
-                                    (accounts.get(&game.attacker), accounts.get(&game.defender))
-                                {
-                                    (attacker.rating.rating, defender.rating.rating)
-                                } else {
-                                    panic!("the attacker and defender accounts should exist");
-                                };
-
-                            if let Some(attacker) = accounts.get_mut(&game.attacker) {
-                                attacker.losses += 1;
-
-                                if game.rated.into() {
-                                    attacker
-                                        .rating
-                                        .update_rating(defender_rating, &Outcome::Loss);
-                                }
-                            }
-                            if let Some(defender) = accounts.get_mut(&game.defender) {
-                                defender.wins += 1;
-
-                                if game.rated.into() {
-                                    defender
-                                        .rating
-                                        .update_rating(attacker_rating, &Outcome::Win);
-                                }
-                            }
-
-                            let message = format!("= game_over {index} defender_wins");
-                            let _ok = game.attacker_tx.send(message.clone());
-                            let _ok = game.defender_tx.send(message.clone());
-
-                            for spectator in game_light.spectators.values() {
-                                if let Some(sender) = self.clients.get(spectator) {
-                                    let _ok = sender.send(message.clone());
-                                }
-                            }
-
-                            let Some(game) = self.games.0.remove(&index) else {
-                                panic!("the game should exist")
-                            };
-                            self.games_light.0.remove(&index);
-                            self.archived_games.push(ArchivedGame::new(game));
-                            self.save_server();
-
-                            return None;
-                        }
-                    }
-
-                    Some((
-                        self.clients[&index_supplied].clone(),
-                        true,
-                        (*command).to_string(),
-                    ))
-                }
+                "game" => self.game(index_supplied, username, command, the_rest.as_slice()),
                 "resume_game" => {
                     let Some(id) = the_rest.first() else {
                         return Some((
