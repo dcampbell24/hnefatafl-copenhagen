@@ -29,7 +29,7 @@ use hnefatafl_copenhagen::{
     status::Status,
     time::TimeSettings,
 };
-use log::{LevelFilter, debug, info};
+use log::{LevelFilter, debug, info, trace};
 use password_hash::SaltString;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
@@ -446,7 +446,7 @@ impl Server {
     }
 
     fn display_server(&mut self, username: &str) -> Option<(mpsc::Sender<String>, bool, String)> {
-        debug!("0 {username} display_server");
+        trace!("0 {username} display_server");
         for tx in &mut self.clients.values() {
             tx.send(format!("= display_games {:?}", &self.games_light))
                 .ok()?;
