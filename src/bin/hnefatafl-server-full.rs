@@ -342,7 +342,8 @@ impl Server {
     }
 
     /// ```sh
-    /// <- VERSION_ID create_account david
+    /// # PASSWORD can be the empty string.
+    /// <- VERSION_ID create_account david PASSWORD
     /// -> = login
     /// ```
     fn create_account(
