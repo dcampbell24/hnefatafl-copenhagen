@@ -698,38 +698,7 @@ impl Server {
                     the_rest.as_slice(),
                     option_tx,
                 )),
-                "logout" => {
-                    // The username is in the database and already logged in.
-                    if let Some(account) = self.accounts.0.get_mut(*username) {
-                        if let Some(index_database) = account.logged_in {
-                            if index_database == index_supplied {
-                                info!("{index_supplied} {username} logged out");
-                                account.logged_in = None;
-                                self.clients.remove(&index_database);
-
-                                None
-                            } else {
-                                Some((
-                                    self.clients[&index_supplied].clone(),
-                                    false,
-                                    (*command).to_string(),
-                                ))
-                            }
-                        } else {
-                            Some((
-                                self.clients[&index_supplied].clone(),
-                                false,
-                                (*command).to_string(),
-                            ))
-                        }
-                    } else {
-                        Some((
-                            self.clients[&index_supplied].clone(),
-                            false,
-                            (*command).to_string(),
-                        ))
-                    }
-                }
+                "logout" => self.logout(username, index_supplied, command),
                 // new_game attacker rated fischer 900000 10
                 "new_game" => {
                     if the_rest.len() < 5 {
@@ -1367,6 +1336,44 @@ impl Server {
             }
         } else {
             panic!("there is no channel to send on")
+        }
+    }
+
+    fn logout(
+        &mut self,
+        username: &str,
+        index_supplied: usize,
+        command: &str,
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        // The username is in the database and already logged in.
+        if let Some(account) = self.accounts.0.get_mut(username) {
+            if let Some(index_database) = account.logged_in {
+                if index_database == index_supplied {
+                    info!("{index_supplied} {username} logged out");
+                    account.logged_in = None;
+                    self.clients.remove(&index_database);
+
+                    None
+                } else {
+                    Some((
+                        self.clients[&index_supplied].clone(),
+                        false,
+                        (*command).to_string(),
+                    ))
+                }
+            } else {
+                Some((
+                    self.clients[&index_supplied].clone(),
+                    false,
+                    (*command).to_string(),
+                ))
+            }
+        } else {
+            Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ))
         }
     }
 
