@@ -850,7 +850,6 @@ impl Server {
         }
     }
 
-    #[allow(clippy::too_many_lines)]
     fn handle_messages_internal(
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
