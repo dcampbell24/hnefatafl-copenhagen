@@ -18,7 +18,7 @@ gzip --no-name --best debian/hnefatafl-server-full.1
 
 pandoc --standalone --to=plain README.md --output=debian/README.txt
 
-cargo deb -- --features client,server
+cargo deb
 
 rm debian/hnefatafl-client.1.gz
 rm debian/hnefatafl-server-full.1.gz
