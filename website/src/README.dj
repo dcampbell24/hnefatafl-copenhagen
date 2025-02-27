@@ -37,6 +37,12 @@ building Djot files. It can be downloaded from [pandoc][4].
 
 [4]: https://github.com/jgm/pandoc/releases/latest
 
+To verify that the debian package doesn't have problems, we use lintian:
+
+```sh
+sudo apt install lintian
+```
+
 ## Install
 
 In your terminal run the following to install the client with [Rust's][2] cargo:
