@@ -10,7 +10,7 @@ readme = "README.md"
 homepage = "https://hnefatafl.org"
 repository = "https://github.com/dcampbell24/hnefatafl-copenhagen"
 license = "MIT OR Apache-2.0"
-keywords = ["copenhagan", "hnefatafl"]
+keywords = ["board-game", "copenhagan", "hnefatafl", "tafl"]
 categories = ["game-engines", "games"]
 
 [dependencies]
