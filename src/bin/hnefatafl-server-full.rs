@@ -223,19 +223,19 @@ fn login(
     stream.write_all(b"= login\n")?;
     thread::spawn(move || receiving_and_writing(stream, &client_rx));
 
-    for _ in 0..1_000_000 {
+    'outer: for _ in 0..1_000_000 {
         reader.read_line(&mut buf)?;
 
         let buf_str = buf.trim();
 
         if buf_str.is_empty() {
             buf.clear();
-            continue;
+            break 'outer;
         }
 
         for char in buf_str.chars() {
             if char.is_control() || char == '\0' {
-                break;
+                break 'outer;
             }
         }
 
