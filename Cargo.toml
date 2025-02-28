@@ -92,6 +92,7 @@ assets = [
     ["debian/hnefatafl-client.1.gz", "usr/share/man/man1/", "644"],
     ["debian/hnefatafl-server-full.1.gz", "usr/share/man/man1/", "644"],
     ["debian/hnefatafl-client.desktop", "usr/share/applications/", "644"],
+    ["debian/hnefatafl.service", "lib/systemd/system/", "644"],
     ["icons/king_16x16.png", "/usr/share/icons/hicolor/16x16/apps/hnefatafl-client.png", "644"],
     ["icons/king_22x22.png", "/usr/share/icons/hicolor/22x22/apps/hnefatafl-client.png", "644"],
     ["icons/king_24x24.png", "/usr/share/icons/hicolor/24x24/apps/hnefatafl-client.png", "644"],
@@ -104,7 +105,6 @@ assets = [
     ["sound/move.ogg", "/usr/share/hnefatafl-copenhagen/move.ogg", "644"],
     ["target/release/hnefatafl-client", "usr/games/", "755"],
     ["target/release/hnefatafl-server-full", "usr/games/", "755"],
-    ["hnefatafl.service", "lib/systemd/system/", "644"],
 ]
 changelog = "debian/changelog"
 section = "games"
