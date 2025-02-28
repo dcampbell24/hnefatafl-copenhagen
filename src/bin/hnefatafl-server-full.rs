@@ -268,6 +268,7 @@ struct Server {
     ran_update_rd: UnixTimestamp,
     passwords: HashMap<String, String>,
     accounts: Accounts,
+    #[serde(skip)]
     archived_games: Vec<ArchivedGame>,
     #[serde(skip)]
     clients: HashMap<usize, mpsc::Sender<String>>,
