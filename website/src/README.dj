@@ -72,7 +72,7 @@ You may have to install `cargo-deb`.
 git clone https://github.com/dcampbell24/hnefatafl-copenhagen.git
 cd hnefatafl-copenhagen/
 git checkout v0.7.0
-make debian
+./debian/build.sh
 sudo dpkg --install ./target/debian/hnefatafl-copenhagen_0.7.0-1_amd64.deb
 ```
 
