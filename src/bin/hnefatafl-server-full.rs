@@ -227,6 +227,12 @@ fn login(
         reader.read_line(&mut buf)?;
 
         let buf_str = buf.trim();
+
+        if buf_str.is_empty() {
+            buf.clear();
+            continue;
+        }
+
         for char in buf_str.chars() {
             if char.is_control() || char == '\0' {
                 break;
