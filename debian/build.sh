@@ -25,3 +25,15 @@ lintian $PACKAGE
 rm debian/hnefatafl-client.1.gz
 rm debian/hnefatafl-server-full.1.gz
 rm debian/README.txt
+
+if [ -z $1 ]; then
+    exit
+fi
+
+if [ $1 = 'install' ]; then
+    sudo dpkg --remove hnefatafl-copenhagen
+    sudo dpkg --install $PACKAGE
+    sudo systemctl enable hnefatafl.service
+    sudo systemctl start hnefatafl.service
+    sudo systemctl daemon-reload
+fi

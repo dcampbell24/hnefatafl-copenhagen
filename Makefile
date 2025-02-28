@@ -7,10 +7,6 @@ profile:
 	echo '1' | sudo tee /proc/sys/kernel/perf_event_paranoid
 	samply record cargo test hnef --profile profiling
 
-.PHONY: debian
-debian:
-	debian/build.sh
-
 .PHONY: logs
 logs:
 	journalctl --unit=hnefatafl.service --reverse
