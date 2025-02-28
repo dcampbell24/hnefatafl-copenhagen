@@ -108,3 +108,6 @@ assets = [
 ]
 changelog = "debian/changelog"
 section = "games"
+
+[package.metadata.docs.rs]
+features = ["client", "server"]
