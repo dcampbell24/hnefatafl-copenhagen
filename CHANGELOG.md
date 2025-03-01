@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- hnefatafl-client: replace circles and triangle with chess pieces.
 - Remove archived games from the `ron` file.
 
 ### Fixed
