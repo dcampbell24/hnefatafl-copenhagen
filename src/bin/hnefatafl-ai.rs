@@ -90,7 +90,7 @@ fn main() -> anyhow::Result<()> {
                     panic!("expected to to be a vertex");
                 };
 
-                let _result = game.read_line(&format!("play {color} {from} {to}\n"));
+                game.read_line(&format!("play {color} {from} {to}\n"))?;
 
                 if game.status != Status::Ongoing {
                     break;
