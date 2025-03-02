@@ -1493,6 +1493,7 @@ fn pass_messages() -> impl Stream<Item = Message> {
             handle_error(executor::block_on(
                 sender.send(Message::ConnectedTo(address.to_string())),
             ));
+
             loop {
                 let bytes = handle_error(reader.read_line(&mut buffer));
                 if bytes > 0 {
