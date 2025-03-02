@@ -1,5 +1,5 @@
 use std::{
-    collections::VecDeque,
+    collections::{HashSet, VecDeque},
     env, f64, fs,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
@@ -76,6 +76,7 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     attacker: String,
     defender: String,
+    captures: HashSet<Vertex>,
     challenger: bool,
     connected_to: String,
     error: Option<String>,
@@ -204,6 +205,10 @@ impl Client {
                     if (y, x) == (from.y, from.x) {
                         button_ = button(text(arrow).size(board_size));
                     }
+                }
+
+                if self.captures.contains(&vertex) {
+                    button_ = button(text("X").size(board_size));
                 }
 
                 if let Some(Ok(legal_moves)) = &possible_moves {
@@ -985,16 +990,19 @@ impl Client {
     }
 
     fn handle_play(&mut self, color: Option<&str>, from: &str, to: &str) {
-        let mut capture = false;
+        self.captures = HashSet::new();
 
         let game = get_game(&mut self.game);
 
         match color {
             Some(color) => match game.read_line(&format!("play {color} {from} {to}\n")) {
-                Ok(value) => {
-                    if let Some(value) = value {
-                        if !value.trim().is_empty() {
-                            capture = true;
+                Ok(vertexes) => {
+                    if let Some(vertexes) = vertexes {
+                        for vertex in vertexes.split_ascii_whitespace() {
+                            let Ok(vertex) = Vertex::try_from_(vertex) else {
+                                panic!("this should be a valid vertex");
+                            };
+                            self.captures.insert(vertex);
                         }
                     }
                 }
@@ -1004,10 +1012,13 @@ impl Client {
                 }
             },
             None => match game.read_line(&format!("play {} {from} {to}\n", game.turn)) {
-                Ok(value) => {
-                    if let Some(value) = value {
-                        if !value.trim().is_empty() {
-                            capture = true;
+                Ok(vertexes) => {
+                    if let Some(vertexes) = vertexes {
+                        for vertex in vertexes.split_ascii_whitespace() {
+                            let Ok(vertex) = Vertex::try_from_(vertex) else {
+                                panic!("this should be a valid vertex");
+                            };
+                            self.captures.insert(vertex);
                         }
                     }
                 }
@@ -1022,6 +1033,7 @@ impl Client {
             return;
         }
 
+        let capture = !self.captures.is_empty();
         thread::spawn(move || {
             if let Some(mut path) = dirs::data_dir() {
                 path = path.join(HOME);
