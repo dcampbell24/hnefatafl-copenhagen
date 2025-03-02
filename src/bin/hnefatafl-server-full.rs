@@ -1037,9 +1037,21 @@ impl Server {
         if game.attacker.is_none() {
             game.attacker = Some(username.clone());
             game.attacker_channel = Some(index_supplied);
+
+            if let Some(channel) = game.defender_channel {
+                if let Some(channel) = self.clients.get(&channel) {
+                    let _ok = channel.send(format!("= challenge_requested {id}"));
+                }
+            }
         } else if game.defender.is_none() {
             game.defender = Some(username.clone());
             game.defender_channel = Some(index_supplied);
+
+            if let Some(channel) = game.attacker_channel {
+                if let Some(channel) = self.clients.get(&channel) {
+                    let _ok = channel.send(format!("= challenge_requested {id}"));
+                }
+            }
         }
         game.challenger.0 = Some(username);
 
@@ -1603,6 +1615,10 @@ mod tests {
         tcp_2.write_all(b"join_game_pending 0\n")?;
         reader_2.read_line(&mut buf)?;
         assert_eq!(buf, "= join_game_pending 0\n");
+        buf.clear();
+
+        reader_1.read_line(&mut buf)?;
+        assert_eq!(buf, "= challenge_requested 0\n");
         buf.clear();
 
         // Todo: "join_game_pending 0\n" should not be allowed!

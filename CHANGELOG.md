@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- challenge_requested and AI.
+
 ### Changed
 
 - hnefatafl-client: show captures with an 'X'.
