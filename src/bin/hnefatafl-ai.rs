@@ -80,14 +80,14 @@ fn main() -> anyhow::Result<()> {
                     panic!("expected from");
                 };
                 let Ok(from) = Vertex::try_from(from) else {
-                    panic!("expected from to be a color");
+                    panic!("expected from to be a vertex");
                 };
 
                 let Some(to) = message.get(5).copied() else {
                     panic!("expected to");
                 };
                 let Ok(to) = Vertex::try_from(to) else {
-                    panic!("expected to to be a color");
+                    panic!("expected to to be a vertex");
                 };
 
                 let _result = game.read_line(&format!("play {color} {from} {to}\n"));
