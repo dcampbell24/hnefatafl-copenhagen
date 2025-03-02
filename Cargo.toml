@@ -21,7 +21,7 @@ csv = "1"
 dirs = "6"
 env_logger = "0.11"
 hnefatafl = "0.0.1"
-hnefatafl-egui = { version = "0.1", git = "https://github.com/bunburya/hnefatafl-egui/" }
+hnefatafl-egui = { version = "0.1", git = "https://github.com/dcampbell24/hnefatafl-egui/" }
 log = "0.4"
 # rayon = "1"
 ron = "0.8"

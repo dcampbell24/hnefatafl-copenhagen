@@ -4,15 +4,14 @@ use std::{
 };
 
 use hnefatafl::preset::{boards, rules};
-use hnefatafl_egui::board::Board;
 use hnefatafl_copenhagen::{VERSION_ID, color::Color, game::Game, play::Vertex, status::Status};
 
 const ADDRESS: &str = "localhost:49152";
 
 fn main() -> anyhow::Result<()> {
     let game_ = hnefatafl::game::Game::new(rules::COPENHAGEN, boards::COPENHAGEN)?;
-    let board = Board::new(&game_, setup.ai_side.other());
-    let mut ai = hnefatafl_ai::BasicAi::new(game_.logic, setup.ai_side, setup.ai_time);
+    let board = hnefatafl_egui::board::Board::new(&game_, setup.ai_side.other());
+    let mut ai = hnefatafl_egui::ai::BasicAi::new(game_.logic, setup.ai_side, setup.ai_time);
 
     let mut buf = String::new();
 
