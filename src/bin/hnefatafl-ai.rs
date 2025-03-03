@@ -20,7 +20,6 @@ use hnefatafl_copenhagen::{
     status::Status,
 };
 use hnefatafl_egui::ai::{Ai, BasicAi};
-use log::error;
 
 const ADDRESS: &str = "localhost:49152";
 
@@ -42,8 +41,7 @@ fn main() -> anyhow::Result<()> {
             reader.read_line(&mut buf)?;
 
             if buf.trim().is_empty() {
-                error!("the TCP stream has closed");
-                return Ok(());
+                return Err(Error::msg("the TCP stream has closed"));
             }
 
             let message: Vec<_> = buf.split_ascii_whitespace().collect();
@@ -64,8 +62,7 @@ fn main() -> anyhow::Result<()> {
             reader.read_line(&mut buf)?;
 
             if buf.trim().is_empty() {
-                error!("the TCP stream has closed");
-                return Ok(());
+                return Err(Error::msg("the TCP stream has closed"));
             }
 
             let message: Vec<_> = buf.split_ascii_whitespace().collect();
@@ -107,7 +104,6 @@ fn handle_messages(
         reader.read_line(&mut buf)?;
 
         if buf.trim().is_empty() {
-            error!("the TCP stream has closed");
             return Err(Error::msg("the TCP stream has closed"));
         }
 
