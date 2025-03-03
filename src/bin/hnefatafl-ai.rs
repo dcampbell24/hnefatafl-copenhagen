@@ -6,6 +6,7 @@ use std::{
 };
 
 use anyhow::Error;
+use clap::{Parser, command};
 use hnefatafl::{
     board::state::BitfieldBoardState,
     pieces::Side,
@@ -17,21 +18,53 @@ use hnefatafl_copenhagen::{
     color::Color,
     game::Game,
     play::{Plae, Vertex},
+    role::Role,
     status::Status,
 };
 use hnefatafl_egui::ai::{Ai, BasicAi};
 
-const ADDRESS: &str = "localhost:49152";
+const PORT: &str = ":49152";
+
+/// A Hnefatafl Copenhagen AI
+///
+/// This is an AI client that connects to a server.
+#[derive(Parser, Debug)]
+#[command(version, about)]
+struct Args {
+    #[arg(long)]
+    username: String,
+
+    #[arg(default_value = "", long)]
+    password: String,
+
+    /// attacker or defender
+    #[arg(long)]
+    role: Role,
+
+    /// Connect to the HTP server at host
+    #[arg(default_value = "hnefatafl.org", long)]
+    host: String,
+}
 
 fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+
+    let mut username = "ai-".to_string();
+    username.push_str(&args.username);
+
+    let mut address = args.host.to_string();
+    address.push_str(PORT);
+
     let mut buf = String::new();
-    let mut tcp = TcpStream::connect(ADDRESS)?;
+    let mut tcp = TcpStream::connect(address)?;
     let mut reader = BufReader::new(tcp.try_clone()?);
 
-    tcp.write_all(format!("{VERSION_ID} login ai-00\n").as_bytes())?;
+    tcp.write_all(format!("{VERSION_ID} login {username} {}\n", args.password).as_bytes())?;
     reader.read_line(&mut buf)?;
     assert_eq!(buf, "= login\n");
     buf.clear();
+
+    // Todo: handle role.
 
     loop {
         tcp.write_all(b"new_game attacker rated fischer 900000 10\n")?;

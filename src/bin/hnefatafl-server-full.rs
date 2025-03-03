@@ -5,6 +5,7 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     path::PathBuf,
+    str::FromStr,
     sync::mpsc::{self, Receiver, Sender},
     thread,
     time::Duration,
@@ -1220,7 +1221,7 @@ impl Server {
         }
 
         let role = the_rest[0];
-        let Ok(role) = Role::try_from(role) else {
+        let Ok(role) = Role::from_str(role) else {
             return (
                 self.clients[&index_supplied].clone(),
                 false,

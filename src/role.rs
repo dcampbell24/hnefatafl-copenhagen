@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub enum Role {
@@ -16,10 +16,10 @@ impl fmt::Display for Role {
     }
 }
 
-impl TryFrom<&str> for Role {
-    type Error = anyhow::Error;
+impl FromStr for Role {
+    type Err = anyhow::Error;
 
-    fn try_from(string: &str) -> anyhow::Result<Self> {
+    fn from_str(string: &str) -> anyhow::Result<Self> {
         match string {
             "attacker" => Ok(Self::Attacker),
             "defender" => Ok(Self::Defender),
