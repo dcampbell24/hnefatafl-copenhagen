@@ -127,6 +127,10 @@ fn handle_messages(
 
             println!("{play}");
             println!("{}", game_.state.board);
+
+            if game.status != Status::Ongoing {
+                return Ok(());
+            }
         } else if Some("play") == message.get(2).copied() {
             let Some(color) = message.get(3).copied() else {
                 panic!("expected color");
