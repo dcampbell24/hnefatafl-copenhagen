@@ -293,10 +293,8 @@ impl Client {
             Message::ChangeTheme(theme) => self.theme = theme,
             Message::ConnectedTo(address) => self.connected_to = address,
             Message::GameAccept(id) => {
-                self.game_id = id;
                 self.send(format!("join_game {id}\n"));
-                self.screen = Screen::Game;
-                self.status = Status::Ongoing;
+                self.game_id = id;
             }
             Message::GameDecline(id) => {
                 self.send(format!("decline_game {id}\n"));
@@ -576,9 +574,12 @@ impl Client {
                             }
                             // = join_game david abby rated fischer 900_000 10
                             Some("join_game" | "resume_game" | "watch_game") => {
-                                self.texts_game = VecDeque::new();
                                 self.screen = Screen::Game;
                                 self.status = Status::Ongoing;
+                                self.captures = HashSet::new();
+                                self.play_from_previous = None;
+                                self.play_to_previous = None;
+                                self.texts_game = VecDeque::new();
 
                                 let Some(attacker) = text.next() else {
                                     panic!("the attacker should be supplied");
