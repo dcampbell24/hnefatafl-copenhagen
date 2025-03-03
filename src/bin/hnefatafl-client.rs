@@ -1525,7 +1525,7 @@ fn pass_messages() -> impl Stream<Item = Message> {
                     ));
                     buffer.clear();
                 } else {
-                    error!("error: the TCP stream has closed");
+                    error!("the TCP stream has closed");
                     exit(1);
                 }
             }
