@@ -30,13 +30,13 @@ impl Plae {
     /// # Errors
     ///
     /// If you try to convert an illegal character or you don't get vertex-vertex.
-    pub fn try_from_(color: Color, play: &str) -> anyhow::Result<Self> {
+    pub fn try_from_(color: &Color, play: &str) -> anyhow::Result<Self> {
         let Some((from, to)) = play.split_once('-') else {
             return Err(anyhow::Error::msg("expected: vertex-vertex"));
         };
 
         Ok(Self::Play(Play {
-            color,
+            color: color.clone(),
             from: Vertex::from_str_(from)?,
             to: Vertex::from_str_(to)?,
         }))

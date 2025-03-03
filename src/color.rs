@@ -2,6 +2,8 @@ use std::{fmt, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
+use crate::role::Role;
+
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Color {
     // attacker
@@ -29,6 +31,15 @@ impl fmt::Display for Color {
             Self::Black => write!(f, "black"),
             Self::Colorless => write!(f, "colorless"),
             Self::White => write!(f, "white"),
+        }
+    }
+}
+
+impl From<&Role> for Color {
+    fn from(role: &Role) -> Self {
+        match role {
+            Role::Attacker => Color::Black,
+            Role::Defender => Color::White,
         }
     }
 }

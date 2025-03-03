@@ -199,7 +199,7 @@ fn login(
                     break;
                 }
 
-                stream.write_all(b"? login password is wrong or account doesn't exist\n")?;
+                stream.write_all(b"? login password is wrong, account doesn't exist, or your already logged in\n")?;
                 continue;
             } else if create_account_login == "create_account" {
                 if "= create_account" == message.as_str() {

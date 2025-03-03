@@ -64,10 +64,10 @@ fn main() -> anyhow::Result<()> {
     assert_eq!(buf, "= login\n");
     buf.clear();
 
-    // Todo: handle role.
+    let color = Color::from(&args.role);
 
     loop {
-        tcp.write_all(b"new_game attacker rated fischer 900000 10\n")?;
+        tcp.write_all(format!("new_game {} rated fischer 900000 10\n", args.role).as_bytes())?;
 
         loop {
             // "= new_game game GAME_ID ai-00 _ rated fischer 900000 10 _ false {}\n"
@@ -117,10 +117,13 @@ fn main() -> anyhow::Result<()> {
 
         println!("{}", game_.state.board);
 
-        let ai =
-            hnefatafl_egui::ai::BasicAi::new(game_.logic, Side::Attacker, Duration::from_secs(10));
+        let ai = hnefatafl_egui::ai::BasicAi::new(
+            game_.logic,
+            side_from_role(args.role),
+            Duration::from_secs(4),
+        );
 
-        handle_messages(ai, game, game_, game_id, &mut reader, &mut tcp)?;
+        handle_messages(ai, game, game_, game_id, &color, &mut reader, &mut tcp)?;
     }
 }
 
@@ -129,6 +132,7 @@ fn handle_messages(
     mut game: Game,
     mut game_: hnefatafl::game::Game<BitfieldBoardState<u128>>,
     game_id: &str,
+    color: &Color,
     reader: &mut BufReader<TcpStream>,
     tcp: &mut TcpStream,
 ) -> anyhow::Result<()> {
@@ -149,12 +153,12 @@ fn handle_messages(
 
             if let Err(invalid_play) = game_.do_play(play) {
                 println!("invalid_play: {invalid_play:?}");
-                tcp.write_all(format!("game {game_id} play black resigns _\n").as_bytes())?;
+                tcp.write_all(format!("game {game_id} play {color} resigns _\n").as_bytes())?;
                 return Ok(());
             }
 
             println!("{play}");
-            let play = Plae::try_from_(Color::Black, &play.to_string())?;
+            let play = Plae::try_from_(color, &play.to_string())?;
             game.read_line(&play.to_string())?;
             tcp.write_all(format!("game {game_id} {play}").as_bytes())?;
 
@@ -204,7 +208,7 @@ fn handle_messages(
 
             if let Err(invalid_play) = game_.do_play(play) {
                 println!("invalid_play: {invalid_play:?}");
-                tcp.write_all(format!("game {game_id} play black resigns _\n").as_bytes())?;
+                tcp.write_all(format!("game {game_id} play {color} resigns _\n").as_bytes())?;
                 return Ok(());
             }
 
@@ -212,5 +216,13 @@ fn handle_messages(
         }
 
         buf.clear();
+    }
+}
+
+#[must_use]
+fn side_from_role(role: Role) -> Side {
+    match role {
+        Role::Attacker => Side::Attacker,
+        Role::Defender => Side::Defender,
     }
 }
