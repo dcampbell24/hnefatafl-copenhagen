@@ -2648,7 +2648,7 @@ dependencies = [
 [[package]]
 name = "hnefatafl-egui"
 version = "0.1.0"
-source = "git+https://github.com/dcampbell24/hnefatafl-egui/#26b9068ddbb5abe23a06d81d7db89739966baad6"
+source = "git+https://github.com/dcampbell24/hnefatafl-egui/#89a3dac6c16db90a078cb515e9597e476cd0b65b"
 dependencies = [
  "console_error_panic_hook",
  "eframe",
