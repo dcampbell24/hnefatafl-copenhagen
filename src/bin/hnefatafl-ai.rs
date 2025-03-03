@@ -115,7 +115,7 @@ fn handle_messages(
             };
 
             if let Err(invalid_play) = game_.do_play(play) {
-                println!("{invalid_play:?}");
+                println!("invalid_play: {invalid_play:?}");
                 tcp.write_all(format!("game {game_id} play black resigns _\n").as_bytes())?;
                 return Ok(());
             }
@@ -126,9 +126,7 @@ fn handle_messages(
             game.read_line(&play.to_string())?;
             tcp.write_all(format!("game {game_id} {play}\n").as_bytes())?;
             println!("{play:?}"); // Made it here!
-        }
-
-        if Some("play") == message.get(2).copied() {
+        } else if Some("play") == message.get(2).copied() {
             let Some(color) = message.get(3).copied() else {
                 panic!("expected color");
             };
@@ -162,7 +160,7 @@ fn handle_messages(
             println!("{play}");
 
             if let Err(invalid_play) = game_.do_play(play) {
-                println!("{invalid_play:?}");
+                println!("invalid_play: {invalid_play:?}");
                 tcp.write_all(format!("game {game_id} play black resigns _\n").as_bytes())?;
                 return Ok(());
             }
