@@ -120,12 +120,14 @@ fn handle_messages(
                 return Ok(());
             }
 
-            println!("{}", game_.state.board);
-
+            println!("{play}");
             let play = Plae::try_from_(Color::Black, &play.to_string())?;
             game.read_line(&play.to_string())?;
-            tcp.write_all(format!("game {game_id} {play}\n").as_bytes())?;
-            println!("{play:?}"); // Made it here!
+            tcp.write_all(format!("game {game_id} {play}").as_bytes())?;
+
+            println!("{play}");
+            println!("{}", game_.state.board);
+            // Made it here!
         } else if Some("play") == message.get(2).copied() {
             let Some(color) = message.get(3).copied() else {
                 panic!("expected color");
@@ -148,7 +150,9 @@ fn handle_messages(
                 panic!("expected to to be a vertex");
             };
 
-            game.read_line(&format!("play {color} {from} {to}\n"))?;
+            let play = format!("play {color} {from} {to}\n");
+            print!("{play}");
+            game.read_line(&play)?;
 
             if game.status != Status::Ongoing {
                 return Ok(());
@@ -158,6 +162,7 @@ fn handle_messages(
             let play = format!("{from}-{to}");
             let play = Play::from_str(&play).unwrap();
             println!("{play}");
+            println!();
 
             if let Err(invalid_play) = game_.do_play(play) {
                 println!("invalid_play: {invalid_play:?}");
