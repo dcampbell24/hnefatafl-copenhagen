@@ -15,6 +15,34 @@ pub enum Plae {
     WhiteResigns,
 }
 
+impl fmt::Display for Plae {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Play(play) => writeln!(f, "play {} {} {}", play.color, play.from, play.to),
+            Self::BlackResigns => writeln!(f, "play black resigns _"),
+            Self::WhiteResigns => writeln!(f, "play white resigns _"),
+        }
+    }
+}
+
+impl Plae {
+    // Todo: can the player resign?
+    /// # Errors
+    ///
+    /// If you try to convert an illegal character or you don't get vertex-vertex.
+    pub fn try_from_(color: Color, play: &str) -> anyhow::Result<Self> {
+        let Some((from, to)) = play.split_once('-') else {
+            return Err(anyhow::Error::msg("expected: vertex-vertex"));
+        };
+
+        Ok(Self::Play(Play {
+            color,
+            from: Vertex::try_from_(from)?,
+            to: Vertex::try_from_(to)?,
+        }))
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Play {
     pub color: Color,

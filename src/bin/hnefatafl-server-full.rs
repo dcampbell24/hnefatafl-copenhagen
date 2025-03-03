@@ -229,7 +229,6 @@ fn login(
         let buf_str = buf.trim();
 
         if buf_str.is_empty() {
-            buf.clear();
             break 'outer;
         }
 
@@ -244,8 +243,7 @@ fn login(
     }
 
     tx.send((format!("{index} {username_proper} logout"), None))?;
-
-    Err(anyhow::Error::msg("the user didn't pass 'login username'"))
+    Ok(())
 }
 
 fn receiving_and_writing(

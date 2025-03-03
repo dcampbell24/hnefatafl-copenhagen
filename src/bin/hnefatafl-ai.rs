@@ -1,20 +1,31 @@
 use std::{
     io::{BufRead, BufReader, Write},
     net::TcpStream,
+    str::FromStr,
+    time::Duration,
 };
 
-use hnefatafl::preset::{boards, rules};
-use hnefatafl_copenhagen::{VERSION_ID, color::Color, game::Game, play::Vertex, status::Status};
+use hnefatafl::{
+    board::state::BitfieldBoardState,
+    pieces::Side,
+    play::Play,
+    preset::{boards, rules},
+};
+use hnefatafl_copenhagen::{
+    VERSION_ID,
+    color::Color,
+    game::Game,
+    play::{Plae, Vertex},
+    status::Status,
+};
+use hnefatafl_egui::ai::Ai;
+use log::error;
 
 const ADDRESS: &str = "localhost:49152";
 
+#[allow(clippy::too_many_lines)]
 fn main() -> anyhow::Result<()> {
-    let game_ = hnefatafl::game::Game::new(rules::COPENHAGEN, boards::COPENHAGEN)?;
-    let board = hnefatafl_egui::board::Board::new(&game_, setup.ai_side.other());
-    let mut ai = hnefatafl_egui::ai::BasicAi::new(game_.logic, setup.ai_side, setup.ai_time);
-
     let mut buf = String::new();
-
     let mut tcp = TcpStream::connect(ADDRESS)?;
     let mut reader = BufReader::new(tcp.try_clone()?);
 
@@ -29,6 +40,12 @@ fn main() -> anyhow::Result<()> {
         loop {
             // "= new_game game GAME_ID ai-00 _ rated fischer 900000 10 _ false {}\n"
             reader.read_line(&mut buf)?;
+
+            if buf.trim().is_empty() {
+                error!("the TCP stream has closed");
+                return Ok(());
+            }
+
             let message: Vec<_> = buf.split_ascii_whitespace().collect();
             if message[1] == "new_game" {
                 break;
@@ -46,6 +63,11 @@ fn main() -> anyhow::Result<()> {
         loop {
             reader.read_line(&mut buf)?;
 
+            if buf.trim().is_empty() {
+                error!("the TCP stream has closed");
+                return Ok(());
+            }
+
             let message: Vec<_> = buf.split_ascii_whitespace().collect();
             if Some("challenge_requested") == message.get(1).copied() {
                 println!("{message:?}");
@@ -60,17 +82,41 @@ fn main() -> anyhow::Result<()> {
         tcp.write_all(format!("join_game {game_id}\n").as_bytes())?;
         let mut game = Game::default();
 
+        let mut game_: hnefatafl::game::Game<BitfieldBoardState<u128>> =
+            hnefatafl::game::Game::new(rules::COPENHAGEN, boards::COPENHAGEN).unwrap();
+
+        println!("{}", game_.state.board);
+
+        let mut ai =
+            hnefatafl_egui::ai::BasicAi::new(game_.logic, Side::Attacker, Duration::from_secs(10));
+
         loop {
             reader.read_line(&mut buf)?;
+
+            if buf.trim().is_empty() {
+                error!("the TCP stream has closed");
+                return Ok(());
+            }
+
             let message: Vec<_> = buf.split_ascii_whitespace().collect();
 
             if Some("generate_move") == message.get(2).copied() {
-                let Some(play) = game.generate_move() else {
-                    panic!("we are not passing the empty string")
+                let Ok((play, _lines)) = ai.next_play(&game_.state) else {
+                    panic!("we got an error from ai.next_play");
                 };
 
-                tcp.write_all(format!("game {game_id} play {play} _\n").as_bytes())?;
-                println!("{play:?}");
+                if let Err(invalid_play) = game_.do_play(play) {
+                    println!("{invalid_play:?}");
+                    tcp.write_all(format!("game {game_id} play black resigns _\n").as_bytes())?;
+                    break;
+                }
+
+                println!("{}", game_.state.board);
+
+                let play = Plae::try_from_(Color::Black, &play.to_string())?;
+                game.read_line(&play.to_string())?;
+                tcp.write_all(format!("game {game_id} {play}\n").as_bytes())?;
+                println!("{play:?}"); // Made it here!
             }
 
             if Some("play") == message.get(2).copied() {
@@ -100,6 +146,19 @@ fn main() -> anyhow::Result<()> {
                 if game.status != Status::Ongoing {
                     break;
                 }
+
+                // Fixme: the vertexes are wrong!
+                let play = format!("{from}-{to}");
+                let play = Play::from_str(&play).unwrap();
+                println!("{play}");
+
+                if let Err(invalid_play) = game_.do_play(play) {
+                    println!("{invalid_play:?}");
+                    tcp.write_all(format!("game {game_id} play black resigns _\n").as_bytes())?;
+                    break;
+                }
+
+                println!("{}", game_.state.board);
             }
 
             buf.clear();

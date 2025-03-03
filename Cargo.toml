@@ -20,14 +20,16 @@ clap = { version ="4", features = ["derive"] }
 csv = "1"
 dirs = "6"
 env_logger = "0.11"
-hnefatafl = "0.0.1"
-hnefatafl-egui = { version = "0.1", git = "https://github.com/dcampbell24/hnefatafl-egui/" }
 log = "0.4"
 # rayon = "1"
 ron = "0.8"
 rustc-hash = "2"
 serde = { version = "1", features = ["derive"] }
 serde_with = "3"
+
+# ai only
+hnefatafl = { version = "0.0.1", optional = true }
+hnefatafl-egui = { version = "0.1", git = "https://github.com/dcampbell24/hnefatafl-egui/", optional = true }
 
 # client only
 futures = { version = "0.3", optional = true }
@@ -44,6 +46,7 @@ rand = { version = "0.8", optional = true }
 dirs = "6"
 
 [features]
+ai = ["dep:hnefatafl", "dep:hnefatafl-egui"]
 client = ["dep:futures", "dep:iced", "dep:rodio", "dep:webbrowser"]
 server = ["dep:argon2", "dep:password-hash", "dep:rand"]
 
