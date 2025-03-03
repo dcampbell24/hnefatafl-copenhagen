@@ -5,6 +5,7 @@ use std::{
     time::Duration,
 };
 
+use anyhow::Error;
 use hnefatafl::{
     board::state::BitfieldBoardState,
     pieces::Side,
@@ -18,12 +19,11 @@ use hnefatafl_copenhagen::{
     play::{Plae, Vertex},
     status::Status,
 };
-use hnefatafl_egui::ai::Ai;
+use hnefatafl_egui::ai::{Ai, BasicAi};
 use log::error;
 
 const ADDRESS: &str = "localhost:49152";
 
-#[allow(clippy::too_many_lines)]
 fn main() -> anyhow::Result<()> {
     let mut buf = String::new();
     let mut tcp = TcpStream::connect(ADDRESS)?;
@@ -80,88 +80,100 @@ fn main() -> anyhow::Result<()> {
         }
 
         tcp.write_all(format!("join_game {game_id}\n").as_bytes())?;
-        let mut game = Game::default();
+        let game = Game::default();
 
-        let mut game_: hnefatafl::game::Game<BitfieldBoardState<u128>> =
+        let game_: hnefatafl::game::Game<BitfieldBoardState<u128>> =
             hnefatafl::game::Game::new(rules::COPENHAGEN, boards::COPENHAGEN).unwrap();
 
         println!("{}", game_.state.board);
 
-        let mut ai =
+        let ai =
             hnefatafl_egui::ai::BasicAi::new(game_.logic, Side::Attacker, Duration::from_secs(10));
 
-        loop {
-            reader.read_line(&mut buf)?;
+        handle_messages(ai, game, game_, game_id, &mut reader, &mut tcp)?;
+    }
+}
 
-            if buf.trim().is_empty() {
-                error!("the TCP stream has closed");
+fn handle_messages(
+    mut ai: BasicAi,
+    mut game: Game,
+    mut game_: hnefatafl::game::Game<BitfieldBoardState<u128>>,
+    game_id: &str,
+    reader: &mut BufReader<TcpStream>,
+    tcp: &mut TcpStream,
+) -> anyhow::Result<()> {
+    let mut buf = String::new();
+    loop {
+        reader.read_line(&mut buf)?;
+
+        if buf.trim().is_empty() {
+            error!("the TCP stream has closed");
+            return Err(Error::msg("the TCP stream has closed"));
+        }
+
+        let message: Vec<_> = buf.split_ascii_whitespace().collect();
+
+        if Some("generate_move") == message.get(2).copied() {
+            let Ok((play, _lines)) = ai.next_play(&game_.state) else {
+                panic!("we got an error from ai.next_play");
+            };
+
+            if let Err(invalid_play) = game_.do_play(play) {
+                println!("{invalid_play:?}");
+                tcp.write_all(format!("game {game_id} play black resigns _\n").as_bytes())?;
                 return Ok(());
             }
 
-            let message: Vec<_> = buf.split_ascii_whitespace().collect();
+            println!("{}", game_.state.board);
 
-            if Some("generate_move") == message.get(2).copied() {
-                let Ok((play, _lines)) = ai.next_play(&game_.state) else {
-                    panic!("we got an error from ai.next_play");
-                };
-
-                if let Err(invalid_play) = game_.do_play(play) {
-                    println!("{invalid_play:?}");
-                    tcp.write_all(format!("game {game_id} play black resigns _\n").as_bytes())?;
-                    break;
-                }
-
-                println!("{}", game_.state.board);
-
-                let play = Plae::try_from_(Color::Black, &play.to_string())?;
-                game.read_line(&play.to_string())?;
-                tcp.write_all(format!("game {game_id} {play}\n").as_bytes())?;
-                println!("{play:?}"); // Made it here!
-            }
-
-            if Some("play") == message.get(2).copied() {
-                let Some(color) = message.get(3).copied() else {
-                    panic!("expected color");
-                };
-                let Ok(color) = Color::try_from(color) else {
-                    panic!("expected color to be a color");
-                };
-
-                let Some(from) = message.get(4).copied() else {
-                    panic!("expected from");
-                };
-                let Ok(from) = Vertex::try_from(from) else {
-                    panic!("expected from to be a vertex");
-                };
-
-                let Some(to) = message.get(5).copied() else {
-                    panic!("expected to");
-                };
-                let Ok(to) = Vertex::try_from(to) else {
-                    panic!("expected to to be a vertex");
-                };
-
-                game.read_line(&format!("play {color} {from} {to}\n"))?;
-
-                if game.status != Status::Ongoing {
-                    break;
-                }
-
-                // Fixme: the vertexes are wrong!
-                let play = format!("{from}-{to}");
-                let play = Play::from_str(&play).unwrap();
-                println!("{play}");
-
-                if let Err(invalid_play) = game_.do_play(play) {
-                    println!("{invalid_play:?}");
-                    tcp.write_all(format!("game {game_id} play black resigns _\n").as_bytes())?;
-                    break;
-                }
-
-                println!("{}", game_.state.board);
-            }
-
-            buf.clear();
+            let play = Plae::try_from_(Color::Black, &play.to_string())?;
+            game.read_line(&play.to_string())?;
+            tcp.write_all(format!("game {game_id} {play}\n").as_bytes())?;
+            println!("{play:?}"); // Made it here!
         }
+
+        if Some("play") == message.get(2).copied() {
+            let Some(color) = message.get(3).copied() else {
+                panic!("expected color");
+            };
+            let Ok(color) = Color::try_from(color) else {
+                panic!("expected color to be a color");
+            };
+
+            let Some(from) = message.get(4).copied() else {
+                panic!("expected from");
+            };
+            let Ok(from) = Vertex::try_from(from) else {
+                panic!("expected from to be a vertex");
+            };
+
+            let Some(to) = message.get(5).copied() else {
+                panic!("expected to");
+            };
+            let Ok(to) = Vertex::try_from(to) else {
+                panic!("expected to to be a vertex");
+            };
+
+            game.read_line(&format!("play {color} {from} {to}\n"))?;
+
+            if game.status != Status::Ongoing {
+                return Ok(());
+            }
+
+            // Fixme: the vertexes are wrong!
+            let play = format!("{from}-{to}");
+            let play = Play::from_str(&play).unwrap();
+            println!("{play}");
+
+            if let Err(invalid_play) = game_.do_play(play) {
+                println!("{invalid_play:?}");
+                tcp.write_all(format!("game {game_id} play black resigns _\n").as_bytes())?;
+                return Ok(());
+            }
+
+            println!("{}", game_.state.board);
+        }
+
+        buf.clear();
     }
 }
