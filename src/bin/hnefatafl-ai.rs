@@ -161,8 +161,7 @@ fn handle_messages(
                 return Ok(());
             }
 
-            // Fixme: the vertexes are wrong!
-            let play = format!("{from}-{to}");
+            let play = format!("{}-{}", from.fmt_other(), to.fmt_other());
             let play = Play::from_str(&play).unwrap();
             println!("{play}");
             println!();

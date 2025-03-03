@@ -1000,7 +1000,7 @@ impl Client {
                 Ok(vertexes) => {
                     if let Some(vertexes) = vertexes {
                         for vertex in vertexes.split_ascii_whitespace() {
-                            let Ok(vertex) = Vertex::try_from_(vertex) else {
+                            let Ok(vertex) = Vertex::try_from(vertex) else {
                                 panic!("this should be a valid vertex");
                             };
                             self.captures.insert(vertex);
@@ -1016,7 +1016,7 @@ impl Client {
                 Ok(vertexes) => {
                     if let Some(vertexes) = vertexes {
                         for vertex in vertexes.split_ascii_whitespace() {
-                            let Ok(vertex) = Vertex::try_from_(vertex) else {
+                            let Ok(vertex) = Vertex::try_from(vertex) else {
                                 panic!("this should be a valid vertex");
                             };
                             self.captures.insert(vertex);

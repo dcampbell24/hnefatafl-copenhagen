@@ -138,6 +138,15 @@ impl TryFrom<&str> for Vertex {
 }
 
 impl Vertex {
+    #[must_use]
+    pub fn fmt_other(&self) -> String {
+        format!(
+            "{}{}",
+            BOARD_LETTERS_.chars().collect::<Vec<_>>()[self.x],
+            11 - self.y
+        )
+    }
+
     /// # Errors
     ///
     /// If you try to convert an illegal character.
