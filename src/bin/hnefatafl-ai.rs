@@ -139,6 +139,9 @@ fn handle_messages(
             let Some(from) = message.get(4).copied() else {
                 panic!("expected from");
             };
+            if from == "resigns" {
+                return Ok(());
+            }
             let Ok(from) = Vertex::try_from(from) else {
                 panic!("expected from to be a vertex");
             };
