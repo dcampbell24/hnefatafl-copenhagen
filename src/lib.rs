@@ -5,6 +5,7 @@ use std::{
     net::TcpStream,
     path::Path,
     process::exit,
+    str::FromStr,
 };
 
 use game::Game;
@@ -67,7 +68,7 @@ pub fn hnefatafl_rs() -> anyhow::Result<()> {
                 match game.update(message) {
                     Ok(Some(message)) => {
                         for vertex in message.split_ascii_whitespace() {
-                            let capture = Vertex::try_from(vertex)?;
+                            let capture = Vertex::from_str(vertex)?;
                             captures_2_set.insert(capture);
                         }
                         if let Some(king) = game.board.find_the_king()? {
@@ -143,7 +144,7 @@ pub fn write_command(command: &str, stream: &mut TcpStream) -> anyhow::Result<()
 
 #[cfg(test)]
 mod tests {
-    use std::fmt;
+    use std::{fmt, str::FromStr};
 
     use super::*;
     use board::{Board, STARTING_POSITION};
@@ -180,7 +181,7 @@ mod tests {
             ..Default::default()
         };
 
-        let vertex = Vertex::try_from("f1")?;
+        let vertex = Vertex::from_str("f1")?;
         assert!(game.board.flood_fill_white_wins(&vertex)?);
 
         Ok(())
@@ -208,7 +209,7 @@ mod tests {
             ..Default::default()
         };
 
-        let vertex = Vertex::try_from("f1")?;
+        let vertex = Vertex::from_str("f1")?;
         assert!(!game.board.flood_fill_white_wins(&vertex)?);
 
         Ok(())

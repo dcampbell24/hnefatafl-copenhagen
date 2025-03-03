@@ -286,7 +286,7 @@ impl TryFrom<&[&str]> for ServerGameLight {
             attacker,
             defender,
             challenger: Challenger::default(),
-            rated: Rated::try_from(rated)?,
+            rated: Rated::from_str(rated)?,
             timed,
             attacker_channel: None,
             defender_channel: None,

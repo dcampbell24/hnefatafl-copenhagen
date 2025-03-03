@@ -5,6 +5,7 @@ use std::{
     net::TcpStream,
     path::Path,
     process::exit,
+    str::FromStr,
     sync::mpsc::{self, Sender},
     thread,
     time::Duration,
@@ -593,7 +594,7 @@ impl Client {
                                 let Some(rated) = text.next() else {
                                     panic!("there should be rated or unrated supplied");
                                 };
-                                let Ok(rated) = Rated::try_from(rated) else {
+                                let Ok(rated) = Rated::from_str(rated) else {
                                     panic!("rated should be valid");
                                 };
                                 self.rated = rated;
@@ -738,7 +739,7 @@ impl Client {
                                 let Some(color) = text.next() else {
                                     return;
                                 };
-                                let Ok(color) = Color::try_from(color) else {
+                                let Ok(color) = Color::from_str(color) else {
                                     return;
                                 };
                                 let game = get_game(&mut self.game);
@@ -757,7 +758,7 @@ impl Client {
                             let Some(color) = text.next() else {
                                 return;
                             };
-                            let Ok(color) = Color::try_from(color) else {
+                            let Ok(color) = Color::from_str(color) else {
                                 return;
                             };
                             let Some(from) = text.next() else {
@@ -768,7 +769,7 @@ impl Client {
                             };
 
                             if let (Ok(from), Ok(to)) =
-                                (Vertex::try_from(from), Vertex::try_from(to))
+                                (Vertex::from_str(from), Vertex::from_str(to))
                             {
                                 self.play_from_previous = Some(from);
                                 self.play_to_previous = Some(to);
@@ -1000,7 +1001,7 @@ impl Client {
                 Ok(vertexes) => {
                     if let Some(vertexes) = vertexes {
                         for vertex in vertexes.split_ascii_whitespace() {
-                            let Ok(vertex) = Vertex::try_from(vertex) else {
+                            let Ok(vertex) = Vertex::from_str(vertex) else {
                                 panic!("this should be a valid vertex");
                             };
                             self.captures.insert(vertex);
@@ -1016,7 +1017,7 @@ impl Client {
                 Ok(vertexes) => {
                     if let Some(vertexes) = vertexes {
                         for vertex in vertexes.split_ascii_whitespace() {
-                            let Ok(vertex) = Vertex::try_from(vertex) else {
+                            let Ok(vertex) = Vertex::from_str(vertex) else {
                                 panic!("this should be a valid vertex");
                             };
                             self.captures.insert(vertex);

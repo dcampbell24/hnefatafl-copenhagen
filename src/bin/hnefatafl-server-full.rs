@@ -544,7 +544,7 @@ impl Server {
                 (*command).to_string(),
             ));
         };
-        let Ok(draw) = Draw::try_from(*draw) else {
+        let Ok(draw) = Draw::from_str(draw) else {
             return Some((
                 self.clients[&index_supplied].clone(),
                 false,
@@ -641,7 +641,7 @@ impl Server {
             ));
         };
         let color = the_rest[2];
-        let Ok(color) = Color::try_from(color) else {
+        let Ok(color) = Color::from_str(color) else {
             return Some((
                 self.clients[&index_supplied].clone(),
                 false,
@@ -1230,7 +1230,7 @@ impl Server {
         };
 
         let rated = the_rest[1];
-        let Ok(rated) = Rated::try_from(rated) else {
+        let Ok(rated) = Rated::from_str(rated) else {
             return (
                 self.clients[&index_supplied].clone(),
                 false,
@@ -1365,7 +1365,7 @@ impl Server {
                 (*command).to_string(),
             );
         };
-        let Ok(color) = Color::try_from(*color) else {
+        let Ok(color) = Color::from_str(color) else {
             return (
                 self.clients[&index_supplied].clone(),
                 false,

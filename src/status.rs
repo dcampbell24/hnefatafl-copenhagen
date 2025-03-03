@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
@@ -22,10 +22,10 @@ impl fmt::Display for Status {
     }
 }
 
-impl TryFrom<&str> for Status {
-    type Error = anyhow::Error;
+impl FromStr for Status {
+    type Err = anyhow::Error;
 
-    fn try_from(value: &str) -> anyhow::Result<Self> {
+    fn from_str(value: &str) -> anyhow::Result<Self> {
         match value {
             "Black" => Ok(Self::BlackWins),
             "Draw" => Ok(Self::Draw),

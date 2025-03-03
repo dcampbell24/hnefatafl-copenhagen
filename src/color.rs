@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
@@ -33,10 +33,10 @@ impl fmt::Display for Color {
     }
 }
 
-impl TryFrom<&str> for Color {
-    type Error = anyhow::Error;
+impl FromStr for Color {
+    type Err = anyhow::Error;
 
-    fn try_from(color: &str) -> Result<Self, Self::Error> {
+    fn from_str(color: &str) -> anyhow::Result<Self> {
         match color {
             "black" => Ok(Self::Black),
             "white" => Ok(Self::White),

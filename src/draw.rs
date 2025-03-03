@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Draw {
@@ -15,10 +15,10 @@ impl fmt::Display for Draw {
     }
 }
 
-impl TryFrom<&str> for Draw {
-    type Error = anyhow::Error;
+impl FromStr for Draw {
+    type Err = anyhow::Error;
 
-    fn try_from(value: &str) -> anyhow::Result<Self> {
+    fn from_str(value: &str) -> anyhow::Result<Self> {
         match value {
             "accept" => Ok(Self::Accept),
             "decline" => Ok(Self::Decline),

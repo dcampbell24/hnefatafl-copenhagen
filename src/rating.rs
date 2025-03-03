@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
@@ -33,10 +33,10 @@ impl From<Rated> for bool {
     }
 }
 
-impl TryFrom<&str> for Rated {
-    type Error = anyhow::Error;
+impl FromStr for Rated {
+    type Err = anyhow::Error;
 
-    fn try_from(string: &str) -> anyhow::Result<Self> {
+    fn from_str(string: &str) -> anyhow::Result<Self> {
         match string {
             "rated" => Ok(Self::Yes),
             "unrated" => Ok(Self::No),

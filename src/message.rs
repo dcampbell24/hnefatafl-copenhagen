@@ -34,6 +34,7 @@ pub static COMMANDS: [&str; 12] = [
     "version",
 ];
 
+// Fixme!
 impl TryFrom<&str> for Message {
     type Error = anyhow::Error;
 

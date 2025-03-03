@@ -168,7 +168,7 @@ fn handle_messages(
             let Some(color) = message.get(3).copied() else {
                 panic!("expected color");
             };
-            let Ok(color) = Color::try_from(color) else {
+            let Ok(color) = Color::from_str(color) else {
                 panic!("expected color to be a color");
             };
 
@@ -178,14 +178,14 @@ fn handle_messages(
             if from == "resigns" {
                 return Ok(());
             }
-            let Ok(from) = Vertex::try_from(from) else {
+            let Ok(from) = Vertex::from_str(from) else {
                 panic!("expected from to be a vertex");
             };
 
             let Some(to) = message.get(5).copied() else {
                 panic!("expected to");
             };
-            let Ok(to) = Vertex::try_from(to) else {
+            let Ok(to) = Vertex::from_str(to) else {
                 panic!("expected to to be a vertex");
             };
 

@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
@@ -37,8 +37,8 @@ impl Plae {
 
         Ok(Self::Play(Play {
             color,
-            from: Vertex::try_from_(from)?,
-            to: Vertex::try_from_(to)?,
+            from: Vertex::from_str_(from)?,
+            to: Vertex::from_str_(to)?,
         }))
     }
 }
@@ -63,7 +63,7 @@ impl TryFrom<Vec<&str>> for Plae {
         let error_str = "expected: 'play COLOR FROM TO' or 'play COLOR resign'";
 
         if args.len() == 3 {
-            let color = Color::try_from(args[1])?;
+            let color = Color::from_str(args[1])?;
             if args[2] == "resigns" {
                 if color == Color::White {
                     return Ok(Self::WhiteResigns);
@@ -78,9 +78,9 @@ impl TryFrom<Vec<&str>> for Plae {
         }
 
         Ok(Self::Play(Play {
-            color: Color::try_from(args[1])?,
-            from: Vertex::try_from(args[2])?,
-            to: Vertex::try_from(args[3])?,
+            color: Color::from_str(args[1])?,
+            from: Vertex::from_str(args[2])?,
+            to: Vertex::from_str(args[3])?,
         }))
     }
 }
@@ -114,10 +114,10 @@ impl fmt::Display for Captures {
     }
 }
 
-impl TryFrom<&str> for Vertex {
-    type Error = anyhow::Error;
+impl FromStr for Vertex {
+    type Err = anyhow::Error;
 
-    fn try_from(vertex: &str) -> anyhow::Result<Self> {
+    fn from_str(vertex: &str) -> anyhow::Result<Self> {
         let mut chars = vertex.chars();
 
         if let Some(mut ch) = chars.next() {
@@ -150,7 +150,7 @@ impl Vertex {
     /// # Errors
     ///
     /// If you try to convert an illegal character.
-    pub fn try_from_(vertex: &str) -> anyhow::Result<Self> {
+    pub fn from_str_(vertex: &str) -> anyhow::Result<Self> {
         let vertex: Vec<_> = vertex.split_terminator('x').collect();
         let mut chars = vertex[0].chars();
 
