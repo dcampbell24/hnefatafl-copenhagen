@@ -127,7 +127,6 @@ fn handle_messages(
 
             println!("{play}");
             println!("{}", game_.state.board);
-            // Made it here!
         } else if Some("play") == message.get(2).copied() {
             let Some(color) = message.get(3).copied() else {
                 panic!("expected color");
