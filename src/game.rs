@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt, process::exit};
+use std::{borrow::Cow, fmt, process::exit, str::FromStr};
 
 use chrono::Local;
 use rustc_hash::FxHashSet;
@@ -83,7 +83,7 @@ impl Game {
                         vertex_to.push_str(&i_to.to_string());
 
                         let message = format!("play {} {vertex_from} {vertex_to}", self.turn);
-                        let message = Message::try_from(message.as_str())
+                        let message = Message::from_str(message.as_str())
                             .expect("we must have formed a valid play");
 
                         let turn = self.turn.clone();
@@ -184,7 +184,7 @@ impl Game {
             buffer.to_mut().replace_range(comment_offset.., "");
         }
 
-        self.update(Message::try_from(buffer.as_ref())?)
+        self.update(Message::from_str(buffer.as_ref())?)
     }
 
     /// # Errors

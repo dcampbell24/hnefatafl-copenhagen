@@ -120,7 +120,7 @@ fn main() -> anyhow::Result<()> {
         let ai = hnefatafl_egui::ai::BasicAi::new(
             game_.logic,
             side_from_role(args.role),
-            Duration::from_secs(4),
+            Duration::from_secs(15),
         );
 
         handle_messages(ai, game, game_, game_id, &color, &mut reader, &mut tcp)?;
@@ -158,8 +158,27 @@ fn handle_messages(
             }
 
             println!("{play}");
-            let play = Plae::try_from_(color, &play.to_string())?;
-            game.read_line(&play.to_string())?;
+            let mut play = Plae::from_str_(&play.to_string(), color)?;
+
+            if game.read_line(&play.to_string()).is_err() {
+                play = match color {
+                    Color::Black => Plae::BlackResigns,
+                    Color::Colorless => panic!("the color is black or white"),
+                    Color::White => Plae::WhiteResigns,
+                };
+                println!("Here 1!");
+                println!("{play} {play:?}");
+                game.read_line(&play.to_string())?; // Fails here! w
+
+                println!("Here 2!");
+                tcp.write_all(format!("game {game_id} {play}").as_bytes())?;
+
+                println!("{play}");
+                println!("{}", game_.state.board);
+
+                return Ok(());
+            };
+
             tcp.write_all(format!("game {game_id} {play}").as_bytes())?;
 
             println!("{play}");

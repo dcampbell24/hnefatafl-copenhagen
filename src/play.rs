@@ -30,7 +30,7 @@ impl Plae {
     /// # Errors
     ///
     /// If you try to convert an illegal character or you don't get vertex-vertex.
-    pub fn try_from_(color: &Color, play: &str) -> anyhow::Result<Self> {
+    pub fn from_str_(play: &str, color: &Color) -> anyhow::Result<Self> {
         let Some((from, to)) = play.split_once('-') else {
             return Err(anyhow::Error::msg("expected: vertex-vertex"));
         };
@@ -39,6 +39,37 @@ impl Plae {
             color: color.clone(),
             from: Vertex::from_str_(from)?,
             to: Vertex::from_str_(to)?,
+        }))
+    }
+}
+
+impl TryFrom<Vec<&str>> for Plae {
+    type Error = anyhow::Error;
+
+    fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {
+        let error_str = "expected: 'play COLOR FROM TO' or 'play COLOR resign'";
+
+        if args.len() < 3 {
+            return Err(anyhow::Error::msg(error_str));
+        }
+
+        let color = Color::from_str(args[1])?;
+        if args[2] == "resigns" {
+            if color == Color::White {
+                return Ok(Self::WhiteResigns);
+            }
+
+            return Ok(Self::BlackResigns);
+        }
+
+        if args.len() < 4 {
+            return Err(anyhow::Error::msg(error_str));
+        }
+
+        Ok(Self::Play(Play {
+            color: Color::from_str(args[1])?,
+            from: Vertex::from_str(args[2])?,
+            to: Vertex::from_str(args[3])?,
         }))
     }
 }
@@ -56,32 +87,15 @@ impl fmt::Display for Play {
     }
 }
 
-impl TryFrom<Vec<&str>> for Plae {
-    type Error = anyhow::Error;
+pub struct Captures(pub Vec<Vertex>);
 
-    fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {
-        let error_str = "expected: 'play COLOR FROM TO' or 'play COLOR resign'";
-
-        if args.len() == 3 {
-            let color = Color::from_str(args[1])?;
-            if args[2] == "resigns" {
-                if color == Color::White {
-                    return Ok(Self::WhiteResigns);
-                }
-
-                return Ok(Self::BlackResigns);
-            }
+impl fmt::Display for Captures {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for vertex in &self.0 {
+            write!(f, "{vertex} ")?;
         }
 
-        if args.len() < 4 {
-            return Err(anyhow::Error::msg(error_str));
-        }
-
-        Ok(Self::Play(Play {
-            color: Color::from_str(args[1])?,
-            from: Vertex::from_str(args[2])?,
-            to: Vertex::from_str(args[3])?,
-        }))
+        Ok(())
     }
 }
 
@@ -99,18 +113,6 @@ impl fmt::Display for Vertex {
             BOARD_LETTERS.chars().collect::<Vec<_>>()[self.x],
             11 - self.y
         )
-    }
-}
-
-pub struct Captures(pub Vec<Vertex>);
-
-impl fmt::Display for Captures {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for vertex in &self.0 {
-            write!(f, "{vertex} ")?;
-        }
-
-        Ok(())
     }
 }
 
