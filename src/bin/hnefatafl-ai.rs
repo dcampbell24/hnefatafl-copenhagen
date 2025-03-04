@@ -44,6 +44,10 @@ struct Args {
     /// Connect to the HTP server at host
     #[arg(default_value = "hnefatafl.org", long)]
     host: String,
+
+    /// Join game with id
+    #[arg(long)]
+    join_game: Option<u64>,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -65,16 +69,21 @@ fn main() -> anyhow::Result<()> {
     buf.clear();
 
     let color = Color::from(&args.role);
-
     loop {
-        new_game(&mut tcp, args.role, &mut reader, &mut buf)?;
+        let game_id;
 
-        let buf_clone = buf.clone();
-        let message: Vec<_> = buf_clone.split_ascii_whitespace().collect();
-        let game_id = message[3];
-        buf.clear();
+        if let Some(game_id_) = args.join_game {
+            game_id = game_id_.to_string();
+            tcp.write_all(format!("join_game_pending {game_id}\n").as_bytes())?;
+        } else {
+            new_game(&mut tcp, args.role, &mut reader, &mut buf)?;
 
-        wait_for_challenger(&mut reader, &mut buf, &mut tcp, game_id)?;
+            let message: Vec<_> = buf.split_ascii_whitespace().collect();
+            game_id = message[3].to_string();
+            buf.clear();
+
+            wait_for_challenger(&mut reader, &mut buf, &mut tcp, &game_id)?;
+        }
 
         let game = Game::default();
         let game_: hnefatafl::game::Game<BitfieldBoardState<u128>> =
@@ -88,7 +97,7 @@ fn main() -> anyhow::Result<()> {
             Duration::from_secs(15),
         );
 
-        handle_messages(ai, game, game_, game_id, &color, &mut reader, &mut tcp)?;
+        handle_messages(ai, game, game_, &game_id, &color, &mut reader, &mut tcp)?;
     }
 }
 
