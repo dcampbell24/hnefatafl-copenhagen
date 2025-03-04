@@ -120,8 +120,7 @@ fn main() -> anyhow::Result<()> {
         let ai = hnefatafl_egui::ai::BasicAi::new(
             game_.logic,
             side_from_role(args.role),
-            Duration::from_secs(60),
-            3,
+            Duration::from_secs(15),
         );
 
         handle_messages(ai, game, game_, game_id, &color, &mut reader, &mut tcp)?;
