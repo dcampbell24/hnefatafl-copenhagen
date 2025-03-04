@@ -67,51 +67,16 @@ fn main() -> anyhow::Result<()> {
     let color = Color::from(&args.role);
 
     loop {
-        tcp.write_all(format!("new_game {} rated fischer 900000 10\n", args.role).as_bytes())?;
-
-        loop {
-            // "= new_game game GAME_ID ai-00 _ rated fischer 900000 10 _ false {}\n"
-            reader.read_line(&mut buf)?;
-
-            if buf.trim().is_empty() {
-                return Err(Error::msg("the TCP stream has closed"));
-            }
-
-            let message: Vec<_> = buf.split_ascii_whitespace().collect();
-            if message[1] == "new_game" {
-                break;
-            }
-
-            buf.clear();
-        }
+        new_game(&mut tcp, args.role, &mut reader, &mut buf)?;
 
         let buf_clone = buf.clone();
         let message: Vec<_> = buf_clone.split_ascii_whitespace().collect();
         let game_id = message[3];
         buf.clear();
 
-        // Wait for a challenger...
-        loop {
-            reader.read_line(&mut buf)?;
+        wait_for_challenger(&mut reader, &mut buf, &mut tcp, game_id)?;
 
-            if buf.trim().is_empty() {
-                return Err(Error::msg("the TCP stream has closed"));
-            }
-
-            let message: Vec<_> = buf.split_ascii_whitespace().collect();
-            if Some("challenge_requested") == message.get(1).copied() {
-                println!("{message:?}");
-                buf.clear();
-
-                break;
-            }
-
-            buf.clear();
-        }
-
-        tcp.write_all(format!("join_game {game_id}\n").as_bytes())?;
         let game = Game::default();
-
         let game_: hnefatafl::game::Game<BitfieldBoardState<u128>> =
             hnefatafl::game::Game::new(rules::COPENHAGEN, boards::COPENHAGEN).unwrap();
 
@@ -125,6 +90,60 @@ fn main() -> anyhow::Result<()> {
 
         handle_messages(ai, game, game_, game_id, &color, &mut reader, &mut tcp)?;
     }
+}
+
+// "= new_game game GAME_ID ai-00 _ rated fischer 900000 10 _ false {}\n"
+fn new_game(
+    tcp: &mut TcpStream,
+    role: Role,
+    reader: &mut BufReader<TcpStream>,
+    buf: &mut String,
+) -> anyhow::Result<()> {
+    tcp.write_all(format!("new_game {role} rated fischer 900000 10\n").as_bytes())?;
+
+    loop {
+        // "= new_game game GAME_ID ai-00 _ rated fischer 900000 10 _ false {}\n"
+        reader.read_line(buf)?;
+
+        if buf.trim().is_empty() {
+            return Err(Error::msg("the TCP stream has closed"));
+        }
+
+        let message: Vec<_> = buf.split_ascii_whitespace().collect();
+        if message[1] == "new_game" {
+            return Ok(());
+        }
+
+        buf.clear();
+    }
+}
+
+fn wait_for_challenger(
+    reader: &mut BufReader<TcpStream>,
+    buf: &mut String,
+    tcp: &mut TcpStream,
+    game_id: &str,
+) -> anyhow::Result<()> {
+    loop {
+        reader.read_line(buf)?;
+
+        if buf.trim().is_empty() {
+            return Err(Error::msg("the TCP stream has closed"));
+        }
+
+        let message: Vec<_> = buf.split_ascii_whitespace().collect();
+        if Some("challenge_requested") == message.get(1).copied() {
+            println!("{message:?}");
+            buf.clear();
+
+            break;
+        }
+
+        buf.clear();
+    }
+
+    tcp.write_all(format!("join_game {game_id}\n").as_bytes())?;
+    Ok(())
 }
 
 fn handle_messages(
