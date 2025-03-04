@@ -166,11 +166,8 @@ fn handle_messages(
                     Color::Colorless => panic!("the color is black or white"),
                     Color::White => Plae::WhiteResigns,
                 };
-                println!("Here 1!");
-                println!("{play} {play:?}");
-                game.read_line(&play.to_string())?; // Fails here! w
 
-                println!("Here 2!");
+                game.read_line(&play.to_string())?;
                 tcp.write_all(format!("game {game_id} {play}").as_bytes())?;
 
                 println!("{play}");
