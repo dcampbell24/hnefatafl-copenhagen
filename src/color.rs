@@ -6,11 +6,11 @@ use crate::role::Role;
 
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Color {
-    // attacker
+    /// attacker
     #[default]
     Black,
     Colorless,
-    // defender
+    /// defender
     White,
 }
 

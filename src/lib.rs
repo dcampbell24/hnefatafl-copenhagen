@@ -1949,7 +1949,7 @@ mod tests {
         };
 
         game.read_line("play black b1 b2")?;
-        assert_eq!(game.generate_move(), Some("play white resigns".to_string()));
+        assert_eq!(game.generate_move(), Some(Plae::WhiteResigns));
         game.read_line("play white resigns")?;
 
         assert_eq!(game.status, Status::BlackWins);
@@ -1991,11 +1991,13 @@ mod tests {
     }
 
     #[test]
-    fn someone_wins() {
+    fn someone_wins() -> anyhow::Result<()> {
         let mut game = Game::default();
 
-        while game.generate_move().is_some() {}
+        while let Some(play) = game.generate_move() {
+            game.play(&play)?;
+        }
 
-        println!("{game}");
+        Ok(())
     }
 }

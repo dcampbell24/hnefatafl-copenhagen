@@ -8,7 +8,7 @@ use crate::{
     board::Board,
     color::Color,
     message::{COMMANDS, Message},
-    play::{BOARD_LETTERS, Captures, Plae, Play},
+    play::{BOARD_LETTERS, Captures, Plae, Play, Vertex},
     status::Status,
     time::TimeSettings,
 };
@@ -66,11 +66,13 @@ impl fmt::Display for Game {
 }
 
 impl Game {
+    #[must_use]
     #[allow(clippy::missing_panics_doc)]
-    pub fn generate_move(&mut self) -> Option<String> {
+    pub fn generate_move(&self) -> Option<Plae> {
         if self.status != Status::Ongoing {
             return None;
         }
+        let mut self_clone = self.clone();
 
         for letter_from in BOARD_LETTERS.chars() {
             for i_from in 1..12 {
@@ -82,23 +84,31 @@ impl Game {
                         let mut vertex_to = letter_to.to_string();
                         vertex_to.push_str(&i_to.to_string());
 
-                        let message = format!("play {} {vertex_from} {vertex_to}", self.turn);
-                        let message = Message::from_str(message.as_str())
-                            .expect("we must have formed a valid play");
+                        let play = Plae::Play(Play {
+                            color: self.turn.clone(),
+                            from: Vertex::from_str(&vertex_from).unwrap(),
+                            to: Vertex::from_str(&vertex_to).unwrap(),
+                        });
 
-                        let turn = self.turn.clone();
-                        if let Ok(_message) = self.update(message) {
-                            return Some(format!("{turn} {vertex_from} {vertex_to}"));
+                        if self_clone.play(&play).is_ok() {
+                            return Some(play);
                         }
                     }
                 }
             }
         }
 
-        Some(format!("play {} resigns", self.turn))
+        match self.turn {
+            Color::Black => Some(Plae::BlackResigns),
+            Color::Colorless => panic!("the game is in progress, so the turn can't be colorless"),
+            Color::White => Some(Plae::WhiteResigns),
+        }
     }
 
-    fn play(&mut self, play: Plae) -> anyhow::Result<Option<String>> {
+    /// # Errors
+    ///
+    /// If the game is already over or the move is illegal.
+    pub fn play(&mut self, play: &Plae) -> anyhow::Result<Option<String>> {
         if self.status == Status::Ongoing {
             if let (status, Some(timer), Some(time)) = match self.turn {
                 Color::Black => (
@@ -160,7 +170,7 @@ impl Game {
                         &mut self.previous_boards,
                     )?;
                     self.status = status;
-                    self.plays.push(play);
+                    self.plays.push(play.clone());
 
                     if self.status == Status::Ongoing {
                         self.turn = self.turn.opposite();
@@ -194,7 +204,7 @@ impl Game {
         match message {
             Message::Empty => Ok(None),
             Message::FinalStatus => Ok(Some(format!("{}", self.status))),
-            Message::GenerateMove => Ok(self.generate_move()),
+            Message::GenerateMove => Ok(self.generate_move().map(|play| play.to_string())),
             Message::KnownCommand(command) => {
                 if COMMANDS.contains(&command.as_str()) {
                     Ok(Some("true".to_string()))
@@ -211,7 +221,7 @@ impl Game {
                 let name = env!("CARGO_PKG_NAME");
                 Ok(Some(name.to_string()))
             }
-            Message::Play(play) => self.play(play),
+            Message::Play(play) => self.play(&play),
             Message::ProtocolVersion => Ok(Some("1-beta".to_string())),
             Message::Quit => exit(0),
             Message::ResetBoard => {

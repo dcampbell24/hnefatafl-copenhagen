@@ -175,38 +175,41 @@ fn handle_messages(
         let message: Vec<_> = buf.split_ascii_whitespace().collect();
 
         if Some("generate_move") == message.get(2).copied() {
-            let Ok((play, _lines)) = ai.next_play(&game_.state) else {
+            let Ok((mut play_game_, _lines)) = ai.next_play(&game_.state) else {
                 panic!("we got an error from ai.next_play");
             };
+            let mut play_game = Plae::from_str_(&play_game_.to_string(), color)?;
 
-            if let Err(invalid_play) = game_.do_play(play) {
+            println!("{play_game_}");
+            println!("{play_game}");
+
+            if game.play(&play_game).is_err() {
+                play_game = game.generate_move().expect("the game must be in progress");
+
+                let Plae::Play(play) = &play_game else {
+                    panic!("the player can't resign");
+                };
+
+                play_game_ = Play::from_str(&format!(
+                    "{}-{}",
+                    play.from.fmt_other(),
+                    play.to.fmt_other()
+                ))
+                .unwrap();
+
+                println!("changed play to: {play_game_}");
+                println!("changed play to: {play_game}");
+
+                game.play(&play_game)?;
+            };
+
+            if let Err(invalid_play) = game_.do_play(play_game_) {
                 println!("invalid_play: {invalid_play:?}");
                 tcp.write_all(format!("game {game_id} play {color} resigns _\n").as_bytes())?;
                 return Ok(());
             }
 
-            println!("{play}");
-            let mut play = Plae::from_str_(&play.to_string(), color)?;
-
-            if game.read_line(&play.to_string()).is_err() {
-                play = match color {
-                    Color::Black => Plae::BlackResigns,
-                    Color::Colorless => panic!("the color is black or white"),
-                    Color::White => Plae::WhiteResigns,
-                };
-
-                game.read_line(&play.to_string())?;
-                tcp.write_all(format!("game {game_id} {play}").as_bytes())?;
-
-                println!("{play}");
-                println!("{}", game_.state.board);
-
-                return Ok(());
-            };
-
-            tcp.write_all(format!("game {game_id} {play}").as_bytes())?;
-
-            println!("{play}");
+            tcp.write_all(format!("game {game_id} {play_game}").as_bytes())?;
             println!("{}", game_.state.board);
 
             if game.status != Status::Ongoing {
