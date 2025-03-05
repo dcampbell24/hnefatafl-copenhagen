@@ -24,7 +24,7 @@ use hnefatafl_copenhagen::{
     draw::Draw,
     game::Game,
     handle_error,
-    play::Vertex,
+    play::{Plae, Vertex},
     rating::Rated,
     role::Role,
     server_game::{ServerGameLight, ServerGamesLight},
@@ -861,7 +861,7 @@ impl Client {
                                         )));
                                     }
 
-                                    handle_error(game.read_line("play black resigns"));
+                                    handle_error(game.play(&Plae::BlackResigns));
                                     game.turn = Color::Colorless;
                                 }
                             }
@@ -879,7 +879,7 @@ impl Client {
                                         )));
                                     }
 
-                                    handle_error(game.read_line("play white resigns"));
+                                    handle_error(game.play(&Plae::WhiteResigns));
                                     game.turn = Color::Colorless;
                                 }
                             }
