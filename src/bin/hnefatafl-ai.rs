@@ -23,6 +23,7 @@ use hnefatafl_copenhagen::{
 };
 use hnefatafl_egui::ai::{Ai, BasicAi};
 
+// Fixme: It takes way too long to evaluate the score when there are hardly any moves.
 // Fixme: The AI doesn't recognize when it loses on time.
 // Fixme: When present, the player has to play to lose on time.
 
