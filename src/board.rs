@@ -217,15 +217,13 @@ impl Board {
         Ok(false)
     }
 
-    /// # Errors
-    ///
-    /// If the vertex is out of bounds.
+    #[must_use]
     pub fn all_legal_moves(
         &self,
         status: &Status,
         turn: &Color,
         previous_boards: &PreviousBoards,
-    ) -> anyhow::Result<LegalMoves> {
+    ) -> LegalMoves {
         let mut possible_vertexes = Vec::new();
         let mut legal_moves = LegalMoves {
             color: turn.clone(),
@@ -266,7 +264,7 @@ impl Board {
             }
         }
 
-        Ok(legal_moves)
+        legal_moves
     }
 
     #[allow(clippy::collapsible_if)]

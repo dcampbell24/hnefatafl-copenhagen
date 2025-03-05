@@ -212,7 +212,7 @@ impl Client {
                     button_ = button(text("X").size(board_size));
                 }
 
-                if let Some(Ok(legal_moves)) = &possible_moves {
+                if let Some(legal_moves) = &possible_moves {
                     if let Some(vertex_from) = self.play_from.as_ref() {
                         if let Some(vertexes) = legal_moves.moves.get(vertex_from) {
                             if vertex == *vertex_from {
