@@ -23,6 +23,9 @@ use hnefatafl_copenhagen::{
 };
 use hnefatafl_egui::ai::{Ai, BasicAi};
 
+// Fixme: The AI doesn't recognize when it loses on time.
+// Fixme: When present, the player has to play to lose on time.
+
 const PORT: &str = ":49152";
 
 /// A Hnefatafl Copenhagen AI
