@@ -734,25 +734,7 @@ impl Client {
                         let text_word = text.next();
                         if text_word == Some("generate_move") {
                             self.request_draw = false;
-                            let username_start: String = self.username.chars().take(3).collect();
-                            if username_start == "ai-" {
-                                let Some(color) = text.next() else {
-                                    return;
-                                };
-                                let Ok(color) = Color::from_str(color) else {
-                                    return;
-                                };
-                                let game = get_game(&mut self.game);
-
-                                let result = game
-                                    .read_line(&format!("generate_move {color}"))
-                                    .expect("generate_move should be valid")
-                                    .expect("an empty string wasn't passed");
-
-                                self.send(format!("game {index} play {result} _\n"));
-                            } else {
-                                self.my_turn = true;
-                            }
+                            self.my_turn = true;
                         // game 0 play black a3 a4
                         } else if text_word == Some("play") {
                             let Some(color) = text.next() else {
