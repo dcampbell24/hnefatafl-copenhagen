@@ -4,7 +4,7 @@ Description=Copenhagen Hnefatafl AI
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/games/hnefatafl-ai --username 00 --password PASSWORD --role attacker --host localhost
+ExecStart=/usr/games/hnefatafl-ai --username 00 --password PASSWORD --role attacker
 
 [Install]
 WantedBy=multi-user.target
