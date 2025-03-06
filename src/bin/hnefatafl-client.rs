@@ -24,7 +24,7 @@ use hnefatafl_copenhagen::{
     draw::Draw,
     game::Game,
     handle_error,
-    play::{Plae, Vertex},
+    play::Vertex,
     rating::Rated,
     role::Role,
     server_game::{ServerGameLight, ServerGamesLight},
@@ -347,8 +347,8 @@ impl Client {
                 if let Some(role) = self.role_selected {
                     if self.timed.0.is_some() {
                         match (
-                            self.time_minutes.parse::<i64>(),
-                            self.time_add_seconds.parse::<i64>(),
+                            self.time_minutes.parse::<u64>(),
+                            self.time_add_seconds.parse::<u64>(),
                         ) {
                             (Ok(minutes), Ok(add_seconds)) => {
                                 self.timed.0 = Some(Time {
@@ -620,7 +620,10 @@ impl Client {
                                 let mut game = Game {
                                     black_time: timed.clone(),
                                     white_time: timed.clone(),
-                                    time: Some(Local::now().to_utc().timestamp_millis()),
+                                    time: Some(
+                                        u64::try_from(Local::now().to_utc().timestamp_millis())
+                                            .unwrap(),
+                                    ),
                                     ..Game::default()
                                 };
 
@@ -641,8 +644,13 @@ impl Client {
                                             if let (Some(time), Some(time_ago)) =
                                                 (&mut self.time_attacker.0, game.time)
                                             {
-                                                let now = Local::now().to_utc().timestamp_millis();
-                                                time.milliseconds_left -= now - time_ago;
+                                                let now = u64::try_from(
+                                                    Local::now().to_utc().timestamp_millis(),
+                                                )
+                                                .unwrap();
+                                                time.milliseconds_left = time
+                                                    .milliseconds_left
+                                                    .saturating_sub(now - time_ago);
                                             }
                                         }
                                         Color::Colorless => {}
@@ -650,8 +658,13 @@ impl Client {
                                             if let (Some(time), Some(time_ago)) =
                                                 (&mut self.time_defender.0, game.time)
                                             {
-                                                let now = Local::now().to_utc().timestamp_millis();
-                                                time.milliseconds_left -= now - time_ago;
+                                                let now = u64::try_from(
+                                                    Local::now().to_utc().timestamp_millis(),
+                                                )
+                                                .unwrap();
+                                                time.milliseconds_left = time
+                                                    .milliseconds_left
+                                                    .saturating_sub(now - time_ago);
                                             }
                                         }
                                     }
@@ -851,37 +864,13 @@ impl Client {
                     match game.turn {
                         Color::Black => {
                             if let Some(time) = &mut self.time_attacker.0 {
-                                time.milliseconds_left -= 100;
-
-                                if self.my_turn && time.milliseconds_left <= 0 {
-                                    if let Some(tx) = &mut self.tx {
-                                        handle_error(tx.send(format!(
-                                            "game {} play black resigns _\n",
-                                            self.game_id
-                                        )));
-                                    }
-
-                                    handle_error(game.play(&Plae::BlackResigns));
-                                    game.turn = Color::Colorless;
-                                }
+                                time.milliseconds_left = time.milliseconds_left.saturating_sub(100);
                             }
                         }
                         Color::Colorless => {}
                         Color::White => {
                             if let Some(time) = &mut self.time_defender.0 {
-                                time.milliseconds_left -= 100;
-
-                                if self.my_turn && time.milliseconds_left <= 0 {
-                                    if let Some(tx) = &mut self.tx {
-                                        handle_error(tx.send(format!(
-                                            "game {} play white resigns _\n",
-                                            self.game_id
-                                        )));
-                                    }
-
-                                    handle_error(game.play(&Plae::WhiteResigns));
-                                    game.turn = Color::Colorless;
-                                }
+                                time.milliseconds_left = time.milliseconds_left.saturating_sub(100);
                             }
                         }
                     }

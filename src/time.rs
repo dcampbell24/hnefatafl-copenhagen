@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Time {
-    pub add_seconds: i64,
-    pub milliseconds_left: i64,
+    pub add_seconds: u64,
+    pub milliseconds_left: u64,
 }
 
 impl fmt::Display for Time {
@@ -64,11 +64,11 @@ impl TryFrom<Vec<&str>> for TimeSettings {
 
         if "fischer" == args[1] {
             let arg_2 = args[2]
-                .parse::<i64>()
+                .parse::<u64>()
                 .context("time_settings: arg 2 is not an integer")?;
 
             let arg_3 = args[3]
-                .parse::<i64>()
+                .parse::<u64>()
                 .context("time_settings: arg 3 is not an integer")?;
 
             Ok(Self(Some(Time {

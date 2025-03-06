@@ -102,6 +102,10 @@ fn main() -> anyhow::Result<()> {
         );
 
         handle_messages(ai, game, game_, &game_id, &color, &mut reader, &mut tcp)?;
+
+        if args.join_game.is_some() {
+            return Ok(());
+        }
     }
 }
 

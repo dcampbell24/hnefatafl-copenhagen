@@ -85,7 +85,7 @@ impl ServerGame {
             game: Game {
                 black_time: game.timed.clone(),
                 white_time: game.timed,
-                time: Some(Local::now().to_utc().timestamp_millis()),
+                time: Some(u64::try_from(Local::now().to_utc().timestamp_millis()).unwrap()),
                 ..Game::default()
             },
             texts: VecDeque::new(),
@@ -267,8 +267,8 @@ impl TryFrom<&[&str]> for ServerGameLight {
 
         let timed = match timed {
             "fischer" => TimeSettings(Some(Time {
-                add_seconds: add_seconds.parse::<i64>()?,
-                milliseconds_left: minutes.parse::<i64>()?,
+                add_seconds: add_seconds.parse::<u64>()?,
+                milliseconds_left: minutes.parse::<u64>()?,
             })),
             // "un-timed"
             _ => TimeSettings(None),
