@@ -19,7 +19,7 @@ pub struct Game {
     pub plays: Vec<Play>,
     pub previous_boards: PreviousBoards,
     pub status: Status,
-    pub time: Option<u64>,
+    pub time: Option<i64>,
     pub black_time: TimeSettings,
     pub white_time: TimeSettings,
     pub turn: Color,
@@ -125,16 +125,16 @@ impl Game {
                     self.time.as_mut(),
                 ),
             } {
-                let now = u64::try_from(Local::now().to_utc().timestamp_millis())?;
-                timer.milliseconds_left = timer.milliseconds_left.saturating_sub(now - *time);
+                let now = Local::now().to_utc().timestamp_millis();
+                timer.milliseconds_left -= now - *time;
 
-                if timer.milliseconds_left == 0 {
+                if timer.milliseconds_left <= 0 {
                     self.status = status;
                     return Ok(Some(String::new()));
                 }
 
                 timer.milliseconds_left += timer.add_seconds * 1_000;
-                *time = u64::try_from(Local::now().to_utc().timestamp_millis())?;
+                *time = Local::now().to_utc().timestamp_millis();
             }
 
             match play {
@@ -233,7 +233,7 @@ impl Game {
                 if let Some(time) = time_settings.0.take() {
                     self.black_time.0 = Some(time.clone());
                     self.white_time.0 = Some(time);
-                    self.time = Some(u64::try_from(Local::now().to_utc().timestamp_millis())?);
+                    self.time = Some(Local::now().to_utc().timestamp_millis());
                 } else {
                     self.black_time.0 = None;
                     self.white_time.0 = None;

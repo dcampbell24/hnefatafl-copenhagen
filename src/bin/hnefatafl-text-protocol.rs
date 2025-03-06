@@ -86,7 +86,7 @@ fn main() -> anyhow::Result<()> {
             add_seconds: 10,
             milliseconds_left: 15 * 60_000,
         })),
-        time: Some(u64::try_from(Local::now().to_utc().timestamp_millis())?),
+        time: Some(Local::now().to_utc().timestamp_millis()),
         ..Game::default()
     };
 

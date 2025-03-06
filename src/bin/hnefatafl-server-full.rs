@@ -469,11 +469,8 @@ impl Server {
                             (&mut game.game.time, &mut game.game.black_time.0)
                         {
                             if black_time.milliseconds_left > 0 {
-                                let now = u64::try_from(Local::now().to_utc().timestamp_millis())
-                                    .unwrap();
-                                black_time.milliseconds_left = black_time
-                                    .milliseconds_left
-                                    .saturating_sub(now - *game_time);
+                                let now = Local::now().to_utc().timestamp_millis();
+                                black_time.milliseconds_left -= now - *game_time;
                                 *game_time = now;
                             } else if let Some(tx) = &mut self.tx {
                                 let _ok = tx.send((
@@ -494,11 +491,8 @@ impl Server {
                             (&mut game.game.time, &mut game.game.white_time.0)
                         {
                             if white_time.milliseconds_left > 0 {
-                                let now = u64::try_from(Local::now().to_utc().timestamp_millis())
-                                    .unwrap();
-                                white_time.milliseconds_left = white_time
-                                    .milliseconds_left
-                                    .saturating_sub(now - *game_time);
+                                let now = Local::now().to_utc().timestamp_millis();
+                                white_time.milliseconds_left -= now - *game_time;
                                 *game_time = now;
                             } else if let Some(tx) = &mut self.tx {
                                 let _ok = tx.send((
