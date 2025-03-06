@@ -268,6 +268,8 @@ fn handle_messages(
             }
 
             println!("{}", game_.state.board);
+        } else if Some("game_over") == message.get(1).copied() {
+            return Ok(());
         }
 
         buf.clear();
