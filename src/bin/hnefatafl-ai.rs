@@ -23,6 +23,7 @@ use hnefatafl_copenhagen::{
 };
 use hnefatafl_egui::ai::{Ai, BasicAi};
 
+// Move 26, defender wins, corner escape, time per move 15s 2025-03-06.
 // Fixme: It takes way too long to evaluate the score when there are hardly any moves.
 // Fixme: The AI doesn't recognize when it loses on time.
 // Fixme: When present, the player has to play to lose on time.

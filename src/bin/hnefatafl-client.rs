@@ -1131,8 +1131,7 @@ impl Client {
                 };
 
                 let mut user_area_ = column![
-                    text(format!("move: {}", game.previous_boards.0.len())),
-                    text(rated),
+                    text(format!("move: {} {rated}", game.previous_boards.0.len())),
                     text(format!(
                         "attacker: {} {}",
                         &self.time_attacker, &self.attacker
