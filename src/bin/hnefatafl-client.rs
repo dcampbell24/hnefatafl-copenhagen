@@ -1126,7 +1126,12 @@ impl Client {
                     Rated::Yes => rated.push_str("yes"),
                 }
 
+                let Some(game) = &self.game else {
+                    panic!("we are in a game");
+                };
+
                 let mut user_area_ = column![
+                    text(format!("move: {}", game.previous_boards.0.len())),
                     text(rated),
                     text(format!(
                         "attacker: {} {}",
