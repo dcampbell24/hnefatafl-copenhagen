@@ -183,12 +183,15 @@ fn handle_messages(
         let message: Vec<_> = buf.split_ascii_whitespace().collect();
 
         if Some("generate_move") == message.get(2).copied() {
-            let Ok((mut play_game_, _lines)) = ai.next_play(&game_.state) else {
+            let Ok((mut play_game_, info)) = ai.next_play(&game_.state) else {
                 panic!("we got an error from ai.next_play");
             };
+
+            println!("{info:?}\n");
+
             let mut play_game = Plae::from_str_(&play_game_.to_string(), color)?;
 
-            println!("{play_game_}");
+            // println!("{play_game_}");
             println!("{play_game}");
 
             if game.play(&play_game).is_err() {
@@ -205,7 +208,7 @@ fn handle_messages(
                 ))
                 .unwrap();
 
-                println!("changed play to: {play_game_}");
+                // println!("changed play to: {play_game_}");
                 println!("changed play to: {play_game}");
 
                 game.play(&play_game)?;
