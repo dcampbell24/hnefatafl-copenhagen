@@ -58,6 +58,10 @@ required-features = ["client"]
 name = "hnefatafl-server-full"
 required-features = ["server"]
 
+[[bin]]
+name = "hnefatafl-rs-ai"
+required-features = ["ai"]
+
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
 
