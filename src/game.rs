@@ -8,7 +8,7 @@ use crate::{
     board::Board,
     color::Color,
     message::{COMMANDS, Message},
-    play::{BOARD_LETTERS, Captures, Plae, Play, Vertex},
+    play::{Captures, Plae, Play, Vertex},
     status::Status,
     time::TimeSettings,
 };
@@ -66,28 +66,27 @@ impl fmt::Display for Game {
 }
 
 impl Game {
+    /// # Panics
+    /// #
+    /// # If the game is already over.
     #[must_use]
-    #[allow(clippy::missing_panics_doc)]
     pub fn generate_move(&self) -> Option<Plae> {
         if self.status != Status::Ongoing {
             return None;
         }
         let mut self_clone = self.clone();
 
-        for letter_from in BOARD_LETTERS.chars() {
-            for i_from in 1..12 {
-                let mut vertex_from = letter_from.to_string();
-                vertex_from.push_str(&i_from.to_string());
-
-                for letter_to in BOARD_LETTERS.chars() {
-                    for i_to in 1..12 {
-                        let mut vertex_to = letter_to.to_string();
-                        vertex_to.push_str(&i_to.to_string());
-
+        for x_from in 0..11 {
+            for y_from in 0..11 {
+                for x_to in 0..11 {
+                    for y_to in 0..11 {
                         let play = Plae::Play(Play {
                             color: self.turn.clone(),
-                            from: Vertex::from_str(&vertex_from).unwrap(),
-                            to: Vertex::from_str(&vertex_to).unwrap(),
+                            from: Vertex {
+                                x: x_from,
+                                y: y_from,
+                            },
+                            to: Vertex { x: x_to, y: y_to },
                         });
 
                         if self_clone.play(&play).is_ok() {
