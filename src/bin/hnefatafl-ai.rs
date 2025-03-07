@@ -7,7 +7,13 @@ use std::{
 use anyhow::Error;
 use clap::{Parser, command};
 use hnefatafl_copenhagen::{
-    VERSION_ID, color::Color, game::Game, play::Vertex, role::Role, status::Status,
+    VERSION_ID,
+    ai::{AI, AiBanal},
+    color::Color,
+    game::Game,
+    play::Vertex,
+    role::Role,
+    status::Status,
 };
 
 // Move 26, defender wins, corner escape, time per move 15s 2025-03-06 (hnefatafl-equi).
@@ -33,6 +39,10 @@ struct Args {
     /// Connect to the HTP server at host
     #[arg(default_value = "hnefatafl.org", long)]
     host: String,
+
+    /// Choose an AI to play as.
+    #[arg(default_value = "banal", long)]
+    ai: String,
 
     /// Join game with id
     #[arg(long)]
@@ -73,10 +83,15 @@ fn main() -> anyhow::Result<()> {
             wait_for_challenger(&mut reader, &mut buf, &mut tcp, &game_id)?;
         }
 
+        let ai = match args.ai.as_str() {
+            "banal" => AiBanal,
+            _ => return Err(anyhow::Error::msg("you didn't choose a valid AI")),
+        };
+
         let game = Game::default();
         println!("{}", game.board);
 
-        handle_messages(game, &game_id, &mut reader, &mut tcp)?;
+        handle_messages(ai, game, &game_id, &mut reader, &mut tcp)?;
 
         if args.join_game.is_some() {
             return Ok(());
@@ -138,7 +153,8 @@ fn wait_for_challenger(
     Ok(())
 }
 
-fn handle_messages(
+fn handle_messages<T: AI>(
+    mut ai: T,
     mut game: Game,
     game_id: &str,
     reader: &mut BufReader<TcpStream>,
@@ -155,7 +171,9 @@ fn handle_messages(
         let message: Vec<_> = buf.split_ascii_whitespace().collect();
 
         if Some("generate_move") == message.get(2).copied() {
-            let play = game.generate_move().expect("the game must be in progress");
+            let play = game
+                .generate_move(&mut ai)
+                .expect("the game must be in progress");
 
             println!("\n{play}");
             game.play(&play)?;

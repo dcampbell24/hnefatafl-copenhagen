@@ -15,6 +15,7 @@ use hnefatafl::{
 };
 use hnefatafl_copenhagen::{
     VERSION_ID,
+    ai::AiBanal,
     color::Color,
     game::Game,
     play::{Plae, Vertex},
@@ -95,13 +96,23 @@ fn main() -> anyhow::Result<()> {
 
         println!("{}", game_.state.board);
 
-        let ai = hnefatafl_egui::ai::BasicAi::new(
+        let ai_1 = hnefatafl_egui::ai::BasicAi::new(
             game_.logic,
             side_from_role(args.role),
             Duration::from_secs(15),
         );
+        let ai_2 = AiBanal;
 
-        handle_messages(ai, game, game_, &game_id, &color, &mut reader, &mut tcp)?;
+        handle_messages(
+            ai_1,
+            ai_2,
+            game,
+            game_,
+            &game_id,
+            &color,
+            &mut reader,
+            &mut tcp,
+        )?;
 
         if args.join_game.is_some() {
             return Ok(());
@@ -163,8 +174,10 @@ fn wait_for_challenger(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn handle_messages(
-    mut ai: BasicAi,
+    mut ai_1: BasicAi,
+    mut ai_2: AiBanal,
     mut game: Game,
     mut game_: hnefatafl::game::Game<BitfieldBoardState<u128>>,
     game_id: &str,
@@ -183,7 +196,7 @@ fn handle_messages(
         let message: Vec<_> = buf.split_ascii_whitespace().collect();
 
         if Some("generate_move") == message.get(2).copied() {
-            let Ok((mut play_game_, info)) = ai.next_play(&game_.state) else {
+            let Ok((mut play_game_, info)) = ai_1.next_play(&game_.state) else {
                 panic!("we got an error from ai.next_play");
             };
 
@@ -195,7 +208,9 @@ fn handle_messages(
             println!("{play_game}");
 
             if game.play(&play_game).is_err() {
-                play_game = game.generate_move().expect("the game must be in progress");
+                play_game = game
+                    .generate_move(&mut ai_2)
+                    .expect("the game must be in progress");
 
                 let Plae::Play(play) = &play_game else {
                     panic!("the player can't resign");

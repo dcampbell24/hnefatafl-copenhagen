@@ -5,16 +5,19 @@ use rustc_hash::FxHashSet;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    ai::{AI, AiBanal},
     board::Board,
     color::Color,
     message::{COMMANDS, Message},
-    play::{Captures, Plae, Play, Vertex},
+    play::{Captures, Plae, Play},
     status::Status,
     time::TimeSettings,
 };
 
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Game {
+    #[serde(skip)]
+    pub ai: AiBanal,
     pub board: Board,
     pub plays: Vec<Play>,
     pub previous_boards: PreviousBoards,
@@ -66,42 +69,9 @@ impl fmt::Display for Game {
 }
 
 impl Game {
-    /// # Panics
-    /// #
-    /// # If the game is already over.
     #[must_use]
-    pub fn generate_move(&self) -> Option<Plae> {
-        if self.status != Status::Ongoing {
-            return None;
-        }
-        let mut self_clone = self.clone();
-
-        for x_from in 0..11 {
-            for y_from in 0..11 {
-                for x_to in 0..11 {
-                    for y_to in 0..11 {
-                        let play = Plae::Play(Play {
-                            color: self.turn.clone(),
-                            from: Vertex {
-                                x: x_from,
-                                y: y_from,
-                            },
-                            to: Vertex { x: x_to, y: y_to },
-                        });
-
-                        if self_clone.play(&play).is_ok() {
-                            return Some(play);
-                        }
-                    }
-                }
-            }
-        }
-
-        match self.turn {
-            Color::Black => Some(Plae::BlackResigns),
-            Color::Colorless => panic!("the game is in progress, so the turn can't be colorless"),
-            Color::White => Some(Plae::WhiteResigns),
-        }
+    pub fn generate_move<T: AI>(&self, ai: &mut T) -> Option<Plae> {
+        ai.generate_move(self)
     }
 
     /// # Errors
@@ -200,10 +170,12 @@ impl Game {
     ///
     /// If the command is illegal or invalid.
     pub fn update(&mut self, message: Message) -> anyhow::Result<Option<String>> {
+        let mut ai = AiBanal;
+
         match message {
             Message::Empty => Ok(None),
             Message::FinalStatus => Ok(Some(format!("{}", self.status))),
-            Message::GenerateMove => Ok(self.generate_move().map(|play| play.to_string())),
+            Message::GenerateMove => Ok(self.generate_move(&mut ai).map(|play| play.to_string())),
             Message::KnownCommand(command) => {
                 if COMMANDS.contains(&command.as_str()) {
                     Ok(Some("true".to_string()))

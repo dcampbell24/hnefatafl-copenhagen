@@ -15,6 +15,7 @@ use play::{Plae, Vertex};
 use status::Status;
 
 pub mod accounts;
+pub mod ai;
 pub mod board;
 pub mod color;
 pub mod draw;
@@ -145,6 +146,8 @@ pub fn write_command(command: &str, stream: &mut TcpStream) -> anyhow::Result<()
 #[cfg(test)]
 mod tests {
     use std::{fmt, str::FromStr};
+
+    use crate::ai::AiBanal;
 
     use super::*;
     use board::{Board, STARTING_POSITION};
@@ -1929,6 +1932,8 @@ mod tests {
 
     #[test]
     fn white_automatically_loses_1() -> anyhow::Result<()> {
+        let mut ai = AiBanal;
+
         let board = [
             "...........",
             "...........",
@@ -1949,7 +1954,7 @@ mod tests {
         };
 
         game.read_line("play black b1 b2")?;
-        assert_eq!(game.generate_move(), Some(Plae::WhiteResigns));
+        assert_eq!(game.generate_move(&mut ai), Some(Plae::WhiteResigns));
         game.read_line("play white resigns")?;
 
         assert_eq!(game.status, Status::BlackWins);
@@ -1993,8 +1998,9 @@ mod tests {
     #[test]
     fn someone_wins() -> anyhow::Result<()> {
         let mut game = Game::default();
+        let mut ai = AiBanal;
 
-        while let Some(play) = game.generate_move() {
+        while let Some(play) = game.generate_move(&mut ai) {
             game.play(&play)?;
         }
 
