@@ -47,7 +47,7 @@ const RESTRICTED_SQUARES: [Vertex; 5] = [
 #[derive(Clone, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Board {
     #[serde_as(as = "[_; 121]")]
-    spaces: [Space; 11 * 11],
+    pub spaces: [Space; 11 * 11],
 }
 
 impl Default for Board {
@@ -215,56 +215,6 @@ impl Board {
         }
 
         Ok(false)
-    }
-
-    #[must_use]
-    pub fn all_legal_moves(
-        &self,
-        status: &Status,
-        turn: &Color,
-        previous_boards: &PreviousBoards,
-    ) -> LegalMoves {
-        let mut possible_vertexes = Vec::new();
-        let mut legal_moves = LegalMoves {
-            color: turn.clone(),
-            moves: HashMap::new(),
-        };
-
-        for y in 0..11 {
-            for x in 0..11 {
-                let vertex = Vertex { x, y };
-                if self.get(&vertex).color() == *turn {
-                    possible_vertexes.push(vertex);
-                }
-            }
-        }
-
-        for vertex_from in possible_vertexes {
-            let mut vertexes_to = Vec::new();
-
-            for y in 0..11 {
-                for x in 0..11 {
-                    let vertex_to = Vertex { x, y };
-                    let play = Play {
-                        color: turn.clone(),
-                        from: vertex_from.clone(),
-                        to: vertex_to.clone(),
-                    };
-
-                    if let Ok(_board_captures_status) =
-                        self.play_internal(&Plae::Play(play), status, turn, previous_boards)
-                    {
-                        vertexes_to.push(vertex_to);
-                    }
-                }
-            }
-
-            if !vertexes_to.is_empty() {
-                legal_moves.moves.insert(vertex_from, vertexes_to);
-            }
-        }
-
-        legal_moves
     }
 
     #[allow(clippy::collapsible_if)]
@@ -850,9 +800,10 @@ impl Board {
     #[allow(
         clippy::cast_possible_truncation,
         clippy::cast_possible_wrap,
-        clippy::cast_sign_loss
+        clippy::cast_sign_loss,
+        clippy::missing_errors_doc
     )]
-    fn play_internal(
+    pub fn play_internal(
         &self,
         play: &Plae,
         status: &Status,

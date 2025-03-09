@@ -153,11 +153,7 @@ impl Client {
         let mut possible_moves = None;
         if self.my_turn {
             if let Some(game) = self.game.as_ref() {
-                possible_moves = Some(game.board.all_legal_moves(
-                    &game.status,
-                    &game.turn,
-                    &game.previous_boards,
-                ));
+                possible_moves = Some(game.all_legal_moves());
             }
         }
 

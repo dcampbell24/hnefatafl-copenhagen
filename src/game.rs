@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt, process::exit, str::FromStr};
+use std::{borrow::Cow, collections::HashMap, fmt, process::exit, str::FromStr};
 
 use chrono::Local;
 use rustc_hash::FxHashSet;
@@ -9,7 +9,7 @@ use crate::{
     board::Board,
     color::Color,
     message::{COMMANDS, Message},
-    play::{Captures, Plae, Play},
+    play::{Captures, Plae, Play, Vertex},
     status::Status,
     time::TimeSettings,
 };
@@ -70,6 +70,54 @@ impl fmt::Display for Game {
 
 impl Game {
     #[must_use]
+    pub fn all_legal_moves(&self) -> LegalMoves {
+        let mut possible_vertexes = Vec::new();
+        let mut legal_moves = LegalMoves {
+            color: self.turn.clone(),
+            moves: HashMap::new(),
+        };
+
+        for y in 0..11 {
+            for x in 0..11 {
+                let vertex = Vertex { x, y };
+                if self.board.get(&vertex).color() == self.turn {
+                    possible_vertexes.push(vertex);
+                }
+            }
+        }
+
+        for vertex_from in possible_vertexes {
+            let mut vertexes_to = Vec::new();
+
+            for y in 0..11 {
+                for x in 0..11 {
+                    let vertex_to = Vertex { x, y };
+                    let play = Play {
+                        color: self.turn.clone(),
+                        from: vertex_from.clone(),
+                        to: vertex_to.clone(),
+                    };
+
+                    if let Ok(_board_captures_status) = self.board.play_internal(
+                        &Plae::Play(play),
+                        &self.status,
+                        &self.turn,
+                        &self.previous_boards,
+                    ) {
+                        vertexes_to.push(vertex_to);
+                    }
+                }
+            }
+
+            if !vertexes_to.is_empty() {
+                legal_moves.moves.insert(vertex_from, vertexes_to);
+            }
+        }
+
+        legal_moves
+    }
+
+    #[must_use]
     pub fn generate_move<T: AI>(&self, ai: &mut T) -> Option<Plae> {
         ai.generate_move(self)
     }
@@ -77,7 +125,7 @@ impl Game {
     /// # Errors
     ///
     /// If the game is already over or the move is illegal.
-    pub fn play(&mut self, play: &Plae) -> anyhow::Result<Option<String>> {
+    pub fn play(&mut self, play: &Plae) -> anyhow::Result<Captures> {
         if self.status == Status::Ongoing {
             if let (status, Some(timer), Some(time)) = match self.turn {
                 Color::Black => (
@@ -99,7 +147,7 @@ impl Game {
 
                 if timer.milliseconds_left <= 0 {
                     self.status = status;
-                    return Ok(Some(String::new()));
+                    return Ok(Captures::default());
                 }
 
                 timer.milliseconds_left += timer.add_seconds * 1_000;
@@ -110,7 +158,7 @@ impl Game {
                 Plae::BlackResigns => {
                     if self.turn == Color::Black {
                         self.status = Status::WhiteWins;
-                        Ok(Some(String::new()))
+                        Ok(Captures::default())
                     } else {
                         Err(anyhow::Error::msg("You can't resign for the other player."))
                     }
@@ -118,7 +166,7 @@ impl Game {
                 Plae::WhiteResigns => {
                     if self.turn == Color::White {
                         self.status = Status::BlackWins;
-                        Ok(Some(String::new()))
+                        Ok(Captures::default())
                     } else {
                         Err(anyhow::Error::msg("You can't resign for the other player."))
                     }
@@ -146,7 +194,7 @@ impl Game {
                     }
 
                     let captures = Captures(captures);
-                    Ok(Some(format!("{captures}")))
+                    Ok(captures)
                 }
             }
         } else {
@@ -192,7 +240,7 @@ impl Game {
                 let name = env!("CARGO_PKG_NAME");
                 Ok(Some(name.to_string()))
             }
-            Message::Play(play) => self.play(&play),
+            Message::Play(play) => self.play(&play).map(|captures| Some(captures.to_string())),
             Message::ProtocolVersion => Ok(Some("1-beta".to_string())),
             Message::Quit => exit(0),
             Message::ResetBoard => {
@@ -219,4 +267,10 @@ impl Game {
             }
         }
     }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct LegalMoves {
+    pub color: Color,
+    pub moves: HashMap<Vertex, Vec<Vertex>>,
 }

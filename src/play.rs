@@ -87,6 +87,7 @@ impl fmt::Display for Play {
     }
 }
 
+#[derive(Default)]
 pub struct Captures(pub Vec<Vertex>);
 
 impl fmt::Display for Captures {

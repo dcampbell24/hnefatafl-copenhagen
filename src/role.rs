@@ -1,5 +1,7 @@
 use std::{fmt, str::FromStr};
 
+use crate::color::Color;
+
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub enum Role {
     #[default]
@@ -12,6 +14,18 @@ impl fmt::Display for Role {
         match self {
             Role::Attacker => write!(f, "attacker"),
             Role::Defender => write!(f, "defender"),
+        }
+    }
+}
+
+impl TryFrom<&Color> for Role {
+    type Error = anyhow::Error;
+
+    fn try_from(color: &Color) -> anyhow::Result<Self> {
+        match color {
+            Color::Black => Ok(Self::Attacker),
+            Color::Colorless => Err(anyhow::Error::msg("the piece must be black or white")),
+            Color::White => Ok(Self::Defender),
         }
     }
 }

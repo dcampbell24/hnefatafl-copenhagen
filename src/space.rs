@@ -48,4 +48,17 @@ impl Space {
             Self::Empty => Color::Colorless,
         }
     }
+
+    /// # Panics
+    ///
+    /// If you take the index of an empty space.
+    #[must_use]
+    pub fn index(&self) -> usize {
+        match self {
+            Self::Black => 0,
+            Self::White => 1,
+            Self::King => 2,
+            Self::Empty => panic!("we should not take the index of an empty space"),
+        }
+    }
 }
