@@ -1,5 +1,5 @@
 use std::{
-    io::{BufRead, BufReader, Write},
+    io::{self, BufRead, BufReader, Write},
     net::TcpStream,
     str::FromStr,
     thread,
@@ -77,6 +77,7 @@ fn main() -> anyhow::Result<()> {
 
         let game_id_2 = game_id.clone();
         let ai = args.ai;
+        let tcp_clone = tcp.try_clone()?;
         thread::spawn(move || accept_challenger(&ai, &mut reader, &mut buf, &mut tcp, &game_id));
 
         let mut buf_2 = String::new();
@@ -88,8 +89,15 @@ fn main() -> anyhow::Result<()> {
         assert_eq!(buf_2, "= login\n");
 
         tcp_2.write_all(format!("join_game_pending {game_id_2}\n").as_bytes())?;
+        let tcp_2_clone = tcp_2.try_clone()?;
+        thread::spawn(move || {
+            handle_messages(ai_2.as_str(), &game_id_2, &mut reader_2, &mut tcp_2, true)
+        });
 
-        handle_messages(ai_2.as_str(), &game_id_2, &mut reader_2, &mut tcp_2, true)?;
+        let mut buffer = String::new();
+        io::stdin().read_line(&mut buffer)?;
+        tcp_clone.shutdown(std::net::Shutdown::Both)?;
+        tcp_2_clone.shutdown(std::net::Shutdown::Both)?;
     } else {
         loop {
             new_game(&mut tcp, args.role, &mut reader, &mut buf)?;
