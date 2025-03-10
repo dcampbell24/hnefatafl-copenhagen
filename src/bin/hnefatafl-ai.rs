@@ -89,12 +89,7 @@ fn main() -> anyhow::Result<()> {
 
         tcp_2.write_all(format!("join_game_pending {game_id}\n").as_bytes())?;
 
-        let ai: Box<dyn AI> = match ai_2.as_str() {
-            "banal" => Box::new(AiBanal),
-            "basic" => Box::new(AiBasic::default()),
-            _ => return Err(anyhow::Error::msg("you didn't choose a valid AI")),
-        };
-
+        let ai = choose_ai(ai_2.as_str())?;
         let game = Game::default();
         println!("{}", game.board);
 
@@ -109,12 +104,7 @@ fn main() -> anyhow::Result<()> {
 
             wait_for_challenger(&mut reader, &mut buf, &mut tcp, &game_id)?;
 
-            let ai: Box<dyn AI> = match args.ai.as_str() {
-                "banal" => Box::new(AiBanal),
-                "basic" => Box::new(AiBasic::default()),
-                _ => return Err(anyhow::Error::msg("you didn't choose a valid AI")),
-            };
-
+            let ai = choose_ai(args.ai.as_str())?;
             let game = Game::default();
             println!("{}", game.board);
 
@@ -134,12 +124,7 @@ fn accept_challenger(
 ) -> anyhow::Result<()> {
     wait_for_challenger(reader, buf, tcp, game_id)?;
 
-    let ai: Box<dyn AI> = match ai {
-        "banal" => Box::new(AiBanal),
-        "basic" => Box::new(AiBasic::default()),
-        _ => return Err(anyhow::Error::msg("you didn't choose a valid AI")),
-    };
-
+    let ai = choose_ai(ai)?;
     let game = Game::default();
     println!("{}", game.board);
 
@@ -271,5 +256,13 @@ fn handle_messages(
         }
 
         buf.clear();
+    }
+}
+
+fn choose_ai(ai: &str) -> anyhow::Result<Box<dyn AI>> {
+    match ai {
+        "banal" => Ok(Box::new(AiBanal)),
+        "basic" => Ok(Box::new(AiBasic::default())),
+        _ => Err(anyhow::Error::msg("you didn't choose a valid AI")),
     }
 }
