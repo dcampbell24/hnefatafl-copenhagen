@@ -118,6 +118,32 @@ impl Game {
     }
 
     #[must_use]
+    pub fn exit_one(&self) -> bool {
+        let exit_1 = Vertex { x: 0, y: 0 };
+        let exit_2 = Vertex { x: 10, y: 0 };
+        let exit_3 = Vertex { x: 0, y: 10 };
+        let exit_4 = Vertex { x: 10, y: 10 };
+
+        let mut game = self.clone();
+        if let Ok(Some(king)) = self.board.find_the_king() {
+            for exit in [exit_1, exit_2, exit_3, exit_4] {
+                if game
+                    .play(&Plae::Play(Play {
+                        color: self.turn.clone(),
+                        from: king.clone(),
+                        to: exit,
+                    }))
+                    .is_ok()
+                {
+                    return true;
+                }
+            }
+        }
+
+        false
+    }
+
+    #[must_use]
     pub fn generate_move(&self, ai: &mut Box<dyn AI>) -> Option<Plae> {
         ai.generate_move(self)
     }

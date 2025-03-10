@@ -1996,6 +1996,113 @@ mod tests {
     }
 
     #[test]
+    fn exit_one_1() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            ".X...K...X.",
+        ];
+
+        let game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        assert!(!game.exit_one());
+
+        Ok(())
+    }
+
+    #[test]
+    fn exit_one_2() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            ".....K.....",
+        ];
+
+        let game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        assert!(game.exit_one());
+
+        Ok(())
+    }
+
+    #[test]
+    fn exit_one_3() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            ".....K.....",
+            "...........",
+        ];
+
+        let game = game::Game {
+            board: board.try_into()?,
+            turn: Color::White,
+            ..Default::default()
+        };
+
+        assert!(!game.exit_one());
+
+        Ok(())
+    }
+
+    #[test]
+    fn exit_one_4() -> anyhow::Result<()> {
+        let board = [
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            "...........",
+            ".....K.....",
+        ];
+
+        let game = game::Game {
+            board: board.try_into()?,
+            ..Default::default()
+        };
+
+        assert!(!game.exit_one());
+
+        Ok(())
+    }
+
+    #[test]
     fn someone_wins() -> anyhow::Result<()> {
         let mut game = Game::default();
         let mut ai: Box<dyn AI> = Box::new(AiBanal);

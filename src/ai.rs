@@ -96,6 +96,7 @@ impl Tree {
             up: None,
             game: game.clone(),
             children: None,
+            utility: 0,
         }])
     }
 
@@ -122,12 +123,17 @@ impl Tree {
                 for (j, play) in plays.iter().enumerate() {
                     let mut game = node.game.clone();
                     game.play(&Plae::Play(play.clone())).unwrap();
-                    new_nodes.push(NodeStruct {
+
+                    let mut node = NodeStruct {
                         inner: Node::Play(play.clone()),
                         up: Some(i),
                         game,
                         children: None,
-                    });
+                        utility: 0,
+                    };
+                    node.utility = node.utility();
+                    new_nodes.push(node);
+
                     children.push(length + offset + j);
                 }
                 offset += children.len();
@@ -173,6 +179,20 @@ struct NodeStruct {
     up: Option<usize>,
     game: Game,
     children: Option<Vec<usize>>,
+    utility: i32,
+}
+
+impl NodeStruct {
+    #[must_use]
+    fn utility(&self) -> i32 {
+        let mut utility = 0;
+
+        if self.game.exit_one() {
+            utility += 1;
+        }
+
+        utility
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
