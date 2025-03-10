@@ -10,6 +10,7 @@ use crate::{
     color::Color,
     message::{COMMANDS, Message},
     play::{Captures, Plae, Play, Vertex},
+    role::Role,
     space::Space,
     status::Status,
     time::TimeSettings,
@@ -116,6 +117,32 @@ impl Game {
         }
 
         legal_moves
+    }
+
+    #[allow(clippy::missing_panics_doc)]
+    #[must_use]
+    pub fn all_legal_plays(&self) -> Vec<Plae> {
+        let moves = self.all_legal_moves();
+
+        if moves.moves.is_empty() {
+            match Role::try_from(&moves.color).unwrap() {
+                Role::Attacker => return vec![Plae::BlackResigns],
+                Role::Defender => return vec![Plae::WhiteResigns],
+            }
+        }
+
+        let mut plays = Vec::new();
+        for (from, tos) in moves.moves {
+            for to in tos {
+                plays.push(Plae::Play(Play {
+                    color: moves.color.clone(),
+                    from: from.clone(),
+                    to,
+                }));
+            }
+        }
+
+        plays
     }
 
     #[must_use]

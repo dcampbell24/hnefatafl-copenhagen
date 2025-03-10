@@ -95,26 +95,15 @@ impl AiBasic {
             return (game.utility(), None);
         }
 
-        let moves = game.all_legal_moves();
-        let mut plays = Vec::new();
-        for (from, tos) in moves.moves {
-            for to in tos {
-                plays.push(Play {
-                    color: moves.color.clone(),
-                    from: from.clone(),
-                    to,
-                });
-            }
-        }
-
+        let plays = game.all_legal_plays();
         let (mut value, mut play_1) = (i32::MIN, None);
         for play_2 in plays {
             let mut game = game.clone();
-            game.play(&Plae::Play(play_2.clone())).unwrap();
+            game.play(&play_2).unwrap();
             let (value_new, _play) = self.min_value(&game, cutoff_time, depth + 1);
 
             if value_new > value {
-                (value, play_1) = (value_new, Some(Plae::Play(play_2)));
+                (value, play_1) = (value_new, Some(play_2));
             }
         }
 
@@ -129,26 +118,15 @@ impl AiBasic {
             return (game.utility(), None);
         }
 
-        let moves = game.all_legal_moves();
-        let mut plays = Vec::new();
-        for (from, tos) in moves.moves {
-            for to in tos {
-                plays.push(Play {
-                    color: moves.color.clone(),
-                    from: from.clone(),
-                    to,
-                });
-            }
-        }
-
+        let plays = game.all_legal_plays();
         let (mut value, mut play_1) = (i32::MAX, None);
         for play_2 in plays {
             let mut game = game.clone();
-            game.play(&Plae::Play(play_2.clone())).unwrap();
+            game.play(&play_2).unwrap();
             let (value_new, _play) = self.max_value(&game, cutoff_time, depth + 1);
 
             if value_new > value {
-                (value, play_1) = (value_new, Some(Plae::Play(play_2)));
+                (value, play_1) = (value_new, Some(play_2));
             }
         }
 
