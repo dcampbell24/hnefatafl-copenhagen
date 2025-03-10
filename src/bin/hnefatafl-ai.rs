@@ -85,7 +85,7 @@ fn main() -> anyhow::Result<()> {
 
         let ai: Box<dyn AI> = match args.ai.as_str() {
             "banal" => Box::new(AiBanal),
-            "basic" => Box::new(AiBasic { time_to_move: 15 }),
+            "basic" => Box::new(AiBasic::default()),
             _ => return Err(anyhow::Error::msg("you didn't choose a valid AI")),
         };
 

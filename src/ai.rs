@@ -56,13 +56,17 @@ impl AI for AiBanal {
 
 #[derive(Clone, Debug)]
 pub struct AiBasic {
+    pub depth: u64,
     // seconds
     pub time_to_move: i64,
 }
 
 impl Default for AiBasic {
     fn default() -> Self {
-        Self { time_to_move: 1 }
+        Self {
+            depth: 3,
+            time_to_move: 15,
+        }
     }
 }
 
@@ -79,12 +83,15 @@ impl AI for AiBasic {
 impl AiBasic {
     fn minimax_search(&mut self, game: &Game) -> Option<Plae> {
         let cutoff_time = Utc::now().timestamp() + self.time_to_move;
-        let (_value, play) = self.max_value(game, cutoff_time);
+        let (_value, play) = self.max_value(game, cutoff_time, 0);
         play
     }
 
-    fn max_value(&mut self, game: &Game, cutoff_time: i64) -> (i32, Option<Plae>) {
-        if Utc::now().timestamp() > cutoff_time || game.status != Status::Ongoing {
+    fn max_value(&mut self, game: &Game, cutoff_time: i64, depth: u64) -> (i32, Option<Plae>) {
+        if Utc::now().timestamp() > cutoff_time
+            || depth > self.depth
+            || game.status != Status::Ongoing
+        {
             return (game.utility(), None);
         }
 
@@ -102,13 +109,9 @@ impl AiBasic {
 
         let (mut value, mut play_1) = (i32::MIN, None);
         for play_2 in plays {
-            if Utc::now().timestamp() > cutoff_time {
-                return (game.utility(), None);
-            }
-
             let mut game = game.clone();
             game.play(&Plae::Play(play_2.clone())).unwrap();
-            let (value_new, _play) = self.min_value(&game, cutoff_time);
+            let (value_new, _play) = self.min_value(&game, cutoff_time, depth + 1);
 
             if value_new > value {
                 (value, play_1) = (value_new, Some(Plae::Play(play_2)));
@@ -118,8 +121,11 @@ impl AiBasic {
         (value, play_1)
     }
 
-    fn min_value(&mut self, game: &Game, cutoff_time: i64) -> (i32, Option<Plae>) {
-        if Utc::now().timestamp() > cutoff_time || game.status != Status::Ongoing {
+    fn min_value(&mut self, game: &Game, cutoff_time: i64, depth: u64) -> (i32, Option<Plae>) {
+        if Utc::now().timestamp() > cutoff_time
+            || depth > self.depth
+            || game.status != Status::Ongoing
+        {
             return (game.utility(), None);
         }
 
@@ -137,13 +143,9 @@ impl AiBasic {
 
         let (mut value, mut play_1) = (i32::MAX, None);
         for play_2 in plays {
-            if Utc::now().timestamp() > cutoff_time {
-                return (game.utility(), None);
-            }
-
             let mut game = game.clone();
             game.play(&Plae::Play(play_2.clone())).unwrap();
-            let (value_new, _play) = self.max_value(&game, cutoff_time);
+            let (value_new, _play) = self.max_value(&game, cutoff_time, depth + 1);
 
             if value_new > value {
                 (value, play_1) = (value_new, Some(Plae::Play(play_2)));
