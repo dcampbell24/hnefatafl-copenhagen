@@ -91,9 +91,8 @@ fn main() -> anyhow::Result<()> {
 
         let ai = choose_ai(ai_2.as_str())?;
         let game = Game::default();
-        println!("{}", game.board);
 
-        handle_messages(ai, game, &game_id, &mut reader_2, &mut tcp_2)?;
+        handle_messages(ai, game, &game_id, &mut reader_2, &mut tcp_2, true)?;
     } else {
         loop {
             new_game(&mut tcp, args.role, &mut reader, &mut buf)?;
@@ -106,9 +105,8 @@ fn main() -> anyhow::Result<()> {
 
             let ai = choose_ai(args.ai.as_str())?;
             let game = Game::default();
-            println!("{}", game.board);
 
-            handle_messages(ai, game, &game_id, &mut reader, &mut tcp)?;
+            handle_messages(ai, game, &game_id, &mut reader, &mut tcp, true)?;
         }
     }
 
@@ -126,9 +124,8 @@ fn accept_challenger(
 
     let ai = choose_ai(ai)?;
     let game = Game::default();
-    println!("{}", game.board);
 
-    handle_messages(ai, game, game_id, reader, tcp)?;
+    handle_messages(ai, game, game_id, reader, tcp, false)?;
     Ok(())
 }
 
@@ -192,7 +189,12 @@ fn handle_messages(
     game_id: &str,
     reader: &mut BufReader<TcpStream>,
     tcp: &mut TcpStream,
+    io_on: bool,
 ) -> anyhow::Result<()> {
+    if io_on {
+        println!("{game}\n");
+    }
+
     let mut buf = String::new();
     loop {
         reader.read_line(&mut buf)?;
@@ -208,11 +210,14 @@ fn handle_messages(
                 .generate_move(&mut ai)
                 .expect("the game must be in progress");
 
-            println!("\n{play}");
             game.play(&play)?;
 
             tcp.write_all(format!("game {game_id} {play}").as_bytes())?;
-            println!("{}", game.board);
+
+            if io_on {
+                print!("{play}");
+                println!("{}\n", game.board);
+            }
 
             if game.status != Status::Ongoing {
                 return Ok(());
@@ -243,14 +248,16 @@ fn handle_messages(
             };
 
             let play = format!("play {color} {from} {to}\n");
-            print!("{play}");
             game.read_line(&play)?;
+
+            if io_on {
+                print!("{play}");
+                println!("{}\n", game.board);
+            }
 
             if game.status != Status::Ongoing {
                 return Ok(());
             }
-
-            println!("{}", game.board);
         } else if Some("game_over") == message.get(1).copied() {
             return Ok(());
         }

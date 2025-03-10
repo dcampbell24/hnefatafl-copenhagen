@@ -83,7 +83,9 @@ impl AI for AiBasic {
 impl AiBasic {
     fn minimax_search(&mut self, game: &Game) -> Option<Plae> {
         let cutoff_time = Utc::now().timestamp() + self.time_to_move;
-        let (_value, play) = self.max_value(game, cutoff_time, 0);
+        let (value, play) = self.max_value(game, cutoff_time, 0);
+
+        println!("value: {value}");
         play
     }
 
@@ -123,7 +125,7 @@ impl AiBasic {
             game.play(&play_2).unwrap();
             let (value_new, _play) = self.max_value(&game, cutoff_time, depth + 1);
 
-            if value_new > value {
+            if value_new < value {
                 (value, play_1) = (value_new, Some(play_2));
             }
         }
