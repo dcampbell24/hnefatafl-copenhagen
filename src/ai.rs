@@ -95,9 +95,8 @@ impl AiBasic {
             return (game.utility(), None);
         }
 
-        let plays = game.all_legal_plays();
         let (mut value, mut play_1) = (i32::MIN, None);
-        for play_2 in plays {
+        for play_2 in game.all_legal_plays() {
             let mut game = game.clone();
             game.play(&play_2).unwrap();
             let (value_new, _play) = self.min_value(&game, cutoff_time, depth + 1);
@@ -118,9 +117,8 @@ impl AiBasic {
             return (game.utility(), None);
         }
 
-        let plays = game.all_legal_plays();
         let (mut value, mut play_1) = (i32::MAX, None);
-        for play_2 in plays {
+        for play_2 in game.all_legal_plays() {
             let mut game = game.clone();
             game.play(&play_2).unwrap();
             let (value_new, _play) = self.max_value(&game, cutoff_time, depth + 1);
