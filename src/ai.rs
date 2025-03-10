@@ -1,3 +1,5 @@
+use std::cmp::{max, min};
+
 use chrono::Utc;
 use rand::{RngCore, rngs::OsRng};
 
@@ -64,7 +66,7 @@ pub struct AiBasic {
 impl Default for AiBasic {
     fn default() -> Self {
         Self {
-            depth: 3,
+            depth: 4,
             time_to_move: 15,
         }
     }
@@ -83,13 +85,22 @@ impl AI for AiBasic {
 impl AiBasic {
     fn minimax_search(&mut self, game: &Game) -> Option<Plae> {
         let cutoff_time = Utc::now().timestamp() + self.time_to_move;
-        let (value, play) = self.max_value(game, cutoff_time, 0);
+        let alpha = i32::MIN;
+        let beta = i32::MAX;
+        let (value, play) = self.max_value(game, alpha, beta, cutoff_time, 0);
 
         println!("value: {value}");
         play
     }
 
-    fn max_value(&mut self, game: &Game, cutoff_time: i64, depth: u64) -> (i32, Option<Plae>) {
+    fn max_value(
+        &mut self,
+        game: &Game,
+        mut alpha: i32,
+        beta: i32,
+        cutoff_time: i64,
+        depth: u64,
+    ) -> (i32, Option<Plae>) {
         if Utc::now().timestamp() > cutoff_time
             || depth > self.depth
             || game.status != Status::Ongoing
@@ -101,17 +112,29 @@ impl AiBasic {
         for play_2 in game.all_legal_plays() {
             let mut game = game.clone();
             game.play(&play_2).unwrap();
-            let (value_new, _play) = self.min_value(&game, cutoff_time, depth + 1);
+            let (value_new, _play) = self.min_value(&game, alpha, beta, cutoff_time, depth + 1);
 
             if value_new > value {
                 (value, play_1) = (value_new, Some(play_2));
+                alpha = max(alpha, value);
+            }
+
+            if value >= beta {
+                return (value, play_1);
             }
         }
 
         (value, play_1)
     }
 
-    fn min_value(&mut self, game: &Game, cutoff_time: i64, depth: u64) -> (i32, Option<Plae>) {
+    fn min_value(
+        &mut self,
+        game: &Game,
+        alpha: i32,
+        mut beta: i32,
+        cutoff_time: i64,
+        depth: u64,
+    ) -> (i32, Option<Plae>) {
         if Utc::now().timestamp() > cutoff_time
             || depth > self.depth
             || game.status != Status::Ongoing
@@ -123,10 +146,14 @@ impl AiBasic {
         for play_2 in game.all_legal_plays() {
             let mut game = game.clone();
             game.play(&play_2).unwrap();
-            let (value_new, _play) = self.max_value(&game, cutoff_time, depth + 1);
+            let (value_new, _play) = self.max_value(&game, alpha, beta, cutoff_time, depth + 1);
 
             if value_new < value {
                 (value, play_1) = (value_new, Some(play_2));
+                beta = min(beta, value);
+            }
+            if value <= alpha {
+                return (value, play_1);
             }
         }
 
