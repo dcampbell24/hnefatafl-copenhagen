@@ -122,7 +122,8 @@ impl Tree {
                 let mut children = Vec::new();
                 for (j, play) in plays.iter().enumerate() {
                     let mut game = node.game.clone();
-                    game.play(&Plae::Play(play.clone())).unwrap();
+                    let turn = game.turn.clone();
+                    let captures = game.play(&Plae::Play(play.clone())).unwrap();
 
                     let mut node = NodeStruct {
                         inner: Node::Play(play.clone()),
@@ -131,7 +132,14 @@ impl Tree {
                         children: None,
                         utility: 0,
                     };
-                    node.utility = node.utility();
+
+                    match turn {
+                        Color::Black => node.utility -= i32::try_from(captures.0.len()).unwrap(),
+                        Color::Colorless => {}
+                        Color::White => node.utility += i32::try_from(captures.0.len()).unwrap(),
+                    }
+                    node.utility += node.utility();
+
                     new_nodes.push(node);
 
                     children.push(length + offset + j);
@@ -188,7 +196,7 @@ impl NodeStruct {
         let mut utility = 0;
 
         if self.game.exit_one() {
-            utility += 1;
+            utility += 100;
         }
 
         utility
