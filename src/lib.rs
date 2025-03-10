@@ -147,7 +147,7 @@ pub fn write_command(command: &str, stream: &mut TcpStream) -> anyhow::Result<()
 mod tests {
     use std::{fmt, str::FromStr};
 
-    use crate::ai::AiBanal;
+    use crate::ai::{AI, AiBanal};
 
     use super::*;
     use board::{Board, STARTING_POSITION};
@@ -1932,7 +1932,7 @@ mod tests {
 
     #[test]
     fn white_automatically_loses_1() -> anyhow::Result<()> {
-        let mut ai = AiBanal;
+        let mut ai: Box<dyn AI> = Box::new(AiBanal);
 
         let board = [
             "...........",
@@ -1998,7 +1998,7 @@ mod tests {
     #[test]
     fn someone_wins() -> anyhow::Result<()> {
         let mut game = Game::default();
-        let mut ai = AiBanal;
+        let mut ai: Box<dyn AI> = Box::new(AiBanal);
 
         while let Some(play) = game.generate_move(&mut ai) {
             game.play(&play)?;

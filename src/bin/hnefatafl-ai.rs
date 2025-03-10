@@ -8,7 +8,7 @@ use anyhow::Error;
 use clap::{Parser, command};
 use hnefatafl_copenhagen::{
     VERSION_ID,
-    ai::{AI, AiBanal},
+    ai::{AI, AiBanal, AiBasic},
     color::Color,
     game::Game,
     play::Vertex,
@@ -83,8 +83,9 @@ fn main() -> anyhow::Result<()> {
             wait_for_challenger(&mut reader, &mut buf, &mut tcp, &game_id)?;
         }
 
-        let ai = match args.ai.as_str() {
-            "banal" => AiBanal,
+        let ai: Box<dyn AI> = match args.ai.as_str() {
+            "banal" => Box::new(AiBanal),
+            "basic" => Box::new(AiBasic),
             _ => return Err(anyhow::Error::msg("you didn't choose a valid AI")),
         };
 
@@ -153,8 +154,8 @@ fn wait_for_challenger(
     Ok(())
 }
 
-fn handle_messages<T: AI>(
-    mut ai: T,
+fn handle_messages(
+    mut ai: Box<dyn AI>,
     mut game: Game,
     game_id: &str,
     reader: &mut BufReader<TcpStream>,

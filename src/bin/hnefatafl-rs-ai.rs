@@ -15,7 +15,7 @@ use hnefatafl::{
 };
 use hnefatafl_copenhagen::{
     VERSION_ID,
-    ai::AiBanal,
+    ai::{AI, AiBanal},
     color::Color,
     game::Game,
     play::{Plae, Vertex},
@@ -101,7 +101,7 @@ fn main() -> anyhow::Result<()> {
             side_from_role(args.role),
             Duration::from_secs(15),
         );
-        let ai_2 = AiBanal;
+        let ai_2 = Box::new(AiBanal);
 
         handle_messages(
             ai_1,
@@ -177,7 +177,7 @@ fn wait_for_challenger(
 #[allow(clippy::too_many_arguments)]
 fn handle_messages(
     mut ai_1: BasicAi,
-    mut ai_2: AiBanal,
+    mut ai_2: Box<dyn AI>,
     mut game: Game,
     mut game_: hnefatafl::game::Game<BitfieldBoardState<u128>>,
     game_id: &str,

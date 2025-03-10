@@ -14,7 +14,7 @@ use crate::{
     time::TimeSettings,
 };
 
-#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Game {
     #[serde(skip)]
     pub ai: AiBanal,
@@ -118,7 +118,7 @@ impl Game {
     }
 
     #[must_use]
-    pub fn generate_move<T: AI>(&self, ai: &mut T) -> Option<Plae> {
+    pub fn generate_move(&self, ai: &mut Box<dyn AI>) -> Option<Plae> {
         ai.generate_move(self)
     }
 
@@ -218,7 +218,7 @@ impl Game {
     ///
     /// If the command is illegal or invalid.
     pub fn update(&mut self, message: Message) -> anyhow::Result<Option<String>> {
-        let mut ai = AiBanal;
+        let mut ai: Box<dyn AI> = Box::new(AiBanal);
 
         match message {
             Message::Empty => Ok(None),
