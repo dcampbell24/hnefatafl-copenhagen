@@ -2,6 +2,7 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::TcpStream,
     str::FromStr,
+    thread,
 };
 
 use anyhow::Error;
@@ -40,13 +41,13 @@ struct Args {
     #[arg(default_value = "hnefatafl.org", long)]
     host: String,
 
-    /// Choose an AI to play as.
+    /// Choose an AI to play as
     #[arg(default_value = "banal", long)]
     ai: String,
 
-    /// Join game with id
+    /// Challenge the AI with AI CHALLENGER
     #[arg(long)]
-    join_game: Option<u64>,
+    challenger: Option<String>,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -59,7 +60,7 @@ fn main() -> anyhow::Result<()> {
     address.push_str(PORT);
 
     let mut buf = String::new();
-    let mut tcp = TcpStream::connect(address)?;
+    let mut tcp = TcpStream::connect(address.clone())?;
     let mut reader = BufReader::new(tcp.try_clone()?);
 
     tcp.write_all(format!("{VERSION_ID} login {username} {}\n", args.password).as_bytes())?;
@@ -67,23 +68,28 @@ fn main() -> anyhow::Result<()> {
     assert_eq!(buf, "= login\n");
     buf.clear();
 
-    loop {
-        let game_id;
+    if let Some(ai_2) = args.challenger {
+        new_game(&mut tcp, args.role, &mut reader, &mut buf)?;
 
-        if let Some(game_id_) = args.join_game {
-            game_id = game_id_.to_string();
-            tcp.write_all(format!("join_game_pending {game_id}\n").as_bytes())?;
-        } else {
-            new_game(&mut tcp, args.role, &mut reader, &mut buf)?;
+        let message: Vec<_> = buf.split_ascii_whitespace().collect();
+        let game_id = message[3].to_string();
+        buf.clear();
 
-            let message: Vec<_> = buf.split_ascii_whitespace().collect();
-            game_id = message[3].to_string();
-            buf.clear();
+        let game_id_2 = game_id.clone();
+        let ai = args.ai;
+        thread::spawn(move || accept_challenger(&ai, &mut reader, &mut buf, &mut tcp, &game_id_2));
 
-            wait_for_challenger(&mut reader, &mut buf, &mut tcp, &game_id)?;
-        }
+        let mut buf_2 = String::new();
+        let mut tcp_2 = TcpStream::connect(address)?;
+        let mut reader_2 = BufReader::new(tcp_2.try_clone()?);
 
-        let ai: Box<dyn AI> = match args.ai.as_str() {
+        tcp_2.write_all(format!("{VERSION_ID} login ai-01 PASSWORD\n").as_bytes())?;
+        reader_2.read_line(&mut buf_2)?;
+        assert_eq!(buf_2, "= login\n");
+
+        tcp_2.write_all(format!("join_game_pending {game_id}\n").as_bytes())?;
+
+        let ai: Box<dyn AI> = match ai_2.as_str() {
             "banal" => Box::new(AiBanal),
             "basic" => Box::new(AiBasic::default()),
             _ => return Err(anyhow::Error::msg("you didn't choose a valid AI")),
@@ -92,12 +98,53 @@ fn main() -> anyhow::Result<()> {
         let game = Game::default();
         println!("{}", game.board);
 
-        handle_messages(ai, game, &game_id, &mut reader, &mut tcp)?;
+        handle_messages(ai, game, &game_id, &mut reader_2, &mut tcp_2)?;
+    } else {
+        loop {
+            new_game(&mut tcp, args.role, &mut reader, &mut buf)?;
 
-        if args.join_game.is_some() {
-            return Ok(());
+            let message: Vec<_> = buf.split_ascii_whitespace().collect();
+            let game_id = message[3].to_string();
+            buf.clear();
+
+            wait_for_challenger(&mut reader, &mut buf, &mut tcp, &game_id)?;
+
+            let ai: Box<dyn AI> = match args.ai.as_str() {
+                "banal" => Box::new(AiBanal),
+                "basic" => Box::new(AiBasic::default()),
+                _ => return Err(anyhow::Error::msg("you didn't choose a valid AI")),
+            };
+
+            let game = Game::default();
+            println!("{}", game.board);
+
+            handle_messages(ai, game, &game_id, &mut reader, &mut tcp)?;
         }
     }
+
+    Ok(())
+}
+
+fn accept_challenger(
+    ai: &str,
+    reader: &mut BufReader<TcpStream>,
+    buf: &mut String,
+    tcp: &mut TcpStream,
+    game_id: &str,
+) -> anyhow::Result<()> {
+    wait_for_challenger(reader, buf, tcp, game_id)?;
+
+    let ai: Box<dyn AI> = match ai {
+        "banal" => Box::new(AiBanal),
+        "basic" => Box::new(AiBasic::default()),
+        _ => return Err(anyhow::Error::msg("you didn't choose a valid AI")),
+    };
+
+    let game = Game::default();
+    println!("{}", game.board);
+
+    handle_messages(ai, game, game_id, reader, tcp)?;
+    Ok(())
 }
 
 // "= new_game game GAME_ID ai-00 _ rated fischer 900000 10 _ false {}\n"
