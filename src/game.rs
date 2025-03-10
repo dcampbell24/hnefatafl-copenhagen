@@ -10,6 +10,7 @@ use crate::{
     color::Color,
     message::{COMMANDS, Message},
     play::{Captures, Plae, Play, Vertex},
+    space::Space,
     status::Status,
     time::TimeSettings,
 };
@@ -292,6 +293,37 @@ impl Game {
                 Ok(Some(version.to_string()))
             }
         }
+    }
+
+    #[must_use]
+    pub fn utility(&self) -> i32 {
+        match self.status {
+            Status::Ongoing => {}
+            Status::BlackWins => return i32::MIN,
+            Status::Draw => return 0,
+            Status::WhiteWins => return i32::MAX,
+        }
+
+        let mut utility = 0;
+
+        let mut white_left = 0;
+        let mut black_left = 0;
+        for space in self.board.spaces {
+            match space {
+                Space::Black => black_left += 1,
+                Space::Empty | Space::King => {}
+                Space::White => white_left += 1,
+            }
+        }
+
+        utility += white_left * 2;
+        utility -= black_left;
+
+        if self.exit_one() {
+            utility += 100;
+        }
+
+        utility
     }
 }
 
