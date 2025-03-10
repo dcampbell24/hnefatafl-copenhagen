@@ -77,7 +77,7 @@ fn main() -> anyhow::Result<()> {
 
         let game_id_2 = game_id.clone();
         let ai = args.ai;
-        thread::spawn(move || accept_challenger(&ai, &mut reader, &mut buf, &mut tcp, &game_id_2));
+        thread::spawn(move || accept_challenger(&ai, &mut reader, &mut buf, &mut tcp, &game_id));
 
         let mut buf_2 = String::new();
         let mut tcp_2 = TcpStream::connect(address)?;
@@ -87,12 +87,9 @@ fn main() -> anyhow::Result<()> {
         reader_2.read_line(&mut buf_2)?;
         assert_eq!(buf_2, "= login\n");
 
-        tcp_2.write_all(format!("join_game_pending {game_id}\n").as_bytes())?;
+        tcp_2.write_all(format!("join_game_pending {game_id_2}\n").as_bytes())?;
 
-        let ai = choose_ai(ai_2.as_str())?;
-        let game = Game::default();
-
-        handle_messages(ai, game, &game_id, &mut reader_2, &mut tcp_2, true)?;
+        handle_messages(ai_2.as_str(), &game_id_2, &mut reader_2, &mut tcp_2, true)?;
     } else {
         loop {
             new_game(&mut tcp, args.role, &mut reader, &mut buf)?;
@@ -103,10 +100,7 @@ fn main() -> anyhow::Result<()> {
 
             wait_for_challenger(&mut reader, &mut buf, &mut tcp, &game_id)?;
 
-            let ai = choose_ai(args.ai.as_str())?;
-            let game = Game::default();
-
-            handle_messages(ai, game, &game_id, &mut reader, &mut tcp, true)?;
+            handle_messages(args.ai.as_str(), &game_id, &mut reader, &mut tcp, true)?;
         }
     }
 
@@ -122,10 +116,7 @@ fn accept_challenger(
 ) -> anyhow::Result<()> {
     wait_for_challenger(reader, buf, tcp, game_id)?;
 
-    let ai = choose_ai(ai)?;
-    let game = Game::default();
-
-    handle_messages(ai, game, game_id, reader, tcp, false)?;
+    handle_messages(ai, game_id, reader, tcp, false)?;
     Ok(())
 }
 
@@ -184,13 +175,15 @@ fn wait_for_challenger(
 }
 
 fn handle_messages(
-    mut ai: Box<dyn AI>,
-    mut game: Game,
+    ai: &str,
     game_id: &str,
     reader: &mut BufReader<TcpStream>,
     tcp: &mut TcpStream,
     io_on: bool,
 ) -> anyhow::Result<()> {
+    let mut game = Game::default();
+    let mut ai = choose_ai(ai)?;
+
     if io_on {
         println!("{game}\n");
     }
