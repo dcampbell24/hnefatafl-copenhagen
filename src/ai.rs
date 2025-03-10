@@ -1,3 +1,4 @@
+use chrono::Utc;
 use rand::{RngCore, rngs::OsRng};
 
 use crate::{
@@ -53,8 +54,17 @@ impl AI for AiBanal {
     }
 }
 
-#[derive(Clone, Debug, Default)]
-pub struct AiBasic;
+#[derive(Clone, Debug)]
+pub struct AiBasic {
+    // seconds
+    pub time_to_move: i64,
+}
+
+impl Default for AiBasic {
+    fn default() -> Self {
+        Self { time_to_move: 15 }
+    }
+}
 
 impl AI for AiBasic {
     fn generate_move(&mut self, game: &Game) -> Option<Plae> {
@@ -68,12 +78,13 @@ impl AI for AiBasic {
 
 impl AiBasic {
     fn minimax_search(&mut self, game: &Game) -> Option<Plae> {
-        let (_value, play) = self.max_value(game);
+        let cutoff_time = Utc::now().timestamp() + self.time_to_move;
+        let (_value, play) = self.max_value(game, cutoff_time);
         play
     }
 
-    fn max_value(&mut self, game: &Game) -> (i32, Option<Plae>) {
-        if game.status != Status::Ongoing {
+    fn max_value(&mut self, game: &Game, cutoff_time: i64) -> (i32, Option<Plae>) {
+        if Utc::now().timestamp() > cutoff_time || game.status != Status::Ongoing {
             return (game.utility(), None);
         }
 
@@ -93,7 +104,7 @@ impl AiBasic {
         for play_2 in plays {
             let mut game = game.clone();
             game.play(&Plae::Play(play_2.clone())).unwrap();
-            let (value_new, _play) = self.min_value(&game);
+            let (value_new, _play) = self.min_value(&game, cutoff_time);
 
             if value_new > value {
                 (value, play_1) = (value_new, Some(Plae::Play(play_2)));
@@ -103,8 +114,8 @@ impl AiBasic {
         (value, play_1)
     }
 
-    fn min_value(&mut self, game: &Game) -> (i32, Option<Plae>) {
-        if game.status != Status::Ongoing {
+    fn min_value(&mut self, game: &Game, cutoff_time: i64) -> (i32, Option<Plae>) {
+        if Utc::now().timestamp() > cutoff_time || game.status != Status::Ongoing {
             return (game.utility(), None);
         }
 
@@ -124,7 +135,7 @@ impl AiBasic {
         for play_2 in plays {
             let mut game = game.clone();
             game.play(&Plae::Play(play_2.clone())).unwrap();
-            let (value_new, _play) = self.max_value(&game);
+            let (value_new, _play) = self.max_value(&game, cutoff_time);
 
             if value_new > value {
                 (value, play_1) = (value_new, Some(Plae::Play(play_2)));
