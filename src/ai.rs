@@ -62,7 +62,7 @@ pub struct AiBasic {
 
 impl Default for AiBasic {
     fn default() -> Self {
-        Self { time_to_move: 15 }
+        Self { time_to_move: 1 }
     }
 }
 
@@ -102,6 +102,10 @@ impl AiBasic {
 
         let (mut value, mut play_1) = (i32::MIN, None);
         for play_2 in plays {
+            if Utc::now().timestamp() > cutoff_time {
+                return (game.utility(), None);
+            }
+
             let mut game = game.clone();
             game.play(&Plae::Play(play_2.clone())).unwrap();
             let (value_new, _play) = self.min_value(&game, cutoff_time);
@@ -133,6 +137,10 @@ impl AiBasic {
 
         let (mut value, mut play_1) = (i32::MAX, None);
         for play_2 in plays {
+            if Utc::now().timestamp() > cutoff_time {
+                return (game.utility(), None);
+            }
+
             let mut game = game.clone();
             game.play(&Plae::Play(play_2.clone())).unwrap();
             let (value_new, _play) = self.max_value(&game, cutoff_time);
