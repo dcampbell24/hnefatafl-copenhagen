@@ -86,7 +86,7 @@ panic = "abort"
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
 extended-description = "The engine is similar to the Go Text Protocol."
-features = ["ai", "client", "server"]
+features = ["client", "server"]
 assets = [
     ["debian/README.txt", "usr/share/doc/hnefatafl-copenhagen/", "644"],
     ["debian/hnefatafl-client.1.gz", "usr/share/man/man1/", "644"],
