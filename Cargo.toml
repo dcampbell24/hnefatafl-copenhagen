@@ -28,10 +28,6 @@ rustc-hash = "2"
 serde = { version = "1", features = ["derive"] }
 serde_with = "3"
 
-# ai only
-hnefatafl = { version = "0.0.1", optional = true }
-hnefatafl-egui = { version = "0.1", git = "https://github.com/dcampbell24/hnefatafl-egui/", optional = true }
-
 # client only
 futures = { version = "0.3", optional = true }
 iced = { version = "0.13", features = ["smol"], optional = true }
@@ -46,7 +42,6 @@ password-hash = { version = "0.5", optional = true }
 dirs = "6"
 
 [features]
-ai = ["dep:hnefatafl", "dep:hnefatafl-egui"]
 client = ["dep:futures", "dep:iced", "dep:rodio", "dep:webbrowser"]
 server = ["dep:argon2", "dep:password-hash"]
 
@@ -57,10 +52,6 @@ required-features = ["client"]
 [[bin]]
 name = "hnefatafl-server-full"
 required-features = ["server"]
-
-[[bin]]
-name = "hnefatafl-rs-ai"
-required-features = ["ai"]
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
