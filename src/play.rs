@@ -8,7 +8,7 @@ use crate::color::Color;
 pub const BOARD_LETTERS: &str = "abcdefghjkl";
 pub const BOARD_LETTERS_: &str = "abcdefghijk";
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Plae {
     Play(Play),
     BlackResigns,
@@ -74,7 +74,7 @@ impl TryFrom<Vec<&str>> for Plae {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct Play {
     pub color: Color,
     pub from: Vertex,
