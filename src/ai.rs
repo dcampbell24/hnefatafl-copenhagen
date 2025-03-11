@@ -87,7 +87,11 @@ impl AiBasic {
         let cutoff_time = Utc::now().timestamp() + self.time_to_move;
         let alpha = i32::MIN;
         let beta = i32::MAX;
-        let (value, play) = self.max_value(game, alpha, beta, cutoff_time, 0);
+
+        let (value, play) = match Role::try_from(&game.turn).ok()? {
+            Role::Attacker => self.min_value(game, alpha, beta, cutoff_time, 0),
+            Role::Defender => self.max_value(game, alpha, beta, cutoff_time, 0),
+        };
 
         println!("value: {value}");
         play
