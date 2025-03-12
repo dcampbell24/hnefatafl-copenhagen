@@ -33,7 +33,6 @@ fi
 if [ $1 = 'install' ]; then
     sudo dpkg --remove hnefatafl-copenhagen
     sudo dpkg --install $PACKAGE
-    sudo systemctl enable hnefatafl.service
-    sudo systemctl start hnefatafl.service
+    sudo systemctl restart hnefatafl.service
     sudo systemctl daemon-reload
 fi
