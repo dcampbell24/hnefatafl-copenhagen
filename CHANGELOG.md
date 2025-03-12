@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2025-03-12
+
+- Bump the VERSION_ID.
+- Make the light / dark buttons into a single button.
+
 ## [0.8.0] - 2025-03-11
 
 ### Added
@@ -122,7 +127,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.0...main
+[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.1...main
+[0.8.1]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.6.0...v0.6.1
