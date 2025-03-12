@@ -1302,14 +1302,11 @@ impl Client {
                 let account_setting = button("Account Settings").on_press(Message::AccountSettings);
                 let website = button("Website").on_press(Message::OpenWebsite);
 
-                let mut dark = button("☾");
-                let mut light = button("☀");
-
-                if self.theme == Theme::Light {
-                    dark = dark.on_press(Message::ChangeTheme(Theme::Dark));
+                let theme = if self.theme == Theme::Light {
+                    button("☾").on_press(Message::ChangeTheme(Theme::Dark))
                 } else {
-                    light = light.on_press(Message::ChangeTheme(Theme::Light));
-                }
+                    button("☀").on_press(Message::ChangeTheme(Theme::Light))
+                };
 
                 let top = row![
                     username,
@@ -1317,8 +1314,7 @@ impl Client {
                     users,
                     account_setting,
                     website,
-                    dark,
-                    light
+                    theme
                 ]
                 .spacing(SPACING);
 
