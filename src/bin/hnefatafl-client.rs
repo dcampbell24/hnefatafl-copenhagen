@@ -559,13 +559,15 @@ impl Client {
                                         if let Some(mut path) = dirs::data_dir() {
                                             path = path.join(HOME);
                                             let (_stream, stream_handle) =
-                                                rodio::OutputStream::try_default().unwrap();
+                                                rodio::OutputStream::try_default()?;
 
                                             let file = open_system_data(&path, "game_over.ogg");
-                                            let sound = stream_handle.play_once(file).unwrap();
+                                            let sound = stream_handle.play_once(file)?;
                                             sound.set_volume(1.0);
                                             thread::sleep(Duration::from_secs(1));
                                         }
+
+                                        Ok::<(), anyhow::Error>(())
                                     });
                                 }
                             }
@@ -1006,16 +1008,18 @@ impl Client {
             if let Some(mut path) = dirs::data_dir() {
                 path = path.join(HOME);
 
-                let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
+                let (_stream, stream_handle) = rodio::OutputStream::try_default()?;
                 let file = if capture {
                     open_system_data(&path, "capture.ogg")
                 } else {
                     open_system_data(&path, "move.ogg")
                 };
-                let sound = stream_handle.play_once(file).unwrap();
+                let sound = stream_handle.play_once(file)?;
                 sound.set_volume(1.0);
                 thread::sleep(Duration::from_secs(1));
             }
+
+            Ok::<(), anyhow::Error>(())
         });
     }
 
