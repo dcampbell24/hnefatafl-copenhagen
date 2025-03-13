@@ -25,3 +25,6 @@ fn main() -> Result<(), io::Error> {
 
     Ok(())
 }
+
+#[cfg(docsrs)]
+fn main() {}
