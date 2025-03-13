@@ -2026,7 +2026,6 @@ dependencies = [
  "env_logger",
  "futures",
  "iced",
- "iced_fonts",
  "log",
  "password-hash",
  "rand",
@@ -2108,16 +2107,6 @@ dependencies = [
  "smol_str",
  "thiserror 1.0.69",
  "web-time",
-]
-
-[[package]]
-name = "iced_fonts"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7db9d45e87bc3ac22ff82e2d9dea9139f1c055137f1e0f39df3d68110fcee7a9"
-dependencies = [
- "iced_core",
- "iced_widget",
 ]
 
 [[package]]
