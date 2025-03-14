@@ -1,11 +1,12 @@
-#[cfg(not(docsrs))]
 use std::{fs, io, path::Path};
 
-#[cfg(not(docsrs))]
 static HOME: &str = "hnefatafl-copenhagen";
 
-#[cfg(not(docsrs))]
 fn main() -> Result<(), io::Error> {
+    if std::env::var("DOCS_RS").is_ok() {
+        return Ok(());
+    }
+
     if let Some(mut path) = dirs::data_dir() {
         path = path.join(HOME);
         fs::create_dir_all(&path)?;
@@ -25,6 +26,3 @@ fn main() -> Result<(), io::Error> {
 
     Ok(())
 }
-
-#[cfg(docsrs)]
-fn main() {}
