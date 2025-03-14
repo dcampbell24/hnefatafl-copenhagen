@@ -126,7 +126,6 @@ enum Screen {
 }
 
 impl Client {
-    #[allow(clippy::too_many_lines)]
     #[must_use]
     fn board(&self) -> Column<Message> {
         let (board_size, spacing) = match self.screen_size {
