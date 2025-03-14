@@ -1313,9 +1313,11 @@ impl Client {
                 let website = button("Website").on_press(Message::OpenWebsite);
 
                 let theme = if self.theme == Theme::Light {
-                    button("☾").on_press(Message::ChangeTheme(Theme::Dark))
+                    button(text("☾").shaping(text::Shaping::Advanced))
+                        .on_press(Message::ChangeTheme(Theme::Dark))
                 } else {
-                    button("☀").on_press(Message::ChangeTheme(Theme::Light))
+                    button(text("☀").shaping(text::Shaping::Advanced))
+                        .on_press(Message::ChangeTheme(Theme::Light))
                 };
 
                 let top = row![
