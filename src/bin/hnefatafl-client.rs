@@ -175,29 +175,20 @@ impl Client {
                             || (y, x) == (10, 10)
                             || (y, x) == (5, 5)
                         {
-                            button(text("□").size(board_size))
+                            button(text("□").size(board_size).shaping(text::Shaping::Advanced))
                         } else {
-                            button(text(" ").size(board_size))
+                            button(text(" ").size(board_size).shaping(text::Shaping::Advanced))
                         }
                     }
-                    Space::Black => button(
-                        text("♟")
-                            .size(board_size)
-                            .shaping(text::Shaping::Advanced)
-                            .font(Font::MONOSPACE),
-                    ),
-                    Space::King => button(
-                        text("♔")
-                            .size(board_size)
-                            .shaping(text::Shaping::Advanced)
-                            .font(Font::MONOSPACE),
-                    ),
-                    Space::White => button(
-                        text("♙")
-                            .size(board_size)
-                            .shaping(text::Shaping::Advanced)
-                            .font(Font::MONOSPACE),
-                    ),
+                    Space::Black => {
+                        button(text("♟").size(board_size).shaping(text::Shaping::Advanced))
+                    }
+                    Space::King => {
+                        button(text("♔").size(board_size).shaping(text::Shaping::Advanced))
+                    }
+                    Space::White => {
+                        button(text("♙").size(board_size).shaping(text::Shaping::Advanced))
+                    }
                 };
 
                 if let (Some(from), Some(to)) = (&self.play_from_previous, &self.play_to_previous) {
