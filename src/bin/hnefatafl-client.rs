@@ -126,6 +126,7 @@ enum Screen {
 }
 
 impl Client {
+    #[allow(clippy::too_many_lines)]
     #[must_use]
     fn board(&self) -> Column<Message> {
         let (board_size, spacing) = match self.screen_size {
@@ -179,15 +180,24 @@ impl Client {
                             button(text(" ").size(board_size))
                         }
                     }
-                    Space::Black => {
-                        button(text("♟").size(board_size).shaping(text::Shaping::Advanced))
-                    }
-                    Space::King => {
-                        button(text("♔").size(board_size).shaping(text::Shaping::Advanced))
-                    }
-                    Space::White => {
-                        button(text("♙").size(board_size).shaping(text::Shaping::Advanced))
-                    }
+                    Space::Black => button(
+                        text("♟")
+                            .size(board_size)
+                            .shaping(text::Shaping::Advanced)
+                            .font(Font::MONOSPACE),
+                    ),
+                    Space::King => button(
+                        text("♔")
+                            .size(board_size)
+                            .shaping(text::Shaping::Advanced)
+                            .font(Font::MONOSPACE),
+                    ),
+                    Space::White => button(
+                        text("♙")
+                            .size(board_size)
+                            .shaping(text::Shaping::Advanced)
+                            .font(Font::MONOSPACE),
+                    ),
                 };
 
                 if let (Some(from), Some(to)) = (&self.play_from_previous, &self.play_to_previous) {
