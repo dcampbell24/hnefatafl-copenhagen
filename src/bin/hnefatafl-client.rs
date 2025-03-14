@@ -34,6 +34,7 @@ use hnefatafl_copenhagen::{
 };
 use iced::{
     Element, Subscription,
+    alignment::{Horizontal, Vertical},
     font::Font,
     futures::{SinkExt, Stream},
     stream,
@@ -126,29 +127,20 @@ enum Screen {
 }
 
 impl Client {
+    #[allow(clippy::too_many_lines)]
     #[must_use]
-    fn board(&self) -> Column<Message> {
-        let (board_size, spacing) = match self.screen_size {
-            Size::Large => (50, 23),
-            Size::Small => (35, 22),
+    fn board(&self) -> Row<Message> {
+        let letters: Vec<_> = "ABCDEFGHJKL".chars().collect();
+        let (letter_size, board_size, spacing) = match self.screen_size {
+            Size::Large => (55, 51, 10),
+            Size::Small => (38, 35, 8),
         };
-
-        let letters = " ABCDEFGHJKL";
-        let mut row_letters_1 = Row::new();
-        for letter in letters.chars() {
-            row_letters_1 = row_letters_1.push(text(letter).size(board_size).center());
-        }
-        let mut row_letters_2 = Row::new();
-        for letter in letters.chars() {
-            row_letters_2 = row_letters_2.push(text(letter).size(board_size).center());
-        }
 
         let Some(game) = &self.game else {
-            return column![];
+            return row![];
         };
 
-        let mut game_display = Column::new();
-        game_display = game_display.push(row_letters_1.spacing(spacing));
+        let mut game_display = Row::new();
 
         let mut possible_moves = None;
         if self.my_turn {
@@ -157,11 +149,22 @@ impl Client {
             }
         }
 
-        for y in 0..11 {
-            let mut row = Row::new();
+        let mut column = column!["", ""].spacing(spacing);
+        for i in 1..12 {
+            column = column.push(
+                text(format!("{i:2}"))
+                    .size(letter_size)
+                    .align_y(Vertical::Center),
+            );
+        }
+        game_display = game_display.push(column);
 
-            let y_label = 11 - y;
-            row = row.push(text(format!("{y_label:2}")).size(board_size).center());
+        for (y, letter) in letters.iter().enumerate() {
+            let mut column = Column::new().spacing(spacing);
+
+            column = column
+                .push(text(letter).size(letter_size))
+                .align_x(Horizontal::Center);
 
             for x in 0..11 {
                 let vertex = Vertex { x, y };
@@ -191,8 +194,8 @@ impl Client {
                 };
 
                 if let (Some(from), Some(to)) = (&self.play_from_previous, &self.play_to_previous) {
-                    let y_diff = from.y as i128 - to.y as i128;
-                    let x_diff = from.x as i128 - to.x as i128;
+                    let x_diff = from.y as i128 - to.y as i128;
+                    let y_diff = from.x as i128 - to.x as i128;
                     let mut arrow = " ";
 
                     if y_diff < 0 {
@@ -229,16 +232,33 @@ impl Client {
                     }
                 }
 
-                row = row.push(button_);
+                column = column.push(button_).spacing(2);
             }
 
-            row = row.push(text(format!("{y_label:2}")).size(board_size).center());
+            column = column.push(
+                text(letters[y])
+                    .size(letter_size)
+                    .align_x(Horizontal::Center)
+                    .align_y(Vertical::Center),
+            );
 
-            game_display = game_display.push(row);
+            game_display = game_display.push(column);
         }
 
-        game_display = game_display.push(row_letters_2.spacing(spacing));
-        game_display
+        let mut column = column!["", ""].spacing(spacing);
+        for i in 1..12 {
+            column = column.push(
+                text(format!("{i:2}"))
+                    .size(letter_size)
+                    .align_y(Vertical::Center),
+            );
+        }
+        game_display = game_display.push(column);
+
+        match self.screen_size {
+            Size::Large => game_display.spacing(1),
+            Size::Small => game_display.spacing(2),
+        }
     }
 
     fn subscriptions(&self) -> Subscription<Message> {
