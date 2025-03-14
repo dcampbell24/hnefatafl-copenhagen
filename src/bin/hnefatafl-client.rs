@@ -131,9 +131,9 @@ impl Client {
     #[must_use]
     fn board(&self) -> Row<Message> {
         let letters: Vec<_> = "ABCDEFGHJKL".chars().collect();
-        let (letter_size, board_size, spacing) = match self.screen_size {
-            Size::Large => (55, 51, 10),
-            Size::Small => (38, 35, 8),
+        let (board_size, letter_size, piece_size, spacing) = match self.screen_size {
+            Size::Large => (75, 42, 40, 27),
+            Size::Small => (60, 33, 30, 22),
         };
 
         let Some(game) = &self.game else {
@@ -149,7 +149,7 @@ impl Client {
             }
         }
 
-        let mut column = column!["", ""].spacing(spacing);
+        let mut column = column![" "].spacing(spacing);
         for i in 1..12 {
             column = column.push(
                 text(format!("{i:2}"))
@@ -160,7 +160,7 @@ impl Client {
         game_display = game_display.push(column);
 
         for (y, letter) in letters.iter().enumerate() {
-            let mut column = Column::new().spacing(spacing);
+            let mut column = Column::new().spacing(2);
 
             column = column
                 .push(text(letter).size(letter_size))
@@ -177,20 +177,39 @@ impl Client {
                             || (y, x) == (10, 10)
                             || (y, x) == (5, 5)
                         {
-                            button(text("□").size(board_size).shaping(text::Shaping::Advanced))
+                            button(
+                                text("□")
+                                    .size(piece_size)
+                                    .shaping(text::Shaping::Advanced)
+                                    .center(),
+                            )
                         } else {
-                            button(text(" ").size(board_size).shaping(text::Shaping::Advanced))
+                            button(
+                                text(" ")
+                                    .size(piece_size)
+                                    .shaping(text::Shaping::Advanced)
+                                    .center(),
+                            )
                         }
                     }
-                    Space::Black => {
-                        button(text("♟").size(board_size).shaping(text::Shaping::Advanced))
-                    }
-                    Space::King => {
-                        button(text("♔").size(board_size).shaping(text::Shaping::Advanced))
-                    }
-                    Space::White => {
-                        button(text("♙").size(board_size).shaping(text::Shaping::Advanced))
-                    }
+                    Space::Black => button(
+                        text("♟")
+                            .size(piece_size)
+                            .shaping(text::Shaping::Advanced)
+                            .center(),
+                    ),
+                    Space::King => button(
+                        text("♔")
+                            .size(piece_size)
+                            .shaping(text::Shaping::Advanced)
+                            .center(),
+                    ),
+                    Space::White => button(
+                        text("♙")
+                            .size(piece_size)
+                            .shaping(text::Shaping::Advanced)
+                            .center(),
+                    ),
                 };
 
                 if let (Some(from), Some(to)) = (&self.play_from_previous, &self.play_to_previous) {
@@ -209,12 +228,12 @@ impl Client {
                     }
 
                     if (y, x) == (from.y, from.x) {
-                        button_ = button(text(arrow).size(board_size));
+                        button_ = button(text(arrow).size(piece_size).center());
                     }
                 }
 
                 if self.captures.contains(&vertex) {
-                    button_ = button(text("X").size(board_size));
+                    button_ = button(text("X").size(piece_size).center());
                 }
 
                 if let Some(legal_moves) = &possible_moves {
@@ -232,7 +251,8 @@ impl Client {
                     }
                 }
 
-                column = column.push(button_).spacing(2);
+                button_ = button_.width(board_size).height(board_size);
+                column = column.push(button_);
             }
 
             column = column.push(
@@ -245,7 +265,7 @@ impl Client {
             game_display = game_display.push(column);
         }
 
-        let mut column = column!["", ""].spacing(spacing);
+        let mut column = column![" "].spacing(spacing);
         for i in 1..12 {
             column = column.push(
                 text(format!("{i:2}"))
@@ -1214,13 +1234,16 @@ impl Client {
                 }
 
                 user_area = user_area.push(
-                    row![
-                        button("Small Screen").on_press(Message::ScreenSize(Size::Small)),
-                        button("Large Screen").on_press(Message::ScreenSize(Size::Large)),
-                        button("Leave").on_press(Message::Leave),
-                    ]
-                    .spacing(SPACING),
+                    row![button("Small Screen").on_press(Message::ScreenSize(Size::Small))]
+                        .spacing(SPACING),
                 );
+                user_area = user_area.push(
+                    row![button("Large Screen").on_press(Message::ScreenSize(Size::Large))]
+                        .spacing(SPACING),
+                );
+                user_area = user_area
+                    .push(row![button("Leave").on_press(Message::Leave)])
+                    .spacing(SPACING);
 
                 user_area = user_area
                     .push(checkbox("sound muted", self.sound_muted).on_toggle(Message::SoundMuted));
