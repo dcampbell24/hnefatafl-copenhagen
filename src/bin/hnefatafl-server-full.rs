@@ -1173,28 +1173,14 @@ impl Server {
                     account.logged_in = None;
                     self.clients.remove(&index_database);
 
-                    None
-                } else {
-                    Some((
-                        self.clients[&index_supplied].clone(),
-                        false,
-                        (*command).to_string(),
-                    ))
+                    return None;
                 }
-            } else {
-                Some((
-                    self.clients[&index_supplied].clone(),
-                    false,
-                    (*command).to_string(),
-                ))
             }
-        } else {
-            Some((
-                self.clients[&index_supplied].clone(),
-                false,
-                (*command).to_string(),
-            ))
         }
+
+        self.clients
+            .get(&index_supplied)
+            .map(|sender| (sender.clone(), false, (*command).to_string()))
     }
 
     /// ```sh

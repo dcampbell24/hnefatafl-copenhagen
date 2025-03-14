@@ -375,7 +375,11 @@ impl Client {
                     self.send(format!("leave_game {}\n", self.game_id));
                     self.screen = Screen::Games;
                 }
-                Screen::Games | Screen::Login => {}
+                Screen::Games => {
+                    self.send("logout\n".to_string());
+                    exit(0);
+                }
+                Screen::Login => exit(0),
             },
             Message::OpenWebsite => open_url("https://hnefatafl.org"),
             Message::GameNew => self.screen = Screen::GameNew,
@@ -1366,13 +1370,16 @@ impl Client {
                         .on_press(Message::ChangeTheme(Theme::Light))
                 };
 
+                let quit = button("Quit").on_press(Message::Leave);
+
                 let top = row![
                     username,
                     create_game,
                     users,
                     account_setting,
                     website,
-                    theme
+                    theme,
+                    quit
                 ]
                 .spacing(SPACING);
 
@@ -1415,7 +1422,8 @@ impl Client {
                 if !self.text_input.is_empty() {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
                 }
-                let buttons = row![login, create_account]
+                let quit = button("Quit").on_press(Message::Leave);
+                let buttons = row![login, create_account, quit]
                     .spacing(SPACING)
                     .padding(PADDING);
 
