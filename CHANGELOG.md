@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- hnefatafl-client: make the display of pieces better.
+### Fixed
+
+- hnefatafl-client: make the board pretty.
 - hnefatafl-client: don't unwrap() on sound errors.
 
 ## [0.8.1] - 2025-03-12

@@ -150,7 +150,8 @@ impl Client {
         }
 
         let mut column = column![" "].spacing(spacing);
-        for i in 1..12 {
+        for i in 0..11 {
+            let i = 11 - i;
             column = column.push(
                 text(format!("{i:2}"))
                     .size(letter_size)
@@ -159,14 +160,14 @@ impl Client {
         }
         game_display = game_display.push(column);
 
-        for (y, letter) in letters.iter().enumerate() {
+        for (x, letter) in letters.iter().enumerate() {
             let mut column = Column::new().spacing(2);
 
             column = column
                 .push(text(letter).size(letter_size))
                 .align_x(Horizontal::Center);
 
-            for x in 0..11 {
+            for y in 0..11 {
                 let vertex = Vertex { x, y };
 
                 let mut button_ = match game.board.get(&vertex) {
@@ -213,8 +214,8 @@ impl Client {
                 };
 
                 if let (Some(from), Some(to)) = (&self.play_from_previous, &self.play_to_previous) {
-                    let x_diff = from.y as i128 - to.y as i128;
-                    let y_diff = from.x as i128 - to.x as i128;
+                    let x_diff = from.x as i128 - to.x as i128;
+                    let y_diff = from.y as i128 - to.y as i128;
                     let mut arrow = " ";
 
                     if y_diff < 0 {
@@ -256,7 +257,7 @@ impl Client {
             }
 
             column = column.push(
-                text(letters[y])
+                text(letters[x])
                     .size(letter_size)
                     .align_x(Horizontal::Center)
                     .align_y(Vertical::Center),
@@ -266,7 +267,8 @@ impl Client {
         }
 
         let mut column = column![" "].spacing(spacing);
-        for i in 1..12 {
+        for i in 0..11 {
+            let i = 11 - i;
             column = column.push(
                 text(format!("{i:2}"))
                     .size(letter_size)
@@ -1233,20 +1235,24 @@ impl Client {
                     }
                 }
 
-                user_area = user_area.push(
-                    row![button("Small Screen").on_press(Message::ScreenSize(Size::Small))]
-                        .spacing(SPACING),
-                );
-                user_area = user_area.push(
-                    row![button("Large Screen").on_press(Message::ScreenSize(Size::Large))]
-                        .spacing(SPACING),
-                );
+                let screen_size = match self.screen_size {
+                    Size::Large => button("Small Board").on_press(Message::ScreenSize(Size::Small)),
+                    Size::Small => button("Large Board").on_press(Message::ScreenSize(Size::Large)),
+                };
+
+                let muted = if self.sound_muted {
+                    button(text("🔈").shaping(text::Shaping::Advanced).center())
+                        .on_press(Message::SoundMuted(false))
+                } else {
+                    button(text("🔊").shaping(text::Shaping::Advanced).center())
+                        .on_press(Message::SoundMuted(true))
+                };
+
+                user_area = user_area.push(row![screen_size, muted].spacing(SPACING));
+
                 user_area = user_area
                     .push(row![button("Leave").on_press(Message::Leave)])
                     .spacing(SPACING);
-
-                user_area = user_area
-                    .push(checkbox("sound muted", self.sound_muted).on_toggle(Message::SoundMuted));
 
                 match self.status {
                     Status::BlackWins => user_area = user_area.push(text("Attacker Wins!")),
