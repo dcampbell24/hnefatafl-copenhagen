@@ -140,7 +140,7 @@ impl Client {
             return row![];
         };
 
-        let mut game_display = Row::new();
+        let mut game_display = Row::new().spacing(2);
 
         let mut possible_moves = None;
         if self.my_turn {
@@ -275,12 +275,9 @@ impl Client {
                     .align_y(Vertical::Center),
             );
         }
-        game_display = game_display.push(column);
 
-        match self.screen_size {
-            Size::Large => game_display.spacing(1),
-            Size::Small => game_display.spacing(2),
-        }
+        game_display = game_display.push(column);
+        game_display
     }
 
     fn subscriptions(&self) -> Subscription<Message> {
