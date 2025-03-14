@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] - 2025-03-14
+
 ### Changed
 
 - hnefatafl-client: add a quit button.
@@ -136,7 +138,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.1...main
+[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.2...main
+[0.8.2]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.6.1...v0.7.0
