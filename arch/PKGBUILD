@@ -1,0 +1,62 @@
+# Zero-Clause BSD
+# ===============
+
+# Permission to use, copy, modify, and/or distribute this software for
+# any purpose with or without fee is hereby granted.
+
+# THE SOFTWARE IS PROVIDED “AS IS” AND THE AUTHOR DISCLAIMS ALL
+# WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE
+# FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY
+# DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
+# AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
+# OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+pkgname=hnefatafl-copenhagen
+pkgver=0.8.2
+pkgrel=1
+pkgdesc='Copenhagen Hnefatafl client'
+url='https://hnefatafl.org/'
+license=('MIT' 'Apache-2.0')
+makedepends=('cargo')
+depends=()
+arch=('i686' 'x86_64' 'armv6h' 'armv7h')
+source=('https://github.com/dcampbell24/hnefatafl-copenhagen')
+b2sums=()
+
+# Generated in accordance to https://wiki.archlinux.org/title/Rust_package_guidelines.
+
+prepare() {
+    export RUSTUP_TOOLCHAIN=stable
+    cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+    export RUSTUP_TOOLCHAIN=stable
+    export CARGO_TARGET_DIR=target
+    cargo build --frozen --release --bin hnefetafl-client --features client
+}
+
+check() {
+    export RUSTUP_TOOLCHAIN=stable
+    cargo test --frozen --features client
+}
+
+package() {
+    install -Dm0755 -t "${pkgdir}/usr/games/" "target/release/hnefatafl-client"
+    # install -Dm644 "debian/README.txt" "${pkgdir}/usr/share/doc/hnefatafl-copenhagen/"
+    # install -Dm644 "debian/hnefatafl-client.1.gz" "${pkgdir}/usr/share/man/man1/"
+    install -Dm644 "debian/hnefatafl-client.desktop" "${pkgdir}/usr/share/applications/"
+    install -Dm644 "icons/king_16x16.png" "${pkgdir}/usr/share/icons/hicolor/16x16/apps/hnefatafl-client.png"
+    install -Dm644 "icons/king_22x22.png" "${pkgdir}/usr/share/icons/hicolor/22x22/apps/hnefatafl-client.png"
+    install -Dm644 "icons/king_24x24.png" "${pkgdir}/usr/share/icons/hicolor/24x24/apps/hnefatafl-client.png"
+    install -Dm644 "icons/king_32x32.png" "${pkgdir}/usr/share/icons/hicolor/32x32/apps/hnefatafl-client.png"
+    install -Dm644 "icons/king_42x42.png" "${pkgdir}/usr/share/icons/hicolor/42x42/apps/hnefatafl-client.png"
+    install -Dm644 "icons/king_64x64.png" "${pkgdir}/usr/share/icons/hicolor/64x64/apps/hnefatafl-client.png"
+    install -Dm644 "icons/king_128x128.png" "${pkgdir}/usr/share/icons/hicolor/128x128/apps/hnefatafl-client.png"
+    install -Dm644 "sound/capture.ogg" "${pkgdir}/usr/share/${pkgname}/capture.ogg"
+    install -Dm644 "sound/game_over.ogg" "${pkgdir}/usr/share/${pkgname}/game_over.ogg"
+    install -Dm644 "sound/move.ogg" "${pkgdir}/usr/share/${pkgname}/move.ogg"
+    install -Dm644 LICENSE-APACHE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE-APACHE"
+    install -Dm644 LICENSE-MIT "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE-MIT"
+}
