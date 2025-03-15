@@ -22,7 +22,7 @@ makedepends=('cargo')
 depends=()
 arch=('i686' 'x86_64' 'armv6h' 'armv7h')
 source=('https://github.com/dcampbell24/hnefatafl-copenhagen')
-b2sums=()
+sha256sums=('2a708709c22bcaba5a6c78f73bb8b6d55997c1c42d57626c4f6d652ecb05a73f')
 
 # Generated in accordance to https://wiki.archlinux.org/title/Rust_package_guidelines.
 
