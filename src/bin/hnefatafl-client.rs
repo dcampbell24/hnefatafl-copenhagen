@@ -178,31 +178,20 @@ impl Client {
                             || (y, x) == (10, 10)
                             || (y, x) == (5, 5)
                         {
-                            text("⛝")
-                                .size(piece_size)
-                                .shaping(text::Shaping::Advanced)
-                                .center()
-                                .align_y(Vertical::Top)
+                            text("⌘")
                         } else {
                             text(" ")
-                                .size(piece_size)
-                                .shaping(text::Shaping::Advanced)
-                                .center()
                         }
                     }
-                    Space::Black => text("♟")
-                        .size(piece_size)
-                        .shaping(text::Shaping::Advanced)
-                        .center(),
-                    Space::King => text("♔")
-                        .size(piece_size)
-                        .shaping(text::Shaping::Advanced)
-                        .center(),
-                    Space::White => text("♙")
-                        .size(piece_size)
-                        .shaping(text::Shaping::Advanced)
-                        .center(),
+                    Space::Black => text("♟"),
+                    Space::King => text("♔"),
+                    Space::White => text("♙"),
                 };
+
+                text_ = text_
+                    .size(piece_size)
+                    .shaping(text::Shaping::Advanced)
+                    .center();
 
                 if let (Some(from), Some(to)) = (&self.play_from_previous, &self.play_to_previous) {
                     let x_diff = from.x as i128 - to.x as i128;
