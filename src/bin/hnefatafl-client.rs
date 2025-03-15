@@ -132,8 +132,8 @@ impl Client {
     fn board(&self) -> Row<Message> {
         let letters: Vec<_> = "ABCDEFGHJKL".chars().collect();
         let (board_size, letter_size, piece_size, spacing) = match self.screen_size {
-            Size::Large => (75, 42, 65, 27),
-            Size::Small => (60, 33, 50, 22),
+            Size::Large => (75, 42, 60, 27),
+            Size::Small => (60, 33, 45, 22),
         };
 
         let Some(game) = &self.game else {
