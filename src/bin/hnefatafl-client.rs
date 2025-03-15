@@ -1223,10 +1223,10 @@ impl Client {
                 };
 
                 let muted = if self.sound_muted {
-                    button(text("🔈").shaping(text::Shaping::Advanced).center())
+                    button(text("🕨").shaping(text::Shaping::Advanced).center())
                         .on_press(Message::SoundMuted(false))
                 } else {
-                    button(text("🔊").shaping(text::Shaping::Advanced).center())
+                    button(text("🕪").shaping(text::Shaping::Advanced).center())
                         .on_press(Message::SoundMuted(true))
                 };
 
