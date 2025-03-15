@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: change the symbols and their size.
+
 ## [0.8.2] - 2025-03-14
 
 ### Changed
