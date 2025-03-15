@@ -170,7 +170,7 @@ impl Client {
             for y in 0..11 {
                 let vertex = Vertex { x, y };
 
-                let mut button_ = match game.board.get(&vertex) {
+                let mut text_ = match game.board.get(&vertex) {
                     Space::Empty => {
                         if (y, x) == (0, 0)
                             || (y, x) == (10, 0)
@@ -178,39 +178,30 @@ impl Client {
                             || (y, x) == (10, 10)
                             || (y, x) == (5, 5)
                         {
-                            button(
-                                text("□")
-                                    .size(piece_size)
-                                    .shaping(text::Shaping::Advanced)
-                                    .center(),
-                            )
+                            text("⛝")
+                                .size(piece_size)
+                                .shaping(text::Shaping::Advanced)
+                                .center()
+                                .align_y(Vertical::Top)
                         } else {
-                            button(
-                                text(" ")
-                                    .size(piece_size)
-                                    .shaping(text::Shaping::Advanced)
-                                    .center(),
-                            )
+                            text(" ")
+                                .size(piece_size)
+                                .shaping(text::Shaping::Advanced)
+                                .center()
                         }
                     }
-                    Space::Black => button(
-                        text("♟")
-                            .size(piece_size)
-                            .shaping(text::Shaping::Advanced)
-                            .center(),
-                    ),
-                    Space::King => button(
-                        text("♔")
-                            .size(piece_size)
-                            .shaping(text::Shaping::Advanced)
-                            .center(),
-                    ),
-                    Space::White => button(
-                        text("♙")
-                            .size(piece_size)
-                            .shaping(text::Shaping::Advanced)
-                            .center(),
-                    ),
+                    Space::Black => text("♟")
+                        .size(piece_size)
+                        .shaping(text::Shaping::Advanced)
+                        .center(),
+                    Space::King => text("♔")
+                        .size(piece_size)
+                        .shaping(text::Shaping::Advanced)
+                        .center(),
+                    Space::White => text("♙")
+                        .size(piece_size)
+                        .shaping(text::Shaping::Advanced)
+                        .center(),
                 };
 
                 if let (Some(from), Some(to)) = (&self.play_from_previous, &self.play_to_previous) {
@@ -229,13 +220,15 @@ impl Client {
                     }
 
                     if (y, x) == (from.y, from.x) {
-                        button_ = button(text(arrow).size(piece_size).center());
+                        text_ = text(arrow).size(piece_size).center();
                     }
                 }
 
                 if self.captures.contains(&vertex) {
-                    button_ = button(text("X").size(piece_size).center());
+                    text_ = text("X").size(piece_size).center();
                 }
+
+                let mut button_ = button(text_).width(board_size).height(board_size);
 
                 if let Some(legal_moves) = &possible_moves {
                     if let Some(vertex_from) = self.play_from.as_ref() {
@@ -252,7 +245,6 @@ impl Client {
                     }
                 }
 
-                button_ = button_.width(board_size).height(board_size);
                 column = column.push(button_);
             }
 
