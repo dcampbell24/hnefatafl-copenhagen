@@ -12,6 +12,7 @@ repository = "https://github.com/dcampbell24/hnefatafl-copenhagen"
 license = "MIT OR Apache-2.0"
 keywords = ["board-game", "copenhagan", "hnefatafl", "tafl"]
 categories = ["game-engines", "games"]
+default-run = "hnefatafl-server-full"
 
 [dependencies]
 anyhow = "1"
