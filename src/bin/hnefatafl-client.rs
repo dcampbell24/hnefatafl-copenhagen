@@ -132,8 +132,8 @@ impl Client {
     fn board(&self) -> Row<Message> {
         let letters: Vec<_> = "ABCDEFGHJKL".chars().collect();
         let (board_size, letter_size, piece_size, spacing) = match self.screen_size {
-            Size::Large => (75, 42, 50, 27),
-            Size::Small => (60, 33, 40, 22),
+            Size::Large => (75, 42, 60, 27),
+            Size::Small => (60, 33, 45, 22),
         };
 
         let Some(game) = &self.game else {
@@ -170,7 +170,7 @@ impl Client {
             for y in 0..11 {
                 let vertex = Vertex { x, y };
 
-                let mut button_ = match game.board.get(&vertex) {
+                let mut text_ = match game.board.get(&vertex) {
                     Space::Empty => {
                         if (y, x) == (0, 0)
                             || (y, x) == (10, 0)
@@ -178,40 +178,20 @@ impl Client {
                             || (y, x) == (10, 10)
                             || (y, x) == (5, 5)
                         {
-                            button(
-                                text("□")
-                                    .size(piece_size)
-                                    .shaping(text::Shaping::Advanced)
-                                    .center(),
-                            )
+                            text("⌘")
                         } else {
-                            button(
-                                text(" ")
-                                    .size(piece_size)
-                                    .shaping(text::Shaping::Advanced)
-                                    .center(),
-                            )
+                            text(" ")
                         }
                     }
-                    Space::Black => button(
-                        text("♟")
-                            .size(piece_size)
-                            .shaping(text::Shaping::Advanced)
-                            .center(),
-                    ),
-                    Space::King => button(
-                        text("♔")
-                            .size(piece_size)
-                            .shaping(text::Shaping::Advanced)
-                            .center(),
-                    ),
-                    Space::White => button(
-                        text("♙")
-                            .size(piece_size)
-                            .shaping(text::Shaping::Advanced)
-                            .center(),
-                    ),
+                    Space::Black => text("♟"),
+                    Space::King => text("♔"),
+                    Space::White => text("♙"),
                 };
+
+                text_ = text_
+                    .size(piece_size)
+                    .shaping(text::Shaping::Advanced)
+                    .center();
 
                 if let (Some(from), Some(to)) = (&self.play_from_previous, &self.play_to_previous) {
                     let x_diff = from.x as i128 - to.x as i128;
@@ -229,13 +209,15 @@ impl Client {
                     }
 
                     if (y, x) == (from.y, from.x) {
-                        button_ = button(text(arrow).size(piece_size).center());
+                        text_ = text(arrow).size(piece_size).center();
                     }
                 }
 
                 if self.captures.contains(&vertex) {
-                    button_ = button(text("X").size(piece_size).center());
+                    text_ = text("X").size(piece_size).center();
                 }
+
+                let mut button_ = button(text_).width(board_size).height(board_size);
 
                 if let Some(legal_moves) = &possible_moves {
                     if let Some(vertex_from) = self.play_from.as_ref() {
@@ -252,7 +234,6 @@ impl Client {
                     }
                 }
 
-                button_ = button_.width(board_size).height(board_size);
                 column = column.push(button_);
             }
 
@@ -1242,10 +1223,10 @@ impl Client {
                 };
 
                 let muted = if self.sound_muted {
-                    button(text("🔈").shaping(text::Shaping::Advanced).center())
+                    button(text("🕨").shaping(text::Shaping::Advanced).center())
                         .on_press(Message::SoundMuted(false))
                 } else {
-                    button(text("🔊").shaping(text::Shaping::Advanced).center())
+                    button(text("🕪").shaping(text::Shaping::Advanced).center())
                         .on_press(Message::SoundMuted(true))
                 };
 

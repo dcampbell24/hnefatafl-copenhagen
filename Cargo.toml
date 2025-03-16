@@ -85,6 +85,24 @@ debug = true
 [profile.release]
 panic = "abort"
 
+[package.metadata.aur]
+files = [
+    # ["debian/README.txt", "/usr/share/doc/hnefatafl-copenhagen/"],
+    # ["debian/hnefatafl-client.1.gz", "/usr/share/man/man1/"],
+    ["debian/hnefatafl-client.desktop", "/usr/share/applications/"],
+    ["icons/king_16x16.png", "/usr/share/icons/hicolor/16x16/apps/hnefatafl-client.png"],
+    ["icons/king_22x22.png", "/usr/share/icons/hicolor/22x22/apps/hnefatafl-client.png"],
+    ["icons/king_24x24.png", "/usr/share/icons/hicolor/24x24/apps/hnefatafl-client.png"],
+    ["icons/king_32x32.png", "/usr/share/icons/hicolor/32x32/apps/hnefatafl-client.png"],
+    ["icons/king_42x42.png", "/usr/share/icons/hicolor/42x42/apps/hnefatafl-client.png"],
+    ["icons/king_64x64.png", "/usr/share/icons/hicolor/64x64/apps/hnefatafl-client.png"],
+    ["icons/king_128x128.png", "/usr/share/icons/hicolor/128x128/apps/hnefatafl-client.png"],
+    ["sound/capture.ogg", "/usr/share/hnefatafl-copenhagen/capture.ogg"],
+    ["sound/game_over.ogg", "/usr/share/hnefatafl-copenhagen/game_over.ogg"],
+    ["sound/move.ogg", "/usr/share/hnefatafl-copenhagen/move.ogg"],
+    # ["target/release/hnefatafl-client", "/usr/games/", "755"],
+]
+
 [package.metadata.deb]
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
@@ -98,16 +116,16 @@ assets = [
     ["debian/hnefatafl-ai-00-attacker.service", "lib/systemd/system/", "644"],
     ["debian/hnefatafl-ai-01-defender.service", "lib/systemd/system/", "644"],
     ["debian/hnefatafl.service", "lib/systemd/system/", "644"],
-    ["icons/king_16x16.png", "/usr/share/icons/hicolor/16x16/apps/hnefatafl-client.png", "644"],
-    ["icons/king_22x22.png", "/usr/share/icons/hicolor/22x22/apps/hnefatafl-client.png", "644"],
-    ["icons/king_24x24.png", "/usr/share/icons/hicolor/24x24/apps/hnefatafl-client.png", "644"],
-    ["icons/king_32x32.png", "/usr/share/icons/hicolor/32x32/apps/hnefatafl-client.png", "644"],
-    ["icons/king_42x42.png", "/usr/share/icons/hicolor/42x42/apps/hnefatafl-client.png", "644"],
-    ["icons/king_64x64.png", "/usr/share/icons/hicolor/64x64/apps/hnefatafl-client.png", "644"],
-    ["icons/king_128x128.png", "/usr/share/icons/hicolor/128x128/apps/hnefatafl-client.png", "644"],
-    ["sound/capture.ogg", "/usr/share/hnefatafl-copenhagen/capture.ogg", "644"],
-    ["sound/game_over.ogg", "/usr/share/hnefatafl-copenhagen/game_over.ogg", "644"],
-    ["sound/move.ogg", "/usr/share/hnefatafl-copenhagen/move.ogg", "644"],
+    ["icons/king_16x16.png", "usr/share/icons/hicolor/16x16/apps/hnefatafl-client.png", "644"],
+    ["icons/king_22x22.png", "usr/share/icons/hicolor/22x22/apps/hnefatafl-client.png", "644"],
+    ["icons/king_24x24.png", "usr/share/icons/hicolor/24x24/apps/hnefatafl-client.png", "644"],
+    ["icons/king_32x32.png", "usr/share/icons/hicolor/32x32/apps/hnefatafl-client.png", "644"],
+    ["icons/king_42x42.png", "usr/share/icons/hicolor/42x42/apps/hnefatafl-client.png", "644"],
+    ["icons/king_64x64.png", "usr/share/icons/hicolor/64x64/apps/hnefatafl-client.png", "644"],
+    ["icons/king_128x128.png", "usr/share/icons/hicolor/128x128/apps/hnefatafl-client.png", "644"],
+    ["sound/capture.ogg", "usr/share/hnefatafl-copenhagen/capture.ogg", "644"],
+    ["sound/game_over.ogg", "usr/share/hnefatafl-copenhagen/game_over.ogg", "644"],
+    ["sound/move.ogg", "usr/share/hnefatafl-copenhagen/move.ogg", "644"],
     ["target/release/hnefatafl-ai", "usr/games/", "755"],
     ["target/release/hnefatafl-client", "usr/games/", "755"],
     ["target/release/hnefatafl-server-full", "usr/games/", "755"],

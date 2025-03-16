@@ -26,11 +26,11 @@ sudo dpkg --remove hnefatafl-copenhagen
 
 ALSA development files are needed to build `cpal` on Linux (`rodio` dependency,
 `hnefatafl-client` dependency). These are provided as part of the
-`libasound2-dev` package on Debian and Ubuntu distributions and
+`alsa-lib` package on Arch, `libasound2-dev` package on Debian and Ubuntu, and
 `alsa-lib-devel` on Fedora.
 
 The package uses the `mold` linker. This is provided via the `mold`
-package on Debian, Ubuntu, and Fedora.
+package on Arch, Debian, Ubuntu, and Fedora.
 
 To build the man pages you will need a version of `pandoc` that supports
 building Djot files. It can be downloaded from [pandoc][4].
