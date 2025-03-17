@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: fix the numbers spacing.
+
 ## [0.8.3] - 2025-03-15
 
 - hnefatafl-client: change the symbols and their size.
