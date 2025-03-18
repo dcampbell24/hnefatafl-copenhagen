@@ -130,7 +130,7 @@ impl Client {
     #[allow(clippy::too_many_lines)]
     #[must_use]
     fn board(&self) -> Row<Message> {
-        let letters: Vec<_> = BOARD_LETTERS.to_uppercase().chars().collect();
+        let letters: Vec<_> = BOARD_LETTERS.chars().collect();
         let (board_size, letter_size, piece_size, spacing) = match self.screen_size {
             Size::Large => (75, 55, 60, 6),
             Size::Small => (50, 38, 35, 3),

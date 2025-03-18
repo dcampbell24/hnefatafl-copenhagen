@@ -80,7 +80,7 @@ impl fmt::Debug for Board {
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut letters = " ".repeat(3).to_string();
-        letters.push_str(&BOARD_LETTERS.to_uppercase());
+        letters.push_str(BOARD_LETTERS);
         let bar = "─".repeat(11);
 
         writeln!(f, "\n{letters}\n  ┌{bar}┐")?;
@@ -94,7 +94,7 @@ impl fmt::Display for Board {
                     || (y, x) == (0, 10)
                     || (y, x) == (10, 10)
                     || (y, x) == (5, 5))
-                    && self.spaces[(y * 10) + x] == Space::Empty
+                    && self.spaces[y * 11 + x] == Space::Empty
                 {
                     write!(f, "■")?;
                 } else {

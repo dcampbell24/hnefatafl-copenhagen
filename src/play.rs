@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::color::Color;
 
-pub const BOARD_LETTERS: &str = "abcdefghijk";
+pub const BOARD_LETTERS: &str = "ABCDEFGHIJK";
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Plae {
@@ -123,7 +123,7 @@ impl FromStr for Vertex {
         let mut chars = vertex.chars();
 
         if let Some(mut ch) = chars.next() {
-            ch = ch.to_ascii_lowercase();
+            ch = ch.to_ascii_uppercase();
             let x = BOARD_LETTERS
                 .find(ch)
                 .context("play: the first letter is not a legal char")?;

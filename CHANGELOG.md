@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Make the board display as capital letters.
+
 ### Fixed
 
+- The display of the board.
 - hnefatafl-server-full: the player loses if they do not have any moves.
 
 ## [0.9.0] - 2025-03-17
