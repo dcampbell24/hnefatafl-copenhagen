@@ -1932,8 +1932,6 @@ mod tests {
 
     #[test]
     fn white_automatically_loses_1() -> anyhow::Result<()> {
-        let mut ai: Box<dyn AI> = Box::new(AiBanal);
-
         let board = [
             "...........",
             "...........",
@@ -1954,9 +1952,6 @@ mod tests {
         };
 
         game.read_line("play black b1 b2")?;
-        assert_eq!(game.generate_move(&mut ai), Some(Plae::WhiteResigns));
-        game.read_line("play white resigns")?;
-
         assert_eq!(game.status, Status::BlackWins);
 
         Ok(())
@@ -1988,7 +1983,6 @@ mod tests {
         game.read_line("play black b1 b2")?;
         game.read_line("play white f2 f1")?;
         game.read_line("play black b2 b1")?;
-        game.read_line("play white f1 f2")?;
 
         assert_eq!(game.status, Status::BlackWins);
 

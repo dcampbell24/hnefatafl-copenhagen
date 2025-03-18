@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- hnefatafl-server-full: the player loses if they do not have any moves.
+
 ## [0.9.0] - 2025-03-17
 
 - hnefatafl-client: add the letter i to the board.

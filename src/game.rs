@@ -241,11 +241,24 @@ impl Game {
                         &self.turn,
                         &mut self.previous_boards,
                     )?;
+
                     self.status = status;
                     self.plays.push(play.clone());
 
                     if self.status == Status::Ongoing {
                         self.turn = self.turn.opposite();
+
+                        if !self.board.a_legal_move_exists(
+                            &self.status,
+                            &self.turn,
+                            &self.previous_boards,
+                        ) {
+                            match self.turn {
+                                Color::Black => self.status = Status::WhiteWins,
+                                Color::Colorless => {}
+                                Color::White => self.status = Status::BlackWins,
+                            }
+                        }
                     }
 
                     let captures = Captures(captures);
