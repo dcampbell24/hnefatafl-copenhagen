@@ -132,8 +132,8 @@ impl Client {
     fn board(&self) -> Row<Message> {
         let letters: Vec<_> = "ABCDEFGHJKL".chars().collect();
         let (board_size, letter_size, piece_size, spacing) = match self.screen_size {
-            Size::Large => (75, 42, 60, 27),
-            Size::Small => (60, 33, 45, 22),
+            Size::Large => (75, 55, 60, 6),
+            Size::Small => (50, 38, 35, 3),
         };
 
         let Some(game) = &self.game else {
@@ -149,7 +149,8 @@ impl Client {
             }
         }
 
-        let mut column = column![" "].spacing(spacing);
+        let mut column = column![text(" ").size(letter_size)].spacing(spacing);
+
         for i in 0..11 {
             let i = 11 - i;
             column = column.push(
@@ -161,11 +162,8 @@ impl Client {
         game_display = game_display.push(column);
 
         for (x, letter) in letters.iter().enumerate() {
-            let mut column = Column::new().spacing(2);
-
-            column = column
-                .push(text(letter).size(letter_size))
-                .align_x(Horizontal::Center);
+            let mut column = Column::new().spacing(2).align_x(Horizontal::Center);
+            column = column.push(text(letter).size(letter_size));
 
             for y in 0..11 {
                 let vertex = Vertex { x, y };
@@ -240,14 +238,12 @@ impl Client {
             column = column.push(
                 text(letters[x])
                     .size(letter_size)
-                    .align_x(Horizontal::Center)
-                    .align_y(Vertical::Center),
+                    .align_x(Horizontal::Center),
             );
-
             game_display = game_display.push(column);
         }
 
-        let mut column = column![" "].spacing(spacing);
+        let mut column = column![text(" ").size(letter_size)].spacing(spacing);
         for i in 0..11 {
             let i = 11 - i;
             column = column.push(
@@ -1592,7 +1588,7 @@ fn open_url(url: &str) {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 enum Size {
     #[default]
     Small,
