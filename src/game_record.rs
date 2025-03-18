@@ -55,8 +55,8 @@ pub fn game_records_from_path(path: &Path) -> anyhow::Result<Vec<GameRecord>> {
                 let vertex_1_captures: Vec<_> = vertexes[1].split('x').collect();
 
                 if let (Ok(from), Ok(to)) = (
-                    Vertex::from_str_(vertexes[0]),
-                    Vertex::from_str_(vertex_1_captures[0]),
+                    Vertex::from_str(vertexes[0]),
+                    Vertex::from_str(vertex_1_captures[0]),
                 ) {
                     let play = Play {
                         color: color.clone(),
@@ -67,7 +67,7 @@ pub fn game_records_from_path(path: &Path) -> anyhow::Result<Vec<GameRecord>> {
                     if vertex_1_captures.get(1).is_some() {
                         let mut captures = Vec::new();
                         for capture in vertex_1_captures.into_iter().skip(1) {
-                            let vertex = Vertex::from_str_(capture)?;
+                            let vertex = Vertex::from_str(capture)?;
                             if !captures.contains(&vertex) {
                                 captures.push(vertex);
                             }

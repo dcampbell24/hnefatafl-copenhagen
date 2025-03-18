@@ -7,7 +7,7 @@ use serde_with::serde_as;
 use crate::{
     color::Color,
     game::PreviousBoards,
-    play::{Plae, Play, Vertex},
+    play::{BOARD_LETTERS, Plae, Play, Vertex},
     space::Space,
     status::Status,
 };
@@ -79,7 +79,8 @@ impl fmt::Debug for Board {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let letters = "   ABCDEFGHJKL";
+        let mut letters = " ".repeat(3).to_string();
+        letters.push_str(&BOARD_LETTERS.to_uppercase());
         let bar = "─".repeat(11);
 
         writeln!(f, "\n{letters}\n  ┌{bar}┐")?;
