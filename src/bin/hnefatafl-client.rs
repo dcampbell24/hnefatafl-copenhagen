@@ -1156,15 +1156,36 @@ impl Client {
                     panic!("we are in a game");
                 };
 
+                let mut attacker_rating = "-".to_string();
+                let mut defender_rating = "-".to_string();
+                for user in &self.users {
+                    if self.attacker == user.name {
+                        attacker_rating = format!("{} ± {}", user.rating.0, user.rating.1);
+                    }
+                    if self.defender == user.name {
+                        defender_rating = format!("{} ± {}", user.rating.0, user.rating.1);
+                    }
+                }
+
                 let user_area_ = column![
                     row![
+                        text(self.time_attacker.fmt_shorthand()).size(25),
                         text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
-                        text(format!(" {} {}", &self.attacker, &self.time_attacker)).center()
-                    ],
+                        column![
+                            text(self.attacker.to_string()),
+                            text(attacker_rating.to_string()),
+                        ]
+                    ]
+                    .spacing(SPACING),
                     row![
+                        text(self.time_defender.fmt_shorthand()).size(25),
                         text("🛡").shaping(text::Shaping::Advanced).size(25).center(),
-                        text(format!(" {} {}", &self.defender, &self.time_defender)).center()
-                    ],
+                        column![
+                            text(self.defender.to_string()),
+                            text(defender_rating.to_string()),
+                        ]
+                    ]
+                    .spacing(SPACING),
                 ];
 
                 let user_area_ = container(user_area_)
