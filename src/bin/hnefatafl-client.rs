@@ -1169,20 +1169,20 @@ impl Client {
 
                 let user_area_ = column![
                     row![
-                        text(self.time_attacker.fmt_shorthand()).size(40),
+                        text(self.time_attacker.fmt_shorthand()).size(40).center(),
                         text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(self.attacker.to_string()),
-                            text(attacker_rating.to_string()),
+                            text(self.attacker.to_string()).center(),
+                            text(attacker_rating.to_string()).center(),
                         ]
                     ]
                     .spacing(SPACING),
                     row![
-                        text(self.time_defender.fmt_shorthand()).size(40),
+                        text(self.time_defender.fmt_shorthand()).size(40).center(),
                         text("🛡").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(self.defender.to_string()),
-                            text(defender_rating.to_string()),
+                            text(self.defender.to_string()).center(),
+                            text(defender_rating.to_string()).center(),
                         ]
                     ]
                     .spacing(SPACING),
