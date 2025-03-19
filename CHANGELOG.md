@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Move the passwords into the accounts.
 - hnefatafl-client: make the game display prettier.
 - Make the board display as capital letters.
 

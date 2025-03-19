@@ -271,7 +271,6 @@ impl Default for UnixTimestamp {
 struct Server {
     game_id: usize,
     ran_update_rd: UnixTimestamp,
-    passwords: HashMap<String, String>,
     accounts: Accounts,
     #[serde(skip)]
     archived_games: Vec<ArchivedGame>,
@@ -310,8 +309,9 @@ impl Server {
             .unwrap()
             .to_string();
 
-        self.passwords.remove(username);
-        self.passwords.insert((*username).to_string(), hash);
+        if let Some(account) = self.accounts.0.get_mut(username) {
+            account.password = hash;
+        }
         self.save_server();
 
         (
@@ -375,12 +375,11 @@ impl Server {
                     .unwrap()
                     .to_string();
 
-                self.passwords.insert((*username).to_string(), hash);
-
                 self.clients.insert(index_supplied, tx);
                 self.accounts.0.insert(
                     (*username).to_string(),
                     Account {
+                        password: hash,
                         logged_in: Some(index_supplied),
                         ..Default::default()
                     },
@@ -455,7 +454,6 @@ impl Server {
         info!("{index_supplied} {username} delete_account");
 
         self.accounts.0.remove(username);
-        self.passwords.remove(username);
         self.save_server();
     }
 
@@ -1129,9 +1127,9 @@ impl Server {
     ) -> (mpsc::Sender<String>, bool, String) {
         let password_1 = the_rest.join(" ");
         if let Some(tx) = option_tx {
-            if let Some(index_database) = self.accounts.0.get_mut(username) {
+            if let Some(account) = self.accounts.0.get_mut(username) {
                 // The username is in the database and already logged in.
-                if let Some(index_database) = index_database.logged_in {
+                if let Some(index_database) = account.logged_in {
                     info!(
                         "{index_supplied} {username} login failed, {index_database} is logged in"
                     );
@@ -1139,11 +1137,7 @@ impl Server {
                     ((tx), false, (*command).to_string())
                 // The username is in the database, but not logged in yet.
                 } else {
-                    let Some(password_2) = self.passwords.get(username) else {
-                        panic!("we already know the username is in the database.");
-                    };
-
-                    let hash_2 = PasswordHash::try_from(password_2.as_str()).unwrap();
+                    let hash_2 = PasswordHash::try_from(account.password.as_str()).unwrap();
                     if let Err(_error) =
                         Argon2::default().verify_password(password_1.as_bytes(), &hash_2)
                     {
@@ -1153,7 +1147,7 @@ impl Server {
                     info!("{index_supplied} {username} logged in");
 
                     self.clients.insert(index_supplied, tx);
-                    index_database.logged_in = Some(index_supplied);
+                    account.logged_in = Some(index_supplied);
 
                     (
                         self.clients[&index_supplied].clone(),
