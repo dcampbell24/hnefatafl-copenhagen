@@ -1156,36 +1156,40 @@ impl Client {
                     panic!("we are in a game");
                 };
 
-                let mut user_area_ = column![
-                    text(format!("move: {} {rated}", game.previous_boards.0.len())),
-                    text(format!(
-                        "attacker: {} {}",
-                        &self.time_attacker, &self.attacker
-                    )),
-                    text(format!(
-                        "defender: {} {}",
-                        &self.time_defender, &self.defender
-                    )),
-                    text("spectators:".to_string()),
+                let user_area_ = column![
+                    row![
+                        text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
+                        text(format!(" {} {}", &self.attacker, &self.time_attacker)).center()
+                    ],
+                    row![
+                        text("🛡").shaping(text::Shaping::Advanced).size(25).center(),
+                        text(format!(" {} {}", &self.defender, &self.time_defender)).center()
+                    ],
                 ];
-
-                let mut watching = false;
-                for spectator in &self.spectators {
-                    if self.username.as_str() == spectator.as_str() {
-                        watching = true;
-                    }
-                    user_area_ = user_area_.push(text(spectator.clone()));
-                }
 
                 let user_area_ = container(user_area_)
                     .padding(PADDING)
                     .style(container::bordered_box);
 
+                let mut watching = false;
                 let texting = self.texting(true);
 
                 let mut user_area = column![text(format!("#{} {}", self.game_id, &self.username,))]
                     .spacing(SPACING);
+
+                user_area = user_area.push(text(format!(
+                    "move: {} {rated}",
+                    game.previous_boards.0.len()
+                )));
+
                 user_area = user_area.push(user_area_);
+                user_area = user_area.push(text("spectators:".to_string()));
+                for spectator in &self.spectators {
+                    if self.username.as_str() == spectator.as_str() {
+                        watching = true;
+                    }
+                    user_area = user_area.push(text(spectator.clone()));
+                }
 
                 if !watching {
                     if self.my_turn {
