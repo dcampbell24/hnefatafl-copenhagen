@@ -9,6 +9,17 @@ pub struct Time {
     pub milliseconds_left: i64,
 }
 
+impl Time {
+    #[must_use]
+    pub fn fmt_shorthand(&self) -> String {
+        let minutes = self.milliseconds_left / 60_000;
+        let mut seconds = self.milliseconds_left % 60_000;
+        seconds /= 1_000;
+
+        format!("{minutes:02}:{seconds:02}")
+    }
+}
+
 impl fmt::Display for Time {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let minutes = self.milliseconds_left / 60_000;
@@ -21,6 +32,17 @@ impl fmt::Display for Time {
 
 #[derive(Clone, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct TimeSettings(pub Option<Time>);
+
+impl TimeSettings {
+    #[must_use]
+    pub fn fmt_shorthand(&self) -> String {
+        if let Some(time) = &self.0 {
+            time.fmt_shorthand()
+        } else {
+            "-".to_string()
+        }
+    }
+}
 
 impl fmt::Debug for TimeSettings {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

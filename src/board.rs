@@ -7,7 +7,7 @@ use serde_with::serde_as;
 use crate::{
     color::Color,
     game::PreviousBoards,
-    play::{Plae, Play, Vertex},
+    play::{BOARD_LETTERS, Plae, Play, Vertex},
     space::Space,
     status::Status,
 };
@@ -79,7 +79,8 @@ impl fmt::Debug for Board {
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let letters = "   ABCDEFGHJKL";
+        let mut letters = " ".repeat(3).to_string();
+        letters.push_str(BOARD_LETTERS);
         let bar = "─".repeat(11);
 
         writeln!(f, "\n{letters}\n  ┌{bar}┐")?;
@@ -93,7 +94,7 @@ impl fmt::Display for Board {
                     || (y, x) == (0, 10)
                     || (y, x) == (10, 10)
                     || (y, x) == (5, 5))
-                    && self.spaces[(y * 10) + x] == Space::Empty
+                    && self.spaces[y * 11 + x] == Space::Empty
                 {
                     write!(f, "■")?;
                 } else {
@@ -171,15 +172,13 @@ impl Board {
         false
     }
 
-    /// # Errors
-    ///
-    /// If the vertex is out of bounds.
+    #[must_use]
     pub fn a_legal_move_exists(
         &self,
         status: &Status,
         turn: &Color,
         previous_boards: &PreviousBoards,
-    ) -> anyhow::Result<bool> {
+    ) -> bool {
         let mut possible_vertexes = Vec::new();
 
         for y in 0..11 {
@@ -192,7 +191,7 @@ impl Board {
         }
 
         if possible_vertexes.is_empty() {
-            return Ok(false);
+            return false;
         }
 
         for vertex_from in possible_vertexes {
@@ -208,13 +207,13 @@ impl Board {
                     if let Ok(_board_captures_status) =
                         self.play_internal(&Plae::Play(play), status, turn, previous_boards)
                     {
-                        return Ok(true);
+                        return true;
                     }
                 }
             }
         }
 
-        Ok(false)
+        false
     }
 
     #[allow(clippy::collapsible_if)]
@@ -759,7 +758,7 @@ impl Board {
 
     /// # Errors
     ///
-    /// If the play is illegal.
+    /// If the vertex is out of bounds.
     pub fn play(
         &mut self,
         play: &Plae,
@@ -767,34 +766,11 @@ impl Board {
         turn: &Color,
         previous_boards: &mut PreviousBoards,
     ) -> anyhow::Result<(Vec<Vertex>, Status)> {
-        match self.play_internal(play, status, turn, previous_boards) {
-            Ok((board, captures, status)) => {
-                previous_boards.0.insert(board.clone());
-                *self = board;
+        let (board, captures, status) = self.play_internal(play, status, turn, previous_boards)?;
+        previous_boards.0.insert(board.clone());
+        *self = board;
 
-                Ok((captures, status))
-            }
-
-            Err(error) => {
-                if &error.to_string() == "play: you already reached that position"
-                    && !self.a_legal_move_exists(status, turn, previous_boards)?
-                {
-                    if turn == &Color::White {
-                        let (board, captures, status) =
-                            self.play_internal(&Plae::WhiteResigns, status, turn, previous_boards)?;
-                        *self = board;
-                        return Ok((captures, status));
-                    } else if turn == &Color::Black {
-                        let (board, captures, status) =
-                            self.play_internal(&Plae::BlackResigns, status, turn, previous_boards)?;
-                        *self = board;
-                        return Ok((captures, status));
-                    }
-                }
-
-                Err(error)
-            }
-        }
+        Ok((captures, status))
     }
 
     #[allow(

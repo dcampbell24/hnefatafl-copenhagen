@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- hnefatafl-client: make the game display prettier.
+- Make the board display as capital letters.
+
+### Fixed
+
+- The display of the board.
+- hnefatafl-server-full: the player loses if they do not have any moves.
+
+## [0.9.0] - 2025-03-17
+
+- hnefatafl-client: add the letter i to the board.
 - hnefatafl-client: fix the numbers spacing.
 
 ## [0.8.3] - 2025-03-15
@@ -144,7 +157,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.3...main
+[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.9.0...main
+[0.9.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.3...v0.9.0
 [0.8.3]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.0...v0.8.1

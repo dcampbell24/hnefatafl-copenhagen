@@ -5,8 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::color::Color;
 
-pub const BOARD_LETTERS: &str = "abcdefghjkl";
-pub const BOARD_LETTERS_: &str = "abcdefghijk";
+pub const BOARD_LETTERS: &str = "ABCDEFGHIJK";
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Plae {
@@ -37,8 +36,8 @@ impl Plae {
 
         Ok(Self::Play(Play {
             color: color.clone(),
-            from: Vertex::from_str_(from)?,
-            to: Vertex::from_str_(to)?,
+            from: Vertex::from_str(from)?,
+            to: Vertex::from_str(to)?,
         }))
     }
 }
@@ -124,7 +123,7 @@ impl FromStr for Vertex {
         let mut chars = vertex.chars();
 
         if let Some(mut ch) = chars.next() {
-            ch = ch.to_ascii_lowercase();
+            ch = ch.to_ascii_uppercase();
             let x = BOARD_LETTERS
                 .find(ch)
                 .context("play: the first letter is not a legal char")?;
@@ -145,32 +144,9 @@ impl Vertex {
     pub fn fmt_other(&self) -> String {
         format!(
             "{}{}",
-            BOARD_LETTERS_.chars().collect::<Vec<_>>()[self.x],
+            BOARD_LETTERS.chars().collect::<Vec<_>>()[self.x],
             11 - self.y
         )
-    }
-
-    /// # Errors
-    ///
-    /// If you try to convert an illegal character.
-    pub fn from_str_(vertex: &str) -> anyhow::Result<Self> {
-        let vertex: Vec<_> = vertex.split_terminator('x').collect();
-        let mut chars = vertex[0].chars();
-
-        if let Some(mut ch) = chars.next() {
-            ch = ch.to_ascii_lowercase();
-            let x = BOARD_LETTERS_
-                .find(ch)
-                .context("play: the first letter is not a legal char")?;
-
-            let mut y = chars.as_str().parse()?;
-            if y > 0 && y < 12 {
-                y = 11 - y;
-                return Ok(Self { x, y });
-            }
-        }
-
-        Err(anyhow::Error::msg("play: invalid coordinate"))
     }
 
     #[must_use]

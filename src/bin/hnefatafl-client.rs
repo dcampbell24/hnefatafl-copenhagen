@@ -24,7 +24,7 @@ use hnefatafl_copenhagen::{
     draw::Draw,
     game::Game,
     handle_error,
-    play::Vertex,
+    play::{BOARD_LETTERS, Vertex},
     rating::Rated,
     role::Role,
     server_game::{ServerGameLight, ServerGamesLight},
@@ -130,7 +130,7 @@ impl Client {
     #[allow(clippy::too_many_lines)]
     #[must_use]
     fn board(&self) -> Row<Message> {
-        let letters: Vec<_> = "ABCDEFGHJKL".chars().collect();
+        let letters: Vec<_> = BOARD_LETTERS.chars().collect();
         let (board_size, letter_size, piece_size, spacing) = match self.screen_size {
             Size::Large => (75, 55, 60, 6),
             Size::Small => (50, 38, 35, 3),
@@ -1156,36 +1156,62 @@ impl Client {
                     panic!("we are in a game");
                 };
 
-                let mut user_area_ = column![
-                    text(format!("move: {} {rated}", game.previous_boards.0.len())),
-                    text(format!(
-                        "attacker: {} {}",
-                        &self.time_attacker, &self.attacker
-                    )),
-                    text(format!(
-                        "defender: {} {}",
-                        &self.time_defender, &self.defender
-                    )),
-                    text("spectators:".to_string()),
-                ];
-
-                let mut watching = false;
-                for spectator in &self.spectators {
-                    if self.username.as_str() == spectator.as_str() {
-                        watching = true;
+                let mut attacker_rating = "-".to_string();
+                let mut defender_rating = "-".to_string();
+                for user in &self.users {
+                    if self.attacker == user.name {
+                        attacker_rating = format!("{} ± {}", user.rating.0, user.rating.1);
                     }
-                    user_area_ = user_area_.push(text(spectator.clone()));
+                    if self.defender == user.name {
+                        defender_rating = format!("{} ± {}", user.rating.0, user.rating.1);
+                    }
                 }
+
+                let user_area_ = column![
+                    row![
+                        text(self.time_attacker.fmt_shorthand()).size(35),
+                        text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
+                        column![
+                            text(self.attacker.to_string()),
+                            text(attacker_rating.to_string()),
+                        ]
+                    ]
+                    .spacing(SPACING),
+                    row![
+                        text(self.time_defender.fmt_shorthand()).size(35),
+                        text("🛡").shaping(text::Shaping::Advanced).size(25).center(),
+                        column![
+                            text(self.defender.to_string()),
+                            text(defender_rating.to_string()),
+                        ]
+                    ]
+                    .spacing(SPACING),
+                ];
 
                 let user_area_ = container(user_area_)
                     .padding(PADDING)
                     .style(container::bordered_box);
 
+                let mut watching = false;
                 let texting = self.texting(true);
 
                 let mut user_area = column![text(format!("#{} {}", self.game_id, &self.username,))]
                     .spacing(SPACING);
+
+                user_area = user_area.push(text(format!(
+                    "move: {} {rated}",
+                    game.previous_boards.0.len()
+                )));
+
                 user_area = user_area.push(user_area_);
+
+                let mut spectators = Column::new();
+                for spectator in &self.spectators {
+                    if self.username.as_str() == spectator.as_str() {
+                        watching = true;
+                    }
+                    spectators = spectators.push(text(spectator.clone()));
+                }
 
                 if !watching {
                     if self.my_turn {
@@ -1239,6 +1265,12 @@ impl Client {
                     Status::WhiteWins => user_area = user_area.push(text("Defender Wins!")),
                 }
 
+                let spectator = column![
+                    text("spectators".to_string()),
+                    text("----------".to_string()),
+                ];
+                user_area = user_area.push(spectator);
+                user_area = user_area.push(scrollable(spectators));
                 user_area = user_area.push(texting);
                 let user_area = container(user_area)
                     .padding(PADDING)
