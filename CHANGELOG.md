@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The ability to delete your account.
+
 ### Changed
 
 - hnefatafl-client: make the game display prettier.

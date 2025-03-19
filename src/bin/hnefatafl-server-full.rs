@@ -451,6 +451,14 @@ impl Server {
         Some((channel.clone(), true, command))
     }
 
+    fn delete_account(&mut self, username: &str, index_supplied: usize) {
+        info!("{index_supplied} {username} delete_account");
+
+        self.accounts.0.remove(username);
+        self.passwords.remove(username);
+        self.save_server();
+    }
+
     fn display_server(&mut self, username: &str) -> Option<(mpsc::Sender<String>, bool, String)> {
         debug!("0 {username} display_server");
         for tx in &mut self.clients.values() {
@@ -892,6 +900,10 @@ impl Server {
                     (*command).to_string(),
                     the_rest.as_slice(),
                 ),
+                "delete_account" => {
+                    self.delete_account(username, index_supplied);
+                    None
+                }
                 "display_server" => self.display_server(username),
                 "draw" => self.draw(index_supplied, command, the_rest.as_slice()),
                 "game" => self.game(index_supplied, username, command, the_rest.as_slice()),
