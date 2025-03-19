@@ -1169,7 +1169,7 @@ impl Client {
 
                 let user_area_ = column![
                     row![
-                        text(self.time_attacker.fmt_shorthand()).size(35),
+                        text(self.time_attacker.fmt_shorthand()).size(40),
                         text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
                             text(self.attacker.to_string()),
@@ -1178,8 +1178,8 @@ impl Client {
                     ]
                     .spacing(SPACING),
                     row![
-                        text(self.time_defender.fmt_shorthand()).size(35),
-                        text("🛡").shaping(text::Shaping::Advanced).size(25).center(),
+                        text(self.time_defender.fmt_shorthand()).size(40),
+                        text("🛡").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
                             text(self.defender.to_string()),
                             text(defender_rating.to_string()),
