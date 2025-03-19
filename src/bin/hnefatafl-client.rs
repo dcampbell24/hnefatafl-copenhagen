@@ -1205,12 +1205,15 @@ impl Client {
 
                 user_area = user_area.push(user_area_);
                 user_area = user_area.push(text("spectators:".to_string()));
+
+                let mut spectators = Column::new();
                 for spectator in &self.spectators {
                     if self.username.as_str() == spectator.as_str() {
                         watching = true;
                     }
-                    user_area = user_area.push(text(spectator.clone()));
+                    spectators = spectators.push(text(spectator.clone()));
                 }
+                user_area = user_area.push(scrollable(spectators));
 
                 if !watching {
                     if self.my_turn {
