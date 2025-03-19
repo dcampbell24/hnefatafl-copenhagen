@@ -1204,7 +1204,6 @@ impl Client {
                 )));
 
                 user_area = user_area.push(user_area_);
-                user_area = user_area.push(text("spectators:".to_string()));
 
                 let mut spectators = Column::new();
                 for spectator in &self.spectators {
@@ -1213,7 +1212,6 @@ impl Client {
                     }
                     spectators = spectators.push(text(spectator.clone()));
                 }
-                user_area = user_area.push(scrollable(spectators));
 
                 if !watching {
                     if self.my_turn {
@@ -1267,6 +1265,12 @@ impl Client {
                     Status::WhiteWins => user_area = user_area.push(text("Defender Wins!")),
                 }
 
+                let spectator = column![
+                    text("spectators".to_string()),
+                    text("----------".to_string()),
+                ];
+                user_area = user_area.push(spectator);
+                user_area = user_area.push(scrollable(spectators));
                 user_area = user_area.push(texting);
                 let user_area = container(user_area)
                     .padding(PADDING)
