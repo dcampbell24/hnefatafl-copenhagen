@@ -1969,16 +1969,16 @@ mod tests {
             "...........",
             "...........",
             ".....X.....",
-            "....X.X....",
-            ".X..XKX....",
+            ".X..X.X....",
+            "....XKX....",
         ];
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
             ..Default::default()
         };
 
+        game.read_line("play black b2 b1")?;
         game.read_line("play white f1 f2")?;
         game.read_line("play black b1 b2")?;
         game.read_line("play white f2 f1")?;
