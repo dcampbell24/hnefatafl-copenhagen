@@ -1185,13 +1185,13 @@ impl Client {
                     }
                 }
 
-                let (attacker_pieces_taken, defender_pieces_taken) = game.board.pieces_taken();
+                let captured = game.board.captured();
                 let user_area_ = column![
                     row![
                         text(self.time_attacker.fmt_shorthand()).size(40).center(),
                         text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(format!("{} ♙ {defender_pieces_taken}", self.attacker))
+                            text(format!("{} {}", self.attacker, captured.white()))
                                 .shaping(text::Shaping::Advanced)
                                 .center(),
                             text(attacker_rating.to_string()).center(),
@@ -1202,7 +1202,7 @@ impl Client {
                         text(self.time_defender.fmt_shorthand()).size(40).center(),
                         text("🛡").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(format!("{} ♟ {attacker_pieces_taken}", self.defender))
+                            text(format!("{} {}", self.defender, captured.black()))
                                 .shaping(text::Shaping::Advanced)
                                 .center(),
                             text(defender_rating.to_string()).center(),

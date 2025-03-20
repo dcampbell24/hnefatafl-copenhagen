@@ -216,6 +216,28 @@ impl Board {
         false
     }
 
+    #[must_use]
+    pub fn captured(&self) -> Captured {
+        let mut black = 0;
+        let mut white = 0;
+        let mut king = true;
+
+        for space in self.spaces {
+            match space {
+                Space::Black => black += 1,
+                Space::Empty => {}
+                Space::King => king = false,
+                Space::White => white += 1,
+            }
+        }
+
+        Captured {
+            black: 24 - black,
+            white: 12 - white,
+            king,
+        }
+    }
+
     #[allow(clippy::collapsible_if)]
     fn captures(&mut self, play_to: &Vertex, color_from: &Color, captures: &mut Vec<Vertex>) {
         if let Some(up_1) = play_to.up() {
@@ -756,22 +778,6 @@ impl Board {
         true
     }
 
-    #[must_use]
-    pub fn pieces_taken(&self) -> (u8, u8) {
-        let mut black_pieces = 0;
-        let mut white_pieces = 0;
-
-        for space in self.spaces {
-            match space {
-                Space::Black => black_pieces += 1,
-                Space::Empty => {}
-                Space::King | Space::White => white_pieces += 1,
-            }
-        }
-
-        (24 - black_pieces, 13 - white_pieces)
-    }
-
     /// # Errors
     ///
     /// If the vertex is out of bounds.
@@ -923,6 +929,28 @@ impl Board {
             self.set(vertex, space);
             true
         }
+    }
+}
+
+pub struct Captured {
+    black: u8,
+    white: u8,
+    king: bool,
+}
+
+impl Captured {
+    #[must_use]
+    pub fn black(&self) -> String {
+        format!("♟ {}", self.black)
+    }
+
+    #[must_use]
+    pub fn white(&self) -> String {
+        let mut string = format!("♙ {}", self.white);
+        if self.king {
+            string.push_str(" ♔");
+        }
+        string
     }
 }
 
