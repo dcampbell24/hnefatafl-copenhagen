@@ -275,7 +275,7 @@ impl Client {
         Subscription::batch(vec![subscription_1, subscription_2])
     }
 
-    fn texting(&self, in_game: bool) -> Column<Message> {
+    fn texting(&self, in_game: bool) -> Container<Message> {
         let text_input = text_input("message...", &self.text_input)
             .on_input(Message::TextChanged)
             .on_paste(Message::TextChanged)
@@ -292,7 +292,9 @@ impl Client {
             }
         }
 
-        column![text_input, scrollable(texting)].spacing(SPACING)
+        container(column![text_input, scrollable(texting)].spacing(SPACING))
+            .padding(PADDING)
+            .style(container::bordered_box)
     }
 
     pub fn theme(&self) -> iced::Theme {
