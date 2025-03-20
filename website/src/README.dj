@@ -11,7 +11,7 @@ This is a website for a [Copenhagen Hnefatafl][1] server and client.
 In your terminal run the following to install the hnefatafl-client:
 
 ```sh
-sudo dpkg --install hnefatafl-copenhagen_0.9.0-1_amd64.deb
+sudo dpkg --install hnefatafl-copenhagen_0.10.0-1_amd64.deb
 ```
 
 It can be removed by running:
@@ -20,7 +20,7 @@ It can be removed by running:
 sudo dpkg --remove hnefatafl-copenhagen
 ```
 
-[0.9.0_amd64](binaries/debian/hnefatafl-copenhagen_0.9.0-1_amd64.deb)
+[0.10.0_amd64](binaries/debian/hnefatafl-copenhagen_0.10.0-1_amd64.deb)
 
 ## Build Dependencies (Linux)
 
@@ -71,9 +71,9 @@ You may have to install `cargo-deb`.
 ```sh
 git clone https://github.com/dcampbell24/hnefatafl-copenhagen.git
 cd hnefatafl-copenhagen/
-git checkout v0.9.0
+git checkout v0.10.0
 ./debian/build.sh
-sudo dpkg --install ./target/debian/hnefatafl-copenhagen_0.9.0-1_amd64.deb
+sudo dpkg --install ./target/debian/hnefatafl-copenhagen_0.10.0-1_amd64.deb
 ```
 
 [3]: https://github.com/dcampbell24/hnefatafl-copenhagen/issues
