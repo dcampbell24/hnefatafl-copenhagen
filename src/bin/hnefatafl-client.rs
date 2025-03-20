@@ -40,7 +40,7 @@ use iced::{
     stream,
     widget::{
         Column, Container, Row, Scrollable, button, checkbox, column, container, radio, row,
-        scrollable, text, text_input,
+        scrollable, text, text_input, tooltip,
     },
 };
 use log::{LevelFilter, debug, error, info, trace};
@@ -1228,7 +1228,7 @@ impl Client {
                     if self.username.as_str() == spectator.as_str() {
                         watching = true;
                     }
-                    spectators = spectators.push(text(spectator.clone()));
+                    spectators = spectators.push(text(spectator.to_string()));
                 }
 
                 if !watching {
@@ -1284,11 +1284,17 @@ impl Client {
                 }
 
                 let spectator = column![
-                    text("spectators".to_string()),
-                    text("----------".to_string()),
+                    text(format!("👥 ({})", self.spectators.len()))
+                        .shaping(text::Shaping::Advanced),
                 ];
-                user_area = user_area.push(spectator);
-                user_area = user_area.push(scrollable(spectators));
+                user_area = user_area.push(tooltip(
+                    spectator,
+                    container(spectators)
+                        .style(container::rounded_box)
+                        .padding(PADDING),
+                    tooltip::Position::Bottom,
+                ));
+
                 user_area = user_area.push(texting);
                 let user_area = container(user_area)
                     .padding(PADDING)
