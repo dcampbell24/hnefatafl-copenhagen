@@ -19,6 +19,7 @@ impl fmt::Display for Accounts {
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Account {
+    pub password: String,
     pub logged_in: Option<usize>,
     pub draws: u64,
     pub wins: u64,

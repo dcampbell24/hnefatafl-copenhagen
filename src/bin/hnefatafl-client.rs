@@ -78,6 +78,7 @@ fn main() -> anyhow::Result<()> {
 struct Client {
     attacker: String,
     defender: String,
+    delete_account: bool,
     captures: HashSet<Vertex>,
     challenger: bool,
     connected_to: String,
@@ -311,6 +312,14 @@ impl Client {
             Message::AccountSettings => self.screen = Screen::AccountSettings,
             Message::ChangeTheme(theme) => self.theme = theme,
             Message::ConnectedTo(address) => self.connected_to = address,
+            Message::DeleteAccount => {
+                if self.delete_account {
+                    self.send("delete_account\n".to_string());
+                    exit(0);
+                } else {
+                    self.delete_account = true;
+                }
+            }
             Message::GameAccept(id) => {
                 self.send(format!("join_game {id}\n"));
                 self.game_id = id;
@@ -1141,6 +1150,15 @@ impl Client {
                 columns = columns.push(
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow),
                 );
+
+                if self.delete_account {
+                    columns = columns
+                        .push(button("REALLY DELETE ACCOUNT").on_press(Message::DeleteAccount));
+                } else {
+                    columns =
+                        columns.push(button("Delete Account").on_press(Message::DeleteAccount));
+                }
+
                 columns = columns.push(button("Leave").on_press(Message::Leave));
 
                 columns.into()
@@ -1169,20 +1187,20 @@ impl Client {
 
                 let user_area_ = column![
                     row![
-                        text(self.time_attacker.fmt_shorthand()).size(35),
+                        text(self.time_attacker.fmt_shorthand()).size(40).center(),
                         text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(self.attacker.to_string()),
-                            text(attacker_rating.to_string()),
+                            text(self.attacker.to_string()).center(),
+                            text(attacker_rating.to_string()).center(),
                         ]
                     ]
                     .spacing(SPACING),
                     row![
-                        text(self.time_defender.fmt_shorthand()).size(35),
-                        text("🛡").shaping(text::Shaping::Advanced).size(25).center(),
+                        text(self.time_defender.fmt_shorthand()).size(40).center(),
+                        text("🛡").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(self.defender.to_string()),
-                            text(defender_rating.to_string()),
+                            text(self.defender.to_string()).center(),
+                            text(defender_rating.to_string()).center(),
                         ]
                     ]
                     .spacing(SPACING),
@@ -1471,6 +1489,7 @@ enum Message {
     AccountSettings,
     ChangeTheme(Theme),
     ConnectedTo(String),
+    DeleteAccount,
     GameAccept(usize),
     GameDecline(usize),
     GameJoin(usize),
