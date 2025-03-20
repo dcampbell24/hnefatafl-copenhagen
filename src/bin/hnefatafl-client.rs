@@ -276,7 +276,7 @@ impl Client {
     }
 
     fn texting(&self, in_game: bool) -> Column<Message> {
-        let text_input = text_input("", &self.text_input)
+        let text_input = text_input("message...", &self.text_input)
             .on_input(Message::TextChanged)
             .on_paste(Message::TextChanged)
             .on_submit(Message::TextSend);
@@ -292,9 +292,7 @@ impl Client {
             }
         }
 
-        let text_input = column![text("texts"), text("-----"), text_input];
-
-        column![text_input, scrollable(texting),]
+        column![text_input, scrollable(texting)].spacing(SPACING)
     }
 
     pub fn theme(&self) -> iced::Theme {
