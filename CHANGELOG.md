@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2025-03-19
+
 ### Changed
 
 - Only white (the defender) cannot repeat a move.
@@ -171,7 +173,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.10.0...main
+[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.11.0...main
+[0.11.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.3...v0.9.0
 [0.8.3]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.2...v0.8.3
