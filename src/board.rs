@@ -756,6 +756,22 @@ impl Board {
         true
     }
 
+    #[must_use]
+    pub fn pieces_taken(&self) -> (u8, u8) {
+        let mut black_pieces = 0;
+        let mut white_pieces = 0;
+
+        for space in self.spaces {
+            match space {
+                Space::Black => black_pieces += 1,
+                Space::Empty => {}
+                Space::King | Space::White => white_pieces += 1,
+            }
+        }
+
+        (24 - black_pieces, 13 - white_pieces)
+    }
+
     /// # Errors
     ///
     /// If the vertex is out of bounds.

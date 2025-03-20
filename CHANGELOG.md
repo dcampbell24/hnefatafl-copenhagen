@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- hnefatafl-client: show the pieces captured.
 - hnefatafl-client: make texting prettier.
 - hnefatafl-client: make the spectators prettier.
 
