@@ -23,7 +23,7 @@ use hnefatafl_copenhagen::{
     color::Color,
     draw::Draw,
     game::Game,
-    glicko::Rating,
+    glicko::{CONFIDENCE_INTERVAL_95, Rating},
     handle_error,
     play::{BOARD_LETTERS, Vertex},
     rating::Rated,
@@ -572,7 +572,7 @@ impl Client {
                                             draws: user_wins_losses_rating[3].to_string(),
                                             rating: Rating {
                                                 rating,
-                                                rd: deviation / 1.96,
+                                                rd: deviation / CONFIDENCE_INTERVAL_95,
                                             },
                                             logged_in,
                                         },
