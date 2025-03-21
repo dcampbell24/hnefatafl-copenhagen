@@ -21,6 +21,12 @@ impl Rating {
         self.rd * self.rd
     }
 
+    // With a confidence interval of 95%.
+    #[must_use]
+    pub fn to_string_rounded(&self) -> String {
+        format!("{} ± {}", self.rating.round(), (1.96 * self.rd).round())
+    }
+
     /// This assumes 30 2 month periods must pass before one's rating
     /// deviation is the same as a new player and that a typical RD is 50.
     pub fn update_rd(&mut self) {
@@ -65,15 +71,10 @@ impl Default for Rating {
 
 impl fmt::Display for Rating {
     // With a confidence interval of 95%.
-    // Note: We use a non-breaking space before and after the ± so
+    // Note: We use a FIGURE SPACE before and after the ± so
     // .split_ascii_whitespace() does not treat it as a space.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{} ± {}",
-            self.rating.round_ties_even(),
-            1.96 * self.rd.round_ties_even()
-        )
+        write!(f, "{} ± {}", self.rating, 1.96 * self.rd)
     }
 }
 

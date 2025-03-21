@@ -1087,7 +1087,7 @@ impl Client {
 
         for user in self.users.values() {
             if logged_in == user.logged_in {
-                ratings = ratings.push(text(user.rating.to_string()));
+                ratings = ratings.push(text(user.rating.to_string_rounded()));
                 usernames = usernames.push(text(&user.name));
                 wins = wins.push(text(&user.wins));
                 losses = losses.push(text(&user.losses));
@@ -1129,7 +1129,7 @@ impl Client {
 
                 for user in self.users.values() {
                     if self.username == user.name {
-                        rating = user.rating.to_string();
+                        rating = user.rating.to_string_rounded();
                         wins = user.wins.to_string();
                         losses = user.losses.to_string();
                         draws = user.draws.to_string();
@@ -1193,10 +1193,10 @@ impl Client {
                 let mut defender_rating = "-".to_string();
                 for user in self.users.values() {
                     if self.attacker == user.name {
-                        attacker_rating = user.rating.to_string();
+                        attacker_rating = user.rating.to_string_rounded();
                     }
                     if self.defender == user.name {
-                        defender_rating = user.rating.to_string();
+                        defender_rating = user.rating.to_string_rounded();
                     }
                 }
 
