@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- hnefatafl-client: display the rating of spectators.
+
+### Changed
+
+- hnefatafl-client: don't mention you're leaving unless you're the attacker or defender.
+
 ## [0.11.0] - 2025-03-19
 
 ### Changed

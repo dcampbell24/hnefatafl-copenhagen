@@ -66,7 +66,12 @@ impl Default for Rating {
 impl fmt::Display for Rating {
     // With a confidence interval of 95%.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}±{:.2}", self.rating.round(), 1.96 * self.rd.round())
+        write!(
+            f,
+            "{} ± {}",
+            self.rating.round_ties_even(),
+            1.96 * self.rd.round_ties_even()
+        )
     }
 }
 
