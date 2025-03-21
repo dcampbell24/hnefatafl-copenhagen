@@ -15,10 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - hnefatafl-client: don't mention you're leaving unless you're the attacker or defender.
 
-### Fixed
-
-- hnefatafl-client: rounding errors in the display of rating.
-
 ## [0.11.0] - 2025-03-19
 
 ### Changed
