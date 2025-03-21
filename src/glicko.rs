@@ -65,6 +65,8 @@ impl Default for Rating {
 
 impl fmt::Display for Rating {
     // With a confidence interval of 95%.
+    // Note: We use a non-breaking space before and after the ± so
+    // .split_ascii_whitespace() does not treat it as a space.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
