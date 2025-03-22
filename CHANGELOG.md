@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Revert the Rust edition.
 - hnefatafl-client: automatically resize the board.
 - hnefatafl-client: don't mention you're leaving unless you're the attacker or defender.
 

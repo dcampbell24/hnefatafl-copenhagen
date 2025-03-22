@@ -20,7 +20,11 @@ impl fmt::Display for Rated {
 
 impl From<bool> for Rated {
     fn from(boolean: bool) -> Self {
-        if boolean { Self::Yes } else { Self::No }
+        if boolean {
+            Self::Yes
+        } else {
+            Self::No
+        }
     }
 }
 

@@ -5,10 +5,10 @@ use rustc_hash::FxHashSet;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ai::{AI, AiBanal},
+    ai::{AiBanal, AI},
     board::Board,
     color::Color,
-    message::{COMMANDS, Message},
+    message::{Message, COMMANDS},
     play::{Captures, Plae, Play, Vertex},
     role::Role,
     space::Space,

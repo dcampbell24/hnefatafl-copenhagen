@@ -1,7 +1,7 @@
 use std::cmp::{max, min};
 
 use chrono::Utc;
-use rand::{RngCore, rngs::OsRng};
+use rand::{rngs::OsRng, RngCore};
 
 use crate::{
     board::Board,

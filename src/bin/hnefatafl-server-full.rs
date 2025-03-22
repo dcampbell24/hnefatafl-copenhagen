@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     env,
-    fs::{File, exists, read_to_string},
+    fs::{self, File},
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     path::PathBuf,
@@ -13,10 +13,9 @@ use std::{
 
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use chrono::{Local, Utc};
-use clap::{Parser, command};
+use clap::{command, Parser};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
-    VERSION_ID,
     accounts::{Account, Accounts},
     color::Color,
     draw::Draw,
@@ -29,8 +28,9 @@ use hnefatafl_copenhagen::{
     },
     status::Status,
     time::TimeSettings,
+    VERSION_ID,
 };
-use log::{LevelFilter, debug, info};
+use log::{debug, info, LevelFilter};
 use password_hash::SaltString;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
@@ -67,12 +67,16 @@ fn main() -> anyhow::Result<()> {
     let mut args = Args::parse();
     init_logger(args.systemd);
 
+    let mut server = Server::default();
+
     let data_file = data_file();
-    let mut server = if exists(&data_file)? && !args.skip_the_data_file {
-        ron::from_str(&read_to_string(&data_file)?)?
-    } else {
-        Server::default()
-    };
+    if !args.skip_the_data_file {
+        if let Ok(string) = &fs::read_to_string(&data_file) {
+            if let Ok(server_ron) = ron::from_str(string.as_str()) {
+                server = server_ron;
+            }
+        }
+    }
 
     if args.skip_the_data_file {
         server.skip_the_data_file = true;
@@ -90,20 +94,16 @@ fn main() -> anyhow::Result<()> {
 
     if !args.skip_advertising_updates {
         let tx_messages_1 = tx.clone();
-        thread::spawn(move || {
-            loop {
-                handle_error(tx_messages_1.send(("0 server display_server".to_string(), None)));
-                thread::sleep(Duration::from_secs(1));
-            }
+        thread::spawn(move || loop {
+            handle_error(tx_messages_1.send(("0 server display_server".to_string(), None)));
+            thread::sleep(Duration::from_secs(1));
         });
     }
 
     let tx_messages_2 = tx.clone();
-    thread::spawn(move || {
-        loop {
-            handle_error(tx_messages_2.send(("0 server check_update_rd".to_string(), None)));
-            thread::sleep(Duration::from_secs(60 * 60 * 24));
-        }
+    thread::spawn(move || loop {
+        handle_error(tx_messages_2.send(("0 server check_update_rd".to_string(), None)));
+        thread::sleep(Duration::from_secs(60 * 60 * 24));
     });
 
     for (index, stream) in (1..).zip(listener.incoming()) {

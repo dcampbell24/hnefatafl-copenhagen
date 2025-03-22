@@ -9,7 +9,7 @@ use std::{
 };
 
 use game::Game;
-use game_record::{Captures, game_records_from_path};
+use game_record::{game_records_from_path, Captures};
 use message::Message;
 use play::{Plae, Vertex};
 use status::Status;
@@ -147,7 +147,7 @@ pub fn write_command(command: &str, stream: &mut TcpStream) -> anyhow::Result<()
 mod tests {
     use std::{fmt, str::FromStr};
 
-    use crate::ai::{AI, AiBanal};
+    use crate::ai::{AiBanal, AI};
 
     use super::*;
     use board::{Board, STARTING_POSITION};
