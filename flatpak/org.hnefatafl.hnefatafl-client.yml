@@ -1,9 +1,12 @@
 id: org.hnefatafl.hnefatafl-client
 runtime: org.freedesktop.Platform
-runtime-version: '24.08'
+runtime-version: '23.08'
 sdk: org.freedesktop.Sdk
 command: hnefatafl-client
-sdk-extensions: ["org.freedesktop.Sdk.Extension.rust-stable"]
+sdk-extensions: [
+  "org.freedesktop.Sdk.Extension.rust-stable",
+  "org.freedesktop.Sdk.Extension.llvm17"
+]
 modules:
   - name: hnefatafl-client
     buildsystem: simple
@@ -11,11 +14,15 @@ modules:
       - type: git
         url: https://github.com/dcampbell24/hnefatafl-copenhagen.git
         tag: v0.11.0
+      - cargo-sources.json
     build-options:
-      build-args:
-      - --share=network
+      append-path: /usr/lib/sdk/llvm17/bin
+      prepend-ld-library-path: /usr/lib/sdk/llvm17/lib
+      env:
+        CARGO_HOME: /run/build/hnefatafl-client/cargo
     build-commands:
-      - source /usr/lib/sdk/rust-stable/enable.sh && cargo build --release --bin hnefatafl-client --features client
+      - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline fetch --manifest-path Cargo.toml
+      - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline build --release --bin hnefatafl-client --features client
       - install -Dm755 target/release/hnefatafl-client /app/bin/hnefatafl-client
       - install -Dm644 debian/hnefatafl-client.desktop /app/share/applications/org.hnefatafl.hnefatafl-client.desktop
       - install -Dm644 sound/capture.ogg $XDG_DATA_HOME/capture.ogg
