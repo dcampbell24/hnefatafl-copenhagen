@@ -136,6 +136,7 @@ impl Client {
         let letters: Vec<_> = BOARD_LETTERS.chars().collect();
         let (board_size, letter_size, piece_size, spacing) = match self.screen_size {
             Size::Large => (75, 55, 60, 6),
+            Size::Medium => (60, 45, 50, 4),
             Size::Small => (50, 38, 35, 3),
         };
 
@@ -958,6 +959,8 @@ impl Client {
             Message::WindowResized((width, height)) => {
                 if width >= 1_400.0 && height >= 1_000.0 {
                     self.screen_size = Size::Large;
+                } else if width >= 1_200.0 && height >= 800.0 {
+                    self.screen_size = Size::Medium;
                 } else {
                     self.screen_size = Size::Small;
                 }
@@ -1681,6 +1684,7 @@ fn open_url(url: &str) {
 enum Size {
     #[default]
     Small,
+    Medium,
     Large,
 }
 
