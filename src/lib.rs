@@ -32,7 +32,7 @@ pub mod status;
 pub mod time;
 
 pub static HOME: &str = "hnefatafl-copenhagen";
-pub static VERSION_ID: &str = "3b20c67e";
+pub static VERSION_ID: &str = "ed5c9b72";
 
 pub fn handle_error<T, E: fmt::Display>(result: Result<T, E>) -> T {
     match result {
