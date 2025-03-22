@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- hnefatafl-client: display the rating of spectators.
+
+### Changed
+
+- hnefatafl-client: don't mention you're leaving unless you're the attacker or defender.
+
+## [0.11.0] - 2025-03-19
+
+### Changed
+
+- Only white (the defender) cannot repeat a move.
+- hnefatafl-client: show the pieces captured.
+- hnefatafl-client: make texting prettier.
+- hnefatafl-client: make the spectators prettier.
+
+## [0.10.0] - 2025-03-19
+
+### Added
+
 - The ability to delete your account.
 
 ### Changed
@@ -162,7 +181,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.9.0...main
+[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.11.0...main
+[0.11.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.3...v0.9.0
 [0.8.3]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.8.1...v0.8.2

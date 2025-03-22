@@ -328,7 +328,7 @@ for white.
 
 #### Added Rule
 
-If a move would repeat a board position, it is not allowed.
+If white (the defender) would repeat a board position, the move is not allowed.
 
 ### 9. Automatic Loss
 

@@ -1,6 +1,8 @@
+/flatpak/.flatpak-builder
+/flatpak/build
 /ssl
 /target
-/.vs
 /website/book
 /website/src/binaries/debian
-profile.json
+/.vs
+/profile.json

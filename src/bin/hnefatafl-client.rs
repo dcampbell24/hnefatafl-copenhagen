@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashSet, VecDeque},
+    collections::{HashMap, HashSet, VecDeque},
     env, f64, fs,
     io::{BufRead, BufReader, Write},
     net::TcpStream,
@@ -23,6 +23,7 @@ use hnefatafl_copenhagen::{
     color::Color,
     draw::Draw,
     game::Game,
+    glicko::{CONFIDENCE_INTERVAL_95, Rating},
     handle_error,
     play::{BOARD_LETTERS, Vertex},
     rating::Rated,
@@ -40,7 +41,7 @@ use iced::{
     stream,
     widget::{
         Column, Container, Row, Scrollable, button, checkbox, column, container, radio, row,
-        scrollable, text, text_input,
+        scrollable, text, text_input, tooltip,
     },
 };
 use log::{LevelFilter, debug, error, info, trace};
@@ -112,7 +113,7 @@ struct Client {
     time_defender: TimeSettings,
     tx: Option<mpsc::Sender<String>>,
     username: String,
-    users: Vec<User>,
+    users: HashMap<String, User>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -275,8 +276,8 @@ impl Client {
         Subscription::batch(vec![subscription_1, subscription_2])
     }
 
-    fn texting(&self, in_game: bool) -> Column<Message> {
-        let text_input = text_input("", &self.text_input)
+    fn texting(&self, in_game: bool) -> Container<Message> {
+        let text_input = text_input("message...", &self.text_input)
             .on_input(Message::TextChanged)
             .on_paste(Message::TextChanged)
             .on_submit(Message::TextSend);
@@ -292,9 +293,9 @@ impl Client {
             }
         }
 
-        let text_input = column![text("texts"), text("-----"), text_input];
-
-        column![text_input, scrollable(texting),]
+        container(column![text_input, scrollable(texting)].spacing(SPACING))
+            .padding(PADDING)
+            .style(container::bordered_box)
     }
 
     pub fn theme(&self) -> iced::Theme {
@@ -352,7 +353,9 @@ impl Client {
                     self.screen = Screen::Games;
                 }
                 Screen::Game => {
-                    self.send(format!("text_game {} I'm leaving.\n", self.game_id));
+                    if self.username == self.attacker || self.username == self.defender {
+                        self.send(format!("text_game {} I'm leaving.\n", self.game_id));
+                    }
                     self.screen = Screen::Games;
                     self.my_turn = false;
                     self.request_draw = false;
@@ -542,28 +545,44 @@ impl Client {
                                 self.users.clear();
                                 for user_wins_losses_rating in users.chunks_exact(6) {
                                     let rating = user_wins_losses_rating[4];
-                                    let Some((rating, deviation)) = rating.split_once("±") else {
-                                        panic!("the ratings has this form");
+                                    let Some((mut rating, mut deviation)) = rating.split_once("±")
+                                    else {
+                                        panic!("the ratings has this form: {rating}");
                                     };
+
+                                    rating = rating.trim();
+                                    deviation = deviation.trim();
+
                                     let (Ok(rating), Ok(deviation)) =
                                         (rating.parse::<f64>(), deviation.parse::<f64>())
                                     else {
-                                        panic!("the ratings has this form");
+                                        panic!(
+                                            "the ratings has this form: ({rating}, {deviation})"
+                                        );
                                     };
 
                                     let logged_in = "logged_in" == user_wins_losses_rating[5];
 
-                                    self.users.push(User {
-                                        name: user_wins_losses_rating[0].to_string(),
-                                        wins: user_wins_losses_rating[1].to_string(),
-                                        losses: user_wins_losses_rating[2].to_string(),
-                                        draws: user_wins_losses_rating[3].to_string(),
-                                        rating: (rating, deviation),
-                                        logged_in,
-                                    });
+                                    self.users.insert(
+                                        user_wins_losses_rating[0].to_string(),
+                                        User {
+                                            name: user_wins_losses_rating[0].to_string(),
+                                            wins: user_wins_losses_rating[1].to_string(),
+                                            losses: user_wins_losses_rating[2].to_string(),
+                                            draws: user_wins_losses_rating[3].to_string(),
+                                            rating: Rating {
+                                                rating,
+                                                rd: deviation / CONFIDENCE_INTERVAL_95,
+                                            },
+                                            logged_in,
+                                        },
+                                    );
                                 }
-                                self.users
-                                    .sort_by(|a, b| b.rating.0.partial_cmp(&a.rating.0).unwrap());
+
+                                let mut users: Vec<_> = self.users.values().collect();
+                                users.sort_by(|a, b| {
+                                    b.rating.rating.partial_cmp(&a.rating.rating).unwrap()
+                                });
                             }
                             Some("draw") => {
                                 self.request_draw = false;
@@ -1066,13 +1085,9 @@ impl Client {
         let mut losses = Column::new();
         let mut draws = Column::new();
 
-        for user in &self.users {
+        for user in self.users.values() {
             if logged_in == user.logged_in {
-                ratings = ratings.push(text(format!(
-                    "{} ± {}",
-                    user.rating.0,
-                    user.rating.1.round_ties_even()
-                )));
+                ratings = ratings.push(text(user.rating.to_string_rounded()));
                 usernames = usernames.push(text(&user.name));
                 wins = wins.push(text(&user.wins));
                 losses = losses.push(text(&user.losses));
@@ -1112,9 +1127,9 @@ impl Client {
                 let mut draws = String::new();
                 let mut losses = String::new();
 
-                for user in &self.users {
+                for user in self.users.values() {
                     if self.username == user.name {
-                        rating = format!("{} ± {}", user.rating.0, user.rating.1);
+                        rating = user.rating.to_string_rounded();
                         wins = user.wins.to_string();
                         losses = user.losses.to_string();
                         draws = user.draws.to_string();
@@ -1176,21 +1191,24 @@ impl Client {
 
                 let mut attacker_rating = "-".to_string();
                 let mut defender_rating = "-".to_string();
-                for user in &self.users {
+                for user in self.users.values() {
                     if self.attacker == user.name {
-                        attacker_rating = format!("{} ± {}", user.rating.0, user.rating.1);
+                        attacker_rating = user.rating.to_string_rounded();
                     }
                     if self.defender == user.name {
-                        defender_rating = format!("{} ± {}", user.rating.0, user.rating.1);
+                        defender_rating = user.rating.to_string_rounded();
                     }
                 }
 
+                let captured = game.board.captured();
                 let user_area_ = column![
                     row![
                         text(self.time_attacker.fmt_shorthand()).size(40).center(),
                         text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(self.attacker.to_string()).center(),
+                            text(format!("{} {}", self.attacker, captured.white()))
+                                .shaping(text::Shaping::Advanced)
+                                .center(),
                             text(attacker_rating.to_string()).center(),
                         ]
                     ]
@@ -1199,7 +1217,9 @@ impl Client {
                         text(self.time_defender.fmt_shorthand()).size(40).center(),
                         text("🛡").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(self.defender.to_string()).center(),
+                            text(format!("{} {}", self.defender, captured.black()))
+                                .shaping(text::Shaping::Advanced)
+                                .center(),
                             text(defender_rating.to_string()).center(),
                         ]
                     ]
@@ -1228,7 +1248,12 @@ impl Client {
                     if self.username.as_str() == spectator.as_str() {
                         watching = true;
                     }
-                    spectators = spectators.push(text(spectator.clone()));
+
+                    let mut spectator = spectator.to_string();
+                    if let Some(user) = self.users.get(&spectator) {
+                        spectator.push_str(&format!(" ({})", user.rating));
+                    }
+                    spectators = spectators.push(text(spectator.to_string()));
                 }
 
                 if !watching {
@@ -1284,11 +1309,17 @@ impl Client {
                 }
 
                 let spectator = column![
-                    text("spectators".to_string()),
-                    text("----------".to_string()),
+                    text(format!("👥 ({})", self.spectators.len()))
+                        .shaping(text::Shaping::Advanced),
                 ];
-                user_area = user_area.push(spectator);
-                user_area = user_area.push(scrollable(spectators));
+                user_area = user_area.push(tooltip(
+                    spectator,
+                    container(spectators)
+                        .style(container::rounded_box)
+                        .padding(PADDING),
+                    tooltip::Position::Bottom,
+                ));
+
                 user_area = user_area.push(texting);
                 let user_area = container(user_area)
                     .padding(PADDING)
@@ -1659,6 +1690,6 @@ struct User {
     wins: String,
     losses: String,
     draws: String,
-    rating: (f64, f64),
+    rating: Rating,
     logged_in: bool,
 }

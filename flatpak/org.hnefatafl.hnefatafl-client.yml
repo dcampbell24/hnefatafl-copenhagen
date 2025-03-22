@@ -1,0 +1,39 @@
+id: org.hnefatafl.hnefatafl-client
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
+command: hnefatafl-client
+sdk-extensions: [
+  "org.freedesktop.Sdk.Extension.rust-stable",
+  "org.freedesktop.Sdk.Extension.llvm17"
+]
+modules:
+  - name: hnefatafl-client
+    buildsystem: simple
+    sources:
+      - type: git
+        url: https://github.com/dcampbell24/hnefatafl-copenhagen.git
+        tag: v0.11.0
+      - cargo-sources.json
+    build-options:
+      append-path: /usr/lib/sdk/llvm17/bin
+      prepend-ld-library-path: /usr/lib/sdk/llvm17/lib
+      env:
+        CARGO_HOME: /run/build/hnefatafl-client/cargo
+    build-commands:
+      - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline fetch --manifest-path Cargo.toml
+      - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline build --release --bin hnefatafl-client --features client
+      - install -Dm755 target/release/hnefatafl-client /app/bin/hnefatafl-client
+      - install -Dm644 debian/hnefatafl-client.desktop /app/share/applications/org.hnefatafl.hnefatafl-client.desktop
+      - install -Dm644 sound/capture.ogg $XDG_DATA_HOME/capture.ogg
+      - install -Dm644 sound/game_over.ogg $XDG_DATA_HOME/game_over.ogg
+      - install -Dm644 sound/move.ogg $XDG_DATA_HOME/move.ogg
+      - install -Dm644 icons/king_16x16.png $XDG_DATA_HOME/icons/hicolor/16x16/apps/hnefatafl-client.png
+      - install -Dm644 icons/king_22x22.png $XDG_DATA_HOME/icons/hicolor/22x22/apps/hnefatafl-client.png
+      - install -Dm644 icons/king_24x24.png $XDG_DATA_HOME/icons/hicolor/24x24/apps/hnefatafl-client.png
+      - install -Dm644 icons/king_32x32.png $XDG_DATA_HOME/icons/hicolor/32x32/apps/hnefatafl-client.png
+      - install -Dm644 icons/king_42x42.png $XDG_DATA_HOME/icons/hicolor/42x42/apps/hnefatafl-client.png
+      - install -Dm644 icons/king_64x64.png $XDG_DATA_HOME/icons/hicolor/64x64/apps/hnefatafl-client.png
+      - install -Dm644 icons/king_128x128.png $XDG_DATA_HOME/icons/hicolor/128x128/apps/hnefatafl-client.png
+#     ["debian/README.txt", "usr/share/doc/hnefatafl-copenhagen/", "644"],
+#     ["debian/hnefatafl-client.1.gz", "usr/share/man/man1/", "644"],

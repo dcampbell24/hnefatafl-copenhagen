@@ -1442,7 +1442,9 @@ impl Server {
 
         if let Some(game) = self.games_light.0.get(&id) {
             for spectator in game.spectators.values() {
-                let _ok = self.clients[spectator].send(text.clone());
+                if let Some(sender) = self.clients.get(spectator) {
+                    let _ok = sender.send(text.clone());
+                }
             }
         }
 
