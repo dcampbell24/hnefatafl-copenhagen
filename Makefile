@@ -25,3 +25,7 @@ ssl:
 	
 	sudo cp ssl/localhost.crt /usr/local/share/ca-certificates/
 	sudo update-ca-certificates
+
+.PHONY: cargo-deps
+cargo-deps:
+	python3 ../flatpak-builder-tools/cargo/flatpak-cargo-generator.py Cargo.lock -o cargo-sources.json
