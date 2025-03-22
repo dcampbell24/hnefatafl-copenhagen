@@ -136,7 +136,7 @@ impl Client {
         let letters: Vec<_> = BOARD_LETTERS.chars().collect();
         let (board_size, letter_size, piece_size, spacing) = match self.screen_size {
             Size::Large => (75, 55, 60, 6),
-            Size::Medium => (60, 45, 50, 4),
+            Size::Medium => (65, 45, 50, 4),
             Size::Small => (50, 38, 35, 3),
         };
 
