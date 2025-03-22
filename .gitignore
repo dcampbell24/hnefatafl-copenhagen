@@ -1,6 +1,7 @@
 /ssl
 /target
-/.vs
 /website/book
 /website/src/binaries/debian
+/.flatpak-builder
+/.vs
 profile.json
