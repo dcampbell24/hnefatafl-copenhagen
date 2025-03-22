@@ -34,8 +34,9 @@ use hnefatafl_copenhagen::{
     time::{Time, TimeSettings},
 };
 use iced::{
-    Element, Subscription,
+    Element, Event, Subscription,
     alignment::{Horizontal, Vertical},
+    event,
     font::Font,
     futures::{SinkExt, Stream},
     stream,
@@ -273,7 +274,14 @@ impl Client {
 
         let subscription_2 = Subscription::run(pass_messages);
 
-        Subscription::batch(vec![subscription_1, subscription_2])
+        let subscription_3 = event::listen_with(|event, _status, _id| match event {
+            Event::Window(iced::window::Event::Resized(size)) => {
+                Some(Message::WindowResized((size.width, size.height)))
+            }
+            _ => None,
+        });
+
+        Subscription::batch(vec![subscription_1, subscription_2, subscription_3])
     }
 
     fn texting(&self, in_game: bool) -> Container<Message> {
@@ -494,7 +502,6 @@ impl Client {
                     self.game_id, game.turn
                 )));
             }
-            Message::ScreenSize(size) => self.screen_size = size,
             Message::SoundMuted(muted) => self.sound_muted = muted,
             Message::TcpConnected(tx) => {
                 info!("TCP connected...");
@@ -948,6 +955,13 @@ impl Client {
                 }
             }
             Message::Users => self.screen = Screen::Users,
+            Message::WindowResized((width, height)) => {
+                if width >= 1_400.0 && height >= 1_000.0 {
+                    self.screen_size = Size::Large;
+                } else {
+                    self.screen_size = Size::Small;
+                }
+            }
         }
     }
 
@@ -1282,11 +1296,6 @@ impl Client {
                     }
                 }
 
-                let screen_size = match self.screen_size {
-                    Size::Large => button("Small Board").on_press(Message::ScreenSize(Size::Small)),
-                    Size::Small => button("Large Board").on_press(Message::ScreenSize(Size::Large)),
-                };
-
                 let muted = if self.sound_muted {
                     button(text("🕨").shaping(text::Shaping::Advanced).center())
                         .on_press(Message::SoundMuted(false))
@@ -1295,11 +1304,9 @@ impl Client {
                         .on_press(Message::SoundMuted(true))
                 };
 
-                user_area = user_area.push(row![screen_size, muted].spacing(SPACING));
+                let leave = button("Leave").on_press(Message::Leave);
 
-                user_area = user_area
-                    .push(row![button("Leave").on_press(Message::Leave)])
-                    .spacing(SPACING);
+                user_area = user_area.push(row![muted, leave].spacing(SPACING));
 
                 match self.status {
                     Status::BlackWins => user_area = user_area.push(text("Attacker Wins!")),
@@ -1538,7 +1545,6 @@ enum Message {
     PlayMoveTo(Vertex),
     PlayMoveRevert,
     PlayResign,
-    ScreenSize(Size),
     SoundMuted(bool),
     RatedSelected(bool),
     RoleSelected(Role),
@@ -1553,6 +1559,7 @@ enum Message {
     TimeCheckbox(bool),
     TimeMinutes(String),
     Users,
+    WindowResized((f32, f32)),
 }
 
 fn get_game(game: &mut Option<Game>) -> &mut Game {
