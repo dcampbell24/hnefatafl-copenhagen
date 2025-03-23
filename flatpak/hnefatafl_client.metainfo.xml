@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.hnefatafl.hnefatafl_client</id>
+
+  <name>Hnefatafl Client</name>
+  <summary>Client that connects to a Copenhagen Hnefatafl Server.</summary>
+
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT OR Apache-2.0</project_license>
+
+  <description>
+    <p>
+      Client that connects to a Copenhagen Hnefatafl Server.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">org.hnefatafl.hnefatafl-client.desktop</launchable>
+</component>
