@@ -959,7 +959,7 @@ impl Client {
             Message::WindowResized((width, height)) => {
                 if width >= 1_400.0 && height >= 1_000.0 {
                     self.screen_size = Size::Large;
-                } else if width >= 1_200.0 && height >= 800.0 {
+                } else if width >= 1_200.0 && height >= 850.0 {
                     self.screen_size = Size::Medium;
                 } else {
                     self.screen_size = Size::Small;
