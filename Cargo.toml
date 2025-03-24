@@ -16,6 +16,9 @@ default-run = "hnefatafl-server-full"
 
 [dependencies]
 anyhow = "1"
+# bincode = "=2.0.0-rc.3"
+# bincode_derive = "=2.0.0-rc.3"
+# burn = { version = "0.16", features = ["train", "wgpu", "vision"] }
 chrono = "0.4"
 clap = { version ="4", features = ["derive"] }
 csv = "1"

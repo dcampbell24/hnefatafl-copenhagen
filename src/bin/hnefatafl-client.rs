@@ -368,6 +368,11 @@ impl Client {
                     self.screen = Screen::Games;
                     self.my_turn = false;
                     self.request_draw = false;
+
+                    if self.spectators.contains(&self.username) {
+                        self.send(format!("leave_game {}\n", self.game_id));
+                    }
+                    self.spectators = Vec::new();
                 }
                 Screen::GameNewFrozen => {
                     self.send(format!("leave_game {}\n", self.game_id));
@@ -1319,14 +1324,19 @@ impl Client {
                 }
 
                 let spectator = column![text(format!("👥 ({})", self.spectators.len()))
-                    .shaping(text::Shaping::Advanced),];
-                user_area = user_area.push(tooltip(
-                    spectator,
-                    container(spectators)
-                        .style(container::rounded_box)
-                        .padding(PADDING),
-                    tooltip::Position::Bottom,
-                ));
+                    .shaping(text::Shaping::Advanced)];
+
+                if self.spectators.is_empty() {
+                    user_area = user_area.push(spectator);
+                } else {
+                    user_area = user_area.push(tooltip(
+                        spectator,
+                        container(spectators)
+                            .style(container::bordered_box)
+                            .padding(PADDING),
+                        tooltip::Position::Bottom,
+                    ));
+                }
 
                 user_area = user_area.push(texting);
                 let user_area = container(user_area)

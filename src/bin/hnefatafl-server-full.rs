@@ -1101,6 +1101,8 @@ impl Server {
                     }
                 }
 
+                game.spectators.remove(username);
+
                 if game.attacker.is_none() && game.defender.is_none() {
                     remove = true;
                 }
