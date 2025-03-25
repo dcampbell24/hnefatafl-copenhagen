@@ -2,8 +2,8 @@
 name = "hnefatafl-copenhagen"
 version = "0.12.0"
 authors = ["David Campbell <dcampbell24@gmail.com>"]
-edition = "2021"
-rust-version =  "1.79"
+edition = "2024"
+rust-version =  "1.85.1"
 description = "Copenhagen Hnefatafl client, engine, and server."
 documentation = "https://docs.rs/hnefatafl-copenhagen/"
 readme = "README.md"

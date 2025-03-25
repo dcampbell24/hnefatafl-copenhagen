@@ -7,7 +7,7 @@ use serde_with::serde_as;
 use crate::{
     color::Color,
     game::PreviousBoards,
-    play::{Plae, Play, Vertex, BOARD_LETTERS},
+    play::{BOARD_LETTERS, Plae, Play, Vertex},
     space::Space,
     status::Status,
 };

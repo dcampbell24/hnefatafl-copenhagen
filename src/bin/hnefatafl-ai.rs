@@ -6,15 +6,15 @@ use std::{
 };
 
 use anyhow::Error;
-use clap::{command, Parser};
+use clap::{Parser, command};
 use hnefatafl_copenhagen::{
-    ai::{AiBanal, AiBasic, AI},
+    VERSION_ID,
+    ai::{AI, AiBanal, AiBasic},
     color::Color,
     game::Game,
     play::Vertex,
     role::Role,
     status::Status,
-    VERSION_ID,
 };
 
 // Move 26, defender wins, corner escape, time per move 15s 2025-03-06 (hnefatafl-equi).

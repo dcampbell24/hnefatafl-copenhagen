@@ -109,7 +109,7 @@ pub fn exp10(mut exponent: f64) -> f64 {
 mod tests {
     use crate::glicko::Outcome;
 
-    use super::{exp10, Rating};
+    use super::{Rating, exp10};
 
     #[allow(clippy::float_cmp)]
     #[test]

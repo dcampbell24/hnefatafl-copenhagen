@@ -13,9 +13,10 @@ use std::{
 
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use chrono::{Local, Utc};
-use clap::{command, Parser};
+use clap::{Parser, command};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
+    VERSION_ID,
     accounts::{Account, Accounts},
     color::Color,
     draw::Draw,
@@ -28,9 +29,8 @@ use hnefatafl_copenhagen::{
     },
     status::Status,
     time::TimeSettings,
-    VERSION_ID,
 };
-use log::{debug, info, LevelFilter};
+use log::{LevelFilter, debug, info};
 use password_hash::SaltString;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
@@ -94,16 +94,20 @@ fn main() -> anyhow::Result<()> {
 
     if !args.skip_advertising_updates {
         let tx_messages_1 = tx.clone();
-        thread::spawn(move || loop {
-            handle_error(tx_messages_1.send(("0 server display_server".to_string(), None)));
-            thread::sleep(Duration::from_secs(1));
+        thread::spawn(move || {
+            loop {
+                handle_error(tx_messages_1.send(("0 server display_server".to_string(), None)));
+                thread::sleep(Duration::from_secs(1));
+            }
         });
     }
 
     let tx_messages_2 = tx.clone();
-    thread::spawn(move || loop {
-        handle_error(tx_messages_2.send(("0 server check_update_rd".to_string(), None)));
-        thread::sleep(Duration::from_secs(60 * 60 * 24));
+    thread::spawn(move || {
+        loop {
+            handle_error(tx_messages_2.send(("0 server check_update_rd".to_string(), None)));
+            thread::sleep(Duration::from_secs(60 * 60 * 24));
+        }
     });
 
     for (index, stream) in (1..).zip(listener.incoming()) {
