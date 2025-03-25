@@ -36,3 +36,14 @@ if [ $1 = 'install' ]; then
     sudo systemctl restart hnefatafl.service
     sudo systemctl daemon-reload
 fi
+
+if [ $1 = 'install-compress' ]; then
+    sudo dpkg --remove hnefatafl-copenhagen
+    sudo dpkg --install $PACKAGE
+    sudo systemctl restart hnefatafl.service
+    sudo systemctl daemon-reload
+
+    cp $PACKAGE ../
+    xz --verbose ../$PACKAGE
+    # xz --verbose --decompress ../$PACKAGE
+fi

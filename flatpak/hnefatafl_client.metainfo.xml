@@ -15,4 +15,22 @@
   </description>
 
   <launchable type="desktop-id">org.hnefatafl.hnefatafl_client.desktop</launchable>
+
+  <release version="0.13.0" date="2025-03-25" urgency="medium">
+    <description>
+      <p>This is the first flatpak release.</p>
+    </description>
+
+    <!--
+    <artifacts>
+      <artifact type="binary" platform="x86_64-linux-gnu">
+        <location>https://hnefatafl.org/binaries/flatpak/hnefatafl-copenhagen_0.13.0-amd64.bin.tar.xz</location>
+        <checksum type="sha256">....</checksum>
+        <checksum type="blake2b">....</checksum>
+        <size type="download">12345678</size>
+        <size type="installed">42424242</size>
+      </artifact>
+    </artifacts>
+    -->
+  </release>
 </component>
