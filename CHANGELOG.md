@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- switch the edition to 2024 and update the flatpak to match.
 - hnefatafl-client: update icons.
 - hnefatafl-client: make spectators prettier.
 
