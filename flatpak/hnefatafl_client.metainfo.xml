@@ -14,5 +14,5 @@
     </p>
   </description>
 
-  <launchable type="desktop-id">org.hnefatafl.hnefatafl-client.desktop</launchable>
+  <launchable type="desktop-id">org.hnefatafl.hnefatafl_client.desktop</launchable>
 </component>
