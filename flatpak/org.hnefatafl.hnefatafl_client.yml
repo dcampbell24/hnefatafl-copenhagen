@@ -13,7 +13,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/dcampbell24/hnefatafl-copenhagen.git
-        tag: v0.12.0_flatpak_00
+        tag: flatpak
       - cargo-sources.json
     build-options:
       append-path: /usr/lib/sdk/llvm18/bin
@@ -37,6 +37,6 @@ modules:
       - install -Dm644 icons/king_42x42.png /app/share/icons/hicolor/42x42/apps/org.hnefatafl.hnefatafl_client.png
       - install -Dm644 icons/king_64x64.png /app/share/icons/hicolor/64x64/apps/org.hnefatafl.hnefatafl_client.png
       - install -Dm644 icons/king_128x128.png /app/share/icons/hicolor/128x128/apps/org.hnefatafl.hnefatafl_client.png
-      - install -Dm644 flatpak/hnefatafl_client.metadatainfo.xml /usr/share/metainfo/org.hnefatafl.hnefatafl_client.metainfo.xml
+      - install -Dm644 flatpak/hnefatafl_client.metainfo.xml /usr/share/metainfo/org.hnefatafl.hnefatafl_client.metainfo.xml
 #     ["debian/README.txt", "usr/share/doc/hnefatafl-copenhagen/", "644"],
 #     ["debian/hnefatafl-client.1.gz", "usr/share/man/man1/", "644"],
