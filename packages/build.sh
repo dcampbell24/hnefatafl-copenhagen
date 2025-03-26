@@ -4,27 +4,27 @@ pandoc\
     --variable=title:hnefatafl-client\
     --variable=section:1\
     --variable=date:2025-02-22\
-    --standalone --to=man debian/hnefatafl-client.1.dj --output=debian/hnefatafl-client.1
+    --standalone --to=man packages/hnefatafl-client.1.dj --output=packages/hnefatafl-client.1
 
-gzip --no-name --best debian/hnefatafl-client.1
+gzip --no-name --best packages/hnefatafl-client.1
 
 pandoc\
     --variable=title:hnefatafl-server-full\
     --variable=section:1\
     --variable=date:2025-02-22\
-    --standalone --to=man debian/hnefatafl-server-full.1.dj --output=debian/hnefatafl-server-full.1
+    --standalone --to=man packages/hnefatafl-server-full.1.dj --output=packages/hnefatafl-server-full.1
 
-gzip --no-name --best debian/hnefatafl-server-full.1
+gzip --no-name --best packages/hnefatafl-server-full.1
 
-pandoc --standalone --to=plain README.md --output=debian/README.txt
+pandoc --standalone --to=plain README.md --output=packages/README.txt
 
 PACKAGE=$(cargo deb)
 echo $PACKAGE
 lintian $PACKAGE
 
-rm debian/hnefatafl-client.1.gz
-rm debian/hnefatafl-server-full.1.gz
-rm debian/README.txt
+rm packages/hnefatafl-client.1.gz
+rm packages/hnefatafl-server-full.1.gz
+rm packages/README.txt
 
 if [ -z $1 ]; then
     exit

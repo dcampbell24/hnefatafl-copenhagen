@@ -92,13 +92,6 @@ maintainer = "David Campbell <dcampbell24@gmail.com>"
 extended-description = "The engine is similar to the Go Text Protocol."
 features = ["client", "server"]
 assets = [
-    ["debian/README.txt", "usr/share/doc/hnefatafl-copenhagen/", "644"],
-    ["debian/hnefatafl-client.1.gz", "usr/share/man/man1/", "644"],
-    ["debian/hnefatafl-server-full.1.gz", "usr/share/man/man1/", "644"],
-    ["debian/hnefatafl-client.desktop", "usr/share/applications/", "644"],
-    ["debian/hnefatafl-ai-00-attacker.service", "lib/systemd/system/", "644"],
-    ["debian/hnefatafl-ai-01-defender.service", "lib/systemd/system/", "644"],
-    ["debian/hnefatafl.service", "lib/systemd/system/", "644"],
     ["icons/king_16x16.png", "usr/share/icons/hicolor/16x16/apps/org.hnefatafl.hnefatafl_client.png", "644"],
     ["icons/king_22x22.png", "usr/share/icons/hicolor/22x22/apps/org.hnefatafl.hnefatafl_client.png", "644"],
     ["icons/king_24x24.png", "usr/share/icons/hicolor/24x24/apps/org.hnefatafl.hnefatafl_client.png", "644"],
@@ -106,6 +99,13 @@ assets = [
     ["icons/king_42x42.png", "usr/share/icons/hicolor/42x42/apps/org.hnefatafl.hnefatafl_client.png", "644"],
     ["icons/king_64x64.png", "usr/share/icons/hicolor/64x64/apps/org.hnefatafl.hnefatafl_client.png", "644"],
     ["icons/king_128x128.png", "usr/share/icons/hicolor/128x128/apps/org.hnefatafl.hnefatafl_client.png", "644"],
+    ["packages/README.txt", "usr/share/doc/hnefatafl-copenhagen/", "644"],
+    ["packages/hnefatafl-client.1.gz", "usr/share/man/man1/", "644"],
+    ["packages/hnefatafl-server-full.1.gz", "usr/share/man/man1/", "644"],
+    ["packages/hnefatafl-client.desktop", "usr/share/applications/", "644"],
+    ["packages/hnefatafl-ai-00-attacker.service", "lib/systemd/system/", "644"],
+    ["packages/hnefatafl-ai-01-defender.service", "lib/systemd/system/", "644"],
+    ["packages/hnefatafl.service", "lib/systemd/system/", "644"],
     ["sound/capture.ogg", "usr/share/hnefatafl-copenhagen/capture.ogg", "644"],
     ["sound/game_over.ogg", "usr/share/hnefatafl-copenhagen/game_over.ogg", "644"],
     ["sound/move.ogg", "usr/share/hnefatafl-copenhagen/move.ogg", "644"],
