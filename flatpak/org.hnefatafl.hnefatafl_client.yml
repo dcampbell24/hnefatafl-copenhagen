@@ -8,10 +8,11 @@ sdk-extensions: [
   "org.freedesktop.Sdk.Extension.llvm18"
 ]
 finish-args:
-  - "--share=ipc"
-  - "--socket=fallback-x11"
-  - "--socket=wayland"
-  - "--device=dri"
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --share=network
 modules:
   - name: hnefatafl_client
     buildsystem: simple
