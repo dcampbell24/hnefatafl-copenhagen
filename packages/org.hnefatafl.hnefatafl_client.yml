@@ -32,7 +32,6 @@ modules:
       - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline fetch --manifest-path Cargo.toml
       - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline build --release --bin hnefatafl-client --features client
       - install -Dm755 target/release/hnefatafl-client /app/bin/hnefatafl-client
-      - install -Dm644 debian/hnefatafl-client.desktop /app/share/applications/$FLATPAK_ID.desktop
       - install -Dm644 sound/capture.ogg $XDG_DATA_HOME/capture.ogg
       - install -Dm644 sound/game_over.ogg $XDG_DATA_HOME/game_over.ogg
       - install -Dm644 sound/move.ogg $XDG_DATA_HOME/move.ogg
@@ -43,6 +42,7 @@ modules:
       - install -Dm644 icons/king_42x42.png /app/share/icons/hicolor/42x42/apps/$FLATPAK_ID.png
       - install -Dm644 icons/king_64x64.png /app/share/icons/hicolor/64x64/apps/$FLATPAK_ID.png
       - install -Dm644 icons/king_128x128.png /app/share/icons/hicolor/128x128/apps/$FLATPAK_ID.png
-      - install -Dm644 flatpak/hnefatafl_client.metainfo.xml /app/share/metainfo/$FLATPAK_ID.metainfo.xml
+      - install -Dm644 packages/hnefatafl-client.desktop /app/share/applications/$FLATPAK_ID.desktop
+      - install -Dm644 packages/hnefatafl_client.metainfo.xml /app/share/metainfo/$FLATPAK_ID.metainfo.xml
 #     ["debian/README.txt", "usr/share/doc/hnefatafl-copenhagen/", "644"],
 #     ["debian/hnefatafl-client.1.gz", "usr/share/man/man1/", "644"],
