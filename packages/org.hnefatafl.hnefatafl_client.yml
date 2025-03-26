@@ -19,7 +19,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/dcampbell24/hnefatafl-copenhagen.git
-        tag: flatpak-07
+        tag: flatpak-08
       - cargo-sources.json
     build-options:
       append-path: /usr/lib/sdk/llvm18/bin
