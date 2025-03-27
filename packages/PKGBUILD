@@ -15,12 +15,12 @@ sha256sums=("973c674a85ea12f6c1fce1add98b51ea934c99e629c47bc53bfd83b93d93f4b8")
 
 build() {
     tar -xvzf $pkgver.tar.gz
-    cd "$pkgver"
+    cd "src/$pkgname-$pkgver"
     cargo build --release --bin hnefatafl-client --features client
 }
 
 package() {
-    cd "$pkgver"
+    cd "src/$pkgname-$pkgver"
     install -Dm755 "target/release/hnefatafl-client" -t "$pkgdir/usr/bin"
     install -Dm644 LICENSE-APACHE "$pkgdir/usr/share/licenses/$pkgname/LICENSE-MIT"
     install -Dm644 LICENSE-MIT "$pkgdir/usr/share/licenses/$pkgname/LICENSE-MIT"
@@ -41,6 +41,6 @@ package() {
 }
 
 check() {
-        cd "$pkgver"
+        cd "src/$pkgname-$pkgver"
         .githooks/pre-commit
 }
