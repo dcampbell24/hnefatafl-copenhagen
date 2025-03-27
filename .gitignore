@@ -1,6 +1,7 @@
-/packages/.flatpak-builder
-/packages/build
-/packages/repo
+/.flatpak-builder
+/build
+/repo
+
 /profile.json
 /ssl
 /target
