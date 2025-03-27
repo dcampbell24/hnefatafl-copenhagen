@@ -3,7 +3,7 @@
   <id>org.hnefatafl.hnefatafl_client</id>
 
   <name>Hnefatafl Client</name>
-  <developer id=org.hnefatafl.david>David Lawrence Campbell</developer>
+  <developer id="org.hnefatafl.david">David Lawrence Campbell</developer>
   <summary>Client that connects to a Copenhagen Hnefatafl Server.</summary>
 
   <metadata_license>MIT</metadata_license>
