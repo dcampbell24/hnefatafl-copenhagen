@@ -1,6 +1,10 @@
 {
     "cSpell.words": [
         "alsa",
+        "lintian",
+        "makepkg",
+        "namcap",
+        "pandoc",
         "hnefatafl",
         "tafl"
     ]

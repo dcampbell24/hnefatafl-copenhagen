@@ -102,8 +102,8 @@ files = [
     ["icons/king_64x64.png", "/usr/share/icons/hicolor/64x64/apps/org.hnefatafl.hnefatafl_client.png"],
     ["icons/king_128x128.png", "/usr/share/icons/hicolor/128x128/apps/org.hnefatafl.hnefatafl_client.png"],
     ["icons/king_256x256.png", "/usr/share/icons/hicolor/256x256/apps/org.hnefatafl.hnefatafl_client.png"],
-#   ["packages/README.txt", "/usr/share/doc/hnefatafl-copenhagen/", "644"],
-#   ["packages/hnefatafl-client.1.gz", "/usr/share/man/man1/", "644"],
+    ["packages/README.txt", "/usr/share/doc/hnefatafl-copenhagen/"],
+    ["packages/hnefatafl-client.1.gz", "/usr/share/man/man1/"],
     ["packages/hnefatafl-client.desktop", "/usr/share/applications/hnefatafl-client.desktop"],
     ["sound/capture.ogg", "/usr/share/hnefatafl-copenhagen/capture.ogg"],
     ["sound/game_over.ogg", "/usr/share/hnefatafl-copenhagen/game_over.ogg"],
@@ -138,7 +138,7 @@ assets = [
     ["target/release/hnefatafl-client", "usr/games/", "755"],
     ["target/release/hnefatafl-server-full", "usr/games/", "755"],
 ]
-changelog = "debian/changelog"
+changelog = "packages/changelog"
 section = "games"
 
 [package.metadata.docs.rs]

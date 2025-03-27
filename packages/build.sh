@@ -1,5 +1,9 @@
 #! /bin/sh -e
 
+if [ 'debian' != "$1" ] && [ 'arch' != "$1" ]; then
+    exit 1
+fi
+
 pandoc\
     --variable=title:hnefatafl-client\
     --variable=section:1\
@@ -18,32 +22,30 @@ gzip --no-name --best packages/hnefatafl-server-full.1
 
 pandoc --standalone --to=plain README.md --output=packages/README.txt
 
-PACKAGE=$(cargo deb)
-echo $PACKAGE
-lintian $PACKAGE
+if [ 'debian' == "$1" ]; then
+    PACKAGE=$(cargo deb)
+    echo $PACKAGE
+    lintian $PACKAGE
+fi
+
+if [ 'arch' == "$1" ]; then
+    cargo build --release --bin hnefatafl-client --features client
+    cargo aur
+    makepkg --force --dir target/cargo-aur/
+    namcap target/cargo-aur/*.zst
+fi
 
 rm packages/hnefatafl-client.1.gz
 rm packages/hnefatafl-server-full.1.gz
 rm packages/README.txt
 
-if [ -z $1 ]; then
+if [ -z $2 ]; then
     exit
 fi
 
-if [ $1 = 'install' ]; then
+if [ $2 = 'install' ]; then
     sudo dpkg --remove hnefatafl-copenhagen
     sudo dpkg --install $PACKAGE
     sudo systemctl restart hnefatafl.service
     sudo systemctl daemon-reload
-fi
-
-if [ $1 = 'install-compress' ]; then
-    sudo dpkg --remove hnefatafl-copenhagen
-    sudo dpkg --install $PACKAGE
-    sudo systemctl restart hnefatafl.service
-    sudo systemctl daemon-reload
-
-    cp $PACKAGE ../
-    xz --verbose ../$PACKAGE
-    # xz --verbose --decompress ../$PACKAGE
 fi
