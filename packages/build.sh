@@ -1,4 +1,4 @@
-#! /bin/sh -e
+#! /bin/bash -e
 
 if [ 'debian' != "$1" ] && [ 'arch' != "$1" ]; then
     exit 1
