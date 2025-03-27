@@ -98,7 +98,7 @@ files = [
     ["icons/king_256x256.png", "/usr/share/icons/hicolor/256x256/apps/org.hnefatafl.hnefatafl_client.png"],
 #   ["packages/README.txt", "/usr/share/doc/hnefatafl-copenhagen/", "644"],
 #   ["packages/hnefatafl-client.1.gz", "/usr/share/man/man1/", "644"],
-    ["packages/hnefatafl-client.desktop", "/usr/share/applications/"],
+    ["packages/hnefatafl-client.desktop", "/usr/share/applications/hnefatafl-client.desktop"],
     ["sound/capture.ogg", "/usr/share/hnefatafl-copenhagen/capture.ogg"],
     ["sound/game_over.ogg", "/usr/share/hnefatafl-copenhagen/game_over.ogg"],
     ["sound/move.ogg", "/usr/share/hnefatafl-copenhagen/move.ogg"],
