@@ -17,6 +17,15 @@ build() {
     tar -xvzf $pkgver.tar.gz
     cd "$pkgname-$pkgver"
     cargo build --release --bin hnefatafl-client --features client
+
+    pandoc\
+        --variable=title:hnefatafl-client\
+        --variable=section:1\
+        --variable=date:2025-02-22\
+        --standalone --to=man packages/hnefatafl-client.1.dj --output=packages/hnefatafl-client.1
+
+    gzip --no-name --best packages/hnefatafl-client.1
+    pandoc --standalone --to=plain README.md --output=packages/README.txt
 }
 
 package() {
