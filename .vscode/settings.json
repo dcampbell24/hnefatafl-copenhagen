@@ -4,7 +4,13 @@
         "lintian",
         "makepkg",
         "namcap",
+        "pkgdesc",
         "pandoc",
+        "pkgdir",
+        "pkgname",
+        "pkgrel",
+        "pkgver",
+        "pkgversion",
         "hnefatafl",
         "tafl"
     ]
