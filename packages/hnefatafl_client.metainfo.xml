@@ -3,6 +3,7 @@
   <id>org.hnefatafl.hnefatafl_client</id>
 
   <name>Hnefatafl Client</name>
+  <developer id=org.hnefatafl.david>David Lawrence Campbell</developer>
   <summary>Client that connects to a Copenhagen Hnefatafl Server.</summary>
 
   <metadata_license>MIT</metadata_license>
@@ -26,6 +27,10 @@
     <keyword>hnefatafl</keyword>
     <keyword>tafl</keyword>
   </keywords>
+
+  <content_rating type="oars-1.1">
+    <content_attribute id="social-chat">intense</content_attribute>
+  </content_rating>
 
   <url type="bugtracker">https://github.com/dcampbell24/hnefatafl-copenhagen/issues</url>
   <url type="homepage">https://hnefatafl.org/</url>
