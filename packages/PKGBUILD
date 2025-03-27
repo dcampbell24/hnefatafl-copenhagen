@@ -10,7 +10,7 @@ arch=("x86_64")
 provides=("hnefatafl-copenhagen")
 conflicts=("hnefatafl-copenhagen")
 depends=("glibc" "gcc-libs" "hicolor-icon-theme" "alsa-lib")
-makedepends=(base-devel, clang, llvm, mold, pandoc, rustup)
+makedepends=("base-devel" "clang" "llvm" "mold" "pandoc" "rustup")
 source=("https://github.com/dcampbell24/hnefatafl-copenhagen/archive/refs/tags/0.13.0.tar.gz")
 sha256sums=("973c674a85ea12f6c1fce1add98b51ea934c99e629c47bc53bfd83b93d93f4b8")
 

@@ -1,6 +1,6 @@
 #! /bin/bash -e
 
-if [ 'debian' != "$1" ] && [ 'arch' != "$1" ]; then
+if [ 'debian' != "$1" ]; then
     exit 1
 fi
 
@@ -26,13 +26,6 @@ if [ 'debian' == "$1" ]; then
     PACKAGE=$(cargo deb)
     echo $PACKAGE
     lintian $PACKAGE
-fi
-
-if [ 'arch' == "$1" ]; then
-    cargo build --release --bin hnefatafl-client --features client
-    cargo aur
-    makepkg --force --dir target/cargo-aur/
-    namcap target/cargo-aur/*.zst
 fi
 
 rm packages/hnefatafl-client.1.gz
