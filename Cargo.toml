@@ -87,6 +87,12 @@ debug = true
 panic = "abort"
 
 [package.metadata.aur]
+depends = [
+    "glibc",
+    "gcc-libs",
+    "hicolor-icon-theme",
+    "alsa-lib",
+]
 files = [
     ["icons/king_16x16.png", "/usr/share/icons/hicolor/16x16/apps/org.hnefatafl.hnefatafl_client.png"],
     ["icons/king_22x22.png", "/usr/share/icons/hicolor/22x22/apps/org.hnefatafl.hnefatafl_client.png"],
