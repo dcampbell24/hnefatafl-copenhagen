@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "alsa",
+        "devel",
         "lintian",
         "makepkg",
         "namcap",
@@ -12,6 +13,7 @@
         "pkgver",
         "pkgversion",
         "hnefatafl",
+        "rustup",
         "tafl"
     ]
 }
