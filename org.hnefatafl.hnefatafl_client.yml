@@ -9,7 +9,7 @@ sdk-extensions: [
 ]
 finish-args:
   - --share=ipc
-  - --socket=pipewire
+  - --socket=pulseaudio
   - --socket=fallback-x11
   - --socket=wayland
   - --device=dri
@@ -20,7 +20,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/dcampbell24/hnefatafl-copenhagen.git
-        tag: v0.13.1-flatpak-00
+        tag: v0.13.1-flatpak-01
       - packages/cargo-sources.json
     build-options:
       append-path: /usr/lib/sdk/llvm18/bin

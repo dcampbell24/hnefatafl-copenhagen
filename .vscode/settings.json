@@ -6,14 +6,15 @@
         "makepkg",
         "namcap",
         "pipewire",
-        "pkgdesc",
         "pandoc",
+        "pkgdesc",
         "pkgdir",
         "pkgname",
         "pkgrel",
         "pkgver",
         "pkgversion",
         "hnefatafl",
+        "pulseaudio",
         "rustup",
         "tafl"
     ]
