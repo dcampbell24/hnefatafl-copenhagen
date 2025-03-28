@@ -1,7 +1,7 @@
 # Maintainer: David Campbell <dcampbell24@gmail.com>
 
 pkgname=hnefatafl-copenhagen
-pkgver=0.13.0
+pkgver=0.13.1
 pkgrel=1
 pkgdesc="Copenhagen Hnefatafl client."
 url="https://hnefatafl.org"
