@@ -1677,19 +1677,27 @@ fn open_system_data(path: &Path, file: &str) -> Result<fs::File, anyhow::Error> 
     #[cfg(not(target_os = "linux"))]
     let file_ok = fs::File::open(path.join(file));
 
-    let linux_path = "/usr/share/hnefatafl-copenhagen";
+    let linux_path_1 = "/usr/share/hnefatafl-copenhagen";
+    let mut linux_path_2 = env::var("HOME")?;
+    linux_path_2.push_str("/.var/app/org.hnefatafl.hnefatafl_client/data");
 
     #[cfg(target_os = "linux")]
     let mut file_ok = fs::File::open(path.join(file));
     #[cfg(target_os = "linux")]
     if file_ok.is_err() {
-        file_ok = fs::File::open(PathBuf::from(linux_path).join(file));
+        file_ok = fs::File::open(PathBuf::from(linux_path_1).join(file));
+    }
+    #[cfg(target_os = "linux")]
+    if file_ok.is_err() {
+        file_ok = fs::File::open(PathBuf::from(&linux_path_2).join(file));
     }
 
     match file_ok {
         Ok(file) => Ok(file),
         Err(error) => {
-            let message = format!("can't open {file} (or {linux_path} on Linux): {error}");
+            let message = format!(
+                "can't open {file} (or {linux_path_1} or {linux_path_2} on Linux): {error}"
+            );
             debug!("{message}");
             Err(anyhow::Error::msg(message))
         }

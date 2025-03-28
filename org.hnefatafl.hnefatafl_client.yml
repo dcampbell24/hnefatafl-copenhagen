@@ -21,7 +21,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/dcampbell24/hnefatafl-copenhagen.git
-        tag: v0.13.1-flatpak-06
+        tag: v0.13.1-flatpak-07
       - packages/cargo-sources.json
     build-options:
       append-path: /usr/lib/sdk/llvm18/bin
@@ -31,13 +31,12 @@ modules:
         CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
         CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: -C link-arg=-fuse-ld=/usr/lib/sdk/rust-stable/bin/mold
     build-commands:
-      - echo $XDG_DATA_HOME
       - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline fetch --manifest-path Cargo.toml
       - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline build --release --bin hnefatafl-client --features client
       - install -Dm755 target/release/hnefatafl-client /app/bin/hnefatafl-client
-      - install -Dm644 sound/capture.ogg $XDG_DATA_HOME/hnefatafl-copenhagen/capture.ogg
-      - install -Dm644 sound/game_over.ogg $XDG_DATA_HOME/hnefatafl-copenhagen/game_over.ogg
-      - install -Dm644 sound/move.ogg $XDG_DATA_HOME/hnefatafl-copenhagen/move.ogg
+      - install -Dm644 sound/capture.ogg $XDG_DATA_HOME/capture.ogg
+      - install -Dm644 sound/game_over.ogg $XDG_DATA_HOME/game_over.ogg
+      - install -Dm644 sound/move.ogg $XDG_DATA_HOME/move.ogg
       - install -Dm644 icons/king_16x16.png /app/share/icons/hicolor/16x16/apps/$FLATPAK_ID.png
       - install -Dm644 icons/king_22x22.png /app/share/icons/hicolor/22x22/apps/$FLATPAK_ID.png
       - install -Dm644 icons/king_24x24.png /app/share/icons/hicolor/24x24/apps/$FLATPAK_ID.png
