@@ -6,6 +6,12 @@ This is a website for a [Copenhagen Hnefatafl][1] server and client.
 
 ## Binaries
 
+### Arch and Derivatives
+
+```sh
+yay --sync --noconfirm --mflags --skipinteg hnefatafl-copenhagen
+```
+
 ### Debian and Derivatives
 
 In your terminal run the following to install the hnefatafl-client:
