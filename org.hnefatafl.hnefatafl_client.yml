@@ -8,20 +8,20 @@ sdk-extensions: [
   "org.freedesktop.Sdk.Extension.llvm18"
 ]
 finish-args:
+  - --filesystem=xdg-data
   - --share=ipc
   - --socket=pulseaudio
   - --socket=fallback-x11
   - --socket=wayland
   - --device=dri
   - --share=network
-  - xdg-data
 modules:
   - name: hnefatafl_client
     buildsystem: simple
     sources:
       - type: git
         url: https://github.com/dcampbell24/hnefatafl-copenhagen.git
-        tag: v0.13.1-flatpak-03
+        tag: v0.13.1-flatpak-04
       - packages/cargo-sources.json
     build-options:
       append-path: /usr/lib/sdk/llvm18/bin
