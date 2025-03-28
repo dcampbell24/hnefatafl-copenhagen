@@ -1,7 +1,7 @@
 # Maintainer: David Campbell <dcampbell24@gmail.com>
 
 pkgname=hnefatafl-copenhagen
-pkgver=v0.13.1
+pkgver=0.13.1
 pkgrel=1
 pkgdesc="Copenhagen Hnefatafl client."
 url="https://hnefatafl.org"
@@ -15,7 +15,7 @@ source=("https://github.com/dcampbell24/hnefatafl-copenhagen/archive/refs/tags/v
 sha256sums=("b6d88368cba2d1882075a888ac30ca3d4de332be67465fa06a24fca5c78ec919")
 
 build() {
-    tar -xvzf $pkgver.tar.gz
+    tar -xvzf v0.13.1.tar.gz
     cd "$pkgname-$pkgver"
     cargo build --release --bin hnefatafl-client --features client
 
