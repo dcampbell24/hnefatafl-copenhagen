@@ -5,6 +5,7 @@
         "lintian",
         "makepkg",
         "namcap",
+        "pipewire",
         "pkgdesc",
         "pandoc",
         "pkgdir",

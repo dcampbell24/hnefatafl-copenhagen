@@ -9,6 +9,7 @@ sdk-extensions: [
 ]
 finish-args:
   - --share=ipc
+  - --socket=pipewire
   - --socket=fallback-x11
   - --socket=wayland
   - --device=dri
