@@ -631,7 +631,7 @@ impl Client {
                                             let (_stream, stream_handle) =
                                                 rodio::OutputStream::try_default()?;
 
-                                            let file = open_system_data(&path, "game_over.ogg");
+                                            let file = open_system_data(&path, "game_over.ogg")?;
                                             let sound = stream_handle.play_once(file)?;
                                             sound.set_volume(1.0);
                                             thread::sleep(Duration::from_secs(1));
@@ -1089,9 +1089,9 @@ impl Client {
 
                 let (_stream, stream_handle) = rodio::OutputStream::try_default()?;
                 let file = if capture {
-                    open_system_data(&path, "capture.ogg")
+                    open_system_data(&path, "capture.ogg")?
                 } else {
-                    open_system_data(&path, "move.ogg")
+                    open_system_data(&path, "move.ogg")?
                 };
                 let sound = stream_handle.play_once(file)?;
                 sound.set_volume(1.0);
@@ -1673,18 +1673,27 @@ fn init_logger() {
     builder.init();
 }
 
-fn open_system_data(path: &Path, file: &str) -> fs::File {
+fn open_system_data(path: &Path, file: &str) -> Result<fs::File, anyhow::Error> {
     #[cfg(not(target_os = "linux"))]
     let file_ok = fs::File::open(path.join(file));
+
+    let linux_path = "/usr/share/hnefatafl-copenhagen";
 
     #[cfg(target_os = "linux")]
     let mut file_ok = fs::File::open(path.join(file));
     #[cfg(target_os = "linux")]
     if file_ok.is_err() {
-        file_ok = fs::File::open(PathBuf::from("/usr/share/hnefatafl-copenhagen").join(file));
+        file_ok = fs::File::open(PathBuf::from(linux_path).join(file));
     }
 
-    file_ok.unwrap()
+    match file_ok {
+        Ok(file) => Ok(file),
+        Err(error) => {
+            let message = format!("can't open {file} (or {linux_path} on Linux): {error}");
+            debug!("{message}");
+            Err(anyhow::Error::msg(message))
+        }
+    }
 }
 
 fn open_url(url: &str) {
