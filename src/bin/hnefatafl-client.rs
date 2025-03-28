@@ -211,7 +211,10 @@ impl Client {
                     }
 
                     if (y, x) == (from.y, from.x) {
-                        text_ = text(arrow).size(piece_size).center();
+                        text_ = text(arrow)
+                            .size(piece_size)
+                            .shaping(text::Shaping::Advanced)
+                            .center();
                     }
                 }
 
