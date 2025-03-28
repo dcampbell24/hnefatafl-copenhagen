@@ -11,8 +11,8 @@ provides=("hnefatafl-copenhagen")
 conflicts=("hnefatafl-copenhagen")
 depends=("glibc" "gcc-libs" "hicolor-icon-theme" "alsa-lib")
 makedepends=("base-devel" "clang" "llvm" "mold" "pandoc" "rustup")
-source=("https://github.com/dcampbell24/hnefatafl-copenhagen/archive/refs/tags/0.13.0.tar.gz")
-sha256sums=("973c674a85ea12f6c1fce1add98b51ea934c99e629c47bc53bfd83b93d93f4b8")
+source=("https://github.com/dcampbell24/hnefatafl-copenhagen/archive/refs/tags/0.13.1.tar.gz")
+sha256sums=("b6d88368cba2d1882075a888ac30ca3d4de332be67465fa06a24fca5c78ec919")
 
 build() {
     tar -xvzf $pkgver.tar.gz
