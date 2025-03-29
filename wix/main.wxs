@@ -57,7 +57,7 @@
         <Property Id='DiskPrompt' Value='hnefatafl_copenhagen Installation'/>
 
         <DirectoryRef Id="ApplicationProgramsFolder">
-            <Component Id="ApplicationShortcut" Guid="F5F7E573-D830-4F00-A21A-1CFACDE89977">
+            <Component Id="ApplicationShortcut" Guid="c0e238cf-b0a9-4781-a3c6-f063cdda113e">
                 <Shortcut Id="ApplicationStartMenuShortcut"
                   Name="Hnefatafl Copenhagen"
                   Description="A Copenhagen Hnefatafl client."
