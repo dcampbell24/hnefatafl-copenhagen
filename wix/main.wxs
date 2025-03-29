@@ -56,10 +56,6 @@
         <Media Id='1' Cabinet='media1.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1'/>
         <Property Id='DiskPrompt' Value='hnefatafl_copenhagen Installation'/>
 
-        <Directory Id="ProgramMenuFolder">
-            <Directory Id="ApplicationProgramsFolder" Name="Hnefatafl Copenhagen"/>
-        </Directory>
-
         <DirectoryRef Id="ApplicationProgramsFolder">
             <Component Id="ApplicationShortcut" Guid="F5F7E573-D830-4F00-A21A-1CFACDE89977">
                 <Shortcut Id="ApplicationStartMenuShortcut"
@@ -73,6 +69,10 @@
         </DirectoryRef>
 
         <Directory Id='TARGETDIR' Name='SourceDir'>
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="Hnefatafl Copenhagen"/>
+            </Directory>
+
             <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
                 <Directory Id='APPLICATIONFOLDER' Name='hnefatafl_copenhagen'>
 
