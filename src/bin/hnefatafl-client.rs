@@ -1,9 +1,8 @@
 use std::{
     collections::{HashMap, HashSet, VecDeque},
-    env, f64, fs,
-    io::{BufRead, BufReader, Write},
+    env, f64,
+    io::{BufRead, BufReader, Cursor, Write},
     net::TcpStream,
-    path::Path,
     process::exit,
     str::FromStr,
     sync::mpsc::{self, Sender},
@@ -11,15 +10,12 @@ use std::{
     time::Duration,
 };
 
-#[cfg(target_os = "linux")]
-use std::path::PathBuf;
-
 use chrono::{Local, Utc};
 use clap::{Parser, command};
 use env_logger::Builder;
 use futures::executor;
 use hnefatafl_copenhagen::{
-    HOME, VERSION_ID,
+    VERSION_ID,
     color::Color,
     draw::Draw,
     game::Game,
@@ -626,16 +622,14 @@ impl Client {
 
                                 if !self.sound_muted {
                                     thread::spawn(move || {
-                                        if let Some(mut path) = dirs::data_dir() {
-                                            path = path.join(HOME);
-                                            let (_stream, stream_handle) =
-                                                rodio::OutputStream::try_default()?;
+                                        let (_stream, stream_handle) =
+                                            rodio::OutputStream::try_default()?;
 
-                                            let file = open_system_data(&path, "game_over.ogg")?;
-                                            let sound = stream_handle.play_once(file)?;
-                                            sound.set_volume(1.0);
-                                            thread::sleep(Duration::from_secs(1));
-                                        }
+                                        let game_over = include_bytes!("game_over.ogg");
+                                        let cursor = Cursor::new(game_over);
+                                        let sound = stream_handle.play_once(cursor)?;
+                                        sound.set_volume(1.0);
+                                        thread::sleep(Duration::from_secs(1));
 
                                         Ok::<(), anyhow::Error>(())
                                     });
@@ -1084,19 +1078,17 @@ impl Client {
 
         let capture = !self.captures.is_empty();
         thread::spawn(move || {
-            if let Some(mut path) = dirs::data_dir() {
-                path = path.join(HOME);
-
-                let (_stream, stream_handle) = rodio::OutputStream::try_default()?;
-                let file = if capture {
-                    open_system_data(&path, "capture.ogg")?
-                } else {
-                    open_system_data(&path, "move.ogg")?
-                };
-                let sound = stream_handle.play_once(file)?;
-                sound.set_volume(1.0);
-                thread::sleep(Duration::from_secs(1));
-            }
+            let (_stream, stream_handle) = rodio::OutputStream::try_default()?;
+            let cursor = if capture {
+                let capture_ogg = include_bytes!("capture.ogg").to_vec();
+                Cursor::new(capture_ogg)
+            } else {
+                let move_ogg = include_bytes!("move.ogg").to_vec();
+                Cursor::new(move_ogg)
+            };
+            let sound = stream_handle.play_once(cursor)?;
+            sound.set_volume(1.0);
+            thread::sleep(Duration::from_secs(1));
 
             Ok::<(), anyhow::Error>(())
         });
@@ -1671,37 +1663,6 @@ fn init_logger() {
     }
 
     builder.init();
-}
-
-fn open_system_data(path: &Path, file: &str) -> Result<fs::File, anyhow::Error> {
-    #[cfg(not(target_os = "linux"))]
-    let file_ok = fs::File::open(path.join(file));
-
-    let linux_path_1 = "/usr/share/hnefatafl-copenhagen";
-    let mut linux_path_2 = env::var("HOME")?;
-    linux_path_2.push_str("/.var/app/org.hnefatafl.hnefatafl_client/data");
-
-    #[cfg(target_os = "linux")]
-    let mut file_ok = fs::File::open(path.join(file));
-    #[cfg(target_os = "linux")]
-    if file_ok.is_err() {
-        file_ok = fs::File::open(PathBuf::from(linux_path_1).join(file));
-    }
-    #[cfg(target_os = "linux")]
-    if file_ok.is_err() {
-        file_ok = fs::File::open(PathBuf::from(&linux_path_2).join(file));
-    }
-
-    match file_ok {
-        Ok(file) => Ok(file),
-        Err(error) => {
-            let message = format!(
-                "can't open {file} (or {linux_path_1} or {linux_path_2} on Linux): {error}"
-            );
-            debug!("{message}");
-            Err(anyhow::Error::msg(message))
-        }
-    }
 }
 
 fn open_url(url: &str) {

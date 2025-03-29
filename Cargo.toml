@@ -22,7 +22,6 @@ anyhow = "1"
 chrono = "0.4"
 clap = { version ="4", features = ["derive"] }
 csv = "1"
-dirs = "6"
 env_logger = "0.11"
 log = "0.4"
 rand = "0.8"
@@ -40,6 +39,7 @@ webbrowser = { version = "1", optional = true }
 
 # server only
 argon2 = { version = "0.5", optional = true }
+dirs = { version = "6", optional = true }
 password-hash = { version = "0.5", optional = true }
 
 [build-dependencies]
@@ -47,7 +47,7 @@ dirs = "6"
 
 [features]
 client = ["dep:futures", "dep:iced", "dep:rodio", "dep:webbrowser"]
-server = ["dep:argon2", "dep:password-hash"]
+server = ["dep:argon2", "dep:dirs", "dep:password-hash"]
 
 [[bin]]
 name = "hnefatafl-client"
