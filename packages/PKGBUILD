@@ -45,9 +45,6 @@ package() {
     install -Dm644 "packages/README.txt" "$pkgdir/usr/share/doc/hnefatafl-copenhagen/README.txt"
     install -Dm644 "packages/hnefatafl-client.1.gz" "$pkgdir/usr/share/man/man1/hnefatafl-client.1.gz"
     install -Dm644 "packages/hnefatafl-client.desktop" "$pkgdir/usr/share/applications/hnefatafl-client.desktop"
-    install -Dm644 "sound/capture.ogg" "$pkgdir/usr/share/hnefatafl-copenhagen/capture.ogg"
-    install -Dm644 "sound/game_over.ogg" "$pkgdir/usr/share/hnefatafl-copenhagen/game_over.ogg"
-    install -Dm644 "sound/move.ogg" "$pkgdir/usr/share/hnefatafl-copenhagen/move.ogg"
 }
 
 check() {
