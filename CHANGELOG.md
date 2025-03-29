@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- hnefatafl-client: build the sound files into the executable instead of
+  packaging them separately.
+
 ## [0.13.1] - 2025-03-27
 
 - hnefatafl-client: use Shaping::Advanced on the arrows.
