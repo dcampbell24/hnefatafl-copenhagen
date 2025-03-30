@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<developer id="org.hnefatafl.david">David Lawrence Campbell</developer>
 <component type="desktop-application">
   <id>org.hnefatafl.hnefatafl_client</id>
 
   <name>Hnefatafl Client</name>
-  <developer-name id="org.hnefatafl.david">David Lawrence Campbell</developer-name>
   <summary>Client that connects to a Copenhagen Hnefatafl Server.</summary>
 
   <metadata_license>MIT</metadata_license>
