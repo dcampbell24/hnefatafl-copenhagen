@@ -58,7 +58,7 @@
 
         <DirectoryRef Id="ApplicationProgramsFolder">
             <Component Id="ApplicationShortcut" Guid="c0e238cf-b0a9-4781-a3c6-f063cdda113e">
-                <Shortcut Id="ApplicationStartMenuShortcut"
+                <Shortcut Id="Hnefatafl"
                   Name="Hnefatafl Copenhagen"
                   Description="A Copenhagen Hnefatafl client."
                   Target="[hnefatafl_client.exe]"
