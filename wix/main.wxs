@@ -61,7 +61,7 @@
                 <Shortcut Id="ApplicationStartMenuShortcut"
                   Name="Hnefatafl Copenhagen"
                   Description="A Copenhagen Hnefatafl client."
-                  Target="[#hnefatafl_client.exe]"
+                  Target="[hnefatafl_client.exe]"
                   WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
                 <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
                 <RegistryValue Root="HKCU" Key="Software\hnefatafl.org\hnefatafl-client" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
