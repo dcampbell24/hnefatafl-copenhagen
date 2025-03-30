@@ -5,6 +5,8 @@ website:
 	mkdir --parents /var/www/html/binaries/debian/
 	cp ../../hnefatafl-copenhagen_0.13.1-1_amd64.deb /var/www/html/binaries/debian/
 	sscli -b https://hnefatafl.org -r /var/www/html/
+	mkdir /var/www/html/.well-known
+	echo "fb1c1fdb-d01d-4918-911f-f4cf4b0540a0" > /var/www/html/.well-known/org.flathub.VerifiedApps.txt
 
 # Install sscli with "npm i -g static-sitemap-cli".
 
