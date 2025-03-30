@@ -28,6 +28,10 @@ sudo dpkg --remove hnefatafl-copenhagen
 
 [0.13.1_amd64](binaries/debian/hnefatafl-copenhagen_0.13.1-1_amd64.deb)
 
+### Flatpak
+
+See [flathub.org](https://flathub.org/apps/org.hnefatafl.hnefatafl_client).
+
 ## Build Dependencies (Linux)
 
 ALSA development files are needed to build `cpal` on Linux (`rodio` dependency,
