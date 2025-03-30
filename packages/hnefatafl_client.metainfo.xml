@@ -6,10 +6,15 @@
   <developer id="org.hnefatafl.david">
     <name>David Lawrence Campbell</name>
   </developer>
-  <summary>Client that connects to a Copenhagen Hnefatafl Server.</summary>
+  <summary>Copenhagen Hnefatafl client.</summary>
 
   <metadata_license>MIT</metadata_license>
   <project_license>MIT OR Apache-2.0</project_license>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#fdf6e3</color>
+    <color type="primary" scheme_preference="dark">#073642</color>
+  </branding>
 
   <description>
     <p>
