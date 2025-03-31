@@ -2,11 +2,11 @@
 <component type="desktop-application">
   <id>org.hnefatafl.hnefatafl_client</id>
 
-  <name>Hnefatafl Client</name>
+  <name>Hnefatafl</name>
   <developer id="org.hnefatafl.david">
     <name>David Lawrence Campbell</name>
   </developer>
-  <summary>Copenhagen Hnefatafl client.</summary>
+  <summary>Connect to the server</summary>
 
   <metadata_license>MIT</metadata_license>
   <project_license>MIT OR Apache-2.0</project_license>
@@ -50,8 +50,8 @@
 
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/icons/king.png</image>
-      <caption>A Hnefatafl King</caption>
+      <image>https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/website/src/opening_game.png</image>
+      <caption>Opening Position</caption>
     </screenshot>
   </screenshots>
 
