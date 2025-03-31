@@ -57,7 +57,7 @@
         <Property Id='DiskPrompt' Value='hnefatafl_copenhagen Installation'/>
 
         <DirectoryRef Id="ApplicationProgramsFolder">
-            <Component Id="hnefatafl_client" Guid="c0e238cf-b0a9-4781-a3c6-f063cdda113e">
+            <Component Id="ApplicationShortcut" Guid="c0e238cf-b0a9-4781-a3c6-f063cdda113e">
                 <Shortcut Id="Hnefatafl"
                   Name="Hnefatafl Copenhagen"
                   Description="A Copenhagen Hnefatafl client."
@@ -70,7 +70,7 @@
 
         <Directory Id='TARGETDIR' Name='SourceDir'>
             <Directory Id="ProgramMenuFolder">
-                <Directory Id="hnefatafl_copenhagen" Name="Hnefatafl Copenhagen"/>
+                <Directory Id="ApplicationProgramFolder" Name="Hnefatafl Copenhagen"/>
             </Directory>
 
             <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
@@ -87,9 +87,9 @@
                                 Action='set'
                                 System='yes'/>
                         </Component>
-                        <Component Id='hnefatafl_client_file' Guid='*'>
+                        <Component Id='hnefatafl_client' Guid='*'>
                             <File
-                                Id='hnefatafl_client'
+                                Id='Hnefatafl'
                                 Name='hnefatafl-client.exe'
                                 DiskId='1'
                                 Source='$(var.CargoTargetBinDir)\hnefatafl-client.exe'
@@ -119,7 +119,7 @@
                 Level='1'
                 Absent='allow'>
                 <ComponentRef Id='Path'/>
-                <ComponentRef Id="hnefatafl_client"/>
+                <ComponentRef Id="ApplicationShortcut"/>
             </Feature>
         </Feature>
 
