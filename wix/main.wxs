@@ -110,7 +110,7 @@
             Display='expand'
             Absent='disallow'>
 
-            <ComponentRef Id='hnefatafl_copenhagen'/>
+            <ComponentRef Id='hnefatafl_client'/>
 
             <Feature
                 Id='Environment'
