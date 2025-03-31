@@ -70,7 +70,7 @@
 
         <Directory Id='TARGETDIR' Name='SourceDir'>
             <Directory Id="ProgramMenuFolder">
-                <Directory Id="ApplicationProgramFolder" Name="Hnefatafl Copenhagen"/>
+                <Directory Id="ApplicationProgramsFolder" Name="Hnefatafl Copenhagen"/>
             </Directory>
 
             <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
