@@ -70,7 +70,7 @@
 
         <Directory Id='TARGETDIR' Name='SourceDir'>
             <Directory Id="ProgramMenuFolder">
-                <Directory Id="hnefatafl_client" Name="Hnefatafl Copenhagen"/>
+                <Directory Id="hnefatafl_copenhagen" Name="Hnefatafl Copenhagen"/>
             </Directory>
 
             <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
@@ -110,7 +110,7 @@
             Display='expand'
             Absent='disallow'>
 
-            <ComponentRef Id='hnefatafl_client'/>
+            <ComponentRef Id='hnefatafl_copenhagen'/>
 
             <Feature
                 Id='Environment'
