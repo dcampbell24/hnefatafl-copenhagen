@@ -1,0 +1,243 @@
+## Rules
+
+From [Copenhagen Hnefatafl][1] with minor changes.
+
+The Copenhagen rules were outlined 2012 by Aage Nielsen (Denmark), Adam Bartley
+(Norway) and Tim Millar (UK). English text and diagrams: Adam Bartley (Norway)
+
+Based on the version that was last updated 21.12.2024.
+
+Copyright © 1998-2025 Aage Nielsen, All Rights Reserved;
+
+`X`: attacker\
+`x`: captured attacker\
+`K`: king\
+`k`: captured king\
+`O`: defender\
+`o`: captured defender\
+`R`: restricted space
+
+[1]: https://aagenielsen.dk/copenhagen_rules.php
+
+### 1. Starting Board Position
+
+![Opening Game](opening_game.png)
+
+### 2. First Turn
+
+The attackers (black) move first.
+
+### 3. Movement
+
+You can move to the edge of the board or another piece orthogonally:
+
+![Move](move.png)
+
+### 4. Capture
+
+All pieces except the king are captured if sandwiched between two enemy
+pieces, or between an enemy piece and a restricted square. A piece is only
+captured if the trap is closed by the aggressor's move, it is therefore
+permitted to move in between two enemy pieces. The king may take part in
+captures.
+
+#### Captures
+
+```plain
+  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐
+11│R.........R│ │R.........R│ │R.........R│ │Ro........R│
+10│...........│ │...........│ │...........│ │..↑........│
+ 9│...........│ │...........│ │...........│ │..X........│
+ 8│...........│ │...........│ │...........│ │...........│
+ 7│...........│ │...........│ │...........│ │...........│
+ 6│.....R.....│ │...X.R.....│ │..K..R.....│ │.....R.....│
+ 5│.....o.....│ │...o.......│ │..↓........│ │...........│
+ 4│.X→→→......│ │.Xo.oX.....│ │...........│ │...........│
+ 3│...........│ │...↑.......│ │..x........│ │...........│
+ 2│...........│ │...X.......│ │..O........│ │...........│
+ 1│R.........R│ │R.........R│ │R.........R│ │R.........R│
+  └───────────┘ └───────────┘ └───────────┘ └───────────┘
+   ABCDEFGHJKL   ABCDEFGHJKL   ABCDEFGHJKL   ABCDEFGHJKL
+```
+
+#### Doesn't Capture
+
+```plain
+  ┌───────────┐ ┌───────────┐
+11│R.........R│ │R.........R│
+10│...........│ │...........│
+ 9│...........│ │...........│
+ 8│...........│ │...........│
+ 7│...........│ │...........│
+ 6│.....K.....│ │.....R.....│
+ 5│.....O.....│ │.O.O.......│
+ 4│.X→→→......│ │..↑........│
+ 3│...........│ │..X........│
+ 2│...........│ │...........│
+ 1│R.........R│ │R.........R│
+  └───────────┘ └───────────┘
+   ABCDEFGHJKL   ABCDEFGHJKL
+```
+
+#### Shield Wall
+
+A row of two or more taflmen along the board edge may be captured together, by
+bracketing the whole group at both ends, as long as every member of the row has
+an enemy taflman directly in front of him.
+
+A corner square may stand in for one of the bracketing pieces at one end of the
+row. The king may take part in the capture, either as part of the shield wall
+or as a bracketing piece. If the king plus one or more defenders are attacked
+with a shield wall, the attack will capture the defenders but not the king.
+
+```plain
+  ┌───────────┐ ┌───────────┐
+11│R.........R│ │R.........R│
+10│...........│ │...........│
+ 9│...........│ │...........│
+ 8│...........│ │...........│
+ 7│...........│ │...........│
+ 6│.....R.....│ │.....R.....│
+ 5│...........│ │...........│
+ 4│...........│ │...........│
+ 3│..O........│ │...........│
+ 2│..↓OOO.....│ │........XX.│
+ 1│R..xxxO...R│ │R....X→.KoR│
+  └───────────┘ └───────────┘
+   ABCDEFGHJKL   ABCDEFGHJKL
+```
+
+### 5. Restricted Squares
+
+Restricted squares may only be occupied by the king. The central restricted
+square is called the throne. It is allowed for the king to re-enter the throne,
+and all pieces may pass through the throne when it is empty.
+
+Restricted squares are hostile, which means they can replace one of the two
+pieces taking part in a capture. The throne is always hostile to the attackers,
+but only hostile to the defenders when it is empty.
+
+The four corner squares are also restricted and hostile, just like the throne.
+The board edge is _NOT_ hostile.
+
+```plain
+  ┌───────────┐
+11│R.........R│
+10│...........│
+ 9│...........│
+ 8│...........│
+ 7│...........│
+ 6│.....R.....│
+ 5│...........│
+ 4│...........│
+ 3│...........│
+ 2│...........│
+ 1│R.........R│
+  └───────────┘
+   ABCDEFGHJKL
+```
+
+### 6. King's Side Win (Defenders)
+
+If the king reaches any corner square, the king has escaped and his side wins.
+
+![Defender Wins](defender_wins.png)
+
+#### Exit Forts
+
+The defenders also win if the king has contact with the board edge, is able to
+move, and it is impossible for the attackers to break the fort.
+
+```plain
+  ┌───────────┐ ┌───────────┐
+11│R.........R│ │R.........R│
+10│...........│ │...........│
+ 9│...........│ │...........│
+ 8│...........│ │...........│
+ 7│...........│ │...........│
+ 6│.....R.....│ │.....R.....│
+ 5│...........│ │...........│
+ 4│...........│ │...........│
+ 3│...........│ │....OO.....│
+ 2│....OO.....│ │....O.O....│
+ 1│R..OK.O...R│ │R...OKO...R│
+  └───────────┘ └───────────┘
+   ABCDEFGHJKL   ABCDEFGHJKL
+```
+
+### 7. Attackers Win
+
+The attackers win if they can capture the king.
+
+The king is captured when the attackers surround him on all four cardinal
+points, except when he is next to the throne.
+
+If on a square next to the throne, the attackers must occupy the three remaining
+squares around him.
+
+The king cannot be captured on the board edge.
+
+#### The King is Captured
+
+```plain
+  ┌───────────┐ ┌───────────┐ ┌───────────┐
+11│R.........R│ │R.........R│ │R.........R│
+10│...........│ │...........│ │...........│
+ 9│...........│ │...........│ │...........│
+ 8│...........│ │...........│ │...........│
+ 7│.....X.....│ │...........│ │...........│
+ 6│....XkX....│ │.....R.....│ │.....R.....│
+ 5│.....X.....│ │....XkX....│ │...........│
+ 4│...........│ │.....X.....│ │....X......│
+ 3│...........│ │...........│ │...XkX.....│
+ 2│...........│ │...........│ │....X......│
+ 1│R.........R│ │R.........R│ │R.........R│
+  └───────────┘ └───────────┘ └───────────┘
+   ABCDEFGHJKL   ABCDEFGHJKL   ABCDEFGHJKL
+```
+
+If the attackers surround the king and _ALL_ remaining defenders with an
+unbroken ring, then they win, as they have prevented the king from escaping.
+
+![Attacker Wins](attacker_wins.png)
+
+#### The King is Not Captured
+
+```plain
+  ┌───────────┐ ┌───────────┐
+11│R.........R│ │R.........R│
+10│...........│ │...........│
+ 9│...........│ │...........│
+ 8│...........│ │...........│
+ 7│...........│ │...........│
+ 6│.....R.....│ │.....R.....│
+ 5│...........│ │...........│
+ 4│...........│ │...........│
+ 3│...........│ │...........│
+ 2│....X......│ │.X.........│
+ 1│R..XKX....R│ │RKX.......R│
+  └───────────┘ └───────────┘
+   ABCDEFGHJKL   ABCDEFGHJKL
+```
+
+### 8. Perpetual Repetitions
+
+Perpetual repetitions are forbidden. Any perpetual repetition results in a loss
+for white.
+
+#### Added Rule
+
+If white (the defender) would repeat a board position, the move is not allowed.
+
+### 9. Automatic Loss
+
+If a player cannot move, he loses the game.
+
+NOT IMPLEMENTED YET BELOW THIS LINE
+
+---
+
+### 10. Draw (not possible?)
+
+If it is not possible to end the game, for example because both sides have too
+few pieces left, it is a draw.
