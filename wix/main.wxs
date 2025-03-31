@@ -87,7 +87,7 @@
                                 Action='set'
                                 System='yes'/>
                         </Component>
-                        <Component Id='hnefatafl_client' Guid='*'>
+                        <Component Id='hnefatafl_client_file' Guid='*'>
                             <File
                                 Id='hnefatafl_client'
                                 Name='hnefatafl-client.exe'
