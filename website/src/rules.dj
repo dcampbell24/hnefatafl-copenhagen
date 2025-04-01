@@ -57,7 +57,7 @@ captures.
  2│...........│ │...X.......│ │..O........│ │...........│
  1│R.........R│ │R.........R│ │R.........R│ │R.........R│
   └───────────┘ └───────────┘ └───────────┘ └───────────┘
-   ABCDEFGHJKL   ABCDEFGHJKL   ABCDEFGHJKL   ABCDEFGHJKL
+   ABCDEFGHIJK   ABCDEFGHIJK   ABCDEFGHIJK   ABCDEFGHIJK
 ```
 
 #### Doesn't Capture
@@ -76,7 +76,7 @@ captures.
  2│...........│ │...........│
  1│R.........R│ │R.........R│
   └───────────┘ └───────────┘
-   ABCDEFGHJKL   ABCDEFGHJKL
+   ABCDEFGHIJK   ABCDEFGHIJK
 ```
 
 #### Shield Wall
@@ -104,7 +104,7 @@ with a shield wall, the attack will capture the defenders but not the king.
  2│..↓OOO.....│ │........XX.│
  1│R..xxxO...R│ │R....X→.KoR│
   └───────────┘ └───────────┘
-   ABCDEFGHJKL   ABCDEFGHJKL
+   ABCDEFGHIJK   ABCDEFGHIJK
 ```
 
 ### 5. Restricted Squares
@@ -134,7 +134,7 @@ The board edge is _NOT_ hostile.
  2│...........│
  1│R.........R│
   └───────────┘
-   ABCDEFGHJKL
+   ABCDEFGHIJK
 ```
 
 ### 6. King's Side Win (Defenders)
@@ -162,7 +162,7 @@ move, and it is impossible for the attackers to break the fort.
  2│....OO.....│ │....O.O....│
  1│R..OK.O...R│ │R...OKO...R│
   └───────────┘ └───────────┘
-   ABCDEFGHJKL   ABCDEFGHJKL
+   ABCDEFGHIJK   ABCDEFGHIJK
 ```
 
 ### 7. Attackers Win
@@ -193,7 +193,7 @@ The king cannot be captured on the board edge.
  2│...........│ │...........│ │....X......│
  1│R.........R│ │R.........R│ │R.........R│
   └───────────┘ └───────────┘ └───────────┘
-   ABCDEFGHJKL   ABCDEFGHJKL   ABCDEFGHJKL
+   ABCDEFGHIJK   ABCDEFGHIJK   ABCDEFGHIJK
 ```
 
 If the attackers surround the king and _ALL_ remaining defenders with an
@@ -217,7 +217,7 @@ unbroken ring, then they win, as they have prevented the king from escaping.
  2│....X......│ │.X.........│
  1│R..XKX....R│ │RKX.......R│
   └───────────┘ └───────────┘
-   ABCDEFGHJKL   ABCDEFGHJKL
+   ABCDEFGHIJK   ABCDEFGHIJK
 ```
 
 ### 8. Perpetual Repetitions
