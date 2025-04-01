@@ -100,26 +100,30 @@ pub fn hnefatafl_rs() -> anyhow::Result<()> {
         })
         .collect();
 
-    for result in results {
+    // let mut already_played = 0;
+    for result in &results {
         match result {
             Ok((i, game)) => {
                 if game.status != Status::Ongoing {
-                    assert_eq!(game.status, records[i].status);
+                    assert_eq!(game.status, records[*i].status);
                 }
-                if i > count {
-                    count = i;
+                if i > &count {
+                    count = *i;
                 }
             }
             Err(error) => {
                 if error.to_string()
                     == anyhow::Error::msg("play: you already reached that position").to_string()
                 {
+                    // already_played += 1;
                 } else {
-                    return Err(error);
+                    return Err(anyhow::Error::msg(error.to_string()));
                 }
             }
         }
     }
+
+    // println!("already played error: {}", f64::from(already_played) / results.len() as f64);
 
     Ok(())
 }
