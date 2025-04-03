@@ -590,11 +590,6 @@ impl Client {
                                         },
                                     );
                                 }
-
-                                let mut users: Vec<_> = self.users.values().collect();
-                                users.sort_by(|a, b| {
-                                    b.rating.rating.partial_cmp(&a.rating.rating).unwrap()
-                                });
                             }
                             Some("draw") => {
                                 self.request_draw = false;
@@ -971,6 +966,16 @@ impl Client {
     }
 
     #[must_use]
+    fn users_sorted(&self) -> Vec<User> {
+        let mut users: Vec<_> = self.users.values().cloned().collect();
+
+        users.sort_by(|a, b| b.name.cmp(&a.name));
+        users.sort_by(|a, b| b.rating.rating.partial_cmp(&a.rating.rating).unwrap());
+
+        users
+    }
+
+    #[must_use]
     fn games(&self) -> Scrollable<Message> {
         let mut game_ids = Column::new().spacing(SPACING_B);
         let mut attackers = Column::new().spacing(SPACING_B);
@@ -1102,13 +1107,13 @@ impl Client {
         let mut losses = Column::new();
         let mut draws = Column::new();
 
-        for user in self.users.values() {
+        for user in self.users_sorted() {
             if logged_in == user.logged_in {
                 ratings = ratings.push(text(user.rating.to_string_rounded()));
-                usernames = usernames.push(text(&user.name));
-                wins = wins.push(text(&user.wins));
-                losses = losses.push(text(&user.losses));
-                draws = draws.push(text(&user.draws));
+                usernames = usernames.push(text(user.name));
+                wins = wins.push(text(user.wins));
+                losses = losses.push(text(user.losses));
+                draws = draws.push(text(user.draws));
             }
         }
 
