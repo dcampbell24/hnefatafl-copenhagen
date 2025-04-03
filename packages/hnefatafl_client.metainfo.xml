@@ -6,7 +6,7 @@
   <developer id="org.hnefatafl.david">
     <name>David Lawrence Campbell</name>
   </developer>
-  <summary>Connect to the server</summary>
+  <summary>Play Copenhagen Hnefatafl</summary>
 
   <metadata_license>MIT</metadata_license>
   <project_license>MIT OR Apache-2.0</project_license>
