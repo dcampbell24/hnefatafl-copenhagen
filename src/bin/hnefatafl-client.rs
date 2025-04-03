@@ -66,6 +66,10 @@ fn main() -> anyhow::Result<()> {
         .default_font(Font::MONOSPACE)
         .subscription(Client::subscriptions)
         .theme(Client::theme)
+        .window_size(iced::Size {
+            width: 1_000.0,
+            height: 700.0,
+        })
         .run()?;
 
     Ok(())
@@ -1228,9 +1232,8 @@ impl Client {
                         text(self.time_attacker.fmt_shorthand()).size(40).center(),
                         text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(format!("{} {}", self.attacker, captured.white()))
-                                .shaping(text::Shaping::Advanced)
-                                .center(),
+                            text(self.attacker.to_string()),
+                            text(captured.white().to_string()).shaping(text::Shaping::Advanced),
                             text(attacker_rating.to_string()).center(),
                         ]
                     ]
@@ -1239,9 +1242,8 @@ impl Client {
                         text(self.time_defender.fmt_shorthand()).size(40).center(),
                         text("🛡").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(format!("{} {}", self.defender, captured.black()))
-                                .shaping(text::Shaping::Advanced)
-                                .center(),
+                            text(self.defender.to_string()),
+                            text(captured.black().to_string()).shaping(text::Shaping::Advanced),
                             text(defender_rating.to_string()).center(),
                         ]
                     ]
