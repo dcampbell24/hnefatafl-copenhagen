@@ -1,8 +1,8 @@
 ---
 hnefatafl-copenhagen:
   description: A client and server for Copenhagen Hnefatafl.
-  source: 
-    Types: deb
+  source:
+    Types: deb deb-src
     URIs: https://debian.hnefatafl.org
     Suites: stable
     Components: main
@@ -10,6 +10,9 @@ hnefatafl-copenhagen:
 
   suites:
   - bookworm
+
+  components:
+  - main
 
   policies:
     main: main
