@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- A change to force updating the hash. -->
 <component type="desktop-application">
   <id>org.hnefatafl.hnefatafl_client</id>
 
@@ -13,8 +12,8 @@
   <project_license>MIT OR Apache-2.0</project_license>
 
   <branding>
-    <color type="primary" scheme_preference="light">#fdf6e3</color>
-    <color type="primary" scheme_preference="dark">#073642</color>
+    <color type="primary" scheme_preference="light">#eee8d5</color>
+    <color type="primary" scheme_preference="dark">#859900</color>
   </branding>
 
   <description>
