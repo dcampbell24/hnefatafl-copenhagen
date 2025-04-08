@@ -1112,7 +1112,7 @@ impl Server {
                 }
             }
             None => return (self.clients[&index_supplied].clone(), false, command),
-        };
+        }
 
         if remove {
             self.games_light.0.remove(&id);

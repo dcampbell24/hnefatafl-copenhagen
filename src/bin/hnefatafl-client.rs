@@ -1,6 +1,7 @@
 use std::{
     collections::{HashMap, HashSet, VecDeque},
     env, f64,
+    fmt::Write as fmt_write,
     io::{BufRead, BufReader, Cursor, Write},
     net::TcpStream,
     process::exit,
@@ -1187,7 +1188,7 @@ impl Client {
                             .on_input(Message::PasswordChanged)
                             .on_submit(Message::TextSend),
                     ]);
-                };
+                }
                 columns = columns.push(
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow),
                 );
@@ -1275,7 +1276,7 @@ impl Client {
 
                     let mut spectator = spectator.to_string();
                     if let Some(user) = self.users.get(&spectator) {
-                        spectator.push_str(&format!(" ({})", user.rating));
+                        let _ok = write!(spectator, " ({})", user.rating);
                     }
                     spectators = spectators.push(text(spectator.to_string()));
                 }
@@ -1414,7 +1415,7 @@ impl Client {
                     if game.attacker.is_some() && game.defender.is_some() {
                         buttons_live = true;
                     }
-                };
+                }
 
                 let mut buttons = if self.challenger {
                     row![button("Leave").on_press(Message::Leave)]
