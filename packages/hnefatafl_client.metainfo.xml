@@ -12,8 +12,8 @@
   <project_license>MIT OR Apache-2.0</project_license>
 
   <branding>
-    <color type="primary" scheme_preference="light">#eee8d5</color>
-    <color type="primary" scheme_preference="dark">#859900</color>
+    <color type="primary" scheme_preference="light">#fcf9c2</color>
+    <color type="primary" scheme_preference="dark">#adadd2</color>
   </branding>
 
   <description>
