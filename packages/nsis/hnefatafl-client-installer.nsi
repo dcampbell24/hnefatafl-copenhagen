@@ -12,7 +12,7 @@
 
   ;Name and file
   Name "Hnefatafl"
-  OutFile "hnefatafl-client-installer.exe"
+  OutFile "..\hnefatafl-copenhagen\tools\hnefatafl-client-installer.exe"
   Unicode True
 
   ;Default installation folder

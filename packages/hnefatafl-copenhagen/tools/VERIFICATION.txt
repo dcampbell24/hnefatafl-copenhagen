@@ -1,0 +1,6 @@
+﻿You can use checksum.exe (choco install checksum).
+checksum -t sha256 -f hnefatafl-client-installer
+
+7673B5702855707794A13EE8085322F10A8F167291BF3055A0D877313766C4DC
+
+I am the software author.
