@@ -38,3 +38,8 @@ and building the software.
 ## Rules
 
 See the [Rules](https://hnefatafl.org/rules.html) for how to play.
+
+## Icon
+
+The icon used for the flathub version of the hnefatafl-client was created by
+Marvin T. [@marvintubat123](https://www.freelancer.com/u/marvintubat123).
