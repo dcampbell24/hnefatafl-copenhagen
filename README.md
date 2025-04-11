@@ -41,5 +41,8 @@ See the [Rules](https://hnefatafl.org/rules.html) for how to play.
 
 ## Icon
 
-The icon used for the flathub version of the hnefatafl-client was created by
-Marvin T. [@marvintubat123](https://www.freelancer.com/u/marvintubat123).
+The [icon] used for the flathub version of the hnefatafl-client was created by
+Marvin T. [@marvintubat123].
+
+[icon]: https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/icons/king.svg
+[@marvintubat123]: https://www.freelancer.com/u/marvintubat123
