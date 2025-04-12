@@ -87,7 +87,7 @@ You may have to install `cargo-deb`.
 git clone https://github.com/dcampbell24/hnefatafl-copenhagen.git
 cd hnefatafl-copenhagen/
 git checkout v0.13.1
-./debian/build.sh
+packages/build.sh debian
 sudo dpkg --install ./target/debian/hnefatafl-copenhagen_0.13.1-1_amd64.deb
 ```
 
