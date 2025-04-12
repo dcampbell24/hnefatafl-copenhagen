@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- hnefatafl-client: decrease starting size of the window and fix formatting.
+- hnefatafl-client: add a tiny screen size.
 - hnefatafl-client: sort the players by rating.
 - hnefatafl-client: build the sound files into the executable instead of
   packaging them separately.
