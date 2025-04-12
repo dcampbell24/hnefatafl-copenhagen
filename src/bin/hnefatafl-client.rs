@@ -67,10 +67,6 @@ fn main() -> anyhow::Result<()> {
         .default_font(Font::MONOSPACE)
         .subscription(Client::subscriptions)
         .theme(Client::theme)
-        .window_size(iced::Size {
-            width: 1_000.0,
-            height: 700.0,
-        })
         .run()?;
 
     Ok(())
@@ -137,8 +133,9 @@ impl Client {
         let letters: Vec<_> = BOARD_LETTERS.chars().collect();
         let (board_size, letter_size, piece_size, spacing) = match self.screen_size {
             Size::Large => (75, 55, 60, 6),
-            Size::Medium => (65, 45, 50, 4),
-            Size::Small => (50, 38, 35, 3),
+            Size::Medium => (65, 45, 50, 8),
+            Size::Small => (55, 35, 40, 11),
+            Size::Tiny => (40, 20, 25, 16),
         };
 
         let Some(game) = &self.game else {
@@ -963,8 +960,10 @@ impl Client {
                     self.screen_size = Size::Large;
                 } else if width >= 1_200.0 && height >= 850.0 {
                     self.screen_size = Size::Medium;
-                } else {
+                } else if width >= 1_000.0 && height >= 750.0 {
                     self.screen_size = Size::Small;
+                } else {
+                    self.screen_size = Size::Tiny;
                 }
             }
         }
@@ -1681,6 +1680,7 @@ fn open_url(url: &str) {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 enum Size {
+    Tiny,
     #[default]
     Small,
     Medium,
