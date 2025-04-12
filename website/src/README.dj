@@ -7,13 +7,17 @@ This is a website for a [Copenhagen Hnefatafl][1] server and client. See the
 
 ## Binaries
 
-### Arch and Derivatives
+### Arch and Derivatives (Linux)
 
 ```sh
 yay --sync --noconfirm --mflags --skipinteg hnefatafl-copenhagen
 ```
 
-### Debian and Derivatives
+### Chocolatey (Windows)
+
+See [chocolatey.org](https://community.chocolatey.org/packages/hnefatafl-copenhagen/).
+
+### Debian and Derivatives (Linux)
 
 In your terminal run the following to install the hnefatafl-client:
 
@@ -29,7 +33,7 @@ sudo dpkg --remove hnefatafl-copenhagen
 
 [0.13.1_amd64](binaries/debian/hnefatafl-copenhagen_0.13.1-1_amd64.deb)
 
-### Flatpak
+### Flatpak (Linux)
 
 See [flathub.org](https://flathub.org/apps/org.hnefatafl.hnefatafl_client).
 
