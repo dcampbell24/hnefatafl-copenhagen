@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Update the screenshots. -->
 <component type="desktop-application">
   <id>org.hnefatafl.hnefatafl_client</id>
 
@@ -13,8 +12,8 @@
   <project_license>MIT OR Apache-2.0</project_license>
 
   <branding>
-    <color type="primary" scheme_preference="light">#fcf9c2</color>
-    <color type="primary" scheme_preference="dark">#adadd2</color>
+    <color type="primary" scheme_preference="light">#5ad4ce</color>
+    <color type="primary" scheme_preference="dark">#07807a</color>
   </branding>
 
   <description>
