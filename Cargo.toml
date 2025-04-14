@@ -46,7 +46,7 @@ password-hash = { version = "0.5", optional = true }
 dirs = "6"
 
 [features]
-other_rgba = []
+icon_2 = []
 client = ["dep:futures", "dep:iced", "dep:rodio", "dep:webbrowser"]
 server = ["dep:argon2", "dep:dirs", "dep:password-hash"]
 

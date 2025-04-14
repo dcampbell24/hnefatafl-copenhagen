@@ -19,7 +19,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/dcampbell24/hnefatafl-copenhagen.git
-        tag: v0.13.1-flatpak-23
+        tag: v0.13.1-flatpak-24
       - cargo-sources.json
     build-options:
       append-path: /usr/lib/sdk/llvm18/bin
@@ -32,7 +32,7 @@ modules:
         CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: -C link-arg=-fuse-ld=/usr/lib/sdk/rust-stable/bin/mold
     build-commands:
       - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline fetch --manifest-path Cargo.toml
-      - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline build --release --bin hnefatafl-client --features client,other_rgba
+      - source /usr/lib/sdk/rust-stable/enable.sh && cargo --offline build --release --bin hnefatafl-client --features client,icon_2
       - install -Dm755 target/release/hnefatafl-client /app/bin/hnefatafl-client
       - install -Dm644 icons/king.svg /app/share/icons/hicolor/scalable/apps/$FLATPAK_ID.svg
       - install -Dm644 packages/hnefatafl-client.desktop /app/share/applications/$FLATPAK_ID.desktop
