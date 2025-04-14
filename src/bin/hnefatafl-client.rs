@@ -41,6 +41,7 @@ use iced::{
         Column, Container, Row, Scrollable, button, checkbox, column, container, radio, row,
         scrollable, text, text_input, tooltip,
     },
+    window::{Settings, icon},
 };
 use log::{LevelFilter, debug, error, info, trace};
 
@@ -63,10 +64,16 @@ struct Args {
 fn main() -> anyhow::Result<()> {
     init_logger();
 
+    let king = include_bytes!("king_256x256.rgba").to_vec();
+
     iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
         .default_font(Font::MONOSPACE)
         .subscription(Client::subscriptions)
         .theme(Client::theme)
+        .window(Settings {
+            icon: Some(icon::from_rgba(king, 256, 256)?),
+            ..Settings::default()
+        })
         .run()?;
 
     Ok(())
