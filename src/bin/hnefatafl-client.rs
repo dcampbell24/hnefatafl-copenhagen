@@ -64,7 +64,11 @@ struct Args {
 fn main() -> anyhow::Result<()> {
     init_logger();
 
+    #[cfg(not(feature = "other_rgba"))]
     let king = include_bytes!("king_256x256.rgba").to_vec();
+
+    #[cfg(feature = "other_rgba")]
+    let king = include_bytes!("king_other_256x256.rgba").to_vec();
 
     iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
         .default_font(Font::MONOSPACE)

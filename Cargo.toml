@@ -46,6 +46,7 @@ password-hash = { version = "0.5", optional = true }
 dirs = "6"
 
 [features]
+other_rgba = []
 client = ["dep:futures", "dep:iced", "dep:rodio", "dep:webbrowser"]
 server = ["dep:argon2", "dep:dirs", "dep:password-hash"]
 
@@ -92,7 +93,7 @@ panic = "abort"
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
 extended-description = "The engine is similar to the Go Text Protocol."
-features = ["client", "server"]
+features = ["client", "other_rgba", "server"]
 assets = [
     ["icons/king_16x16.png", "usr/share/icons/hicolor/16x16/apps/org.hnefatafl.hnefatafl_client.png", "644"],
     ["icons/king_22x22.png", "usr/share/icons/hicolor/22x22/apps/org.hnefatafl.hnefatafl_client.png", "644"],
