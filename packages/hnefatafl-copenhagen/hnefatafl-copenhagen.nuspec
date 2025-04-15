@@ -4,7 +4,7 @@
   <metadata>
     <!-- == PACKAGE SPECIFIC SECTION == -->
     <id>hnefatafl-copenhagen</id>
-    <version>0.13.1-choco-00</version>
+    <version>0.13.2</version>
     <packageSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/packages/hnefatafl-copenhagen</packageSourceUrl>
     <owners>David Lawrence Campbell</owners>
     <!-- ============================== -->
