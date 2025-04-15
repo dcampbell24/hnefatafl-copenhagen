@@ -42,9 +42,6 @@ argon2 = { version = "0.5", optional = true }
 dirs = { version = "6", optional = true }
 password-hash = { version = "0.5", optional = true }
 
-[build-dependencies]
-dirs = "6"
-
 [features]
 icon_2 = []
 client = ["dep:futures", "dep:iced", "dep:rodio", "dep:webbrowser"]
