@@ -17,7 +17,7 @@
 
   ;Default installation folder
   InstallDir "$LOCALAPPDATA\hnefatafl-copenhagen"
-  
+
   ;Get installation folder from registry if available
   InstallDirRegKey HKCU "Software\hnefatafl-copenhagen" ""
 
@@ -36,13 +36,13 @@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
-  
+
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
-  
+
 ;--------------------------------
 ;Languages
- 
+
   !insertmacro MUI_LANGUAGE "English"
 
 ;--------------------------------
@@ -51,13 +51,13 @@
 Section "Hnefatafl" SecHnefatafl
 
   SetOutPath "$INSTDIR"
-  
+
   File "..\..\target\release\hnefatafl-client.exe"
   File "king_256x256.ico"
-  
+
   ;Store installation folder
   WriteRegStr HKCU "Software\hnefatafl-copenhagen" "" $INSTDIR
-  
+
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
 
