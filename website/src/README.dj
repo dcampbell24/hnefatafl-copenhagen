@@ -47,17 +47,6 @@ ALSA development files are needed to build `cpal` on Linux (`rodio` dependency,
 The package uses the `mold` linker. This is provided via the `mold`
 package on Arch, Debian, Ubuntu, and Fedora.
 
-To build the man pages you will need a version of `pandoc` that supports
-building Djot files. It can be downloaded from [pandoc][4].
-
-[4]: https://github.com/jgm/pandoc/releases/latest
-
-To verify that the debian package doesn't have problems, we use lintian:
-
-```sh
-sudo apt install lintian
-```
-
 ## Install
 
 In your terminal run the following to install the client with [Rust's][2] cargo:
@@ -78,19 +67,5 @@ You will automatically connect to the main server.
 
 At the moment their may be fairly regular updates. If you run into problems,
 make sure you are running the latest version.
-
-## Install .deb Package
-
-You may have to install `cargo-deb`.
-
-```sh
-git clone https://github.com/dcampbell24/hnefatafl-copenhagen.git
-cd hnefatafl-copenhagen/
-git checkout v0.13.2
-packages/build.sh debian
-sudo dpkg --install ./target/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb
-```
-
-[3]: https://github.com/dcampbell24/hnefatafl-copenhagen/issues
 
 `<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://hnefatafl.org">Hnefatafl Org</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://dlc.name">David Lawrence Campbell</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""></a></p>`{=html}

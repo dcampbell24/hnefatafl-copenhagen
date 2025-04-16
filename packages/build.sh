@@ -4,6 +4,7 @@ if [ 'debian' != "$1" ]; then
     exit 1
 fi
 
+# https://github.com/jgm/pandoc/releases/latest
 pandoc\
     --variable=title:hnefatafl-client\
     --variable=section:1\
