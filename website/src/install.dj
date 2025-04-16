@@ -1,10 +1,3 @@
-This is a website for a [Copenhagen Hnefatafl][1] server and client. See the 
-[Rules](rules.html) for how to play.
-
-[1]: https://aagenielsen.dk/copenhagen_rules.php
-
-![Hnefatafl Board](hnefatafl.png)
-
 ## Arch and Derivatives (Linux)
 
 ```sh
