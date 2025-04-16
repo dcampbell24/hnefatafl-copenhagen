@@ -5,19 +5,17 @@ This is a website for a [Copenhagen Hnefatafl][1] server and client. See the
 
 ![Hnefatafl Board](hnefatafl.png)
 
-## Binaries
-
-### Arch and Derivatives (Linux)
+## Arch and Derivatives (Linux)
 
 ```sh
 yay --sync --noconfirm --mflags --skipinteg hnefatafl-copenhagen
 ```
 
-### Chocolatey (Windows)
+## Chocolatey (Windows)
 
 See [chocolatey.org](https://community.chocolatey.org/packages/hnefatafl-copenhagen/).
 
-### Debian and Derivatives (Linux)
+## Debian and Derivatives (Linux)
 
 In your terminal run the following to install the hnefatafl-client:
 
@@ -33,11 +31,13 @@ sudo dpkg --remove hnefatafl-copenhagen
 
 [0.13.2_amd64](binaries/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb)
 
-### Flatpak (Linux)
+## Flatpak (Linux)
 
 See [flathub.org](https://flathub.org/apps/org.hnefatafl.hnefatafl_client).
 
-## Build Dependencies (Linux)
+## Cargo (Linux, macOS, Windows)
+
+### Dependencies (Linux)
 
 ALSA development files are needed to build `cpal` on Linux (`rodio` dependency,
 `hnefatafl-client` dependency). These are provided as part of the
@@ -47,7 +47,7 @@ ALSA development files are needed to build `cpal` on Linux (`rodio` dependency,
 The package uses the `mold` linker. This is provided via the `mold`
 package on Arch, Debian, Ubuntu, and Fedora.
 
-## Install
+### Install
 
 In your terminal run the following to install the client with [Rust's][2] cargo:
 
@@ -63,7 +63,7 @@ Then run the client:
 hnefatafl-client
 ```
 
-You will automatically connect to the main server.
+## Note
 
 At the moment their may be fairly regular updates. If you run into problems,
 make sure you are running the latest version.
