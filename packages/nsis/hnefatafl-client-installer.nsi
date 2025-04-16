@@ -1,6 +1,5 @@
-;NSIS Modern User Interface
-;Basic Example Script
-;Written by Joost Verburg
+;Hnefatafl Copenhagen
+;Written by David Lawrence Campbell
 
 ;--------------------------------
 ;Include Modern UI
