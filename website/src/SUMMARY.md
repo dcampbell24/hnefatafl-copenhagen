@@ -1,6 +1,5 @@
 # Copenhagen Hnefatafl
 
-- [Install](README.dj)
+- [Homepage](README.dj)
+- [Install](install.dj)
 - [Rules](rules.dj)
-- [Facebook](facebook.dj)
-- [Help Me](help_me.dj)

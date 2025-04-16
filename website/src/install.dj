@@ -1,0 +1,71 @@
+This is a website for a [Copenhagen Hnefatafl][1] server and client. See the 
+[Rules](rules.html) for how to play.
+
+[1]: https://aagenielsen.dk/copenhagen_rules.php
+
+![Hnefatafl Board](hnefatafl.png)
+
+## Arch and Derivatives (Linux)
+
+```sh
+yay --sync --noconfirm --mflags --skipinteg hnefatafl-copenhagen
+```
+
+## Chocolatey (Windows)
+
+See [chocolatey.org](https://community.chocolatey.org/packages/hnefatafl-copenhagen/).
+
+## Debian and Derivatives (Linux)
+
+In your terminal run the following to install the hnefatafl-client:
+
+```sh
+sudo dpkg --install hnefatafl-copenhagen_0.13.2-1_amd64.deb
+```
+
+It can be removed by running:
+
+```sh
+sudo dpkg --remove hnefatafl-copenhagen
+```
+
+[0.13.2_amd64](binaries/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb)
+
+## Flatpak (Linux)
+
+See [flathub.org](https://flathub.org/apps/org.hnefatafl.hnefatafl_client).
+
+## Cargo (Linux, macOS, Windows)
+
+### Dependencies (Linux)
+
+ALSA development files are needed to build `cpal` on Linux (`rodio` dependency,
+`hnefatafl-client` dependency). These are provided as part of the
+`alsa-lib` package on Arch, `libasound2-dev` package on Debian and Ubuntu, and
+`alsa-lib-devel` on Fedora.
+
+The package uses the `mold` linker. This is provided via the `mold`
+package on Arch, Debian, Ubuntu, and Fedora.
+
+### Install
+
+In your terminal run the following to install the client with [Rust's][2] cargo:
+
+```sh
+cargo install hnefatafl-copenhagen --features client
+```
+
+[2]: https://www.rust-lang.org/learn/get-started
+
+Then run the client:
+
+```sh
+hnefatafl-client
+```
+
+## Note
+
+At the moment their may be fairly regular updates. If you run into problems,
+make sure you are running the latest version.
+
+`<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><a property="dct:title" rel="cc:attributionURL" href="https://hnefatafl.org">Hnefatafl Org</a> by <a rel="cc:attributionURL dct:creator" property="cc:attributionName" href="https://dlc.name">David Lawrence Campbell</a> is licensed under <a href="https://creativecommons.org/licenses/by/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""></a></p>`{=html}
