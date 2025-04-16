@@ -21,7 +21,8 @@
     <docsUrl>https://docs.rs/hnefatafl-copenhagen/latest/hnefatafl_copenhagen/</docsUrl>
     <!--<mailingListUrl></mailingListUrl>-->
     <bugTrackerUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/issues</bugTrackerUrl>
-    <tags>board-game, copenhagen, hnefatafl, tafl</tags>
+    <tags>board-game copenhagen hnefatafl tafl</tags>
+    <releaseNotes>https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CHANGELOG.md</releaseNotes>
     <summary>Copenhagen Hnefatafl</summary>
     <description>Copenhagen Hnefatafl client that connects to a server.</description>
     <!-- =============================== -->
