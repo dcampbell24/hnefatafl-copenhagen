@@ -1,5 +1,5 @@
 ﻿$ErrorActionPreference = 'Stop'
-$toolsDir   = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
+$toolsDir     = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 $fileLocation = Join-Path $toolsDir 'hnefatafl-client-installer.exe'
 
 $packageArgs = @{
@@ -11,13 +11,14 @@ $packageArgs = @{
   softwareName  = 'Hnefatafl'
 
   # You can use checksum.exe (choco install checksum)
-  # checksum -t sha256 -f path\to\file
-  checksum64    = '7673B5702855707794A13EE8085322F10A8F167291BF3055A0D877313766C4DC'
-  checksumType64= 'sha256'
+  # checksum -t sha256 -f hnefatafl-client-installer.exe
+
+  checksum64     = '40D253173977199510F34820F4D4C47B078EDA49FCF9829FEE354A1734524680'
+  checksumType64 = 'sha256'
 
   # NSIS
-  silentArgs   = '/S'
-  validExitCodes= @(0)
+  silentArgs     = '/S'
+  validExitCodes = @(0)
 }
 
 Install-ChocolateyInstallPackage @packageArgs

@@ -1,6 +1,13 @@
-﻿You can use checksum.exe (choco install checksum).
-checksum -t sha256 -f hnefatafl-client-installer
+﻿VERIFICATION
+Verification is intended to assist the Chocolatey moderators and community
+in verifying that this package's contents are trustworthy.
 
-7673B5702855707794A13EE8085322F10A8F167291BF3055A0D877313766C4DC
+You can use checksum.exe (choco install checksum).
+
+checksum -t sha256 -f hnefatafl-client-installer.exe
+40D253173977199510F34820F4D4C47B078EDA49FCF9829FEE354A1734524680
+
+checksum -t sha256 -f hnefatafl-copenhagen.0.13.2.nupkg
+FFEB0E90BFFC21BE4D4137E5F27002C7BD12F5EA8183872AD0C78748DFD6C4AF
 
 I am the software author.

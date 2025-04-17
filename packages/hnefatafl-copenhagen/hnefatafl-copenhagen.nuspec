@@ -15,7 +15,7 @@
     <projectUrl>https://hnefatafl.org</projectUrl>
     <iconUrl>https://rawcdn.githack.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/icons/king_256x256.png</iconUrl>
     <copyright>2025 David Lawrence Campbell</copyright>
-    <licenseUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/LICENSE-MIT</licenseUrl>
+    <licenseUrl>https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/LICENSE-MIT</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen</projectSourceUrl>
     <docsUrl>https://docs.rs/hnefatafl-copenhagen/latest/hnefatafl_copenhagen/</docsUrl>
