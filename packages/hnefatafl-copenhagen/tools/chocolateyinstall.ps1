@@ -12,8 +12,6 @@ $packageArgs = @{
 
   # You can use checksum.exe (choco install checksum)
   # checksum -t sha256 -f path\to\file
-  checksum      = '7673B5702855707794A13EE8085322F10A8F167291BF3055A0D877313766C4DC'
-  checksumType  = 'sha256'
   checksum64    = '7673B5702855707794A13EE8085322F10A8F167291BF3055A0D877313766C4DC'
   checksumType64= 'sha256'
 
@@ -23,5 +21,3 @@ $packageArgs = @{
 }
 
 Install-ChocolateyInstallPackage @packageArgs
-
-$osBitness = Get-ProcessorBits
