@@ -396,6 +396,7 @@ impl Client {
                 }
                 Screen::Login => exit(0),
             },
+            Message::OpenRules => open_url("https://hnefatafl.org/rules.html"),
             Message::OpenWebsite => open_url("https://hnefatafl.org"),
             Message::GameNew => self.screen = Screen::GameNew,
             Message::GameResume(id) => {
@@ -1451,7 +1452,7 @@ impl Client {
                 let create_game = button("Create Game").on_press(Message::GameNew);
                 let users = button("Users").on_press(Message::Users);
                 let account_setting = button("Account Settings").on_press(Message::AccountSettings);
-                let website = button("Website").on_press(Message::OpenWebsite);
+                let website = button("Rules").on_press(Message::OpenRules);
 
                 let theme = if self.theme == Theme::Light {
                     button(text("☾").shaping(text::Shaping::Advanced))
@@ -1513,8 +1514,9 @@ impl Client {
                 if !self.text_input.is_empty() {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
                 }
+                let website = button("https://hnefatafl.org").on_press(Message::OpenWebsite);
                 let quit = button("Quit").on_press(Message::Leave);
-                let buttons = row![login, create_account, quit]
+                let buttons = row![login, create_account, website, quit]
                     .spacing(SPACING)
                     .padding(PADDING);
 
@@ -1562,6 +1564,7 @@ enum Message {
     GameSubmit,
     GameWatch(usize),
     Leave,
+    OpenRules,
     OpenWebsite,
     PasswordChanged(String),
     PasswordShow(bool),
