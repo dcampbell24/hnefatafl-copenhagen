@@ -4,10 +4,9 @@ in verifying that this package's contents are trustworthy.
 
 You can use checksum.exe (choco install checksum).
 
+Download the file at https://hnefatafl.org/binaries/nsis/hnefataf-client-installer.exe
+
 checksum -t sha256 -f hnefatafl-client-installer.exe
 40D253173977199510F34820F4D4C47B078EDA49FCF9829FEE354A1734524680
-
-checksum -t sha256 -f hnefatafl-copenhagen.0.13.2.nupkg
-FFEB0E90BFFC21BE4D4137E5F27002C7BD12F5EA8183872AD0C78748DFD6C4AF
 
 I am the software author.
