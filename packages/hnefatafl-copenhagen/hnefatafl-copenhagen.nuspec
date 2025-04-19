@@ -5,7 +5,7 @@
     <!-- == PACKAGE SPECIFIC SECTION == -->
     <id>hnefatafl-copenhagen</id>
     <version>0.13.2</version>
-    <packageSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/packages/hnefatafl-copenhagen</packageSourceUrl>
+    <packageSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/tree/main/packages/hnefatafl-copenhagen</packageSourceUrl>
     <owners>David Lawrence Campbell</owners>
     <!-- ============================== -->
 
