@@ -1,4 +1,4 @@
-# Copenhagan Hnefatafl
+# Copenhagen Hnefatafl
 
 [![github]][github-link]&ensp;[![crates-io]][crates-io-link]&ensp;[![docs-rs]][docs-rs-link]
 
