@@ -47,6 +47,8 @@ Marvin T. [@marvintubat123].
 [icon]: https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/icons/king.svg
 [@marvintubat123]: https://www.freelancer.com/u/marvintubat123
 
+## Contributors
+
 <a href="https://github.com/dcampbell24/hnefatafl-copenhagen/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=dcampbell24/hnefatafl-copenhagen" />
 </a>
