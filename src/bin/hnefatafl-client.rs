@@ -522,10 +522,7 @@ impl Client {
                 )));
             }
             Message::SoundMuted(muted) => self.sound_muted = muted,
-            Message::TcpConnected(tx) => {
-                info!("TCP connected...");
-                self.tx = Some(tx);
-            }
+            Message::TcpConnected(tx) => self.tx = Some(tx),
             Message::RatedSelected(rated) => {
                 self.rated = if rated { Rated::Yes } else { Rated::No };
             }
@@ -1612,13 +1609,12 @@ fn pass_messages() -> impl Stream<Item = Message> {
         let address = args.host;
 
         let mut tcp_stream = handle_error(TcpStream::connect(&address));
-
         let reader = handle_error(tcp_stream.try_clone());
         let mut reader = BufReader::new(reader);
-        info!("connected to {address} ...");
-
         let (tx, rx) = mpsc::channel();
         let _ = sender.send(Message::TcpConnected(tx)).await;
+        info!("connected to {address} ...");
+
         thread::spawn(move || {
             loop {
                 let message = handle_error(rx.recv());
