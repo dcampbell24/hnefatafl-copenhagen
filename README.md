@@ -54,7 +54,6 @@ Marvin T. [@marvintubat123].
 It is also packaged in the following repositories that are not shown above:
 
 [cargo 0.13.2](https://crates.io/crates/hnefatafl-copenhagen)  
-[chocolatey 0.13.1](https://community.chocolatey.org/packages/hnefatafl-copenhagen/)  
 [deb 0.13.2](https://hnefatafl.org/binaries/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb)  
 [flatpak 0.13.2](https://flathub.org/apps/org.hnefatafl.hnefatafl_client)  
 
