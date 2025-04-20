@@ -51,8 +51,6 @@ Marvin T. [@marvintubat123].
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/hnefatafl-copenhagen.svg)](https://repology.org/project/hnefatafl-copenhagen/versions)
 
-It is also packaged in the following repositories that are not shown above:
-
 [cargo 0.13.2](https://crates.io/crates/hnefatafl-copenhagen)  
 [deb 0.13.2](https://hnefatafl.org/binaries/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb)  
 [flatpak 0.13.2](https://flathub.org/apps/org.hnefatafl.hnefatafl_client)  
