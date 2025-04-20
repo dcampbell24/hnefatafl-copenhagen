@@ -57,7 +57,7 @@ Marvin T. [@marvintubat123].
 
 ## Contributors
 
-[![rocks][rocks-link]]
+[![rocks]][rocks-link]
 
 [rocks]: https://contrib.rocks/image?repo=dcampbell24/hnefatafl-copenhagen
 [rocks-link]: https://github.com/dcampbell24/hnefatafl-copenhagen/graphs/contributors
