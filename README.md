@@ -47,6 +47,17 @@ Marvin T. [@marvintubat123].
 [icon]: https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/icons/king.svg
 [@marvintubat123]: https://www.freelancer.com/u/marvintubat123
 
+## Packaging Status
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/hnefatafl-copenhagen.svg)](https://repology.org/project/hnefatafl-copenhagen/versions)
+
+It is also packaged in the following repositories that are not shown above:
+
+[cargo 0.13.2](https://crates.io/crates/hnefatafl-copenhagen)  
+[chocolatey 0.13.1](https://community.chocolatey.org/packages/hnefatafl-copenhagen/)  
+[deb 0.13.2](https://hnefatafl.org/binaries/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb)  
+[flatpak 0.13.2](https://flathub.org/apps/org.hnefatafl.hnefatafl_client)  
+
 ## Contributors
 
 <a href="https://github.com/dcampbell24/hnefatafl-copenhagen/graphs/contributors">
