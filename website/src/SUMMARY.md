@@ -3,5 +3,5 @@
 - [Homepage](README.dj)
 - [Install](install.dj)
 - [Rules](rules.dj)
-- [Subscribe](subscribe.dj)
-- [Unsubscribe](unsubsribe.dj)
+- [Subscribe To Email](subscribe.dj)
+- [Unsubscribe To Email](unsubsribe.dj)
