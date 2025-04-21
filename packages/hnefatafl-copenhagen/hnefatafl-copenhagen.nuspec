@@ -4,7 +4,7 @@
   <metadata>
     <!-- == PACKAGE SPECIFIC SECTION == -->
     <id>hnefatafl-copenhagen</id>
-    <version>0.13.2</version>
+    <version>0.13.4</version>
     <packageSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/tree/main/packages/hnefatafl-copenhagen</packageSourceUrl>
     <owners>David Lawrence Campbell</owners>
     <!-- ============================== -->
@@ -17,12 +17,12 @@
     <copyright>2025 David Lawrence Campbell</copyright>
     <licenseUrl>https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/LICENSE-MIT</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <projectSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/archive/refs/tags/v0.13.2.zip</projectSourceUrl>
-    <docsUrl>https://docs.rs/hnefatafl-copenhagen/latest/hnefatafl_copenhagen/</docsUrl>
+    <projectSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/archive/refs/tags/v0.13.4-choco.zip</projectSourceUrl>
+    <docsUrl>https://docs.rs/hnefatafl-copenhagen/0.13.4/hnefatafl_copenhagen/</docsUrl>
     <!--<mailingListUrl></mailingListUrl>-->
     <bugTrackerUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/issues</bugTrackerUrl>
     <tags>board-game copenhagen hnefatafl tafl</tags>
-    <releaseNotes>https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CHANGELOG.md</releaseNotes>
+    <releaseNotes>https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CHANGELOG.md#0134---2025-04-21</releaseNotes>
     <summary>Copenhagen Hnefatafl</summary>
     <description>Copenhagen Hnefatafl client that connects to a server.</description>
     <!-- =============================== -->
