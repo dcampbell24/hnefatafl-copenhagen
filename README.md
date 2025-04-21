@@ -50,16 +50,16 @@ Marvin T. [@marvintubat123].
 ## Packaging Status
 
 `0.13.1` [AUR]  
-`0.13.2` [cargo]  
-`0.13.2` [chocolatey]  
+`0.13.2` [crates.io]  
+`0.13.2` [chocolatey.org]  
 `0.13.2` [deb]  
-`0.13.2` [flatpak]  
+`0.13.2` [flathub.org]  
 
 [AUR]: https://aur.archlinux.org/packages/hnefatafl-copenhagen
-[cargo]: https://crates.io/crates/hnefatafl-copenhagen
-[chocolatey]: https://community.chocolatey.org/packages/hnefatafl-copenhagen/
+[crates.io]: https://crates.io/crates/hnefatafl-copenhagen
+[chocolatey.org]: https://community.chocolatey.org/packages/hnefatafl-copenhagen/
 [deb]: https://hnefatafl.org/binaries/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb
-[flatpak]: https://flathub.org/apps/org.hnefatafl.hnefatafl_client
+[flathub.org]: https://flathub.org/apps/org.hnefatafl.hnefatafl_client
 
 ## Contributors
 
