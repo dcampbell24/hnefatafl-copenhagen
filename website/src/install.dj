@@ -10,7 +10,7 @@ See [chocolatey.org](https://community.chocolatey.org/packages/hnefatafl-copenha
 
 ## Debian and Derivatives (Linux)
 
-In your terminal run the following to install the hnefatafl-client:
+Download [hnefatafl-copenhagen][1], then run:
 
 ```sh
 sudo dpkg --install hnefatafl-copenhagen_0.13.2-1_amd64.deb
@@ -22,7 +22,7 @@ It can be removed by running:
 sudo dpkg --remove hnefatafl-copenhagen
 ```
 
-[0.13.2_amd64](binaries/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb)
+[1]: binaries/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb
 
 ## Flatpak (Linux)
 
