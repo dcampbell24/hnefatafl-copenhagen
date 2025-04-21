@@ -51,9 +51,17 @@ Marvin T. [@marvintubat123].
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/hnefatafl-copenhagen.svg)](https://repology.org/project/hnefatafl-copenhagen/versions)
 
-[cargo 0.13.2](https://crates.io/crates/hnefatafl-copenhagen)  
-[deb 0.13.2](https://hnefatafl.org/binaries/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb)  
-[flatpak 0.13.2](https://flathub.org/apps/org.hnefatafl.hnefatafl_client)  
+`0.13.1` [AUR]  
+`0.13.2` [cargo]  
+`0.13.2` [chocolatey]  
+`0.13.2` [deb]  
+`0.13.2` [flatpak]  
+
+[AUR]: https://aur.archlinux.org/packages/hnefatafl-copenhagen
+[cargo]: https://crates.io/crates/hnefatafl-copenhagen
+[chocolatey]: https://community.chocolatey.org/packages/hnefatafl-copenhagen/
+[deb]: https://hnefatafl.org/binaries/debian/hnefatafl-copenhagen_0.13.2-1_amd64.deb
+[flatpak]: https://flathub.org/apps/org.hnefatafl.hnefatafl_client
 
 ## Contributors
 
