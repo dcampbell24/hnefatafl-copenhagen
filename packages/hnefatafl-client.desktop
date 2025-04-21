@@ -6,3 +6,4 @@ Icon=org.hnefatafl.hnefatafl_client
 Type=Application
 StartupNotify=true
 Categories=Game;BoardGame
+StartupWMClass=hnefatafl-client

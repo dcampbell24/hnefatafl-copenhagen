@@ -41,7 +41,7 @@ use iced::{
         Column, Container, Row, Scrollable, button, checkbox, column, container, radio, row,
         scrollable, text, text_input, tooltip,
     },
-    window::{Settings, icon},
+    window::{self, icon, settings::PlatformSpecific},
 };
 use log::{LevelFilter, debug, error, info, trace};
 
@@ -74,9 +74,14 @@ fn main() -> anyhow::Result<()> {
         .default_font(Font::MONOSPACE)
         .subscription(Client::subscriptions)
         .theme(Client::theme)
-        .window(Settings {
+        .window(window::Settings {
+            #[cfg(target_os = "linux")]
+            platform_specific: PlatformSpecific {
+                application_id: "hnefatafl-client".to_string(),
+                ..PlatformSpecific::default()
+            },
             icon: Some(icon::from_rgba(king, 256, 256)?),
-            ..Settings::default()
+            ..window::Settings::default()
         })
         .run()?;
 
@@ -1486,18 +1491,21 @@ impl Client {
                     text_input("", &self.text_input)
                         .on_input(Message::TextChanged)
                         .on_paste(Message::TextChanged),
-                ];
+                ]
+                .spacing(SPACING);
 
                 let password = if self.password_show {
                     row![
                         text("password:"),
                         text_input("", &self.password_real).on_input(Message::PasswordChanged),
                     ]
+                    .spacing(SPACING)
                 } else {
                     row![
                         text("password:"),
                         text_input("", &self.password).on_input(Message::PasswordChanged),
                     ]
+                    .spacing(SPACING)
                 };
 
                 let show_password =
