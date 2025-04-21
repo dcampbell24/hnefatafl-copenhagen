@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.13.3] - 2025-04-21
+## [0.13.4] - 2025-04-21
+
+- Fix the README.md file.
+
+## [0.13.3] - 2025-04-21 (Yanked)
 
 ### Added
 
@@ -220,7 +224,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.13.3...main
+[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.13.4...main
+[0.13.4]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.13.3...v0.13.4
 [0.13.3]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.13.2...v0.13.3
 [0.13.2]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.13.0...v0.13.1

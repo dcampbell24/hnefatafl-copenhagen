@@ -3,7 +3,7 @@ website:
 	mdbook build --dest-dir /var/www/html/
 	touch /var/www/html/robots.txt
 	mkdir --parents /var/www/html/binaries/debian/
-	cp ../../hnefatafl-copenhagen_0.13.3-1_amd64.deb /var/www/html/binaries/debian/
+	cp ../../hnefatafl-copenhagen_0.13.4-1_amd64.deb /var/www/html/binaries/debian/
 	mkdir --parents /var/www/html/binaries/nsis/
 	cp ../../hnefatafl-client-installer.exe /var/www/html/binaries/nsis/
 	sscli -b https://hnefatafl.org -r /var/www/html/
