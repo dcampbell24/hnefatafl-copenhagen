@@ -9,6 +9,7 @@ use clap::command;
 use clap::{self, Parser};
 
 use hnefatafl_copenhagen::{
+    ai::{AI, AiBanal},
     game::Game,
     read_response,
     status::Status,
@@ -33,6 +34,7 @@ struct Args {
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
+    let mut ai: Box<dyn AI + 'static> = Box::new(AiBanal);
 
     if let Some(tcp) = args.tcp {
         let address = tcp.as_str();
@@ -58,9 +60,12 @@ fn main() -> anyhow::Result<()> {
                         game.read_line(&message)?;
                     }
                     "generate_move" => {
-                        if let Some(message) = game.read_line(&message)? {
-                            write_command(&format!("play {message}\n"), &mut stream)?;
-                        }
+                        let play = game
+                            .generate_move(&mut ai)
+                            .expect("the game must be in progress");
+
+                        game.play(&play)?;
+                        write_command(&play.to_string(), &mut stream)?;
                     }
                     _ => unreachable!("You can't get here!"),
                 }
