@@ -71,6 +71,13 @@
   </screenshots>
 
   <releases>
+    <release version="0.13.4" date="2025-04-21">
+      <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/v0.13.4/CHANGELOG.md#0134---2025-04-21</url>
+      <description>
+        <p>See the CHANGELOG.md file.</p>
+      </description>
+    </release>
+
     <release version="0.13.2" date="2025-04-15">
       <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CHANGELOG.md#0132---2025-04-15</url>
       <description>
