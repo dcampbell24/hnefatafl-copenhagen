@@ -49,8 +49,6 @@ Marvin T. [@marvintubat123].
 
 ## Packaging Status
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/hnefatafl-copenhagen.svg)](https://repology.org/project/hnefatafl-copenhagen/versions)
-
 `0.13.1` [AUR]  
 `0.13.2` [cargo]  
 `0.13.2` [chocolatey]  
