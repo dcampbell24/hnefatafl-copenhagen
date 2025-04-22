@@ -71,9 +71,7 @@ fn main() -> anyhow::Result<()> {
     let king = include_bytes!("king_2_256x256.rgba").to_vec();
 
     iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
-        .default_font(Font::MONOSPACE)
         .subscription(Client::subscriptions)
-        .theme(Client::theme)
         .window(window::Settings {
             #[cfg(target_os = "linux")]
             platform_specific: PlatformSpecific {
@@ -83,6 +81,8 @@ fn main() -> anyhow::Result<()> {
             icon: Some(icon::from_rgba(king, 256, 256)?),
             ..window::Settings::default()
         })
+        .theme(Client::theme)
+        .default_font(Font::MONOSPACE)
         .run()?;
 
     Ok(())
