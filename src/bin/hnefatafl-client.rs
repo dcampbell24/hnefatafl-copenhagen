@@ -1324,11 +1324,9 @@ impl Client {
                 }
 
                 let muted = if self.sound_muted {
-                    button(text("🕨").shaping(text::Shaping::Advanced).center())
-                        .on_press(Message::SoundMuted(false))
+                    button(text("Muted").center()).on_press(Message::SoundMuted(false))
                 } else {
-                    button(text("🕪").shaping(text::Shaping::Advanced).center())
-                        .on_press(Message::SoundMuted(true))
+                    button(text("Un-muted").center()).on_press(Message::SoundMuted(true))
                 };
 
                 let leave = button("Leave").on_press(Message::Leave);
