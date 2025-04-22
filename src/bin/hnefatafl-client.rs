@@ -75,6 +75,9 @@ fn main() -> anyhow::Result<()> {
         .window(window::Settings {
             #[cfg(target_os = "linux")]
             platform_specific: PlatformSpecific {
+                #[cfg(feature = "icon_2")]
+                application_id: "org.hnefatafl.hnefatafl_client".to_string(),
+                #[cfg(not(feature = "icon_2"))]
                 application_id: "hnefatafl-client".to_string(),
                 ..PlatformSpecific::default()
             },
