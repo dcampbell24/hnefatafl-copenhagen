@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Display the icon in the title bar on Linux.
+
 ## [0.13.4] - 2025-04-21
 
 - Fix the README.md file.
