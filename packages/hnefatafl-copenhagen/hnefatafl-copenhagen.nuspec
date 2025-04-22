@@ -17,7 +17,7 @@
     <copyright>2025 David Lawrence Campbell</copyright>
     <licenseUrl>https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/LICENSE-MIT</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <projectSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/archive/refs/tags/v0.13.4.zip</projectSourceUrl>
+    <projectSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/</projectSourceUrl>
     <docsUrl>https://docs.rs/hnefatafl-copenhagen/0.13.4/hnefatafl_copenhagen/</docsUrl>
     <!--<mailingListUrl></mailingListUrl>-->
     <bugTrackerUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/issues</bugTrackerUrl>
