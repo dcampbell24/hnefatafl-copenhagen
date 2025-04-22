@@ -2,7 +2,7 @@ app-id: org.hnefatafl.hnefatafl_client
 runtime: org.freedesktop.Platform
 runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
-command: $FLATPAK_ID
+command: org.hnefatafl.hnefatafl_client
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.rust-stable
   - org.freedesktop.Sdk.Extension.llvm18
