@@ -1323,12 +1323,9 @@ impl Client {
                     }
                 }
 
-                let muted = if self.sound_muted {
-                    button(text("Muted").center()).on_press(Message::SoundMuted(false))
-                } else {
-                    button(text("Un-muted").center()).on_press(Message::SoundMuted(true))
-                };
-
+                let muted = checkbox("Muted", self.sound_muted)
+                    .on_toggle(Message::SoundMuted)
+                    .size(32);
                 let leave = button("Leave").on_press(Message::Leave);
 
                 user_area = user_area.push(row![muted, leave].spacing(SPACING));
@@ -1458,11 +1455,19 @@ impl Client {
                 let website = button("Rules").on_press(Message::OpenRules);
 
                 let theme = if self.theme == Theme::Light {
-                    button(text("☾").shaping(text::Shaping::Advanced))
-                        .on_press(Message::ChangeTheme(Theme::Dark))
+                    row![
+                        button(text("☀").shaping(text::Shaping::Advanced)),
+                        button(text("⏾").shaping(text::Shaping::Advanced))
+                            .on_press(Message::ChangeTheme(Theme::Dark)),
+                    ]
+                    .spacing(SPACING / 2)
                 } else {
-                    button(text("☀").shaping(text::Shaping::Advanced))
-                        .on_press(Message::ChangeTheme(Theme::Light))
+                    row![
+                        button(text("☀").shaping(text::Shaping::Advanced))
+                            .on_press(Message::ChangeTheme(Theme::Light)),
+                        button(text("⏾").shaping(text::Shaping::Advanced)),
+                    ]
+                    .spacing(SPACING / 2)
                 };
 
                 let quit = button("Quit").on_press(Message::Leave);

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Changed
+
+- Display light and dark always.
+- Use a checkbox for muted.
 - Display the icon in the title bar on Linux.
 
 ## [0.13.4] - 2025-04-21
