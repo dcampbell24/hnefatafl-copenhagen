@@ -1192,14 +1192,14 @@ impl Client {
 
                 if self.password_show {
                     columns = columns.push(row![
-                        text("change password:"),
+                        text("change password: "),
                         text_input("", &self.password_real)
                             .on_input(Message::PasswordChanged)
                             .on_submit(Message::TextSend),
                     ]);
                 } else {
                     columns = columns.push(row![
-                        text("change password:"),
+                        text("change password: "),
                         text_input("", &self.password)
                             .on_input(Message::PasswordChanged)
                             .on_submit(Message::TextSend),
@@ -1400,18 +1400,12 @@ impl Client {
                 }
                 time = time.spacing(SPACING);
 
-                row![
-                    new_game,
-                    text("role: "),
-                    attacker,
-                    defender,
-                    rated,
-                    time,
-                    leave,
-                ]
-                .padding(PADDING)
-                .spacing(SPACING)
-                .into()
+                let row_1 = row![text("role: "), attacker, defender, rated, time,]
+                    .padding(PADDING)
+                    .spacing(SPACING);
+
+                let row_2 = row![new_game, leave].padding(PADDING).spacing(SPACING);
+                column![row_1, row_2].into()
             }
             Screen::GameNewFrozen => {
                 let Some(role) = self.role_selected else {
