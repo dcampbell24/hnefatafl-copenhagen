@@ -306,7 +306,7 @@ impl Client {
     }
 
     fn texting(&self, in_game: bool) -> Container<Message> {
-        let text_input = text_input("message...", &self.text_input)
+        let text_input = text_input("message…", &self.text_input)
             .on_input(Message::TextChanged)
             .on_paste(Message::TextChanged)
             .on_submit(Message::TextSend);
@@ -1448,71 +1448,71 @@ impl Client {
                 game_display.push(buttons).into()
             }
             Screen::Games => {
+                let theme = if self.theme == Theme::Light {
+                    row![
+                        button(text("Light")),
+                        button(text("Dark")).on_press(Message::ChangeTheme(Theme::Dark)),
+                    ]
+                    .spacing(SPACING)
+                } else {
+                    row![
+                        button(text("Light")).on_press(Message::ChangeTheme(Theme::Light)),
+                        button(text("Dark")),
+                    ]
+                    .spacing(SPACING)
+                };
+                let theme = theme.padding(PADDING);
+
                 let username = row![text("username: "), text(&self.username)];
+                let username = container(username)
+                    .padding(PADDING / 2)
+                    .style(container::bordered_box);
+
                 let create_game = button("Create Game").on_press(Message::GameNew);
                 let users = button("Users").on_press(Message::Users);
                 let account_setting = button("Account Settings").on_press(Message::AccountSettings);
                 let website = button("Rules").on_press(Message::OpenRules);
 
-                let theme = if self.theme == Theme::Light {
-                    row![
-                        button(text("☀").shaping(text::Shaping::Advanced)),
-                        button(text("⏾").shaping(text::Shaping::Advanced))
-                            .on_press(Message::ChangeTheme(Theme::Dark)),
-                    ]
-                    .spacing(SPACING / 2)
-                } else {
-                    row![
-                        button(text("☀").shaping(text::Shaping::Advanced))
-                            .on_press(Message::ChangeTheme(Theme::Light)),
-                        button(text("⏾").shaping(text::Shaping::Advanced)),
-                    ]
-                    .spacing(SPACING / 2)
-                };
-
                 let quit = button("Quit").on_press(Message::Leave);
 
-                let top = row![
-                    username,
-                    create_game,
-                    users,
-                    account_setting,
-                    website,
-                    theme,
-                    quit
-                ]
-                .spacing(SPACING);
-
-                let top = container(top)
+                let top = row![username, create_game, users, account_setting, website, quit]
                     .padding(PADDING)
-                    .style(container::bordered_box);
+                    .spacing(SPACING);
 
                 let user_area = self.user_area(false);
 
-                column![top, user_area].into()
+                column![theme, top, user_area].into()
             }
             Screen::Login => {
                 let username = row![
-                    text("username:"),
+                    text("username:").size(20),
                     text_input("", &self.text_input)
                         .on_input(Message::TextChanged)
                         .on_paste(Message::TextChanged),
                 ]
                 .spacing(SPACING);
 
+                let username = container(username)
+                    .padding(PADDING)
+                    .style(container::bordered_box);
+
                 let password = if self.password_show {
                     row![
-                        text("password:"),
+                        text("password:").size(20),
                         text_input("", &self.password_real).on_input(Message::PasswordChanged),
                     ]
                     .spacing(SPACING)
                 } else {
                     row![
-                        text("password:"),
+                        text("password:").size(20),
                         text_input("", &self.password).on_input(Message::PasswordChanged),
                     ]
                     .spacing(SPACING)
                 };
+
+                let password = container(password)
+                    .padding(PADDING)
+                    .style(container::bordered_box);
 
                 let show_password =
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow);
