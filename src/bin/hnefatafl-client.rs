@@ -1450,14 +1450,14 @@ impl Client {
             Screen::Games => {
                 let theme = if self.theme == Theme::Light {
                     row![
-                        button(text("Light")),
                         button(text("Dark")).on_press(Message::ChangeTheme(Theme::Dark)),
+                        button(text("Light")),
                     ]
                     .spacing(SPACING)
                 } else {
                     row![
-                        button(text("Light")).on_press(Message::ChangeTheme(Theme::Light)),
                         button(text("Dark")),
+                        button(text("Light")).on_press(Message::ChangeTheme(Theme::Light)),
                     ]
                     .spacing(SPACING)
                 };
