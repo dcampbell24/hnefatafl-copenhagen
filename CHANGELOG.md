@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 
+- Fix Windows: handle error in read_line.
 - Display light and dark always.
 - Use a checkbox for muted.
 - Display the icon in the title bar on Linux.

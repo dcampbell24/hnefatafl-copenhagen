@@ -30,7 +30,7 @@ use hnefatafl_copenhagen::{
     status::Status,
     time::TimeSettings,
 };
-use log::{LevelFilter, debug, info};
+use log::{LevelFilter, debug, error, info};
 use password_hash::SaltString;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
@@ -229,7 +229,10 @@ fn login(
     thread::spawn(move || receiving_and_writing(stream, &client_rx));
 
     'outer: for _ in 0..1_000_000 {
-        reader.read_line(&mut buf)?;
+        if let Err(err) = reader.read_line(&mut buf) {
+            error!("{err}");
+            break 'outer;
+        }
 
         let buf_str = buf.trim();
 
