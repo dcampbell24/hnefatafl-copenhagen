@@ -30,6 +30,8 @@ use hnefatafl_copenhagen::{
     status::Status,
     time::{Time, TimeSettings},
 };
+#[cfg(target_os = "linux")]
+use iced::window::settings::PlatformSpecific;
 use iced::{
     Element, Event, Subscription,
     alignment::{Horizontal, Vertical},
@@ -41,7 +43,7 @@ use iced::{
         Column, Container, Row, Scrollable, button, checkbox, column, container, radio, row,
         scrollable, text, text_input, tooltip,
     },
-    window::{self, icon, settings::PlatformSpecific},
+    window::{self, icon},
 };
 use log::{LevelFilter, debug, error, info, trace};
 
