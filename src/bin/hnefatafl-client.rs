@@ -3,7 +3,7 @@ use std::{
     env, f64,
     fmt::Write as fmt_write,
     io::{BufRead, BufReader, Cursor, Write},
-    net::TcpStream,
+    net::{Shutdown, TcpStream},
     process::exit,
     str::FromStr,
     sync::mpsc::{self, Sender},
@@ -347,7 +347,6 @@ impl Client {
             Message::DeleteAccount => {
                 if self.delete_account {
                     self.send("delete_account\n".to_string());
-                    exit(0);
                 } else {
                     self.delete_account = true;
                 }
@@ -402,9 +401,8 @@ impl Client {
                 }
                 Screen::Games => {
                     self.send("logout\n".to_string());
-                    exit(0);
                 }
-                Screen::Login => exit(0),
+                Screen::Login => self.send("quit\n".to_string()),
             },
             Message::OpenRules => open_url("https://hnefatafl.org/rules.html"),
             Message::OpenWebsite => open_url("https://hnefatafl.org"),
@@ -1078,7 +1076,7 @@ impl Client {
                     }
                 }
                 Err(error) => {
-                    eprintln!("error: {error}");
+                    error!("{error}");
                     exit(1)
                 }
             },
@@ -1094,7 +1092,7 @@ impl Client {
                     }
                 }
                 Err(error) => {
-                    eprintln!("error: {error}");
+                    error!("{error}");
                     exit(1)
                 }
             },
@@ -1631,7 +1629,19 @@ fn pass_messages() -> impl Stream<Item = Message> {
                 let message_trim = message.trim();
                 debug!("<- {message_trim}");
 
-                handle_error(tcp_stream.write_all(message.as_bytes()));
+                if message_trim != "quit" {
+                    handle_error(tcp_stream.write_all(message.as_bytes()));
+                }
+
+                if message_trim == "delete_account"
+                    || message_trim == "logout"
+                    || message_trim == "quit"
+                {
+                    tcp_stream
+                        .shutdown(Shutdown::Both)
+                        .expect("shutdown call failed");
+                    exit(0);
+                }
             }
         });
 
@@ -1660,8 +1670,8 @@ fn pass_messages() -> impl Stream<Item = Message> {
                     ));
                     buffer.clear();
                 } else {
-                    error!("the TCP stream has closed");
-                    exit(1);
+                    info!("the TCP stream has closed");
+                    break;
                 }
             }
         });
