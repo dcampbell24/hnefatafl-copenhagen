@@ -686,7 +686,7 @@ impl Server {
                 game.game
                     .read_line(&format!("play black {from} {to}"))
                     .map_err(|error| {
-                        info!("Error: {error}");
+                        error!("{error}");
                         error
                     })
                     .ok()?;
@@ -710,7 +710,7 @@ impl Server {
             game.game
                 .read_line(&format!("play white {from} {to}"))
                 .map_err(|error| {
-                    info!("Error: {error}");
+                    error!("{error}");
                     error
                 })
                 .ok()?;
@@ -1407,7 +1407,7 @@ impl Server {
 
                     if let Ok(mut file) = File::create(&data_file) {
                         if let Err(error) = file.write_all(string.as_bytes()) {
-                            log::error!("{error}");
+                            error!("{error}");
                         }
                     }
                 }
