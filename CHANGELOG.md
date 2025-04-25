@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 
-- When the user quits logout gracefully.
-- Fix Windows: handle error in read_line.
-- Display light and dark always.
-- Use a checkbox for muted.
-- Display the icon in the title bar on Linux.
+- hnefatafl-client: When the user quits logout gracefully.
+- hnefatafl-server-full: Fix Windows, handle error in read_line.
+- hnefatafl-client: Display light and dark always.
+- hnefatafl-client: Use a checkbox for muted.
+- hnefatafl-client: Display the icon in the title bar on Linux.
 
 ## [0.13.4] - 2025-04-21
 
