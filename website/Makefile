@@ -2,10 +2,8 @@
 website:
 	mdbook build --dest-dir /var/www/html/
 	touch /var/www/html/robots.txt
-	mkdir --parents /var/www/html/binaries/debian/dists/bookworm/
-	cp ../../hnefatafl-copenhagen_0.13.4-1_amd64.deb /var/www/html/binaries/debian/dists/bookworm/
-	cp ../packages/Release /var/www/html/binaries/debian/dists/bookworm/
-	cp ../packages/Release.gpg /var/www/html/binaries/debian/dists/bookworm/
+	mkdir --parents /var/www/html/binaries/debian/
+	cp ../../hnefatafl-copenhagen_0.13.4-1_amd64.deb /var/www/html/binaries/debian/
 	mkdir --parents /var/www/html/binaries/nsis/
 	cp ../../hnefatafl-client-installer.exe /var/www/html/binaries/nsis/
 	cp ../../hnefatafl-client-installer-0.13.4.exe /var/www/html/binaries/nsis/
