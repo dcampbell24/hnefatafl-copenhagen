@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 
+- hnefatafl-client: don't show the terminal on Windows.
 - hnefatafl-client: When the user quits logout gracefully.
 - hnefatafl-server-full: Fix Windows, handle error in read_line.
 - hnefatafl-client: Display light and dark always.
