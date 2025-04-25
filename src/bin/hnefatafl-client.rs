@@ -1,3 +1,4 @@
+// Don't open the terminal on Windows.
 #![windows_subsystem = "windows"]
 
 use std::{
