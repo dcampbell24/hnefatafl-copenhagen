@@ -22,7 +22,7 @@ It can be removed by running:
 sudo dpkg --remove hnefatafl-copenhagen
 ```
 
-[1]: binaries/debian/dists/stable/hnefatafl-copenhagen_0.13.4-1_amd64.deb
+[1]: binaries/debian/dists/bookworm/hnefatafl-copenhagen_0.13.4-1_amd64.deb
 
 ## Flatpak (Linux)
 

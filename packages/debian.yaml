@@ -4,7 +4,7 @@ hnefatafl-copenhagen:
   source:
     Types: deb deb-src
     URIs: https://hnefatafl.org/binaries/debian
-    Suites: stable
+    Suites: <SUITE>
     Components: main
     Architectures: amd64
 
