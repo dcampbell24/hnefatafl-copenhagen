@@ -1640,6 +1640,7 @@ fn pass_messages() -> impl Stream<Item = Message> {
                     tcp_stream
                         .shutdown(Shutdown::Both)
                         .expect("shutdown call failed");
+
                     exit(0);
                 }
             }
