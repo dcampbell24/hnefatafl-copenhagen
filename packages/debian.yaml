@@ -3,7 +3,7 @@ hnefatafl-copenhagen:
   description: A client and server for Copenhagen Hnefatafl.
   source:
     Types: deb deb-src
-    URIs: https://debian.hnefatafl.org
+    URIs: https://hnefatafl.org/binaries/debian
     Suites: stable
     Components: main
     Architectures: amd64
