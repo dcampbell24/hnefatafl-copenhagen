@@ -1,0 +1,29 @@
+[source]
+git = "https://github.com/dcampbell24/hnefatafl-copenhagen.git"
+#tar = "https://github.com/dcampbell24/hnefatafl-copenhagen/..."
+#blake3 = ""
+
+[build]
+template = "custom"
+dependencies = [
+    "llvm18"
+]
+script = """
+DYNAMIC_INIT
+cargo rustc \
+    --manifest-path "${COOKBOOK_SOURCE}/Cargo.toml" \
+    --release \
+    --bin hnefatafl-client \
+    --features client-redox
+
+mkdir -pv "${COOKBOOK_STAGE}/bin"
+cp -v "target/release/hnefatafl-client" "${COOKBOOK_STAGE}/bin"
+"""
+
+[package]
+dependencies = [
+    "glibc",
+    "gcc-libs",
+    "hicolor-icon-theme"
+    # "alsa-lib"
+]

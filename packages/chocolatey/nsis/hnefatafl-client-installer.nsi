@@ -31,7 +31,7 @@
 ;--------------------------------
 ;Pages
 
-  !insertmacro MUI_PAGE_LICENSE "..\..\LICENSE-MIT"
+  !insertmacro MUI_PAGE_LICENSE "..\..\..\LICENSE-MIT"
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
@@ -51,7 +51,7 @@ Section "Hnefatafl" SecHnefatafl
 
   SetOutPath "$INSTDIR"
 
-  File "..\..\target\release\hnefatafl-client.exe"
+  File "..\..\..\target\release\hnefatafl-client.exe"
   File "king_256x256.ico"
 
   ;Store installation folder
