@@ -1,9 +1,5 @@
 #! /bin/bash -e
 
-if [ 'debian' != "$1" ]; then
-    exit 1
-fi
-
 # https://github.com/jgm/pandoc/releases/latest
 pandoc\
     --variable=title:hnefatafl-client\
@@ -33,11 +29,11 @@ rm packages/hnefatafl-client.1.gz
 rm packages/hnefatafl-server-full.1.gz
 rm packages/README.txt
 
-if [ -z $2 ]; then
+if [ -z $1 ]; then
     exit
 fi
 
-if [ $2 = 'install' ]; then
+if [ $1 = 'install' ]; then
     sudo dpkg --remove hnefatafl-copenhagen
     sudo dpkg --install $PACKAGE
     sudo systemctl restart hnefatafl.service
