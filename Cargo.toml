@@ -45,11 +45,11 @@ password-hash = { version = "0.5", optional = true }
 [features]
 icon_2 = []
 client = ["dep:futures", "dep:iced", "dep:rodio", "dep:webbrowser"]
+redox = ["dep:futures", "dep:iced", "dep:webbrowser"]
 server = ["dep:argon2", "dep:dirs", "dep:password-hash"]
 
 [[bin]]
 name = "hnefatafl-client"
-required-features = ["client"]
 
 [[bin]]
 name = "hnefatafl-server-full"
