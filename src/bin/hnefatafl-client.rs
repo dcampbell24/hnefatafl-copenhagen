@@ -1104,6 +1104,7 @@ impl Client {
             },
         }
 
+        #[cfg(not(feature = "redox"))]
         if self.sound_muted {
             return;
         }
