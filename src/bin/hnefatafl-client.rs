@@ -1,7 +1,7 @@
 // Don't open the terminal on Windows.
 #![windows_subsystem = "windows"]
 
-#[cfg(not(target_os = "redox"))]
+#[cfg(not(feature = "redox"))]
 use std::{io::Cursor, time::Duration};
 
 use std::{
@@ -639,7 +639,7 @@ impl Client {
                                     _ => {}
                                 }
 
-                                #[cfg(not(target_os = "redox"))]
+                                #[cfg(not(feature = "redox"))]
                                 if !self.sound_muted {
                                     thread::spawn(move || {
                                         let (_stream, stream_handle) =
@@ -1108,10 +1108,10 @@ impl Client {
             return;
         }
 
-        #[cfg(not(target_os = "redox"))]
+        #[cfg(not(feature = "redox"))]
         let capture = !self.captures.is_empty();
 
-        #[cfg(not(target_os = "redox"))]
+        #[cfg(not(feature = "redox"))]
         thread::spawn(move || {
             let (_stream, stream_handle) = rodio::OutputStream::try_default()?;
             let cursor = if capture {
