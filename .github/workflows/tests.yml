@@ -17,4 +17,4 @@ jobs:
       - name: Run cargo test
         run: |
           sudo apt-get install libasound2-dev mold
-          cargo test --all-targets --features client,server
+          cargo test --all-targets --no-default-features --features client,server,sound

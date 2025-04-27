@@ -17,3 +17,9 @@ touch relibc
 rm -rf prefix
 make prefix cr.drivers cr.drivers-initfs image
 ```
+
+## error: rustc interrupted by SIGSEGV
+
+```fish
+set --export RUST_MIN_STACK 16777216
+```

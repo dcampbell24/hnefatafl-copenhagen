@@ -20,7 +20,7 @@ gzip --no-name --best packages/hnefatafl-server-full.1
 pandoc --standalone --to=plain README.md --output=packages/README.txt
 
 if [ 'debian' == "$1" ]; then
-    PACKAGE=$(cargo deb)
+    PACKAGE=$(cargo deb -- --no-default-features)
     echo $PACKAGE
     lintian $PACKAGE
 fi
