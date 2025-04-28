@@ -14,6 +14,13 @@ keywords = ["board-game", "copenhagan", "hnefatafl", "tafl"]
 categories = ["game-engines", "games"]
 default-run = "hnefatafl-server-full"
 
+[dependencies.iced]
+version = "0.14.0-dev"
+git = "https://github.com/iced-rs/iced"
+default-features = false
+features = ["wgpu", "tiny-skia", "web-colors", "thread-pool", "smol"]
+optional = true
+
 [dependencies]
 anyhow = "1"
 # bincode = "=2.0.0-rc.3"
@@ -33,7 +40,6 @@ serde_with = "3"
 
 # client only
 futures = { version = "0.3", optional = true }
-iced = { git = "https://github.com/iced-rs/iced", features = ["smol"], optional = true }
 rodio = { version = "0.20", optional = true }
 webbrowser = { version = "1", optional = true }
 
