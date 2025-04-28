@@ -44,11 +44,12 @@ password-hash = { version = "0.5", optional = true }
 
 [features]
 default = ["client"]
-client = ["dep:futures", "dep:iced", "dep:webbrowser"]
+client = ["dep:futures", "dep:iced"]
 icon_2 = []
 server = ["dep:argon2", "dep:dirs", "dep:password-hash"]
 show_time= ["iced/smol"]
 sound = ["dep:rodio"]
+www = ["dep:webbrowser"]
 
 [[bin]]
 name = "hnefatafl-client"
@@ -93,7 +94,7 @@ panic = "abort"
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
 extended-description = "The engine is similar to the Go Text Protocol."
-features = ["client", "server", "show_time", "sound"]
+features = ["client", "server", "show_time", "sound", "www"]
 assets = [
     ["icons/king_16x16.png", "usr/share/icons/hicolor/16x16/apps/org.hnefatafl.hnefatafl_client.png", "644"],
     ["icons/king_22x22.png", "usr/share/icons/hicolor/22x22/apps/org.hnefatafl.hnefatafl_client.png", "644"],
@@ -118,4 +119,4 @@ changelog = "packages/changelog"
 section = "games"
 
 [package.metadata.docs.rs]
-features = ["client", "server", "show_time", "sound"]
+features = ["client", "server", "show_time", "sound", "www"]

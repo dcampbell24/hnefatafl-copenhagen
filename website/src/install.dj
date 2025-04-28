@@ -45,7 +45,7 @@ package on Arch, Debian, Ubuntu, and Fedora.
 In your terminal run the following to install the client with [Rust's][2] cargo:
 
 ```sh
-cargo install hnefatafl-copenhagen --no-default-features --features client,sound,show-time
+cargo install hnefatafl-copenhagen --no-default-features --features client,sound,show-time,www
 ```
 
 [2]: https://www.rust-lang.org/learn/get-started

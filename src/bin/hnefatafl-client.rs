@@ -413,8 +413,7 @@ impl Client {
                 }
                 Screen::Login => self.send("quit\n".to_string()),
             },
-            Message::OpenRules => open_url("https://hnefatafl.org/rules.html"),
-            Message::OpenWebsite => open_url("https://hnefatafl.org"),
+            Message::OpenUrl(string) => open_url(&string),
             Message::GameNew => self.screen = Screen::GameNew,
             Message::GameResume(id) => {
                 self.game_id = id;
@@ -1479,7 +1478,9 @@ impl Client {
                 let create_game = button("Create Game").on_press(Message::GameNew);
                 let users = button("Users").on_press(Message::Users);
                 let account_setting = button("Account Settings").on_press(Message::AccountSettings);
-                let website = button("Rules").on_press(Message::OpenRules);
+                let website = button("Rules").on_press(Message::OpenUrl(
+                    "https://hnefatafl.org/rules.html".to_string(),
+                ));
 
                 let quit = button("Quit").on_press(Message::Leave);
 
@@ -1533,7 +1534,8 @@ impl Client {
                 if !self.text_input.is_empty() {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
                 }
-                let website = button("https://hnefatafl.org").on_press(Message::OpenWebsite);
+                let website = button("https://hnefatafl.org")
+                    .on_press(Message::OpenUrl("https://hnefatafl.org".to_string()));
                 let quit = button("Quit").on_press(Message::Leave);
                 let buttons = row![login, create_account, website, quit]
                     .spacing(SPACING)
@@ -1583,8 +1585,7 @@ enum Message {
     GameSubmit,
     GameWatch(usize),
     Leave,
-    OpenRules,
-    OpenWebsite,
+    OpenUrl(String),
     PasswordChanged(String),
     PasswordShow(bool),
     PlayDraw,
@@ -1718,9 +1719,12 @@ fn init_logger() {
 }
 
 fn open_url(url: &str) {
+    #[cfg(feature = "www")]
     if let Err(error) = webbrowser::open(url) {
         error!("{error}");
     }
+    #[cfg(not(feature = "www"))]
+    info!("You are trying to visit: {url}");
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
