@@ -17,7 +17,7 @@ sha256sums=("f9b7a979d2d14c91d11a5c06ef91cfba5701c060be098cd8eb694f215f88bd7f")
 build() {
     tar -xvzf v0.13.4.tar.gz
     cd "$pkgname-$pkgver"
-    cargo build --release --bin hnefatafl-client --no-default-features --features client,sound
+    cargo build --release --bin hnefatafl-client --no-default-features --features client,sound,show_time
 
     pandoc\
         --variable=title:hnefatafl-client\

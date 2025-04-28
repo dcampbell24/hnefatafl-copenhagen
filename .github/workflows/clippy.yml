@@ -21,4 +21,4 @@ jobs:
       - name: Run clippy
         run: |
           sudo apt-get install libasound2-dev
-          cargo clippy --all-targets --no-default-features --features client,server,sound
+          cargo clippy --all-targets --no-default-features --features client,server,sound,show_time

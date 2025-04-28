@@ -33,7 +33,7 @@ serde_with = "3"
 
 # client only
 futures = { version = "0.3", optional = true }
-iced = { git = "https://github.com/pop-os/iced", features = ["smol", "winit"], optional = true }
+iced = { git = "https://github.com/pop-os/iced", features = ["winit"], optional = true }
 rodio = { version = "0.20", optional = true }
 webbrowser = { version = "1", optional = true }
 
@@ -44,9 +44,10 @@ password-hash = { version = "0.5", optional = true }
 
 [features]
 default = ["client"]
-icon_2 = []
 client = ["dep:futures", "dep:iced", "dep:webbrowser"]
+icon_2 = []
 server = ["dep:argon2", "dep:dirs", "dep:password-hash"]
+show_time= ["iced/smol"]
 sound = ["dep:rodio"]
 
 [[bin]]
@@ -92,7 +93,7 @@ panic = "abort"
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
 extended-description = "The engine is similar to the Go Text Protocol."
-features = ["client", "server", "sound"]
+features = ["client", "server", "show_time", "sound"]
 assets = [
     ["icons/king_16x16.png", "usr/share/icons/hicolor/16x16/apps/org.hnefatafl.hnefatafl_client.png", "644"],
     ["icons/king_22x22.png", "usr/share/icons/hicolor/22x22/apps/org.hnefatafl.hnefatafl_client.png", "644"],
@@ -117,4 +118,4 @@ changelog = "packages/changelog"
 section = "games"
 
 [package.metadata.docs.rs]
-features = ["client", "server"]
+features = ["client", "server", "show_time", "sound"]
