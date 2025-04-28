@@ -15,7 +15,6 @@ categories = ["game-engines", "games"]
 default-run = "hnefatafl-server-full"
 
 [dependencies.iced]
-version = "0.14.0-dev"
 git = "https://github.com/iced-rs/iced"
 default-features = false
 features = ["wgpu", "tiny-skia", "web-colors", "thread-pool", "smol"]
