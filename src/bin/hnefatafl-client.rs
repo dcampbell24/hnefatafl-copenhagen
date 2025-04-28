@@ -19,7 +19,7 @@ use std::{
 use chrono::{Local, Utc};
 use clap::{Parser, command};
 use env_logger::Builder;
-use futures::executor;
+use futures::{SinkExt, executor};
 use hnefatafl_copenhagen::{
     VERSION_ID,
     color::Color,
@@ -38,11 +38,11 @@ use hnefatafl_copenhagen::{
 #[cfg(target_os = "linux")]
 use iced::window::settings::PlatformSpecific;
 use iced::{
-    Element, Event, Subscription,
+    Element, Event, Pixels, Subscription,
     alignment::{Horizontal, Vertical},
     event,
     font::Font,
-    futures::{SinkExt, Stream},
+    futures::Stream,
     stream,
     widget::{
         Column, Container, Row, Scrollable, button, checkbox, column, container, radio, row,
@@ -54,8 +54,8 @@ use log::{LevelFilter, debug, error, info, trace};
 
 const PORT: &str = ":49152";
 const PADDING: u16 = 10;
-const SPACING: u16 = 10;
-const SPACING_B: u16 = 20;
+const SPACING: Pixels = Pixels(10.0);
+const SPACING_B: Pixels = Pixels(20.0);
 
 /// A Hnefatafl Copenhagen Client
 ///
@@ -77,7 +77,7 @@ fn main() -> anyhow::Result<()> {
     #[cfg(feature = "icon_2")]
     let king = include_bytes!("king_2_256x256.rgba").to_vec();
 
-    iced::application("Hnefatafl Copenhagen", Client::update, Client::view)
+    iced::application(Client::default, Client::update, Client::view)
         .subscription(Client::subscriptions)
         .window(window::Settings {
             #[cfg(target_os = "linux")]
@@ -289,7 +289,6 @@ impl Client {
     }
 
     fn subscriptions(&self) -> Subscription<Message> {
-        #[cfg(feature = "show_time")]
         let subscription_1 = if let Some(game) = &self.game {
             if game.time.is_some() {
                 iced::time::every(iced::time::Duration::from_millis(100))
@@ -300,9 +299,6 @@ impl Client {
         } else {
             Subscription::none()
         };
-
-        #[cfg(not(feature = "show_time"))]
-        let subscription_1 = Subscription::none();
 
         let subscription_2 = Subscription::run(pass_messages);
 
@@ -1626,72 +1622,76 @@ fn get_tx(tx: &mut Option<Sender<String>>) -> &mut Sender<String> {
 }
 
 fn pass_messages() -> impl Stream<Item = Message> {
-    stream::channel(100, move |mut sender| async move {
-        let mut args = Args::parse();
-        args.host.push_str(PORT);
-        let address = args.host;
+    stream::channel(
+        100,
+        move |mut sender: iced::futures::channel::mpsc::Sender<Message>| async move {
+            let mut args = Args::parse();
+            args.host.push_str(PORT);
+            let address = args.host;
 
-        let mut tcp_stream = handle_error(TcpStream::connect(&address));
-        let reader = handle_error(tcp_stream.try_clone());
-        let mut reader = BufReader::new(reader);
-        let (tx, rx) = mpsc::channel();
-        let _ = sender.send(Message::TcpConnected(tx)).await;
-        info!("connected to {address} ...");
+            let mut tcp_stream = handle_error(TcpStream::connect(&address));
+            let reader = handle_error(tcp_stream.try_clone());
+            let mut reader = BufReader::new(reader);
+            let (tx, rx) = mpsc::channel();
+            let _ = sender.send(Message::TcpConnected(tx)).await;
+            info!("connected to {address} ...");
 
-        thread::spawn(move || {
-            loop {
-                let message = handle_error(rx.recv());
-                let message_trim = message.trim();
-                debug!("<- {message_trim}");
+            thread::spawn(move || {
+                loop {
+                    let message = handle_error(rx.recv());
+                    let message_trim = message.trim();
+                    debug!("<- {message_trim}");
 
-                if message_trim != "quit" {
-                    handle_error(tcp_stream.write_all(message.as_bytes()));
-                }
-
-                if message_trim == "delete_account"
-                    || message_trim == "logout"
-                    || message_trim == "quit"
-                {
-                    tcp_stream
-                        .shutdown(Shutdown::Both)
-                        .expect("shutdown call failed");
-
-                    exit(0);
-                }
-            }
-        });
-
-        thread::spawn(move || {
-            let mut buffer = String::new();
-            handle_error(executor::block_on(
-                sender.send(Message::ConnectedTo(address.to_string())),
-            ));
-
-            loop {
-                let bytes = handle_error(reader.read_line(&mut buffer));
-                if bytes > 0 {
-                    let buffer_trim = buffer.trim();
-                    let buffer_trim_vec: Vec<_> = buffer_trim.split_ascii_whitespace().collect();
-
-                    if buffer_trim_vec[1] == "display_users"
-                        || buffer_trim_vec[1] == "display_games"
-                    {
-                        trace!("-> {buffer_trim}");
-                    } else {
-                        debug!("-> {buffer_trim}");
+                    if message_trim != "quit" {
+                        handle_error(tcp_stream.write_all(message.as_bytes()));
                     }
 
-                    handle_error(executor::block_on(
-                        sender.send(Message::TextReceived(buffer.clone())),
-                    ));
-                    buffer.clear();
-                } else {
-                    info!("the TCP stream has closed");
-                    break;
+                    if message_trim == "delete_account"
+                        || message_trim == "logout"
+                        || message_trim == "quit"
+                    {
+                        tcp_stream
+                            .shutdown(Shutdown::Both)
+                            .expect("shutdown call failed");
+
+                        exit(0);
+                    }
                 }
-            }
-        });
-    })
+            });
+
+            thread::spawn(move || {
+                let mut buffer = String::new();
+                handle_error(executor::block_on(
+                    sender.send(Message::ConnectedTo(address.to_string())),
+                ));
+
+                loop {
+                    let bytes = handle_error(reader.read_line(&mut buffer));
+                    if bytes > 0 {
+                        let buffer_trim = buffer.trim();
+                        let buffer_trim_vec: Vec<_> =
+                            buffer_trim.split_ascii_whitespace().collect();
+
+                        if buffer_trim_vec[1] == "display_users"
+                            || buffer_trim_vec[1] == "display_games"
+                        {
+                            trace!("-> {buffer_trim}");
+                        } else {
+                            debug!("-> {buffer_trim}");
+                        }
+
+                        handle_error(executor::block_on(
+                            sender.send(Message::TextReceived(buffer.clone())),
+                        ));
+                        buffer.clear();
+                    } else {
+                        info!("the TCP stream has closed");
+                        break;
+                    }
+                }
+            });
+        },
+    )
 }
 
 fn init_logger() {
