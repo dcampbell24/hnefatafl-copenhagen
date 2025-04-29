@@ -3,5 +3,5 @@
 export RUSTFLAGS='-D warnings'
 
 cargo fmt --all --check
-cargo clippy --all-targets --no-default-features --features client,server,sound,www
-cargo test --all-targets --no-default-features --features client,server,sound,www
+cargo clippy --all-targets
+cargo test --all-targets

@@ -48,7 +48,7 @@ dirs = { version = "6", optional = true }
 password-hash = { version = "0.5", optional = true }
 
 [features]
-default = ["client"]
+default = ["client", "server", "sound", "www"]
 client = ["dep:futures", "dep:iced"]
 icon_2 = []
 server = ["dep:argon2", "dep:dirs", "dep:password-hash"]
@@ -121,6 +121,3 @@ assets = [
 ]
 changelog = "packages/changelog"
 section = "games"
-
-[package.metadata.docs.rs]
-features = ["client", "server", "sound", "www"]

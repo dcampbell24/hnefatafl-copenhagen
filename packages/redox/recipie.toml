@@ -16,6 +16,8 @@ rsync -av --delete "${COOKBOOK_SOURCE}/" ./
 
 cargo rustc \
     --bin hnefatafl-client \
+    --no-default-features \
+    --features client \
     --target "$TARGET" \
     --release \
     --manifest-path "${COOKBOOK_SOURCE}/Cargo.toml"
