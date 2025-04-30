@@ -78,6 +78,7 @@ fn main() -> anyhow::Result<()> {
     let king = include_bytes!("king_2_256x256.rgba").to_vec();
 
     iced::application(Client::default, Client::update, Client::view)
+        .title("Hnefatafl Copenhagen")
         .subscription(Client::subscriptions)
         .window(window::Settings {
             #[cfg(target_os = "linux")]
