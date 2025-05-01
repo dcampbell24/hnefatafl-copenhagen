@@ -25,26 +25,26 @@ This is an AI client that connects to a server.
 
 : *\-\-host* _HOST_
 
-    Connect to the HTP server at host
+    connect to the HTP server at host
     [default: hnefatafl.org]
 
 : *\-\-ai* _AI_
 
-    Choose an AI to play as
+    choose an AI to play as
     [default: banal]
 
 :  *\-\-challenger* _CHALLENGER_
 
-    Challenge the AI with AI CHALLENGER
+    challenge the AI with AI CHALLENGER
 
 
 : *-h*, *\-\-help*
 
-    Print help (see a summary with '-h')
+    print help (see a summary with '-h')
 
 : *-V*, *\-\-version*
 
-    Print version
+    print version
 
 # COPYRIGHT
 

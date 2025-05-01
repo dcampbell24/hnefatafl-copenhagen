@@ -14,16 +14,16 @@ This is a TCP client that connects to a server.
 
 : *\-\-host* _HOST_
 
-    Connect to the HTP server at host
+    connect to the HTP server at host
     [default: hnefatafl.org]
 
 : *-h*, *\-\-help*
 
-    Print help
+    print help
 
 : *-V*, *\-\-version*
 
-    Print version
+    print version
 
 # COPYRIGHT
 
