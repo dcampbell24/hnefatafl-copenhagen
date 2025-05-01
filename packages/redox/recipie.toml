@@ -13,11 +13,11 @@ script = """
 rsync -av --delete "${COOKBOOK_SOURCE}/" ./
 
 cargo rustc \
+    --release \
     --bin hnefatafl-client \
     --no-default-features \
     --features client \
     --target "$TARGET" \
-    --release \
     --manifest-path "${COOKBOOK_SOURCE}/Cargo.toml"
 
 mkdir -pv "${COOKBOOK_STAGE}/usr/games"
