@@ -1,25 +1,46 @@
 # NAME
 
-hnefatafl-client - Hnefatafl Copenhagen client
+hnefatafl-ai - Hnefatafl Copenhagen AI
 
 # SYNOPSIS
 
-hnefatafl-client \[OPTIONS\]
+hnefatafl-ai \[OPTIONS\]
 
 # DESCRIPTION
 
-This is a TCP client that connects to a server.
+This is an AI client that connects to a server.
 
 # OPTIONS
+
+: *\-\-username* _USERNAME_
+
+
+: *\-\-password* _PASSWORD_
+
+    [default: ]
+
+: *\-\-role* _ROLE_
+
+    attacker or defender
 
 : *\-\-host* _HOST_
 
     Connect to the HTP server at host
     [default: hnefatafl.org]
 
+: *\-\-ai* _AI_
+
+    Choose an AI to play as
+    [default: banal]
+
+:  *\-\-challenger* _CHALLENGER_
+
+    Challenge the AI with AI CHALLENGER
+
+
 : *-h*, *\-\-help*
 
-    Print help
+    Print help (see a summary with '-h')
 
 : *-V*, *\-\-version*
 

@@ -14,28 +14,28 @@ This is a TCP server that listens for client connections.
 
 : *\-\-skip\-advertising-updates*
 
-    Whether to skip advertising updates.
+    whether to skip advertising updates
 
 : *\-\-skip\-the\-data\-file*
 
-    Whether to use the data file.
+    whether to use the data file
 
 : *\-\-host _HOST_*
 
-    Listen for HTP drivers on host.
+    listen for HTP drivers on host
     [default: 0.0.0.0]
 
 : *\-\-systemd*
 
-    Whether the application is being run by systemd.
+    whether the application is being run by systemd
 
 : *-h*, *\-\-help*
 
-    Print help.
+    print help
 
 : *-V*, *\-\-version*
 
-    Print version.
+    print version
 
 # COPYRIGHT
 
