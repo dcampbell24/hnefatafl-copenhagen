@@ -6,8 +6,6 @@ git = "https://github.com/dcampbell24/hnefatafl-copenhagen.git"
 [build]
 dependencies = [
     "liborbital",
-    # "libogg",
-    # "libvorbis",
 ]
 template = "custom"
 script = """
