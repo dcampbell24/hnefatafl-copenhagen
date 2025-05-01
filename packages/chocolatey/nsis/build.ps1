@@ -7,5 +7,5 @@
 # Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Bypass
 
 git checkout 'v0.13.4'
-cargo build --bin hnefatafl-client --no-default-features --features client,sound,www --release
+cargo build --bin hnefatafl-client --no-default-features --features client,sound,timer,www --release
 & 'C:\Program Files (x86)\NSIS\Bin\makensis.exe' .\hnefatafl-client-installer.nsi

@@ -290,6 +290,7 @@ impl Client {
     }
 
     fn subscriptions(&self) -> Subscription<Message> {
+        #[cfg(feature = "timer")]
         let subscription_1 = if let Some(game) = &self.game {
             if game.time.is_some() {
                 iced::time::every(iced::time::Duration::from_millis(100))
@@ -300,6 +301,9 @@ impl Client {
         } else {
             Subscription::none()
         };
+
+        #[cfg(not(feature = "timer"))]
+        let subscription_1 = Subscription::none();
 
         let subscription_2 = Subscription::run(pass_messages);
 

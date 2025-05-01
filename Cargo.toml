@@ -17,7 +17,7 @@ default-run = "hnefatafl-server-full"
 [dependencies.iced]
 git = "https://github.com/iced-rs/iced"
 default-features = false
-features = ["wgpu", "tiny-skia", "web-colors", "thread-pool", "smol"]
+features = ["wgpu", "tiny-skia", "web-colors", "thread-pool"]
 optional = true
 
 [dependencies]
@@ -48,11 +48,12 @@ dirs = { version = "6", optional = true }
 password-hash = { version = "0.5", optional = true }
 
 [features]
-default = ["client", "server", "sound", "www"]
+default = ["client", "server", "sound", "timer", "www"]
 client = ["dep:futures", "dep:iced"]
 icon_2 = []
 server = ["dep:argon2", "dep:dirs", "dep:password-hash"]
 sound = ["dep:rodio"]
+timer = ["iced/smol"]
 www = ["dep:webbrowser"]
 
 [[bin]]
@@ -98,7 +99,7 @@ panic = "abort"
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
 extended-description = "The engine is similar to the Go Text Protocol."
-features = ["client", "server", "sound", "www"]
+features = ["client", "server", "sound", "timer", "www"]
 assets = [
     ["icons/king_16x16.png", "usr/share/icons/hicolor/16x16/apps/org.hnefatafl.hnefatafl_client.png", "644"],
     ["icons/king_22x22.png", "usr/share/icons/hicolor/22x22/apps/org.hnefatafl.hnefatafl_client.png", "644"],

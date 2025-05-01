@@ -19,7 +19,7 @@ gzip --no-name --best packages/hnefatafl-server-full.1
 
 pandoc --standalone --to=plain README.md --output=packages/README.txt
 
-PACKAGE=$(cargo deb -- --no-default-features)
+PACKAGE=$(cargo deb)
 echo $PACKAGE
 lintian $PACKAGE
 
