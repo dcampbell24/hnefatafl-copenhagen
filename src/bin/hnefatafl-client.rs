@@ -1552,13 +1552,14 @@ impl Client {
                     .spacing(SPACING)
                     .into()
             }
-            Screen::Users => column![
+            Screen::Users => scrollable(column![
                 text("logged in"),
                 self.users(true),
                 text("logged out"),
                 self.users(false),
                 row![button("Leave").on_press(Message::Leave)].padding(PADDING),
-            ]
+            ])
+            .spacing(SPACING)
             .into(),
         }
     }

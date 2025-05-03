@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 
+- hnefatafl-client: don't shutdown TCP on redox.
+- hnefatafl-client: make users scrollable.
 - hnefatafl-client: update to iced 0.14.0-dev.
 - hnefatafl-client: make the client useable on Redox.
 - hnefatafl-client: don't show the terminal on Windows.
