@@ -21,7 +21,7 @@ Copyright © 1998-2025 Aage Nielsen, All Rights Reserved;
 
 ### 1. Starting Board Position
 
-![Opening Game](opening_game.png)
+![Opening Game](screenshots/opening_game.png)
 
 ### 2. First Turn
 
@@ -31,7 +31,7 @@ The attackers (black) move first.
 
 You can move to the edge of the board or another piece orthogonally:
 
-![Move](move.png)
+![Move](screenshots/move.png)
 
 ### 4. Capture
 
@@ -141,7 +141,7 @@ The board edge is _NOT_ hostile.
 
 If the king reaches any corner square, the king has escaped and his side wins.
 
-![Defender Wins](defender_wins.png)
+![Defender Wins](screenshots/defender_wins.png)
 
 #### Exit Forts
 
@@ -199,7 +199,7 @@ The king cannot be captured on the board edge.
 If the attackers surround the king and _ALL_ remaining defenders with an
 unbroken ring, then they win, as they have prevented the king from escaping.
 
-![Attacker Wins](attacker_wins.png)
+![Attacker Wins](screenshots/attacker_wins.png)
 
 #### The King is Not Captured
 

@@ -92,6 +92,13 @@ fn main() -> anyhow::Result<()> {
             icon: Some(icon::from_rgba(king, 256, 256)?),
             ..window::Settings::default()
         })
+        // For screenshots.
+        /*
+        .window_size(iced::Size {
+            width: 870.0,
+            height: 541.0,
+        })
+        */
         .theme(Client::theme)
         .default_font(Font::MONOSPACE)
         .run()?;
