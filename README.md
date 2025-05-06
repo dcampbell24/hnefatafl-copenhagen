@@ -49,7 +49,7 @@ Marvin T. [@marvintubat123].
 
 ## Packaging Status
 
-`0.13.4` [AUR]  
+`1.0.0` [AUR]  
 `0.13.4` [crates.io]  
 `0.13.4` [chocolatey.org]  
 `1.0.0` [deb]  
