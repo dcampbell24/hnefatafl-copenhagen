@@ -42,22 +42,19 @@ package on Arch, Debian, Ubuntu, and Fedora.
 
 ### Install
 
-In your terminal run the following to build the client with [Rust's][2] cargo:
+In your terminal run the following to run the client with [Rust's][2] cargo:
 
 ```sh
 git clone https://github.com/dcampbell24/hnefatafl-copenhagen.git
 cd hnefatafl-copenhagen
 git checkout v1.0.0
-cargo build hnefatafl-copenhagen --no-default-features --features client,sound,timer,www
+cargo run --release --bin hnefatafl-client
+
+# Optionally set this to make it less noisy
+RUST_LOG=hnefatafl_client=info cargo run --release --bin hnefatafl-client
 ```
 
 [2]: https://www.rust-lang.org/learn/get-started
-
-Then run the client:
-
-```sh
-./target/release/hnefatafl-client
-```
 
 ## Note
 
