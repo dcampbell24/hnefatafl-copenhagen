@@ -45,7 +45,7 @@
   <url type="contact">https://dlc.name</url>
   <!-- <url type="faq">https://example.org/faq</url> -->
   <!-- <url type="translate">https://example.org/translate</url> -->
-  <!-- <url type="contribute">https://example.org/contribute</url> -->
+  <url type="contribute">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CONTRIBUTE.md</url>
   <url type="vcs-browser">https://github.com/dcampbell24/hnefatafl-copenhagen</url>
 
   <screenshots>
