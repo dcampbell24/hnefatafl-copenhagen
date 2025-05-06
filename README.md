@@ -53,7 +53,7 @@ Marvin T. [@marvintubat123].
 `0.13.4` [crates.io]  
 `0.13.4` [chocolatey.org]  
 `1.0.0` [deb]  
-`0.13.4` [flathub.org]  
+`1.0.0` [flathub.org]  
 
 [AUR]: https://aur.archlinux.org/packages/hnefatafl-copenhagen
 [crates.io]: https://crates.io/crates/hnefatafl-copenhagen
