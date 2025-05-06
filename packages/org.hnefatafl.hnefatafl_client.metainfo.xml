@@ -42,7 +42,7 @@
   <url type="bugtracker">https://github.com/dcampbell24/hnefatafl-copenhagen/issues</url>
   <url type="homepage">https://hnefatafl.org/</url>
   <url type="donation">https://www.paypal.com/donate/?business=KKYGHNASN25TY&no_recurring=0&item_name=To+make+Hnefatafl+Copenhagen&currency_code=USD</url>
-  <url type="contact">https://dlc.name/</url>
+  <url type="contact">https://dlc.name</url>
   <!-- <url type="faq">https://example.org/faq</url> -->
   <!-- <url type="translate">https://example.org/translate</url> -->
   <!-- <url type="contribute">https://example.org/contribute</url> -->
@@ -71,6 +71,13 @@
   </screenshots>
 
   <releases>
+    <release version="1.0.0" date="2025-05-05">
+      <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/v1.0.0/CHANGELOG.md#100---2025-05-05</url>
+      <description>
+        <p>See the CHANGELOG.md file.</p>
+      </description>
+    </release>
+
     <release version="0.13.4" date="2025-04-21">
       <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/v0.13.4/CHANGELOG.md#0134---2025-04-21</url>
       <description>
