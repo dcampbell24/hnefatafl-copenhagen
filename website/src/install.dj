@@ -48,8 +48,10 @@ In your terminal run the following to run the client with [Rust's][2] cargo:
 git clone https://github.com/dcampbell24/hnefatafl-copenhagen.git
 cd hnefatafl-copenhagen
 cargo run --release --bin hnefatafl-client
+```
 
-# Optionally set this to make it less noisy:
+Optionally set this to make it less noisy:
+```sh
 RUST_LOG=hnefatafl_client=info cargo run --release --bin hnefatafl-client
 ```
 
