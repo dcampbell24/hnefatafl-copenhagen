@@ -52,13 +52,13 @@ Marvin T. [@marvintubat123].
 `0.13.4` [AUR]  
 `0.13.4` [crates.io]  
 `0.13.4` [chocolatey.org]  
-`0.13.4` [deb]  
+`1.0.0` [deb]  
 `0.13.4` [flathub.org]  
 
 [AUR]: https://aur.archlinux.org/packages/hnefatafl-copenhagen
 [crates.io]: https://crates.io/crates/hnefatafl-copenhagen
 [chocolatey.org]: https://community.chocolatey.org/packages/hnefatafl-copenhagen/
-[deb]: https://hnefatafl.org/binaries/debian/hnefatafl-copenhagen_0.13.4-1_amd64.deb
+[deb]: https://hnefatafl.org/binaries/debian/hnefatafl-copenhagen_1.0.0-1_amd64.deb
 [flathub.org]: https://flathub.org/apps/org.hnefatafl.hnefatafl_client
 
 ## Contributors
