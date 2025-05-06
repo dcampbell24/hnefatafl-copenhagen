@@ -41,7 +41,7 @@
 
   <url type="bugtracker">https://github.com/dcampbell24/hnefatafl-copenhagen/issues</url>
   <url type="homepage">https://hnefatafl.org/</url>
-  <url type="donation">https://www.paypal.com/donate/?business=KKYGHNASN25TY&no_recurring=0&item_name=To+make+Hnefatafl+Copenhagen&currency_code=USD</url>
+  <url type="donation">https://www.paypal.com/donate/?business=KKYGHNASN25TY&amp;no_recurring=0&amp;item_name=To+make+Hnefatafl+Copenhagen&amp;currency_code=USD</url>
   <url type="contact">https://dlc.name</url>
   <!-- <url type="faq">https://example.org/faq</url> -->
   <!-- <url type="translate">https://example.org/translate</url> -->
