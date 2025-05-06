@@ -4,8 +4,8 @@
   <metadata>
     <!-- == PACKAGE SPECIFIC SECTION == -->
     <id>hnefatafl-copenhagen</id>
-    <version>0.13.4</version>
-    <packageSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/tree/main/packages/hnefatafl-copenhagen</packageSourceUrl>
+    <version>1.0.0</version>
+    <packageSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/tree/main/packages/chocolatey</packageSourceUrl>
     <owners>David Lawrence Campbell</owners>
     <!-- ============================== -->
 
@@ -22,7 +22,7 @@
     <!--<mailingListUrl></mailingListUrl>-->
     <bugTrackerUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/issues</bugTrackerUrl>
     <tags>board-game copenhagen hnefatafl tafl</tags>
-    <releaseNotes>https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CHANGELOG.md#0134---2025-04-21</releaseNotes>
+    <releaseNotes>https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CHANGELOG.md#100</releaseNotes>
     <summary>Copenhagen Hnefatafl</summary>
     <description>Copenhagen Hnefatafl client that connects to a server.</description>
     <!-- =============================== -->
