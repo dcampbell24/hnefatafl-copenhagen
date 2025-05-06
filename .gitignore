@@ -1,7 +1,3 @@
-/packages/pkg
-/packages/src
-/packages/repo
-/packages/.flatpak-builder
 /profile.json
 /ssl
 /target
@@ -10,4 +6,3 @@
 
 hnefatafl-client-installer-1.0.0.exe
 hnefatafl-copenhagen.1.0.0.nupkg
-hnefatafl-copenhagen.0.13.4.nupkg
