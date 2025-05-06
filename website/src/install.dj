@@ -40,7 +40,7 @@ ALSA development files are needed to build `cpal` on Linux (`rodio` dependency,
 The package uses the `mold` linker. This is provided via the `mold`
 package on Arch, Debian, Ubuntu, and Fedora.
 
-### Install
+### Run
 
 In your terminal run the following to run the client with [Rust's][2] cargo:
 
