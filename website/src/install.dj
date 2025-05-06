@@ -50,7 +50,7 @@ cd hnefatafl-copenhagen
 git checkout v1.0.0
 cargo run --release --bin hnefatafl-client
 
-# Optionally set this to make it less noisy
+# Optionally set this to make it less noisy:
 RUST_LOG=hnefatafl_client=info cargo run --release --bin hnefatafl-client
 ```
 
