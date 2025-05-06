@@ -51,6 +51,7 @@ cargo run --release --bin hnefatafl-client
 ```
 
 Optionally set this to make it less noisy:
+
 ```sh
 RUST_LOG=hnefatafl_client=info cargo run --release --bin hnefatafl-client
 ```
