@@ -8,8 +8,10 @@ use std::{
     collections::{HashMap, HashSet, VecDeque},
     env, f64,
     fmt::Write as fmt_write,
+    fs::{self, File},
     io::{BufRead, BufReader, Write},
     net::{Shutdown, TcpStream},
+    path::PathBuf,
     process::exit,
     str::{FromStr, SplitAsciiWhitespace},
     sync::mpsc::{self, Sender},
@@ -51,6 +53,7 @@ use iced::{
     window::{self, icon},
 };
 use log::{LevelFilter, debug, error, info, trace};
+use serde::{Deserialize, Serialize};
 
 const PORT: &str = ":49152";
 const PADDING: u16 = 10;
@@ -68,6 +71,18 @@ struct Args {
     host: String,
 }
 
+fn client_maybe_from_file() -> Client {
+    let data_file = data_file();
+    let mut client = if let Ok(string) = &fs::read_to_string(&data_file) {
+        ron::from_str(string.as_str()).unwrap_or_default()
+    } else {
+        Client::default()
+    };
+
+    client.text_input = client.username.clone();
+    client
+}
+
 fn main() -> anyhow::Result<()> {
     init_logger();
 
@@ -77,7 +92,7 @@ fn main() -> anyhow::Result<()> {
     #[cfg(feature = "icon_2")]
     let king = include_bytes!("king_2_256x256.rgba").to_vec();
 
-    iced::application(Client::default, Client::update, Client::view)
+    iced::application(client_maybe_from_file, Client::update, Client::view)
         .title("Hnefatafl Copenhagen")
         .subscription(Client::subscriptions)
         .window(window::Settings {
@@ -107,44 +122,79 @@ fn main() -> anyhow::Result<()> {
 }
 
 #[allow(clippy::struct_excessive_bools)]
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 struct Client {
+    #[serde(skip)]
     attacker: String,
+    #[serde(skip)]
     defender: String,
+    #[serde(skip)]
     delete_account: bool,
+    #[serde(skip)]
     captures: HashSet<Vertex>,
+    #[serde(skip)]
     challenger: bool,
+    #[serde(skip)]
     connected_to: String,
+    #[serde(skip)]
     error: Option<String>,
+    #[serde(skip)]
     game: Option<Game>,
+    #[serde(skip)]
     game_id: usize,
+    #[serde(skip)]
     games_light: ServerGamesLight,
+    #[serde(skip)]
     my_turn: bool,
+    #[serde(skip)]
     password: String,
+    #[serde(skip)]
     password_real: String,
+    #[serde(skip)]
     password_show: bool,
+    #[serde(skip)]
     play_from: Option<Vertex>,
+    #[serde(skip)]
     play_from_previous: Option<Vertex>,
+    #[serde(skip)]
     play_to_previous: Option<Vertex>,
+    #[serde(skip)]
     rated: Rated,
+    #[serde(skip)]
     request_draw: bool,
+    #[serde(skip)]
     role_selected: Option<Role>,
+    #[serde(skip)]
     screen: Screen,
+    #[serde(skip)]
     screen_size: Size,
+    #[serde(skip)]
     sound_muted: bool,
+    #[serde(skip)]
     spectators: Vec<String>,
+    #[serde(skip)]
     status: Status,
+    #[serde(skip)]
     texts: VecDeque<String>,
+    #[serde(skip)]
     texts_game: VecDeque<String>,
+    #[serde(skip)]
     text_input: String,
     theme: Theme,
+    #[serde(skip)]
     timed: TimeSettings,
+    #[serde(skip)]
     time_minutes: String,
+    #[serde(skip)]
     time_add_seconds: String,
+    #[serde(skip)]
     time_attacker: TimeSettings,
+    #[serde(skip)]
     time_defender: TimeSettings,
+    #[serde(skip)]
     tx: Option<mpsc::Sender<String>>,
     username: String,
+    #[serde(skip)]
     users: HashMap<String, User>,
 }
 
@@ -359,7 +409,10 @@ impl Client {
 
         match message {
             Message::AccountSettings => self.screen = Screen::AccountSettings,
-            Message::ChangeTheme(theme) => self.theme = theme,
+            Message::ChangeTheme(theme) => {
+                self.theme = theme;
+                self.save_client();
+            }
             Message::ConnectedTo(address) => self.connected_to = address,
             Message::DeleteAccount => {
                 if self.delete_account {
@@ -921,21 +974,33 @@ impl Client {
                     }
                 }
                 self.text_input.clear();
+                self.save_client();
             }
             Message::TextSendLogin => {
-                if !self.text_input.trim().is_empty() {
-                    if let Some(username) = self.text_input.split_ascii_whitespace().next() {
-                        let username = username.to_ascii_lowercase();
-                        self.send(format!(
-                            "{VERSION_ID} login {username} {}\n",
-                            self.password_real
-                        ));
-                        self.username = username;
-                        self.password.clear();
-                        self.password_real.clear();
-                    }
+                if self.text_input.trim().is_empty() {
+                    let username = format!("user-{:x}", rand::random::<u32>());
+
+                    self.send(format!(
+                        "{VERSION_ID} create_account {username} {}\n",
+                        self.password_real
+                    ));
+                    self.username = username;
+                } else if let Some(username) = self.text_input.split_ascii_whitespace().next() {
+                    let username = username.to_ascii_lowercase();
+
+                    self.send(format!(
+                        "{VERSION_ID} login {username} {}\n",
+                        self.password_real
+                    ));
+                    self.username = username;
+                } else {
+                    panic!("You can't reach this path!")
                 }
+
+                self.password.clear();
+                self.password_real.clear();
                 self.text_input.clear();
+                self.save_client();
             }
             Message::Tick => {
                 if let Some(game) = &mut self.game {
@@ -1526,10 +1591,7 @@ impl Client {
                 let show_password =
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow);
 
-                let mut login = button("Login");
-                if !self.text_input.is_empty() {
-                    login = login.on_press(Message::TextSendLogin);
-                }
+                let login = button("Login").on_press(Message::TextSendLogin);
                 let mut create_account = button("Create Account");
                 if !self.text_input.is_empty() {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
@@ -1560,6 +1622,20 @@ impl Client {
             ])
             .spacing(SPACING)
             .into(),
+        }
+    }
+
+    fn save_client(&self) {
+        if let Ok(string) = ron::ser::to_string_pretty(&self, ron::ser::PrettyConfig::default()) {
+            if !string.trim().is_empty() {
+                let data_file = data_file();
+
+                if let Ok(mut file) = File::create(&data_file) {
+                    if let Err(error) = file.write_all(string.as_bytes()) {
+                        error!("{error}");
+                    }
+                }
+            }
         }
     }
 
@@ -1610,6 +1686,17 @@ enum Message {
     TimeMinutes(String),
     Users,
     WindowResized((f32, f32)),
+}
+
+fn data_file() -> PathBuf {
+    let mut data_file = if let Some(data_file) = dirs::data_dir() {
+        data_file
+    } else {
+        PathBuf::new()
+    };
+
+    data_file.push("hnefatafl.ron");
+    data_file
 }
 
 fn get_game(game: &mut Option<Game>) -> &mut Game {
@@ -1747,7 +1834,7 @@ enum Size {
     Large,
 }
 
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 enum Theme {
     #[default]
     Dark,
