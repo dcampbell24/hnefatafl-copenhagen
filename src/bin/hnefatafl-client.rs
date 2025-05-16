@@ -11,7 +11,7 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::{Shutdown, TcpStream},
     process::exit,
-    str::FromStr,
+    str::{FromStr, SplitAsciiWhitespace},
     sync::mpsc::{self, Sender},
     thread,
 };
@@ -798,16 +798,8 @@ impl Client {
                                     self.game_id = game_id;
                                 }
                             }
-                            Some("text") => {
-                                let text: Vec<&str> = text.collect();
-                                let text = text.join(" ");
-                                self.texts.push_front(text);
-                            }
-                            Some("text_game") => {
-                                let text: Vec<&str> = text.collect();
-                                let text = text.join(" ");
-                                self.texts_game.push_front(text);
-                            }
+                            Some("text") => self.texts.push_front(text_collect(text)),
+                            Some("text_game") => self.texts_game.push_front(text_collect(text)),
                             _ => {}
                         }
                     }
@@ -1739,6 +1731,11 @@ fn open_url(url: &str) {
     }
     #[cfg(not(feature = "www"))]
     info!("You are trying to visit: {url}");
+}
+
+fn text_collect(text: SplitAsciiWhitespace<'_>) -> String {
+    let text: Vec<&str> = text.collect();
+    text.join(" ")
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]

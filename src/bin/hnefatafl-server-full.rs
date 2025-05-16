@@ -946,11 +946,12 @@ impl Server {
                     Some(self.request_draw(username, index_supplied, command, &the_rest))
                 }
                 "text" => {
+                    let timestamp = timestamp();
                     let the_rest = the_rest.join(" ");
-                    info!("{index_supplied} {username} text {the_rest}");
+                    info!("{index_supplied} {timestamp} {username} text {the_rest}");
 
                     for tx in &mut self.clients.values() {
-                        let _ok = tx.send(format!("= text {username}: {the_rest}"));
+                        let _ok = tx.send(format!("= text {timestamp} {username}: {the_rest}"));
                     }
 
                     None
@@ -1437,9 +1438,10 @@ impl Server {
             ));
         };
 
+        let timestamp = timestamp();
         let text = the_rest.split_off(1);
         let mut text = text.join(" ");
-        text = format!("{username}: {text}");
+        text = format!("{timestamp} {username}: {text}");
         info!("{index_supplied} {username} text_game {id} {text}");
 
         if let Some(game) = self.games.0.get_mut(&id) {
@@ -1538,6 +1540,10 @@ fn init_logger(systemd: bool) {
     }
 
     builder.init();
+}
+
+fn timestamp() -> String {
+    Local::now().to_utc().format("[%F %T UTC]").to_string()
 }
 
 #[cfg(test)]
