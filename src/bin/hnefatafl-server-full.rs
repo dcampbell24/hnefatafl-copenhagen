@@ -198,7 +198,7 @@ fn login(
                 continue;
             }
 
-            info!("{index} {username} {create_account_login} {password}");
+            debug!("{index} {username} {create_account_login} {password}");
             tx.send((
                 format!("{index} {username} {create_account_login} {password}"),
                 Some(client_tx.clone()),
