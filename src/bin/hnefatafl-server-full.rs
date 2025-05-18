@@ -904,10 +904,7 @@ impl Server {
             ))
             .ok()?;
 
-        let credentials = Credentials::new(
-            self.smtp_username.clone(),
-            self.smtp_password.clone(),
-        );
+        let credentials = Credentials::new(self.smtp_username.clone(), self.smtp_password.clone());
 
         let mailer = SmtpTransport::starttls_relay("smtp.mailersend.net")
             .ok()?
