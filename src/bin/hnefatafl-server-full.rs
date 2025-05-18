@@ -1010,6 +1010,7 @@ impl Server {
                 "email_reset" => {
                     if let Some(account) = self.accounts.0.get_mut(*username) {
                         account.email = None;
+                        self.save_server();
 
                         Some((
                             self.clients.get(&index_supplied)?.clone(),
