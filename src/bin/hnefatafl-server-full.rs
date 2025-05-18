@@ -289,6 +289,8 @@ impl Default for UnixTimestamp {
 struct Server {
     game_id: usize,
     ran_update_rd: UnixTimestamp,
+    smtp_username: String,
+    smtp_password: String,
     accounts: Accounts,
     #[serde(skip)]
     archived_games: Vec<ArchivedGame>,
@@ -890,19 +892,21 @@ impl Server {
 
         info!("{index_supplied} {username} email {email_str}");
 
-        let sequence = format!("{:x}", rand::random::<u32>());
         let email = lettre::Message::builder()
             .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
             .reply_to("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
             .to(email_str.parse().ok()?)
             .subject("Account Verification")
             .header(ContentType::TEXT_PLAIN)
-            .body(sequence.clone())
+            .body(format!(
+                "Your email verification code is as follows: {:x}",
+                rand::random::<u32>()
+            ))
             .ok()?;
 
         let credentials = Credentials::new(
-            "MS_Z2crIx@hnefatafl.org".to_owned(),
-            "mssp.MwqW18R.7dnvo4dk5vnl5r86.L3B8aiW".to_owned(),
+            self.smtp_username.clone(),
+            self.smtp_password.clone(),
         );
 
         let mailer = SmtpTransport::starttls_relay("smtp.mailersend.net")
