@@ -708,6 +708,7 @@ impl Client {
                                 {
                                     self.email = Some(Email {
                                         address: address.to_string(),
+                                        code: None,
                                         verified: verified.parse().unwrap(),
                                     });
                                 }
@@ -987,8 +988,20 @@ impl Client {
                 handle_error(tx.send(format!("email {}\n", self.text_input)));
                 self.email = Some(Email {
                     address: take(&mut self.text_input),
+                    code: None,
                     verified: false,
                 });
+            }
+            Message::TextSendEmailCode => {
+                let tx = get_tx(&mut self.tx);
+                handle_error(tx.send(format!("email_code {}\n", self.text_input)));
+
+                if let Some(email) = &mut self.email {
+                    match take(&mut self.text_input).parse() {
+                        Ok(i) => email.code = Some(i),
+                        Err(err) => error!("error parsing email code: {err}"),
+                    }
+                }
             }
             Message::TextSendCreateAccount => {
                 if !self.text_input.trim().is_empty() {
@@ -1298,30 +1311,41 @@ impl Client {
                 .padding(PADDING)
                 .spacing(SPACING);
 
-                let mut row = Row::new();
-                row = if let Some(email) = &self.email {
+                if let Some(email) = &self.email {
+                    let mut row = Row::new();
                     if email.verified {
-                        row.push(text(format!(
+                        row = row.push(text(format!(
                             "email address: [verified] {} ",
                             email.address
-                        )))
+                        )));
                     } else {
-                        row.push(text(format!(
+                        row = row.push(text(format!(
                             "email address: [unverified] {} ",
                             email.address
-                        )))
+                        )));
                     }
+                    columns = columns.push(row);
+
+                    let mut row = Row::new();
+                    row = row.push(text("email code: ".to_string()));
+                    row = row.push(
+                        text_input("", &self.text_input)
+                            .on_input(Message::TextChanged)
+                            .on_submit(Message::TextSendEmailCode),
+                    );
+                    columns = columns.push(row);
                 } else {
-                    row.push(text("email address: ".to_string()))
-                };
+                    let mut row = Row::new();
+                    row = row.push(text("email address: ".to_string()));
+                    row = row.push(
+                        text_input("", &self.text_input)
+                            .on_input(Message::TextChanged)
+                            .on_submit(Message::TextSendEmail),
+                    );
 
-                row = row.push(
-                    text_input("", &self.text_input)
-                        .on_input(Message::TextChanged)
-                        .on_submit(Message::TextSendEmail),
-                );
-
-                columns = columns.push(row);
+                    columns = columns.push(row);
+                    columns = columns.push(row![text("email code:")]);
+                }
 
                 if self.password_show {
                     columns = columns.push(row![
@@ -1738,6 +1762,7 @@ enum Message {
     TextReceived(String),
     TextSend,
     TextSendEmail,
+    TextSendEmailCode,
     TextSendCreateAccount,
     TextSendLogin,
     Tick,

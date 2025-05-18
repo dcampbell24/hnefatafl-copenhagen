@@ -52,5 +52,6 @@ pub struct Accounts(pub HashMap<String, Account>);
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Email {
     pub address: String,
+    pub code: Option<u32>,
     pub verified: bool,
 }

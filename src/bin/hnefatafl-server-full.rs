@@ -884,14 +884,18 @@ impl Server {
                 (*command).to_string(),
             ));
         };
+
+        let rand_u32 = rand::random::<u32>();
         account.email = Some(Email {
             address: email_str.to_string(),
+            code: Some(rand_u32),
             verified: false,
         });
         self.save_server();
 
         info!("{index_supplied} {username} email {email_str}");
 
+        let rand_u32 = rand::random::<u32>();
         let email = lettre::Message::builder()
             .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
             .reply_to("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
@@ -899,8 +903,7 @@ impl Server {
             .subject("Account Verification")
             .header(ContentType::TEXT_PLAIN)
             .body(format!(
-                "Your email verification code is as follows: {:x}",
-                rand::random::<u32>()
+                "Your email verification code is as follows: {rand_u32:x}",
             ))
             .ok()?;
 
