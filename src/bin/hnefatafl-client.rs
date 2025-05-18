@@ -148,6 +148,8 @@ struct Client {
     #[serde(skip)]
     error: Option<String>,
     #[serde(skip)]
+    error_email: Option<String>,
+    #[serde(skip)]
     game: Option<Game>,
     #[serde(skip)]
     game_id: usize,
@@ -460,6 +462,7 @@ impl Client {
             Message::Leave => match self.screen {
                 Screen::AccountSettings | Screen::GameNew | Screen::Users => {
                     self.screen = Screen::Games;
+                    self.text_input = String::new();
                 }
                 Screen::Game => {
                     if self.username == self.attacker || self.username == self.defender {
@@ -881,10 +884,18 @@ impl Client {
                     }
                     Some("?") => {
                         let text_next = text.next();
-                        if Some("create_account") == text_next || Some("login") == text_next {
-                            let text: Vec<_> = text.collect();
-                            let text = text.join(" ");
-                            self.error = Some(text);
+                        match text_next {
+                            Some("create_account" | "login") => {
+                                let text: Vec<_> = text.collect();
+                                let text = text.join(" ");
+                                self.error = Some(text);
+                            }
+                            Some("email") => {
+                                let text: Vec<_> = text.collect();
+                                let text = text.join(" ");
+                                self.error_email = Some(text);
+                            }
+                            _ => {}
                         }
                     }
                     Some("game") => {
@@ -984,15 +995,15 @@ impl Client {
                 self.text_input.clear();
             }
             Message::TextSendEmail => {
+                self.error_email = None;
+
                 let tx = get_tx(&mut self.tx);
                 handle_error(tx.send(format!("email {}\n", self.text_input)));
-                self.email = Some(Email {
-                    address: take(&mut self.text_input),
-                    code: None,
-                    verified: false,
-                });
+                self.text_input.clear();
             }
             Message::TextSendEmailCode => {
+                self.error_email = None;
+
                 let tx = get_tx(&mut self.tx);
                 handle_error(tx.send(format!("email_code {}\n", self.text_input)));
 
@@ -1345,6 +1356,10 @@ impl Client {
 
                     columns = columns.push(row);
                     columns = columns.push(row![text("email code:")]);
+                }
+
+                if let Some(error) = &self.error_email {
+                    columns = columns.push(row![text(format!("error: {error}"))]);
                 }
 
                 if self.password_show {

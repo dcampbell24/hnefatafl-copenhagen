@@ -885,14 +885,6 @@ impl Server {
             ));
         };
 
-        let rand_u32 = rand::random::<u32>();
-        account.email = Some(Email {
-            address: email_str.to_string(),
-            code: Some(rand_u32),
-            verified: false,
-        });
-        self.save_server();
-
         info!("{index_supplied} {username} email {email_str}");
 
         let rand_u32 = rand::random::<u32>();
@@ -903,7 +895,7 @@ impl Server {
             .subject("Account Verification")
             .header(ContentType::TEXT_PLAIN)
             .body(format!(
-                "Your email verification code is as follows: {rand_u32:x}",
+                "Dear {username},\nyour email verification code is as follows: {rand_u32:x}",
             ))
             .ok()?;
 
@@ -915,15 +907,26 @@ impl Server {
             .build();
 
         match mailer.send(&email) {
-            Ok(_) => info!("email sent to {email_str} successfully!"),
-            Err(err) => error!("could not send email to {email_str}: {err}"),
-        }
+            Ok(_) => {
+                info!("email sent to {email_str} successfully!");
 
-        Some((
-            self.clients[&index_supplied].clone(),
-            true,
-            (*command).to_string(),
-        ))
+                account.email = Some(Email {
+                    address: email_str.to_string(),
+                    code: Some(rand_u32),
+                    verified: false,
+                });
+                self.save_server();
+
+                let reply = format!("email {email_str} false");
+                Some((self.clients[&index_supplied].clone(), true, reply))
+            }
+            Err(err) => {
+                let reply = format!("could not send email to {email_str}");
+                error!("{reply}: {err}");
+
+                Some((self.clients[&index_supplied].clone(), false, reply))
+            }
+        }
     }
 
     fn handle_messages(
