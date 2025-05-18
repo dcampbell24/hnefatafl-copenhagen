@@ -27,6 +27,7 @@ use hnefatafl_copenhagen::{
     server_game::{
         ArchivedGame, Challenger, ServerGame, ServerGameLight, ServerGames, ServerGamesLight,
     },
+    smtp::Smtp,
     status::Status,
     time::TimeSettings,
 };
@@ -289,8 +290,7 @@ impl Default for UnixTimestamp {
 struct Server {
     game_id: usize,
     ran_update_rd: UnixTimestamp,
-    smtp_username: String,
-    smtp_password: String,
+    smtp: Smtp,
     accounts: Accounts,
     #[serde(skip)]
     archived_games: Vec<ArchivedGame>,
@@ -899,9 +899,9 @@ impl Server {
             ))
             .ok()?;
 
-        let credentials = Credentials::new(self.smtp_username.clone(), self.smtp_password.clone());
+        let credentials = Credentials::new(self.smtp.username.clone(), self.smtp.password.clone());
 
-        let mailer = SmtpTransport::starttls_relay("smtp.mailersend.net")
+        let mailer = SmtpTransport::relay(&self.smtp.service)
             .ok()?
             .credentials(credentials)
             .build();
