@@ -238,7 +238,7 @@ fn login(
     stream.write_all(b"= login\n")?;
     thread::spawn(move || receiving_and_writing(stream, &client_rx));
 
-    tx.send((format!("{index} {username_proper} get_email"), None))?;
+    tx.send((format!("{index} {username_proper} email_get"), None))?;
 
     'outer: for _ in 0..1_000_000 {
         if let Err(err) = reader.read_line(&mut buf) {
@@ -918,13 +918,13 @@ impl Server {
                 self.save_server();
 
                 let reply = format!("email {email_str} false");
-                Some((self.clients[&index_supplied].clone(), true, reply))
+                Some((self.clients.get(&index_supplied)?.clone(), true, reply))
             }
             Err(err) => {
                 let reply = format!("could not send email to {email_str}");
                 error!("{reply}: {err}");
 
-                Some((self.clients[&index_supplied].clone(), false, reply))
+                Some((self.clients.get(&index_supplied)?.clone(), false, reply))
             }
         }
     }
@@ -992,10 +992,14 @@ impl Server {
                 "display_server" => self.display_server(username),
                 "draw" => self.draw(index_supplied, command, the_rest.as_slice()),
                 "game" => self.game(index_supplied, username, command, the_rest.as_slice()),
-                "get_email" => {
+                "email" => {
+                    self.set_email(index_supplied, username, command, the_rest.first().copied())
+                }
+                "email_get" => {
                     if let Some(account) = self.accounts.0.get(*username) {
                         if let Some(email) = &account.email {
-                            self.clients[&index_supplied]
+                            self.clients
+                                .get(&index_supplied)?
                                 .send(format!("= email {} {}", email.address, email.verified))
                                 .ok()?;
                         }
@@ -1003,8 +1007,18 @@ impl Server {
 
                     None
                 }
-                "email" => {
-                    self.set_email(index_supplied, username, command, the_rest.first().copied())
+                "email_reset" => {
+                    if let Some(account) = self.accounts.0.get_mut(*username) {
+                        account.email = None;
+
+                        Some((
+                            self.clients.get(&index_supplied)?.clone(),
+                            true,
+                            (*command).to_string(),
+                        ))
+                    } else {
+                        None
+                    }
                 }
                 "join_game" => self.join_game(
                     username,

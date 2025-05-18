@@ -432,6 +432,10 @@ impl Client {
                     self.delete_account = true;
                 }
             }
+            Message::EmailReset => {
+                self.email = None;
+                self.send("email_reset\n".to_string());
+            }
             Message::GameAccept(id) => {
                 self.send(format!("join_game {id}\n"));
                 self.game_id = id;
@@ -1358,6 +1362,8 @@ impl Client {
                     columns = columns.push(row![text("email code:")]);
                 }
 
+                columns = columns.push(row![button("Reset Email").on_press(Message::EmailReset)]);
+
                 if let Some(error) = &self.error_email {
                     columns = columns.push(row![text(format!("error: {error}"))]);
                 }
@@ -1751,6 +1757,7 @@ enum Message {
     ChangeTheme(Theme),
     ConnectedTo(String),
     DeleteAccount,
+    EmailReset,
     GameAccept(usize),
     GameDecline(usize),
     GameJoin(usize),
