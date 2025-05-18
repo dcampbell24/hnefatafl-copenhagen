@@ -143,6 +143,7 @@ struct Client {
     challenger: bool,
     #[serde(skip)]
     connected_to: String,
+    #[serde(skip)]
     email: Option<Email>,
     #[serde(skip)]
     error: Option<String>,
