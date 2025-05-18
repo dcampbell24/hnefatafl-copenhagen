@@ -19,6 +19,7 @@ impl fmt::Display for Accounts {
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Account {
+    pub email: Option<Email>,
     pub password: String,
     pub logged_in: Option<usize>,
     pub draws: u64,
@@ -47,3 +48,9 @@ impl fmt::Display for Account {
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Accounts(pub HashMap<String, Account>);
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct Email {
+    pub address: String,
+    pub verified: bool,
+}

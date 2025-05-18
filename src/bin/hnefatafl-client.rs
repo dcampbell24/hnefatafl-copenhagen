@@ -9,7 +9,8 @@ use std::{
     env, f64,
     fmt::Write as fmt_write,
     fs::{self, File},
-    io::{BufRead, BufReader, Write},
+    io::{BufRead, BufReader, ErrorKind, Write},
+    mem::take,
     net::{Shutdown, TcpStream},
     path::PathBuf,
     process::exit,
@@ -24,6 +25,7 @@ use env_logger::Builder;
 use futures::{SinkExt, executor};
 use hnefatafl_copenhagen::{
     VERSION_ID,
+    accounts::Email,
     color::Color,
     draw::Draw,
     game::Game,
@@ -73,10 +75,15 @@ struct Args {
 
 fn client_maybe_from_file() -> Client {
     let data_file = data_file();
-    let mut client = if let Ok(string) = &fs::read_to_string(&data_file) {
-        ron::from_str(string.as_str()).unwrap_or_default()
-    } else {
-        Client::default()
+    let mut client = match &fs::read_to_string(&data_file) {
+        Ok(string) => match ron::from_str(string.as_str()) {
+            Ok(client) => client,
+            Err(err) => panic!("{err}"),
+        },
+        Err(err) => match err.kind() {
+            ErrorKind::NotFound => Client::default(),
+            _ => panic!("{err}"),
+        },
     };
 
     client.text_input = client.username.clone();
@@ -136,6 +143,7 @@ struct Client {
     challenger: bool,
     #[serde(skip)]
     connected_to: String,
+    email: Option<Email>,
     #[serde(skip)]
     error: Option<String>,
     #[serde(skip)]
@@ -603,6 +611,10 @@ impl Client {
             Message::RatedSelected(rated) => {
                 self.rated = if rated { Rated::Yes } else { Rated::No };
             }
+            Message::RecoverPassword => {
+                let tx = get_tx(&mut self.tx);
+                handle_error(tx.send("recover_password\n".to_string()));
+            }
             Message::RoleSelected(role) => {
                 self.role_selected = Some(role);
             }
@@ -688,6 +700,15 @@ impl Client {
                                     if let Some(game) = &mut self.game {
                                         game.turn = Color::Colorless;
                                     }
+                                }
+                            }
+                            Some("email") => {
+                                if let (Some(address), Some(verified)) = (text.next(), text.next())
+                                {
+                                    self.email = Some(Email {
+                                        address: address.to_string(),
+                                        verified: verified.parse().unwrap(),
+                                    });
                                 }
                             }
                             Some("game_over") => {
@@ -959,6 +980,14 @@ impl Client {
                 }
 
                 self.text_input.clear();
+            }
+            Message::TextSendEmail => {
+                let tx = get_tx(&mut self.tx);
+                handle_error(tx.send(format!("email {}\n", self.text_input)));
+                self.email = Some(Email {
+                    address: take(&mut self.text_input),
+                    verified: false,
+                });
             }
             Message::TextSendCreateAccount => {
                 if !self.text_input.trim().is_empty() {
@@ -1268,6 +1297,31 @@ impl Client {
                 .padding(PADDING)
                 .spacing(SPACING);
 
+                let mut row = Row::new();
+                row = if let Some(email) = &self.email {
+                    if email.verified {
+                        row.push(text(format!(
+                            "email address: [verified] {} ",
+                            email.address
+                        )))
+                    } else {
+                        row.push(text(format!(
+                            "email address: [unverified] {} ",
+                            email.address
+                        )))
+                    }
+                } else {
+                    row.push(text("email address: ".to_string()))
+                };
+
+                row = row.push(
+                    text_input("", &self.text_input)
+                        .on_input(Message::TextChanged)
+                        .on_submit(Message::TextSendEmail),
+                );
+
+                columns = columns.push(row);
+
                 if self.password_show {
                     columns = columns.push(row![
                         text("change password: "),
@@ -1286,6 +1340,9 @@ impl Client {
                 columns = columns.push(
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow),
                 );
+
+                columns =
+                    columns.push(button("Recover Password").on_press(Message::RecoverPassword));
 
                 if self.delete_account {
                     columns = columns
@@ -1673,11 +1730,13 @@ enum Message {
     PlayResign,
     SoundMuted(bool),
     RatedSelected(bool),
+    RecoverPassword,
     RoleSelected(Role),
     TcpConnected(mpsc::Sender<String>),
     TextChanged(String),
     TextReceived(String),
     TextSend,
+    TextSendEmail,
     TextSendCreateAccount,
     TextSendLogin,
     Tick,

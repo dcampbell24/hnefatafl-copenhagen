@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add email your password (WIP).
+- Cleanup ron file handling.
 - hnefatafl-client: save the username and theme.
-- hnefatafl-client: when login is empty login as a default `user-u32`.
+- hnefatafl-client: when `username` is empty, login as a default `user-u32`.
 - hnefatafl-server-full: add a timestamp to messages.
 
 ## [1.0.0] - 2025-05-05

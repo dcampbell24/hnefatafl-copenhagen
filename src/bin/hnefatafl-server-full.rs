@@ -2,7 +2,7 @@ use std::{
     collections::HashMap,
     env,
     fs::{self, File},
-    io::{BufRead, BufReader, Write},
+    io::{BufRead, BufReader, ErrorKind, Write},
     net::{TcpListener, TcpStream},
     path::PathBuf,
     str::FromStr,
@@ -17,7 +17,7 @@ use clap::{Parser, command};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
     VERSION_ID,
-    accounts::{Account, Accounts},
+    accounts::{Account, Accounts, Email},
     color::Color,
     draw::Draw,
     glicko::Outcome,
@@ -29,6 +29,10 @@ use hnefatafl_copenhagen::{
     },
     status::Status,
     time::TimeSettings,
+};
+use lettre::{
+    SmtpTransport, Transport, message::header::ContentType,
+    transport::smtp::authentication::Credentials,
 };
 use log::{LevelFilter, debug, error, info};
 use password_hash::SaltString;
@@ -69,12 +73,17 @@ fn main() -> anyhow::Result<()> {
 
     let mut server = Server::default();
 
-    let data_file = data_file();
     if !args.skip_the_data_file {
-        if let Ok(string) = &fs::read_to_string(&data_file) {
-            if let Ok(server_ron) = ron::from_str(string.as_str()) {
-                server = server_ron;
-            }
+        let data_file = data_file();
+        match &fs::read_to_string(&data_file) {
+            Ok(string) => match ron::from_str(string.as_str()) {
+                Ok(server_ron) => server = server_ron,
+                Err(err) => return Err(anyhow::Error::msg(err.to_string())),
+            },
+            Err(err) => match err.kind() {
+                ErrorKind::NotFound => {}
+                _ => return Err(anyhow::Error::msg(err.to_string())),
+            },
         }
     }
 
@@ -227,6 +236,8 @@ fn login(
 
     stream.write_all(b"= login\n")?;
     thread::spawn(move || receiving_and_writing(stream, &client_rx));
+
+    tx.send((format!("{index} {username_proper} get_email"), None))?;
 
     'outer: for _ in 0..1_000_000 {
         if let Err(err) = reader.read_line(&mut buf) {
@@ -850,6 +861,67 @@ impl Server {
         ))
     }
 
+    fn set_email(
+        &mut self,
+        index_supplied: usize,
+        username: &str,
+        command: &str,
+        email: Option<&str>,
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
+        let Some(email_str) = email else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+        let Some(account) = self.accounts.0.get_mut(username) else {
+            return Some((
+                self.clients[&index_supplied].clone(),
+                false,
+                (*command).to_string(),
+            ));
+        };
+        account.email = Some(Email {
+            address: email_str.to_string(),
+            verified: false,
+        });
+        self.save_server();
+
+        info!("{index_supplied} {username} email {email_str}");
+
+        let sequence = format!("{:x}", rand::random::<u32>());
+        let email = lettre::Message::builder()
+            .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
+            .reply_to("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
+            .to(email_str.parse().ok()?)
+            .subject("Account Verification")
+            .header(ContentType::TEXT_PLAIN)
+            .body(sequence.clone())
+            .ok()?;
+
+        let credentials = Credentials::new(
+            "MS_Z2crIx@hnefatafl.org".to_owned(),
+            "mssp.MwqW18R.7dnvo4dk5vnl5r86.L3B8aiW".to_owned(),
+        );
+
+        let mailer = SmtpTransport::starttls_relay("smtp.mailersend.net")
+            .ok()?
+            .credentials(credentials)
+            .build();
+
+        match mailer.send(&email) {
+            Ok(_) => info!("email sent to {email_str} successfully!"),
+            Err(err) => error!("could not send email to {email_str}: {err}"),
+        }
+
+        Some((
+            self.clients[&index_supplied].clone(),
+            true,
+            (*command).to_string(),
+        ))
+    }
+
     fn handle_messages(
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
@@ -865,6 +937,7 @@ impl Server {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     fn handle_messages_internal(
         &mut self,
         rx: &mpsc::Receiver<(String, Option<mpsc::Sender<String>>)>,
@@ -912,6 +985,20 @@ impl Server {
                 "display_server" => self.display_server(username),
                 "draw" => self.draw(index_supplied, command, the_rest.as_slice()),
                 "game" => self.game(index_supplied, username, command, the_rest.as_slice()),
+                "get_email" => {
+                    if let Some(account) = self.accounts.0.get(*username) {
+                        if let Some(email) = &account.email {
+                            self.clients[&index_supplied]
+                                .send(format!("= email {} {}", email.address, email.verified))
+                                .ok()?;
+                        }
+                    }
+
+                    None
+                }
+                "email" => {
+                    self.set_email(index_supplied, username, command, the_rest.first().copied())
+                }
                 "join_game" => self.join_game(
                     username,
                     index_supplied,
