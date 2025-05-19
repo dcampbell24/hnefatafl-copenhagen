@@ -10,7 +10,6 @@ use std::{
     fmt::Write as fmt_write,
     fs::{self, File},
     io::{BufRead, BufReader, ErrorKind, Write},
-    mem::take,
     net::{Shutdown, TcpStream},
     path::PathBuf,
     process::exit,
@@ -720,6 +719,12 @@ impl Client {
                                     });
                                 }
                             }
+                            Some("email_code") => {
+                                if let Some(email) = &mut self.email {
+                                    email.verified = true;
+                                }
+                                self.error_email = None;
+                            }
                             Some("game_over") => {
                                 self.my_turn = false;
                                 if let Some(game) = &mut self.game {
@@ -899,6 +904,9 @@ impl Client {
                                 let text = text.join(" ");
                                 self.error_email = Some(text);
                             }
+                            Some("email_code") => {
+                                self.error_email = Some("invalid email code".to_string());
+                            }
                             _ => {}
                         }
                     }
@@ -1010,13 +1018,6 @@ impl Client {
 
                 let tx = get_tx(&mut self.tx);
                 handle_error(tx.send(format!("email_code {}\n", self.text_input)));
-
-                if let Some(email) = &mut self.email {
-                    match take(&mut self.text_input).parse() {
-                        Ok(i) => email.code = Some(i),
-                        Err(err) => error!("error parsing email code: {err}"),
-                    }
-                }
             }
             Message::TextSendCreateAccount => {
                 if !self.text_input.trim().is_empty() {
@@ -1333,22 +1334,23 @@ impl Client {
                             "email address: [verified] {} ",
                             email.address
                         )));
+                        columns = columns.push(row);
                     } else {
                         row = row.push(text(format!(
                             "email address: [unverified] {} ",
                             email.address
                         )));
-                    }
-                    columns = columns.push(row);
+                        columns = columns.push(row);
 
-                    let mut row = Row::new();
-                    row = row.push(text("email code: ".to_string()));
-                    row = row.push(
-                        text_input("", &self.text_input)
-                            .on_input(Message::TextChanged)
-                            .on_submit(Message::TextSendEmailCode),
-                    );
-                    columns = columns.push(row);
+                        let mut row = Row::new();
+                        row = row.push(text("email code: ".to_string()));
+                        row = row.push(
+                            text_input("", &self.text_input)
+                                .on_input(Message::TextChanged)
+                                .on_submit(Message::TextSendEmailCode),
+                        );
+                        columns = columns.push(row);
+                    }
                 } else {
                     let mut row = Row::new();
                     row = row.push(text("email address: ".to_string()));

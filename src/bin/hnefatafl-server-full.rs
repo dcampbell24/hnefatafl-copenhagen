@@ -1010,6 +1010,33 @@ impl Server {
                 "email" => {
                     self.set_email(index_supplied, username, command, the_rest.first().copied())
                 }
+                "email_code" => {
+                    if let Some(account) = self.accounts.0.get_mut(*username) {
+                        if let Some(email) = &mut account.email {
+                            if let (Some(code_1), Some(code_2)) = (email.code, the_rest.first()) {
+                                if format!("{code_1:x}") == *code_2 {
+                                    email.verified = true;
+
+                                    self.clients
+                                        .get(&index_supplied)?
+                                        .send("= email_code".to_string())
+                                        .ok()?;
+                                } else {
+                                    email.verified = false;
+
+                                    self.clients
+                                        .get(&index_supplied)?
+                                        .send("? email_code".to_string())
+                                        .ok()?;
+                                }
+
+                                self.save_server();
+                            }
+                        }
+                    }
+
+                    None
+                }
                 "email_get" => {
                     if let Some(account) = self.accounts.0.get(*username) {
                         if let Some(email) = &account.email {
