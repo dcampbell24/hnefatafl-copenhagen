@@ -37,7 +37,7 @@ use lettre::{
 };
 use log::{LevelFilter, debug, error, info};
 use password_hash::SaltString;
-use rand::rngs::OsRng;
+use rand::{random, rngs::OsRng};
 use serde::{Deserialize, Serialize};
 
 const PORT: &str = ":49152";
@@ -337,12 +337,7 @@ impl Server {
         info!("{index_supplied} {username} change_password");
 
         let password = the_rest.join(" ");
-        let ctx = Argon2::default();
-        let salt = SaltString::generate(&mut OsRng);
-        let hash = ctx
-            .hash_password(password.as_bytes(), &salt)
-            .unwrap()
-            .to_string();
+        let hash = hash_password(&password);
 
         if let Some(account) = self.accounts.0.get_mut(username) {
             account.password = hash;
@@ -403,13 +398,7 @@ impl Server {
             } else {
                 info!("{index_supplied} {username} created user account");
 
-                let ctx = Argon2::default();
-                let salt = SaltString::generate(&mut OsRng);
-                let hash = ctx
-                    .hash_password(password.as_bytes(), &salt)
-                    .unwrap()
-                    .to_string();
-
+                let hash = hash_password(&password);
                 self.clients.insert(index_supplied, tx);
                 self.accounts.0.insert(
                     (*username).to_string(),
@@ -902,7 +891,7 @@ impl Server {
 
         info!("{index_supplied} {username} email {email_str}");
 
-        let rand_u32 = rand::random::<u32>();
+        let random_u32 = random::<u32>();
         let email = lettre::Message::builder()
             .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
             .reply_to("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
@@ -910,7 +899,7 @@ impl Server {
             .subject("Account Verification")
             .header(ContentType::TEXT_PLAIN)
             .body(format!(
-                "Dear {username},\nyour email verification code is as follows: {rand_u32:x}",
+                "Dear {username},\nyour email verification code is as follows: {random_u32:x}",
             ))
             .ok()?;
 
@@ -927,7 +916,7 @@ impl Server {
 
                 account.email = Some(Email {
                     address: email_str.to_string(),
-                    code: Some(rand_u32),
+                    code: Some(random_u32),
                     verified: false,
                 });
                 self.save_server();
@@ -1093,8 +1082,12 @@ impl Server {
                     Some(self.new_game(username, index_supplied, command, the_rest.as_slice()))
                 }
                 "reset_password" => {
-                    if let Some(email) = &self.accounts.0.get(*username)?.email {
+                    let account = self.accounts.0.get_mut(*username)?;
+                    if let Some(email) = &account.email {
                         if email.verified {
+                            let password = format!("{:x}", random::<u32>());
+                            account.password = hash_password(&password);
+
                             let message = lettre::Message::builder()
                                 .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
                                 .reply_to("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
@@ -1102,7 +1095,7 @@ impl Server {
                                 .subject("Password Reset")
                                 .header(ContentType::TEXT_PLAIN)
                                 .body(format!(
-                                    "Dear {username},\nyour new password is as follows: XXX",
+                                    "Dear {username},\nyour new password is as follows: {password}",
                                 ))
                                 .ok()?;
 
@@ -1703,6 +1696,14 @@ impl Server {
 
         None
     }
+}
+
+fn hash_password(password: &str) -> String {
+    let ctx = Argon2::default();
+    let salt = SaltString::generate(&mut OsRng);
+    ctx.hash_password(password.as_bytes(), &salt)
+        .unwrap()
+        .to_string()
 }
 
 fn init_logger(systemd: bool) {

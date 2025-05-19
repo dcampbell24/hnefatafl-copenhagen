@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- Add email your password (WIP).
+- Add reset your password email.
 - Cleanup ron file handling.
 - hnefatafl-client: save the username and theme.
 - hnefatafl-client: when `username` is empty, login as a default `user-u32`.
