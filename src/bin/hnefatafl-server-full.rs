@@ -139,6 +139,7 @@ fn data_file() -> PathBuf {
     data_file
 }
 
+#[allow(clippy::too_many_lines)]
 fn login(
     index: usize,
     mut stream: TcpStream,
@@ -200,6 +201,20 @@ fn login(
             }
 
             debug!("{index} {username} {create_account_login} {password}");
+
+            if create_account_login == "reset_password" {
+                tx.send((
+                    format!("0 {username} {create_account_login}"),
+                    Some(client_tx.clone()),
+                ))?;
+
+                stream.write_all(
+                    b"? login sent a password reset email if a verified email exists for this account\n",
+                )?;
+                buf.clear();
+                continue;
+            }
+
             tx.send((
                 format!("{index} {username} {create_account_login} {password}"),
                 Some(client_tx.clone()),
@@ -1049,6 +1064,48 @@ impl Server {
                 "logout" => self.logout(username, index_supplied, command),
                 "new_game" => {
                     Some(self.new_game(username, index_supplied, command, the_rest.as_slice()))
+                }
+                "reset_password" => {
+                    if let Some(email) = &self.accounts.0.get(*username)?.email {
+                        if email.verified {
+                            let message = lettre::Message::builder()
+                                .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
+                                .reply_to("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
+                                .to(email.address.parse().ok()?)
+                                .subject("Password Reset")
+                                .header(ContentType::TEXT_PLAIN)
+                                .body(format!(
+                                    "Dear {username},\nyour new password is as follows: XXX",
+                                ))
+                                .ok()?;
+
+                            let credentials = Credentials::new(
+                                self.smtp.username.clone(),
+                                self.smtp.password.clone(),
+                            );
+
+                            let mailer = SmtpTransport::relay(&self.smtp.service)
+                                .ok()?
+                                .credentials(credentials)
+                                .build();
+
+                            match mailer.send(&message) {
+                                Ok(_) => {
+                                    info!("email sent to {} successfully!", email.address);
+                                    self.save_server();
+                                }
+                                Err(err) => {
+                                    error!("could not send email to {}: {err}", email.address);
+                                }
+                            }
+                        } else {
+                            error!("the email address for account {username} is unverified");
+                        }
+                    } else {
+                        error!("no email exists for account {username}");
+                    }
+
+                    None
                 }
                 "resume_game" => self.resume_game(username, index_supplied, command, &the_rest),
                 "request_draw" => {

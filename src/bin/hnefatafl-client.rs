@@ -619,9 +619,9 @@ impl Client {
             Message::RatedSelected(rated) => {
                 self.rated = if rated { Rated::Yes } else { Rated::No };
             }
-            Message::RecoverPassword => {
+            Message::ResetPassword(account) => {
                 let tx = get_tx(&mut self.tx);
-                handle_error(tx.send("recover_password\n".to_string()));
+                handle_error(tx.send(format!("{VERSION_ID} reset_password {account}\n")));
             }
             Message::RoleSelected(role) => {
                 self.role_selected = Some(role);
@@ -1387,9 +1387,6 @@ impl Client {
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow),
                 );
 
-                columns =
-                    columns.push(button("Recover Password").on_press(Message::RecoverPassword));
-
                 if self.delete_account {
                     columns = columns
                         .push(button("REALLY DELETE ACCOUNT").on_press(Message::DeleteAccount));
@@ -1695,14 +1692,23 @@ impl Client {
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow);
 
                 let login = button("Login").on_press(Message::TextSendLogin);
+
                 let mut create_account = button("Create Account");
                 if !self.text_input.is_empty() {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
                 }
+
+                let mut reset_password = button("Reset Password");
+                if !self.text_input.is_empty() {
+                    reset_password =
+                        reset_password.on_press(Message::ResetPassword(self.text_input.clone()));
+                }
+
                 let website = button("https://hnefatafl.org")
                     .on_press(Message::OpenUrl("https://hnefatafl.org".to_string()));
                 let quit = button("Quit").on_press(Message::Leave);
-                let buttons = row![login, create_account, website, quit]
+
+                let buttons = row![login, create_account, reset_password, website, quit]
                     .spacing(SPACING)
                     .padding(PADDING);
 
@@ -1777,7 +1783,7 @@ enum Message {
     PlayResign,
     SoundMuted(bool),
     RatedSelected(bool),
-    RecoverPassword,
+    ResetPassword(String),
     RoleSelected(Role),
     TcpConnected(mpsc::Sender<String>),
     TextChanged(String),
