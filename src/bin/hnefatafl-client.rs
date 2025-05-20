@@ -9,7 +9,7 @@ use std::{
     env, f64,
     fmt::Write as fmt_write,
     fs::{self, File},
-    io::{BufRead, BufReader, Write},
+    io::{BufRead, BufReader, ErrorKind, Write},
     net::{Shutdown, TcpStream},
     path::PathBuf,
     process::exit,
@@ -87,11 +87,15 @@ fn client_maybe_from_file() -> Client {
             }
         },
         Err(err) => {
-            error = Some(format!(
-                "error opening the file {}: {err}",
-                data_file.display()
-            ));
-            Client::default()
+            if err.kind() == ErrorKind::NotFound {
+                Client::default()
+            } else {
+                error = Some(format!(
+                    "error opening the file {}: {err}",
+                    data_file.display()
+                ));
+                Client::default()
+            }
         }
     };
 
