@@ -230,6 +230,7 @@ struct Client {
     time_defender: TimeSettings,
     #[serde(skip)]
     tx: Option<mpsc::Sender<String>>,
+    #[serde(default)]
     username: String,
     #[serde(skip)]
     users: HashMap<String, User>,

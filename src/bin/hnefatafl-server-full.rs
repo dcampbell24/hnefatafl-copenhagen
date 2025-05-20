@@ -303,9 +303,13 @@ impl Default for UnixTimestamp {
 
 #[derive(Clone, Default, Deserialize, Serialize)]
 struct Server {
+    #[serde(default)]
     game_id: usize,
+    #[serde(default)]
     ran_update_rd: UnixTimestamp,
+    #[serde(default)]
     smtp: Smtp,
+    #[serde(default)]
     accounts: Accounts,
     #[serde(skip)]
     archived_games: Vec<ArchivedGame>,

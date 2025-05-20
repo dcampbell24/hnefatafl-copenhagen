@@ -19,7 +19,6 @@ impl fmt::Display for Accounts {
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Account {
-    #[serde(default)]
     pub email: Option<Email>,
     pub password: String,
     pub logged_in: Option<usize>,
@@ -27,7 +26,6 @@ pub struct Account {
     pub wins: u64,
     pub losses: u64,
     pub rating: Rating,
-    #[serde(default)]
     pub send_emails: bool,
 }
 
