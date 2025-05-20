@@ -1084,7 +1084,7 @@ impl Client {
             }
             Message::TextSendLogin => {
                 if self.text_input.trim().is_empty() {
-                    let username = format!("user-{:x}", rand::random::<u32>());
+                    let username = format!("user-{:x}", rand::random::<u16>());
 
                     self.send(format!(
                         "{VERSION_ID} create_account {username} {}\n",
