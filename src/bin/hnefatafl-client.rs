@@ -150,6 +150,7 @@ struct Client {
     defender: String,
     #[serde(skip)]
     delete_account: bool,
+    #[serde(default)]
     email_everyone: bool,
     #[serde(skip)]
     captures: HashSet<Vertex>,
@@ -211,6 +212,7 @@ struct Client {
     texts_game: VecDeque<String>,
     #[serde(skip)]
     text_input: String,
+    #[serde(default)]
     theme: Theme,
     #[serde(skip)]
     timed: TimeSettings,

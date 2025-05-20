@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add `#[serde(default)]` to new fields that can be filled in automatically.
 - Add an email everyone feature.
 - hnefatafl-client: load the program if their is a ron file error, but show the error.
 - Add reset your password email.
