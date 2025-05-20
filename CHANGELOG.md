@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - Add an email everyone feature.
-- hnefatafl-client: load the ron file if there is an error, but show the error.
+- hnefatafl-client: load the program if their is a ron file error, but show the error.
 - Add reset your password email.
 - Cleanup ron file handling.
 - hnefatafl-client: save the username and theme.
