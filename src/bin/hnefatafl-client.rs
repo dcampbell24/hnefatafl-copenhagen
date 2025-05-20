@@ -9,7 +9,7 @@ use std::{
     env, f64,
     fmt::Write as fmt_write,
     fs::{self, File},
-    io::{BufRead, BufReader, ErrorKind, Write},
+    io::{BufRead, BufReader, Write},
     net::{Shutdown, TcpStream},
     path::PathBuf,
     process::exit,
@@ -49,7 +49,7 @@ use iced::{
     stream,
     widget::{
         Column, Container, Row, Scrollable, button, checkbox, column, container, radio, row,
-        scrollable, text, text_input, tooltip,
+        scrollable, text, text_editor, text_input, tooltip,
     },
     window::{self, icon},
 };
@@ -74,16 +74,30 @@ struct Args {
 
 fn client_maybe_from_file() -> Client {
     let data_file = data_file();
-    let mut client = match &fs::read_to_string(&data_file) {
+    let mut error = None;
+    let mut client: Client = match &fs::read_to_string(&data_file) {
         Ok(string) => match ron::from_str(string.as_str()) {
             Ok(client) => client,
-            Err(err) => panic!("{err}"),
+            Err(err) => {
+                error = Some(format!(
+                    "error parsing the ron file {}: {err}",
+                    data_file.display()
+                ));
+                Client::default()
+            }
         },
-        Err(err) => match err.kind() {
-            ErrorKind::NotFound => Client::default(),
-            _ => panic!("{err}"),
-        },
+        Err(err) => {
+            error = Some(format!(
+                "error opening the file {}: {err}",
+                data_file.display()
+            ));
+            Client::default()
+        }
     };
+
+    if error.is_some() {
+        client.error_persistent = error;
+    }
 
     client.text_input = client.username.clone();
     client
@@ -136,6 +150,7 @@ struct Client {
     defender: String,
     #[serde(skip)]
     delete_account: bool,
+    email_everyone: bool,
     #[serde(skip)]
     captures: HashSet<Vertex>,
     #[serde(skip)]
@@ -143,11 +158,17 @@ struct Client {
     #[serde(skip)]
     connected_to: String,
     #[serde(skip)]
+    content: text_editor::Content,
+    #[serde(skip)]
     email: Option<Email>,
+    #[serde(skip)]
+    emails_to: Vec<String>,
     #[serde(skip)]
     error: Option<String>,
     #[serde(skip)]
     error_email: Option<String>,
+    #[serde(skip)]
+    error_persistent: Option<String>,
     #[serde(skip)]
     game: Option<Game>,
     #[serde(skip)]
@@ -211,6 +232,7 @@ struct Client {
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 enum Screen {
     AccountSettings,
+    EmailEveryone,
     #[default]
     Login,
     Game,
@@ -431,6 +453,10 @@ impl Client {
                     self.delete_account = true;
                 }
             }
+            Message::EmailEveryone => {
+                self.screen = Screen::EmailEveryone;
+                self.send("emails_to\n".to_string());
+            }
             Message::EmailReset => {
                 self.email = None;
                 self.send("email_reset\n".to_string());
@@ -463,7 +489,10 @@ impl Client {
                 self.send(format!("watch_game {id}\n"));
             }
             Message::Leave => match self.screen {
-                Screen::AccountSettings | Screen::GameNew | Screen::Users => {
+                Screen::AccountSettings
+                | Screen::EmailEveryone
+                | Screen::GameNew
+                | Screen::Users => {
                     self.screen = Screen::Games;
                     self.text_input = String::new();
                 }
@@ -637,6 +666,9 @@ impl Client {
                     self.text_input = string;
                 }
             }
+            Message::TextEdit(action) => {
+                self.content.perform(action);
+            }
             Message::TextReceived(string) => {
                 let mut text = string.split_ascii_whitespace();
                 match text.next() {
@@ -718,6 +750,9 @@ impl Client {
                                         verified: verified.parse().unwrap(),
                                     });
                                 }
+                            }
+                            Some("emails_to") => {
+                                self.emails_to = text.map(ToString::to_string).collect();
                             }
                             Some("email_code") => {
                                 if let Some(email) = &mut self.email {
@@ -988,6 +1023,10 @@ impl Client {
                         self.send(format!("change_password {}\n", self.password_real));
                         self.password.clear();
                         self.password_real.clear();
+                    }
+                    Screen::EmailEveryone => {
+                        // Fixme!
+                        println!("{}", self.content.text().replace('\n', "\\n"));
                     }
                     Screen::Game => {
                         if !self.text_input.trim().is_empty() {
@@ -1310,9 +1349,9 @@ impl Client {
                 for user in self.users.values() {
                     if self.username == user.name {
                         rating = user.rating.to_string_rounded();
-                        wins = user.wins.to_string();
-                        losses = user.losses.to_string();
-                        draws = user.draws.to_string();
+                        wins.clone_from(&user.wins);
+                        losses.clone_from(&user.losses);
+                        draws.clone_from(&user.draws);
                     }
                 }
 
@@ -1400,6 +1439,23 @@ impl Client {
                 columns = columns.push(button("Leave").on_press(Message::Leave));
 
                 columns.into()
+            }
+            Screen::EmailEveryone => {
+                let editor = text_editor(&self.content)
+                    .placeholder("Dear User, …")
+                    .on_action(Message::TextEdit);
+
+                let send_emails = button("Send Emails").on_press(Message::TextSend);
+                let leave = button("Leave").on_press(Message::Leave);
+                let mut column = column![editor, send_emails, leave, text("Bcc:")]
+                    .spacing(SPACING)
+                    .padding(PADDING);
+
+                for email in &self.emails_to {
+                    column = column.push(text(email));
+                }
+
+                scrollable(column).into()
             }
             Screen::Game => {
                 let mut rated = "rated: ".to_string();
@@ -1622,20 +1678,24 @@ impl Client {
                 game_display.push(buttons).into()
             }
             Screen::Games => {
-                let theme = if self.theme == Theme::Light {
+                let mut theme = if self.theme == Theme::Light {
                     row![
                         button(text("Dark")).on_press(Message::ChangeTheme(Theme::Dark)),
                         button(text("Light")),
                     ]
-                    .spacing(SPACING)
                 } else {
                     row![
                         button(text("Dark")),
                         button(text("Light")).on_press(Message::ChangeTheme(Theme::Light)),
                     ]
-                    .spacing(SPACING)
                 };
-                let theme = theme.padding(PADDING);
+
+                if self.email_everyone {
+                    let email_everyone = button("Email Everyone").on_press(Message::EmailEveryone);
+                    theme = theme.push(email_everyone);
+                }
+
+                let theme = theme.padding(PADDING).spacing(SPACING);
 
                 let username = row![text("username: "), text(&self.username)];
                 let username = container(username)
@@ -1719,10 +1779,22 @@ impl Client {
                     error = text(error_);
                 }
 
-                column![username, password, show_password, buttons, error]
-                    .padding(PADDING)
-                    .spacing(SPACING)
-                    .into()
+                let mut error_persistent = text("");
+                if let Some(error_) = &self.error_persistent {
+                    error_persistent = text(error_);
+                }
+
+                column![
+                    username,
+                    password,
+                    show_password,
+                    buttons,
+                    error,
+                    error_persistent
+                ]
+                .padding(PADDING)
+                .spacing(SPACING)
+                .into()
             }
             Screen::Users => scrollable(column![
                 text("logged in"),
@@ -1765,6 +1837,7 @@ enum Message {
     ChangeTheme(Theme),
     ConnectedTo(String),
     DeleteAccount,
+    EmailEveryone,
     EmailReset,
     GameAccept(usize),
     GameDecline(usize),
@@ -1789,6 +1862,7 @@ enum Message {
     RoleSelected(Role),
     TcpConnected(mpsc::Sender<String>),
     TextChanged(String),
+    TextEdit(text_editor::Action),
     TextReceived(String),
     TextSend,
     TextSendEmail,

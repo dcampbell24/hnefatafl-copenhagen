@@ -26,6 +26,7 @@ pub struct Account {
     pub wins: u64,
     pub losses: u64,
     pub rating: Rating,
+    pub send_emails: bool,
 }
 
 impl fmt::Display for Account {

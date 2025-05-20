@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     env,
     fs::{self, File},
     io::{BufRead, BufReader, ErrorKind, Write},
@@ -998,6 +998,36 @@ impl Server {
                 "game" => self.game(index_supplied, username, command, the_rest.as_slice()),
                 "email" => {
                     self.set_email(index_supplied, username, command, the_rest.first().copied())
+                }
+                "emails_to" => {
+                    if let Some(account) = self.accounts.0.get(*username) {
+                        if account.send_emails {
+                            let mut emails = HashSet::new();
+                            let mut emails_to = String::new();
+
+                            for account in self.accounts.0.values() {
+                                if let Some(email) = &account.email {
+                                    if email.verified {
+                                        emails.insert(&email.address);
+                                    }
+                                }
+                            }
+
+                            for email in emails {
+                                emails_to.push_str(email);
+                                emails_to.push(' ');
+                            }
+
+                            if !emails_to.is_empty() {
+                                self.clients
+                                    .get(&index_supplied)?
+                                    .send(format!("= emails_to {emails_to}"))
+                                    .ok()?;
+                            }
+                        }
+                    }
+
+                    None
                 }
                 "email_code" => {
                     if let Some(account) = self.accounts.0.get_mut(*username) {
