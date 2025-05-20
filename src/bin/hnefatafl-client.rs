@@ -167,7 +167,7 @@ struct Client {
     #[serde(skip)]
     email: Option<Email>,
     #[serde(skip)]
-    emails_to: Vec<String>,
+    emails_bcc: Vec<String>,
     #[serde(skip)]
     error: Option<String>,
     #[serde(skip)]
@@ -461,7 +461,7 @@ impl Client {
             }
             Message::EmailEveryone => {
                 self.screen = Screen::EmailEveryone;
-                self.send("emails_to\n".to_string());
+                self.send("emails_bcc\n".to_string());
             }
             Message::EmailReset => {
                 self.email = None;
@@ -757,8 +757,8 @@ impl Client {
                                     });
                                 }
                             }
-                            Some("emails_to") => {
-                                self.emails_to = text.map(ToString::to_string).collect();
+                            Some("emails_bcc") => {
+                                self.emails_bcc = text.map(ToString::to_string).collect();
                             }
                             Some("email_code") => {
                                 if let Some(email) = &mut self.email {
@@ -1031,8 +1031,9 @@ impl Client {
                         self.password_real.clear();
                     }
                     Screen::EmailEveryone => {
-                        // Fixme!
-                        println!("{}", self.content.text().replace('\n', "\\n"));
+                        // subject == self.text_input
+                        let email = self.content.text().replace('\n', "\\n");
+                        self.send(format!("email_everyone {} {email}\n", self.text_input));
                     }
                     Screen::Game => {
                         if !self.text_input.trim().is_empty() {
@@ -1447,17 +1448,36 @@ impl Client {
                 columns.into()
             }
             Screen::EmailEveryone => {
+                let subject = row![
+                    text("Subject: "),
+                    text_input("", &self.text_input)
+                        .on_input(Message::TextChanged)
+                        .on_paste(Message::TextChanged)
+                        .on_submit(Message::TextSend),
+                ];
+
                 let editor = text_editor(&self.content)
                     .placeholder("Dear User, …")
                     .on_action(Message::TextEdit);
 
                 let send_emails = button("Send Emails").on_press(Message::TextSend);
                 let leave = button("Leave").on_press(Message::Leave);
-                let mut column = column![editor, send_emails, leave, text("Bcc:")]
-                    .spacing(SPACING)
-                    .padding(PADDING);
+                let mut column = column![
+                    subject,
+                    text("From: Hnefatafl Org <no-reply@hnefatafl.org>"),
+                    text("Content-Type: text/plain; charset=utf-8"),
+                    text("Content-Transfer-Encoding: 7bit"),
+                    text(format!("Date: {}", Utc::now().to_rfc2822())),
+                    text("Body:"),
+                    editor,
+                    send_emails,
+                    leave,
+                    text("Bcc:")
+                ]
+                .spacing(SPACING)
+                .padding(PADDING);
 
-                for email in &self.emails_to {
+                for email in &self.emails_bcc {
                     column = column.push(text(email));
                 }
 

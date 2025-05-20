@@ -3,6 +3,9 @@
         "alsa",
         "devel",
         "choco",
+        "chrono",
+        "glicko",
+        "lettre",
         "lintian",
         "makepkg",
         "namcap",
@@ -14,9 +17,13 @@
         "pkgrel",
         "pkgver",
         "pkgversion",
+        "rngs",
+        "rodio",
         "hnefatafl",
         "pulseaudio",
         "rustup",
-        "tafl"
+        "tafl",
+        "vecdeque",
+        "webbrowser",
     ]
 }
