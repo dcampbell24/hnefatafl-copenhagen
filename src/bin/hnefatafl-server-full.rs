@@ -421,34 +421,31 @@ impl Server {
         option_tx: Option<Sender<String>>,
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let password = the_rest.join(" ");
-        if let Some(tx) = option_tx {
-            if self.accounts.0.contains_key(username) {
-                info!("{index_supplied} {username} is already in the database");
-                Some((tx, false, (*command).to_string()))
-            } else {
-                info!("{index_supplied} {username} created user account");
-
-                let hash = hash_password(&password)?;
-                self.clients.insert(index_supplied, tx);
-                self.accounts.0.insert(
-                    (*username).to_string(),
-                    Account {
-                        password: hash,
-                        logged_in: Some(index_supplied),
-                        ..Default::default()
-                    },
-                );
-
-                self.save_server();
-
-                Some((
-                    self.clients.get(&index_supplied)?.clone(),
-                    true,
-                    (*command).to_string(),
-                ))
-            }
+        let tx = option_tx?;
+        if self.accounts.0.contains_key(username) {
+            info!("{index_supplied} {username} is already in the database");
+            Some((tx, false, (*command).to_string()))
         } else {
-            panic!("there is no channel to send on")
+            info!("{index_supplied} {username} created user account");
+
+            let hash = hash_password(&password)?;
+            self.clients.insert(index_supplied, tx);
+            self.accounts.0.insert(
+                (*username).to_string(),
+                Account {
+                    password: hash,
+                    logged_in: Some(index_supplied),
+                    ..Default::default()
+                },
+            );
+
+            self.save_server();
+
+            Some((
+                self.clients.get(&index_supplied)?.clone(),
+                true,
+                (*command).to_string(),
+            ))
         }
     }
 
