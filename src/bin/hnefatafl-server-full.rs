@@ -367,7 +367,7 @@ impl Server {
         info!("{index_supplied} {username} change_password");
 
         let password = the_rest.join(" ");
-        let hash = hash_password(&password);
+        let hash = hash_password(&password)?;
 
         if let Some(account) = self.accounts.0.get_mut(username) {
             account.password = hash;
@@ -428,7 +428,7 @@ impl Server {
             } else {
                 info!("{index_supplied} {username} created user account");
 
-                let hash = hash_password(&password);
+                let hash = hash_password(&password)?;
                 self.clients.insert(index_supplied, tx);
                 self.accounts.0.insert(
                     (*username).to_string(),
@@ -1178,7 +1178,7 @@ impl Server {
                     if let Some(email) = &account.email {
                         if email.verified {
                             let password = format!("{:x}", random::<u32>());
-                            account.password = hash_password(&password);
+                            account.password = hash_password(&password)?;
 
                             let message = lettre::Message::builder()
                                 .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
@@ -1280,8 +1280,8 @@ impl Server {
                 .get(tx)?
                 .send(format!(
                     "= join_game {} {} {} {:?}",
-                    game.attacker.clone().unwrap(),
-                    game.defender.clone().unwrap(),
+                    game.attacker.clone()?,
+                    game.defender.clone()?,
                     game.rated,
                     game.timed,
                 ))
@@ -1422,7 +1422,7 @@ impl Server {
                 Some(((tx), false, (*command).to_string()))
             // The username is in the database, but not logged in yet.
             } else {
-                let hash_2 = PasswordHash::try_from(account.password.as_str()).unwrap();
+                let hash_2 = PasswordHash::try_from(account.password.as_str()).ok()?;
                 if let Err(_error) =
                     Argon2::default().verify_password(password_1.as_bytes(), &hash_2)
                 {
@@ -1597,8 +1597,8 @@ impl Server {
             .get(&index_supplied)?
             .send(format!(
                 "= resume_game {} {} {} {:?} {board} {texts}",
-                game_light.attacker.clone().unwrap(),
-                game_light.defender.clone().unwrap(),
+                game_light.attacker.clone()?,
+                game_light.defender.clone()?,
                 game_light.rated,
                 game_light.timed,
             ))
@@ -1775,8 +1775,8 @@ impl Server {
             .get(&index_supplied)?
             .send(format!(
                 "= watch_game {} {} {} {:?} {board} {texts}",
-                game.attacker.clone().unwrap(),
-                game.defender.clone().unwrap(),
+                game.attacker.clone()?,
+                game.defender.clone()?,
                 game.rated,
                 game.timed,
             ))
@@ -1786,12 +1786,14 @@ impl Server {
     }
 }
 
-fn hash_password(password: &str) -> String {
+fn hash_password(password: &str) -> Option<String> {
     let ctx = Argon2::default();
     let salt = SaltString::generate(&mut OsRng);
-    ctx.hash_password(password.as_bytes(), &salt)
-        .unwrap()
-        .to_string()
+    Some(
+        ctx.hash_password(password.as_bytes(), &salt)
+            .ok()?
+            .to_string(),
+    )
 }
 
 fn init_logger(systemd: bool) {
