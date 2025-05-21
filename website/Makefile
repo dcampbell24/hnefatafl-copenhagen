@@ -4,6 +4,7 @@ website:
 	touch /var/www/html/robots.txt
 	mkdir --parents /var/www/html/binaries/debian/
 	cp ../../hnefatafl-copenhagen_1.0.0-1_amd64.deb /var/www/html/binaries/debian/
+	cp ../../hnefatafl-copenhagen_1.1.0-1_amd64.deb /var/www/html/binaries/debian/
 	mkdir --parents /var/www/html/binaries/nsis/
 	cp ../../hnefatafl-client-installer.exe /var/www/html/binaries/nsis/
 	cp ../../hnefatafl-client-installer-0.13.4.exe /var/www/html/binaries/nsis/
