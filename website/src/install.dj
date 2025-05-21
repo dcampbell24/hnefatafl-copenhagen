@@ -13,7 +13,7 @@ See [chocolatey.org](https://community.chocolatey.org/packages/hnefatafl-copenha
 Download [hnefatafl-copenhagen][1], then run:
 
 ```sh
-sudo dpkg --install hnefatafl-copenhagen_1.1.0-1_amd64.deb
+sudo dpkg --install hnefatafl-copenhagen_1.1.1-1_amd64.deb
 ```
 
 It can be removed by running:
@@ -22,7 +22,7 @@ It can be removed by running:
 sudo dpkg --remove hnefatafl-copenhagen
 ```
 
-[1]: binaries/debian/hnefatafl-copenhagen_1.1.0-1_amd64.deb
+[1]: binaries/debian/hnefatafl-copenhagen_1.1.1-1_amd64.deb
 
 ## Flatpak (Linux)
 

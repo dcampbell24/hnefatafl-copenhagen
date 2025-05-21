@@ -366,12 +366,10 @@ impl Server {
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
         info!("{index_supplied} {username} change_password");
 
+        let account = self.accounts.0.get_mut(username)?;
         let password = the_rest.join(" ");
         let hash = hash_password(&password)?;
-
-        if let Some(account) = self.accounts.0.get_mut(username) {
-            account.password = hash;
-        }
+        account.password = hash;
         self.save_server();
 
         Some((
