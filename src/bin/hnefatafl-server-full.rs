@@ -1,3 +1,5 @@
+#![deny(clippy::indexing_slicing)]
+
 use std::{
     collections::{HashMap, HashSet},
     env,
@@ -361,7 +363,7 @@ impl Server {
         index_supplied: usize,
         command: &str,
         the_rest: &[&str],
-    ) -> (mpsc::Sender<String>, bool, String) {
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
         info!("{index_supplied} {username} change_password");
 
         let password = the_rest.join(" ");
@@ -372,11 +374,11 @@ impl Server {
         }
         self.save_server();
 
-        (
-            self.clients[&index_supplied].clone(),
+        Some((
+            self.clients.get(&index_supplied)?.clone(),
             true,
             (*command).to_string(),
-        )
+        ))
     }
 
     /// ```sh
@@ -417,12 +419,12 @@ impl Server {
         command: &str,
         the_rest: &[&str],
         option_tx: Option<Sender<String>>,
-    ) -> (mpsc::Sender<String>, bool, String) {
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let password = the_rest.join(" ");
         if let Some(tx) = option_tx {
             if self.accounts.0.contains_key(username) {
                 info!("{index_supplied} {username} is already in the database");
-                (tx, false, (*command).to_string())
+                Some((tx, false, (*command).to_string()))
             } else {
                 info!("{index_supplied} {username} created user account");
 
@@ -439,11 +441,11 @@ impl Server {
 
                 self.save_server();
 
-                (
-                    self.clients[&index_supplied].clone(),
+                Some((
+                    self.clients.get(&index_supplied)?.clone(),
                     true,
                     (*command).to_string(),
-                )
+                ))
             }
         } else {
             panic!("there is no channel to send on")
@@ -578,14 +580,14 @@ impl Server {
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let Some(id) = the_rest.first() else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
         };
         let Ok(id) = id.parse::<usize>() else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
@@ -593,14 +595,14 @@ impl Server {
 
         let Some(draw) = the_rest.get(1) else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
         };
         let Ok(draw) = Draw::from_str(draw) else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
@@ -608,7 +610,7 @@ impl Server {
 
         let Some(mut game) = self.games.0.remove(&id) else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
@@ -621,7 +623,7 @@ impl Server {
         if draw == Draw::Accept {
             let Some(game_light) = self.games_light.0.get(&id) else {
                 return Some((
-                    self.clients[&index_supplied].clone(),
+                    self.clients.get(&index_supplied)?.clone(),
                     false,
                     (*command).to_string(),
                 ));
@@ -680,38 +682,38 @@ impl Server {
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
         if the_rest.len() < 5 {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
         }
 
-        let index = the_rest[0];
+        let index = the_rest.first()?;
         let Ok(index) = index.parse() else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
         };
-        let color = the_rest[2];
+        let color = the_rest.get(2)?;
         let Ok(color) = Color::from_str(color) else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
         };
-        let from = the_rest[3];
-        let to = the_rest[4];
-        let mut to = to.to_string();
+        let from = the_rest.get(3)?;
+        let to = the_rest.get(4)?;
+        let mut to = (*to).to_string();
         if to == "_" {
             to = String::new();
         }
 
         let Some(game) = self.games.0.get_mut(&index) else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
@@ -719,7 +721,7 @@ impl Server {
 
         let Some(game_light) = self.games_light.0.get_mut(&index) else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
@@ -746,7 +748,7 @@ impl Server {
                 let _ok = game.defender_tx.send(message);
             } else {
                 return Some((
-                    self.clients[&index_supplied].clone(),
+                    self.clients.get(&index_supplied)?.clone(),
                     false,
                     (*command).to_string(),
                 ));
@@ -769,7 +771,7 @@ impl Server {
             let _ok = game.attacker_tx.send(message);
         } else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
@@ -889,7 +891,7 @@ impl Server {
         }
 
         Some((
-            self.clients[&index_supplied].clone(),
+            self.clients.get(&index_supplied)?.clone(),
             true,
             (*command).to_string(),
         ))
@@ -904,14 +906,14 @@ impl Server {
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let Some(email_str) = email else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
         };
         let Some(account) = self.accounts.0.get_mut(username) else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
@@ -992,24 +994,21 @@ impl Server {
             let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
 
             match *command {
-                "change_password" => Some(self.change_password(
-                    username,
-                    index_supplied,
-                    command,
-                    the_rest.as_slice(),
-                )),
+                "change_password" => {
+                    self.change_password(username, index_supplied, command, the_rest.as_slice())
+                }
                 "check_update_rd" => {
                     let bool = self.check_update_rd();
                     info!("0 {username} check_update_rd {bool}");
                     None
                 }
-                "create_account" => Some(self.create_account(
+                "create_account" => self.create_account(
                     username,
                     index_supplied,
                     command,
                     the_rest.as_slice(),
                     option_tx,
-                )),
+                ),
                 "decline_game" => self.decline_game(
                     username,
                     index_supplied,
@@ -1037,7 +1036,7 @@ impl Server {
                         ))
                     } else {
                         let subject = the_rest.first()?;
-                        let email_string = the_rest[1..].join(" ").replace("\\n", "\n");
+                        let email_string = the_rest.get(1..)?.join(" ").replace("\\n", "\n");
 
                         info!("{index_supplied} {username} email_everyone");
 
@@ -1159,23 +1158,21 @@ impl Server {
                     (*command).to_string(),
                     the_rest.as_slice(),
                 ),
-                "leave_game" => Some(self.leave_game(
+                "leave_game" => self.leave_game(
                     username,
                     index_supplied,
                     (*command).to_string(),
                     the_rest.as_slice(),
-                )),
-                "login" => Some(self.login(
+                ),
+                "login" => self.login(
                     username,
                     index_supplied,
                     command,
                     the_rest.as_slice(),
                     option_tx,
-                )),
+                ),
                 "logout" => self.logout(username, index_supplied, command),
-                "new_game" => {
-                    Some(self.new_game(username, index_supplied, command, the_rest.as_slice()))
-                }
+                "new_game" => self.new_game(username, index_supplied, command, the_rest.as_slice()),
                 "reset_password" => {
                     let account = self.accounts.0.get_mut(*username)?;
                     if let Some(email) = &account.email {
@@ -1222,9 +1219,7 @@ impl Server {
                     None
                 }
                 "resume_game" => self.resume_game(username, index_supplied, command, &the_rest),
-                "request_draw" => {
-                    Some(self.request_draw(username, index_supplied, command, &the_rest))
-                }
+                "request_draw" => self.request_draw(username, index_supplied, command, &the_rest),
                 "text" => {
                     let timestamp = timestamp();
                     let the_rest = the_rest.join(" ");
@@ -1263,10 +1258,10 @@ impl Server {
         the_rest: &[&str],
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let Some(id) = the_rest.first() else {
-            return Some((self.clients[&index_supplied].clone(), false, command));
+            return Some((self.clients.get(&index_supplied)?.clone(), false, command));
         };
         let Ok(id) = id.parse::<usize>() else {
-            return Some((self.clients[&index_supplied].clone(), false, command));
+            return Some((self.clients.get(&index_supplied)?.clone(), false, command));
         };
 
         info!("{index_supplied} {username} join_game {id}");
@@ -1281,7 +1276,8 @@ impl Server {
         };
 
         for tx in [&attacker_tx, &defender_tx] {
-            self.clients[tx]
+            self.clients
+                .get(tx)?
                 .send(format!(
                     "= join_game {} {} {} {:?}",
                     game.attacker.clone().unwrap(),
@@ -1292,13 +1288,14 @@ impl Server {
                 .ok()?;
         }
         let new_game = ServerGame::new(
-            self.clients[&attacker_tx].clone(),
-            self.clients[&defender_tx].clone(),
+            self.clients.get(&attacker_tx)?.clone(),
+            self.clients.get(&defender_tx)?.clone(),
             game.clone(),
         );
 
         self.games.0.insert(id, new_game);
-        self.clients[&attacker_tx]
+        self.clients
+            .get(&attacker_tx)?
             .send(format!("game {id} generate_move black"))
             .ok()?;
 
@@ -1349,7 +1346,7 @@ impl Server {
         game.challenger.0 = Some(username);
 
         command.push(' ');
-        command.push_str(the_rest[0]);
+        command.push_str(the_rest.first()?);
 
         Some((channel.clone(), true, command))
     }
@@ -1360,12 +1357,12 @@ impl Server {
         index_supplied: usize,
         mut command: String,
         the_rest: &[&str],
-    ) -> (mpsc::Sender<String>, bool, String) {
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let Some(id) = the_rest.first() else {
-            return (self.clients[&index_supplied].clone(), false, command);
+            return Some((self.clients.get(&index_supplied)?.clone(), false, command));
         };
         let Ok(id) = id.parse::<usize>() else {
-            return (self.clients[&index_supplied].clone(), false, command);
+            return Some((self.clients.get(&index_supplied)?.clone(), false, command));
         };
 
         info!("{index_supplied} {username} leave_game {id}");
@@ -1395,7 +1392,7 @@ impl Server {
                     remove = true;
                 }
             }
-            None => return (self.clients[&index_supplied].clone(), false, command),
+            None => return Some((self.clients.get(&index_supplied)?.clone(), false, command)),
         }
 
         if remove {
@@ -1403,8 +1400,8 @@ impl Server {
         }
 
         command.push(' ');
-        command.push_str(the_rest[0]);
-        (self.clients[&index_supplied].clone(), true, command)
+        command.push_str(the_rest.first()?);
+        Some((self.clients.get(&index_supplied)?.clone(), true, command))
     }
 
     fn login(
@@ -1414,44 +1411,39 @@ impl Server {
         command: &str,
         the_rest: &[&str],
         option_tx: Option<Sender<String>>,
-    ) -> (mpsc::Sender<String>, bool, String) {
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let password_1 = the_rest.join(" ");
-        if let Some(tx) = option_tx {
-            if let Some(account) = self.accounts.0.get_mut(username) {
-                // The username is in the database and already logged in.
-                if let Some(index_database) = account.logged_in {
-                    info!(
-                        "{index_supplied} {username} login failed, {index_database} is logged in"
-                    );
+        let tx = option_tx?;
+        if let Some(account) = self.accounts.0.get_mut(username) {
+            // The username is in the database and already logged in.
+            if let Some(index_database) = account.logged_in {
+                info!("{index_supplied} {username} login failed, {index_database} is logged in");
 
-                    ((tx), false, (*command).to_string())
-                // The username is in the database, but not logged in yet.
-                } else {
-                    let hash_2 = PasswordHash::try_from(account.password.as_str()).unwrap();
-                    if let Err(_error) =
-                        Argon2::default().verify_password(password_1.as_bytes(), &hash_2)
-                    {
-                        info!("{index_supplied} {username} provided the wrong password");
-                        return (tx, false, (*command).to_string());
-                    }
-                    info!("{index_supplied} {username} logged in");
-
-                    self.clients.insert(index_supplied, tx);
-                    account.logged_in = Some(index_supplied);
-
-                    (
-                        self.clients[&index_supplied].clone(),
-                        true,
-                        (*command).to_string(),
-                    )
-                }
-            // The username is not in the database.
+                Some(((tx), false, (*command).to_string()))
+            // The username is in the database, but not logged in yet.
             } else {
-                info!("{index_supplied} {username} is not in the database");
-                (tx, false, (*command).to_string())
+                let hash_2 = PasswordHash::try_from(account.password.as_str()).unwrap();
+                if let Err(_error) =
+                    Argon2::default().verify_password(password_1.as_bytes(), &hash_2)
+                {
+                    info!("{index_supplied} {username} provided the wrong password");
+                    return Some((tx, false, (*command).to_string()));
+                }
+                info!("{index_supplied} {username} logged in");
+
+                self.clients.insert(index_supplied, tx);
+                account.logged_in = Some(index_supplied);
+
+                Some((
+                    self.clients.get(&index_supplied)?.clone(),
+                    true,
+                    (*command).to_string(),
+                ))
             }
+        // The username is not in the database.
         } else {
-            panic!("there is no channel to send on")
+            info!("{index_supplied} {username} is not in the database");
+            Some((tx, false, (*command).to_string()))
         }
     }
 
@@ -1489,44 +1481,44 @@ impl Server {
         index_supplied: usize,
         command: &str,
         the_rest: &[&str],
-    ) -> (mpsc::Sender<String>, bool, String) {
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
         if the_rest.len() < 5 {
-            return (
-                self.clients[&index_supplied].clone(),
+            return Some((
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
-            );
+            ));
         }
 
-        let role = the_rest[0];
+        let role = the_rest.first()?;
         let Ok(role) = Role::from_str(role) else {
-            return (
-                self.clients[&index_supplied].clone(),
+            return Some((
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
-            );
+            ));
         };
 
-        let rated = the_rest[1];
+        let rated = the_rest.get(1)?;
         let Ok(rated) = Rated::from_str(rated) else {
-            return (
-                self.clients[&index_supplied].clone(),
+            return Some((
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
-            );
+            ));
         };
 
-        let timed = the_rest[2];
-        let minutes = the_rest[3];
-        let add_seconds = the_rest[4];
+        let timed = the_rest.get(2)?;
+        let minutes = the_rest.get(3)?;
+        let add_seconds = the_rest.get(4)?;
 
         let Ok(timed) = TimeSettings::try_from(vec!["time-settings", timed, minutes, add_seconds])
         else {
-            return (
-                self.clients[&index_supplied].clone(),
+            return Some((
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
-            );
+            ));
         };
 
         info!(
@@ -1546,7 +1538,7 @@ impl Server {
         self.games_light.0.insert(self.game_id, game);
         self.game_id += 1;
 
-        (self.clients[&index_supplied].clone(), true, command)
+        Some((self.clients.get(&index_supplied)?.clone(), true, command))
     }
 
     fn resume_game(
@@ -1558,14 +1550,14 @@ impl Server {
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let Some(id) = the_rest.first() else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
         };
         let Ok(id) = id.parse::<usize>() else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
@@ -1591,17 +1583,18 @@ impl Server {
 
         if Some((*username).to_string()) == game_light.attacker {
             if let Some(server_game) = self.games.0.get_mut(&id) {
-                server_game.attacker_tx = self.clients[&index_supplied].clone();
+                server_game.attacker_tx = self.clients.get(&index_supplied)?.clone();
             }
             game_light.attacker_channel = Some(index_supplied);
         } else if Some((*username).to_string()) == game_light.defender {
             if let Some(server_game) = self.games.0.get_mut(&id) {
-                server_game.defender_tx = self.clients[&index_supplied].clone();
+                server_game.defender_tx = self.clients.get(&index_supplied)?.clone();
             }
             game_light.defender_channel = Some(index_supplied);
         }
 
-        self.clients[&index_supplied]
+        self.clients
+            .get(&index_supplied)?
             .send(format!(
                 "= resume_game {} {} {} {:?} {board} {texts}",
                 game_light.attacker.clone().unwrap(),
@@ -1620,35 +1613,35 @@ impl Server {
         index_supplied: usize,
         command: &str,
         the_rest: &[&str],
-    ) -> (mpsc::Sender<String>, bool, String) {
+    ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let Some(id) = the_rest.first() else {
-            return (
-                self.clients[&index_supplied].clone(),
+            return Some((
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
-            );
+            ));
         };
         let Ok(id) = id.parse::<usize>() else {
-            return (
-                self.clients[&index_supplied].clone(),
+            return Some((
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
-            );
+            ));
         };
 
         let Some(color) = the_rest.get(1) else {
-            return (
-                self.clients[&index_supplied].clone(),
+            return Some((
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
-            );
+            ));
         };
         let Ok(color) = Color::from_str(color) else {
-            return (
-                self.clients[&index_supplied].clone(),
+            return Some((
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
-            );
+            ));
         };
 
         info!("{index_supplied} {username} request_draw {id} {color}");
@@ -1666,11 +1659,11 @@ impl Server {
             }
         }
 
-        (
-            self.clients[&index_supplied].clone(),
+        Some((
+            self.clients.get(&index_supplied)?.clone(),
             true,
             (*command).to_string(),
-        )
+        ))
     }
 
     fn save_server(&self) {
@@ -1705,14 +1698,14 @@ impl Server {
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let Some(id) = the_rest.first() else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
         };
         let Ok(id) = id.parse::<usize>() else {
             return Some((
-                self.clients[&index_supplied].clone(),
+                self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
@@ -1750,10 +1743,10 @@ impl Server {
         the_rest: &[&str],
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
         let Some(id) = the_rest.first() else {
-            return Some((self.clients[&index_supplied].clone(), false, command));
+            return Some((self.clients.get(&index_supplied)?.clone(), false, command));
         };
         let Ok(id) = id.parse::<usize>() else {
-            return Some((self.clients[&index_supplied].clone(), false, command));
+            return Some((self.clients.get(&index_supplied)?.clone(), false, command));
         };
 
         if let Some(game) = self.games_light.0.get_mut(&id) {
@@ -1778,7 +1771,8 @@ impl Server {
             panic!("the id must refer to a valid pending game");
         };
 
-        self.clients[&index_supplied]
+        self.clients
+            .get(&index_supplied)?
             .send(format!(
                 "= watch_game {} {} {} {:?} {board} {texts}",
                 game.attacker.clone().unwrap(),
