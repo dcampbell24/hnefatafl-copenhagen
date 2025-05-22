@@ -899,13 +899,15 @@ impl Server {
         command: &str,
         email: Option<&str>,
     ) -> Option<(mpsc::Sender<String>, bool, String)> {
-        let Some(email_str) = email else {
+        let Some(address) = email else {
             return Some((
                 self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
         };
+        let address = format!("{username} <{address}>");
+
         let Some(account) = self.accounts.0.get_mut(username) else {
             return Some((
                 self.clients.get(&index_supplied)?.clone(),
@@ -914,12 +916,12 @@ impl Server {
             ));
         };
 
-        info!("{index_supplied} {username} email {email_str}");
+        info!("{index_supplied} {username} email {address}");
 
         let random_u32 = random::<u32>();
         let email = lettre::Message::builder()
             .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
-            .to(email_str.parse().ok()?)
+            .to(address.parse().ok()?)
             .subject("Account Verification")
             .header(ContentType::TEXT_PLAIN)
             .body(format!(
@@ -936,20 +938,20 @@ impl Server {
 
         match mailer.send(&email) {
             Ok(_) => {
-                info!("email sent to {email_str} successfully!");
+                info!("email sent to {address} successfully!");
 
                 account.email = Some(Email {
-                    address: email_str.to_string(),
+                    address: address.to_string(),
                     code: Some(random_u32),
                     verified: false,
                 });
                 self.save_server();
 
-                let reply = format!("email {email_str} false");
+                let reply = format!("email {address} false");
                 Some((self.clients.get(&index_supplied)?.clone(), true, reply))
             }
             Err(err) => {
-                let reply = format!("could not send email to {email_str}");
+                let reply = format!("could not send email to {address}");
                 error!("{reply}: {err}");
 
                 Some((self.clients.get(&index_supplied)?.clone(), false, reply))
