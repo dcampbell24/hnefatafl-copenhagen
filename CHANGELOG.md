@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: Use text_input.secure().
+
 ## [1.1.2] - 2025-05-21
 
 - hnefatafl-client: limit the valid password characters.

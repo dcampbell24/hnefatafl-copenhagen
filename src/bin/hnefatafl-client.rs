@@ -185,8 +185,6 @@ struct Client {
     #[serde(skip)]
     password: String,
     #[serde(skip)]
-    password_real: String,
-    #[serde(skip)]
     password_show: bool,
     #[serde(skip)]
     play_from: Option<Vertex>,
@@ -572,22 +570,9 @@ impl Client {
                     self.send(format!("new_game {role} {} {:?}\n", self.rated, self.timed));
                 }
             }
-            Message::PasswordChanged(mut password) => {
-                let password_len: Vec<_> = password.chars().collect();
-                let password_len = password_len.len();
-                let self_password_len: Vec<_> = self.password.chars().collect();
-                let self_password_len = self_password_len.len();
-
-                if password_len == self_password_len + 1 {
-                    if let Some(ch) = password.pop() {
-                        if is_valid_password_char(ch) {
-                            self.password_real.push(ch);
-                            self.password.push('●');
-                        }
-                    }
-                } else if password_len + 1 == self_password_len {
-                    self.password.pop();
-                    self.password_real.pop();
+            Message::PasswordChanged(password) => {
+                if is_valid_password(&password) {
+                    self.password = password;
                 }
             }
             Message::PasswordShow(show_password) => {
@@ -1031,10 +1016,9 @@ impl Client {
                     Screen::AccountSettings => {
                         self.send(format!(
                             "change_password {}\n",
-                            self.password_real.to_ascii_lowercase()
+                            self.password.to_ascii_lowercase()
                         ));
                         self.password.clear();
-                        self.password_real.clear();
                     }
                     Screen::EmailEveryone => {
                         // subject == self.text_input
@@ -1077,11 +1061,10 @@ impl Client {
                         let username = username.to_ascii_lowercase();
                         self.send(format!(
                             "{VERSION_ID} create_account {username} {}\n",
-                            self.password_real
+                            self.password
                         ));
                         self.username = username;
                         self.password.clear();
-                        self.password_real.clear();
                     }
                 }
                 self.text_input.clear();
@@ -1093,23 +1076,19 @@ impl Client {
 
                     self.send(format!(
                         "{VERSION_ID} create_account {username} {}\n",
-                        self.password_real
+                        self.password
                     ));
                     self.username = username;
                 } else if let Some(username) = self.text_input.split_ascii_whitespace().next() {
                     let username = username.to_ascii_lowercase();
 
-                    self.send(format!(
-                        "{VERSION_ID} login {username} {}\n",
-                        self.password_real
-                    ));
+                    self.send(format!("{VERSION_ID} login {username} {}\n", self.password));
                     self.username = username;
                 } else {
                     panic!("You can't reach this path!")
                 }
 
                 self.password.clear();
-                self.password_real.clear();
                 self.text_input.clear();
                 self.save_client();
             }
@@ -1426,21 +1405,14 @@ impl Client {
                     "*** The password is made all lowercase due to a bug. ***",
                 ));
 
-                if self.password_show {
-                    columns = columns.push(row![
-                        text("change password: "),
-                        text_input("", &self.password_real)
-                            .on_input(Message::PasswordChanged)
-                            .on_submit(Message::TextSend),
-                    ]);
-                } else {
-                    columns = columns.push(row![
-                        text("change password: "),
-                        text_input("", &self.password)
-                            .on_input(Message::PasswordChanged)
-                            .on_submit(Message::TextSend),
-                    ]);
-                }
+                columns = columns.push(row![
+                    text("change password: "),
+                    text_input("", &self.password)
+                        .secure(!self.password_show)
+                        .on_input(Message::PasswordChanged)
+                        .on_submit(Message::TextSend),
+                ]);
+
                 columns = columns.push(
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow),
                 );
@@ -1768,19 +1740,13 @@ impl Client {
                     .padding(PADDING)
                     .style(container::bordered_box);
 
-                let password = if self.password_show {
-                    row![
-                        text("password:").size(20),
-                        text_input("", &self.password_real).on_input(Message::PasswordChanged),
-                    ]
-                    .spacing(SPACING)
-                } else {
-                    row![
-                        text("password:").size(20),
-                        text_input("", &self.password).on_input(Message::PasswordChanged),
-                    ]
-                    .spacing(SPACING)
-                };
+                let password = row![
+                    text("password:").size(20),
+                    text_input("", &self.password)
+                        .secure(!self.password_show)
+                        .on_input(Message::PasswordChanged),
+                ]
+                .spacing(SPACING);
 
                 let password = container(password)
                     .padding(PADDING)
@@ -1936,6 +1902,11 @@ fn get_tx(tx: &mut Option<Sender<String>>) -> &mut Sender<String> {
         panic!("you have to have a sender at this point")
     };
     tx
+}
+
+#[must_use]
+fn is_valid_password(password: &str) -> bool {
+    password.chars().all(is_valid_password_char)
 }
 
 #[must_use]
