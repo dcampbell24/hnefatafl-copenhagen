@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- hnefatafl-client: Use text_input.secure().
+- hnefatafl-client: add on_paste to a bunch of input_texts.
+- hnefatafl-client: use text_input.secure().
 
 ## [1.1.2] - 2025-05-21
 

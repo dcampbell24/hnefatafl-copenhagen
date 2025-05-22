@@ -1378,6 +1378,7 @@ impl Client {
                         row = row.push(
                             text_input("", &self.text_input)
                                 .on_input(Message::TextChanged)
+                                .on_paste(Message::TextChanged)
                                 .on_submit(Message::TextSendEmailCode),
                         );
                         columns = columns.push(row);
@@ -1388,6 +1389,7 @@ impl Client {
                     row = row.push(
                         text_input("", &self.text_input)
                             .on_input(Message::TextChanged)
+                            .on_paste(Message::TextChanged)
                             .on_submit(Message::TextSendEmail),
                     );
 
@@ -1410,6 +1412,7 @@ impl Client {
                     text_input("", &self.password)
                         .secure(!self.password_show)
                         .on_input(Message::PasswordChanged)
+                        .on_paste(Message::PasswordChanged)
                         .on_submit(Message::TextSend),
                 ]);
 
@@ -1635,11 +1638,16 @@ impl Client {
 
                 if self.timed.0.is_some() {
                     time = time.push(text("minutes"));
-                    time = time
-                        .push(text_input("15", &self.time_minutes).on_input(Message::TimeMinutes));
+                    time = time.push(
+                        text_input("15", &self.time_minutes)
+                            .on_input(Message::TimeMinutes)
+                            .on_paste(Message::TimeMinutes),
+                    );
                     time = time.push(text("add seconds"));
                     time = time.push(
-                        text_input("10", &self.time_add_seconds).on_input(Message::TimeAddSeconds),
+                        text_input("10", &self.time_add_seconds)
+                            .on_input(Message::TimeAddSeconds)
+                            .on_paste(Message::TimeAddSeconds),
                     );
                 }
                 time = time.spacing(SPACING);
@@ -1744,7 +1752,8 @@ impl Client {
                     text("password:").size(20),
                     text_input("", &self.password)
                         .secure(!self.password_show)
-                        .on_input(Message::PasswordChanged),
+                        .on_input(Message::PasswordChanged)
+                        .on_paste(Message::PasswordChanged),
                 ]
                 .spacing(SPACING);
 
