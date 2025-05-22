@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.3] - 2025-05-21
+
+- Make dirs a global dependency.
 - hnefatafl-client: add on_paste to a bunch of input_texts.
 - hnefatafl-client: use text_input.secure().
 
-## [1.1.2] - 2025-05-21
+## [1.1.2] - 2025-05-21 (Yanked)
 
 - hnefatafl-client: limit the valid password characters.
 
@@ -262,7 +265,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v1.1.2...main
+[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v1.1.3...main
+[1.1.3]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v01.1.2...v1.1.3
 [1.1.2]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v01.1.1...v1.1.2
 [1.1.1]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v01.1.0...v1.1.1
 [1.1.0]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v01.0.0...v1.1.0
