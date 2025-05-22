@@ -4,7 +4,7 @@
   <metadata>
     <!-- == PACKAGE SPECIFIC SECTION == -->
     <id>hnefatafl-copenhagen</id>
-    <version>1.0.0</version>
+    <version>1.1.3</version>
     <packageSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/tree/main/packages/chocolatey</packageSourceUrl>
     <owners>David Lawrence Campbell</owners>
     <!-- ============================== -->
@@ -22,21 +22,10 @@
     <!--<mailingListUrl></mailingListUrl>-->
     <bugTrackerUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/issues</bugTrackerUrl>
     <tags>board-game copenhagen hnefatafl tafl</tags>
-    <releaseNotes>https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CHANGELOG.md#100</releaseNotes>
+    <releaseNotes>https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CHANGELOG.md#113---2025-05-21</releaseNotes>
     <summary>Copenhagen Hnefatafl</summary>
     <description>Copenhagen Hnefatafl client that connects to a server.</description>
     <!-- =============================== -->
-
-    <!-- Specifying dependencies and version ranges? https://docs.nuget.org/create/versioning#specifying-version-ranges-in-.nuspec-files -->
-    <!--<dependencies>
-      <dependency id="" version="__MINIMUM_VERSION__" />
-      <dependency id="" version="[__EXACT_VERSION__]" />
-      <dependency id="" version="[_MIN_VERSION_INCLUSIVE, MAX_VERSION_INCLUSIVE]" />
-      <dependency id="" version="[_MIN_VERSION_INCLUSIVE, MAX_VERSION_EXCLUSIVE)" />
-      <dependency id="" />
-      <dependency id="chocolatey-core.extension" version="1.1.0" />
-    </dependencies>-->
-    <!-- chocolatey-core.extension - https://community.chocolatey.org/packages/chocolatey-core.extension -->
 
     <!--<provides>NOT YET IMPLEMENTED</provides>-->
     <!--<conflicts>NOT YET IMPLEMENTED</conflicts>-->
