@@ -906,7 +906,10 @@ impl Server {
                 (*command).to_string(),
             ));
         };
-        let address = format!("{username} <{address}>");
+
+        // Note: We use a FIGURE SPACE to separate the username from the address so
+        // .split_ascii_whitespace() does not treat it as a space.
+        let address = format!("{username} <{address}>");
 
         let Some(account) = self.accounts.0.get_mut(username) else {
             return Some((
