@@ -171,7 +171,6 @@ fn login(
             ));
         }
 
-        buf.make_ascii_lowercase();
         let buf_clone = buf.clone();
         let mut username_password_etc = buf_clone.split_ascii_whitespace();
 
@@ -231,7 +230,7 @@ fn login(
                     break;
                 }
 
-                stream.write_all(b"? login password is wrong, account doesn't exist, or your already logged in\n")?;
+                stream.write_all(b"? login password is wrong (try lowercase), account doesn't exist, or your already logged in\n")?;
                 continue;
             } else if create_account_login == "create_account" {
                 if "= create_account" == message.as_str() {
