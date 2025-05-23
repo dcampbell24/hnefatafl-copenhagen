@@ -1052,10 +1052,10 @@ impl Client {
             Message::TextSendCreateAccount => {
                 if !self.text_input.trim().is_empty() {
                     if let Some(username) = self.text_input.split_ascii_whitespace().next() {
-                        let username = username.to_ascii_lowercase();
+                        let username = username.to_string();
                         self.send(format!(
                             "{VERSION_ID} create_account {username} {}\n",
-                            self.password
+                            self.password,
                         ));
                         self.username = username;
                         self.password.clear();
@@ -1074,7 +1074,7 @@ impl Client {
                     ));
                     self.username = username;
                 } else if let Some(username) = self.text_input.split_ascii_whitespace().next() {
-                    let username = username.to_ascii_lowercase();
+                    let username = username.to_string();
 
                     self.send(format!("{VERSION_ID} login {username} {}\n", self.password));
                     self.username = username;
