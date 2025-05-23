@@ -2,6 +2,7 @@
     "cSpell.words": [
         "alsa",
         "devel",
+        "clippy",
         "choco",
         "chrono",
         "glicko",
@@ -17,13 +18,20 @@
         "pkgrel",
         "pkgver",
         "pkgversion",
+        "reqwest",
         "rngs",
         "rodio",
+        "rustc",
+        "serde",
+        "skia",
+        "smol",
         "hnefatafl",
+        "kcache",
         "pulseaudio",
         "rustup",
         "tafl",
         "vecdeque",
         "webbrowser",
+        "wgpu",
     ]
 }

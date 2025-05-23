@@ -10,7 +10,7 @@ readme = "README.md"
 homepage = "https://hnefatafl.org"
 repository = "https://github.com/dcampbell24/hnefatafl-copenhagen"
 license = "MIT OR Apache-2.0"
-keywords = ["board-game", "copenhagan", "hnefatafl", "tafl"]
+keywords = ["board-game", "copenhagen", "hnefatafl", "tafl"]
 categories = ["game-engines", "games"]
 default-run = "hnefatafl-server-full"
 
@@ -43,6 +43,9 @@ futures = { version = "0.3", optional = true }
 rodio = { version = "0.20", optional = true }
 webbrowser = { version = "1", features = ["hardened"], optional = true }
 
+# send-website-urls only
+reqwest = { version = "0.12", features = ["blocking"], optional = true }
+
 # server only
 argon2 = { version = "0.5", optional = true }
 lettre = { version = "0.11", optional = true }
@@ -55,6 +58,7 @@ icon_2 = []
 server = ["dep:argon2", "dep:lettre", "dep:password-hash"]
 sound = ["dep:rodio"]
 timer = ["iced/smol"]
+urls = ["dep:reqwest"]
 www = ["dep:webbrowser"]
 
 [[bin]]
