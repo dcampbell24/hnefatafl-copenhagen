@@ -1860,6 +1860,8 @@ mod tests {
 
     #[test]
     fn capital_letters_fail() {
+        let mut accounts = Accounts::default();
+
         let password = "A".to_string();
         let ctx = Argon2::default();
 
@@ -1869,27 +1871,35 @@ mod tests {
             .unwrap()
             .to_string();
 
-        let mut account = Account {
+        let account = Account {
             password: password_hash,
             logged_in: Some(0),
             ..Default::default()
         };
 
-        let salt = SaltString::generate(&mut OsRng);
-        let password_hash = ctx
-            .hash_password(password.as_bytes(), &salt)
-            .unwrap()
-            .to_string();
+        accounts.0.insert("testing".to_string(), account);
+        {
+            let account = accounts.0.get_mut("testing").unwrap();
 
-        account.password = password_hash;
+            let salt = SaltString::generate(&mut OsRng);
+            let password_hash = ctx
+                .hash_password(password.as_bytes(), &salt)
+                .unwrap()
+                .to_string();
 
-        let hash = PasswordHash::try_from(account.password.as_str()).unwrap();
+            account.password = password_hash;
+        }
 
-        assert!(
-            Argon2::default()
-                .verify_password(password.as_bytes(), &hash)
-                .is_ok()
-        );
+        {
+            let account = accounts.0.get_mut("testing").unwrap();
+            let hash = PasswordHash::try_from(account.password.as_str()).unwrap();
+
+            assert!(
+                Argon2::default()
+                    .verify_password(password.as_bytes(), &hash)
+                    .is_ok()
+            );
+        }
     }
 
     #[test]
