@@ -9,6 +9,7 @@ website:
 	cp ../../hnefatafl-client-installer-0.13.4.exe /var/www/html/binaries/nsis/
 	cp ../../hnefatafl-client-installer-1.0.0.exe /var/www/html/binaries/nsis/
 	cp ../../hnefatafl-client-installer-1.1.3.exe /var/www/html/binaries/nsis/
+	cp ../../hnefatafl-client-installer-1.1.4.exe /var/www/html/binaries/nsis/
 	sscli -b https://hnefatafl.org -r /var/www/html/
 	mkdir /var/www/html/.well-known
 	echo "fb1c1fdb-d01d-4918-911f-f4cf4b0540a0" > /var/www/html/.well-known/org.flathub.VerifiedApps.txt
