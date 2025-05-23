@@ -1015,10 +1015,7 @@ impl Client {
             Message::TextSend => {
                 match self.screen {
                     Screen::AccountSettings => {
-                        self.send(format!(
-                            "change_password {}\n",
-                            self.password.to_ascii_lowercase()
-                        ));
+                        self.send(format!("change_password {}\n", self.password));
                         self.password.clear();
                     }
                     Screen::EmailEveryone => {
@@ -1403,10 +1400,6 @@ impl Client {
                 if let Some(error) = &self.error_email {
                     columns = columns.push(row![text(format!("error: {error}"))]);
                 }
-
-                columns = columns.push(text(
-                    "*** The password is made all lowercase due to a bug. ***",
-                ));
 
                 columns = columns.push(row![
                     text("change password: "),
