@@ -1,9 +1,9 @@
 #[cfg(feature = "urls")]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let url = "http://api.indexnow.org";
+    let url = "http://api.indexnow.org/IndexNow";
     let json_data = r#"
 {
-    "host": "www.hnefatafl.org",
+    "host": "hnefatafl.org",
     "key": "514969c804234582abafaae69c947790",
     "keyLocation": "https://hnefatafl.org/514969c804234582abafaae69c947790.txt",
     "urlList": [
