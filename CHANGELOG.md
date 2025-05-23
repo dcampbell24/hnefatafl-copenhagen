@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: don't limit the valid password characters.
 - fix the lowercasing of password bug.
 
 ## [1.1.3] - 2025-05-21

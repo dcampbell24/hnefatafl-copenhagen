@@ -570,11 +570,7 @@ impl Client {
                     self.send(format!("new_game {role} {} {:?}\n", self.rated, self.timed));
                 }
             }
-            Message::PasswordChanged(password) => {
-                if is_valid_password(&password) {
-                    self.password = password;
-                }
-            }
+            Message::PasswordChanged(password) => self.password = password,
             Message::PasswordShow(show_password) => {
                 self.password_show = show_password;
             }
@@ -1905,51 +1901,6 @@ fn get_tx(tx: &mut Option<Sender<String>>) -> &mut Sender<String> {
         panic!("you have to have a sender at this point")
     };
     tx
-}
-
-#[must_use]
-fn is_valid_password(password: &str) -> bool {
-    password.chars().all(is_valid_password_char)
-}
-
-#[must_use]
-fn is_valid_password_char(c: char) -> bool {
-    if c.is_ascii_alphanumeric() {
-        return true;
-    }
-
-    matches!(
-        c,
-        '!' | '"'
-            | '#'
-            | '$'
-            | '%'
-            | '&'
-            | '\''
-            | '('
-            | ')'
-            | '*'
-            | '+'
-            | ','
-            | '-'
-            | '.'
-            | ':'
-            | ';'
-            | '<'
-            | '='
-            | '>'
-            | '?'
-            | '@'
-            | '['
-            | ']'
-            | '^'
-            | '_'
-            | '`'
-            | '{'
-            | '|'
-            | '}'
-            | '~'
-    )
 }
 
 fn pass_messages() -> impl Stream<Item = Message> {
