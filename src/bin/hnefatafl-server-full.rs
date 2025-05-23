@@ -1,7 +1,7 @@
 #![deny(clippy::indexing_slicing)]
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     env,
     fs::{self, File},
     io::{BufRead, BufReader, ErrorKind, Write},
@@ -34,7 +34,8 @@ use hnefatafl_copenhagen::{
     time::TimeSettings,
 };
 use lettre::{
-    SmtpTransport, Transport, message::header::ContentType,
+    SmtpTransport, Transport,
+    message::{Mailbox, header::ContentType},
     transport::smtp::authentication::Credentials,
 };
 use log::{LevelFilter, debug, error, info};
@@ -328,28 +329,43 @@ struct Server {
 }
 
 impl Server {
-    fn bcc(&self, username: &str) -> Vec<String> {
-        let mut emails_bcc = Vec::new();
+    fn bcc_mailboxes(&self, username: &str) -> Vec<Mailbox> {
+        let mut emails = Vec::new();
 
         if let Some(account) = self.accounts.0.get(username) {
             if account.send_emails {
-                let mut emails = HashSet::new();
-
                 for account in self.accounts.0.values() {
                     if let Some(email) = &account.email {
                         if email.verified {
-                            emails.insert(&email.address);
+                            if let Some(email) = email.to_mailbox() {
+                                emails.push(email);
+                            }
                         }
                     }
-                }
-
-                for email in emails {
-                    emails_bcc.push(email.clone());
                 }
             }
         }
 
-        emails_bcc
+        emails
+    }
+
+    fn bcc_send(&self, username: &str) -> String {
+        let mut emails = Vec::new();
+
+        if let Some(account) = self.accounts.0.get(username) {
+            if account.send_emails {
+                for account in self.accounts.0.values() {
+                    if let Some(email) = &account.email {
+                        if email.verified {
+                            emails.push(email.tx());
+                        }
+                    }
+                }
+            }
+        }
+
+        emails.sort();
+        emails.join(" ")
     }
 
     /// ```sh
@@ -907,10 +923,6 @@ impl Server {
             ));
         };
 
-        // Note: We use a FIGURE SPACE to separate the username from the address so
-        // .split_ascii_whitespace() does not treat it as a space.
-        let address = format!("{username} <{address}>");
-
         let Some(account) = self.accounts.0.get_mut(username) else {
             return Some((
                 self.clients.get(&index_supplied)?.clone(),
@@ -919,12 +931,19 @@ impl Server {
             ));
         };
 
-        info!("{index_supplied} {username} email {address}");
-
         let random_u32 = random::<u32>();
-        let email = lettre::Message::builder()
+        let email = Email {
+            address: address.to_string(),
+            code: Some(random_u32),
+            username: username.to_string(),
+            verified: false,
+        };
+
+        info!("{index_supplied} {username} email {}", email.tx());
+
+        let email_send = lettre::Message::builder()
             .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
-            .to(address.parse().ok()?)
+            .to(email.to_mailbox()?)
             .subject("Account Verification")
             .header(ContentType::TEXT_PLAIN)
             .body(format!(
@@ -939,15 +958,11 @@ impl Server {
             .credentials(credentials)
             .build();
 
-        match mailer.send(&email) {
+        match mailer.send(&email_send) {
             Ok(_) => {
                 info!("email sent to {address} successfully!");
 
-                account.email = Some(Email {
-                    address: address.to_string(),
-                    code: Some(random_u32),
-                    verified: false,
-                });
+                account.email = Some(email);
                 self.save_server();
 
                 let reply = format!("email {address} false");
@@ -1026,63 +1041,58 @@ impl Server {
                     self.set_email(index_supplied, username, command, the_rest.first().copied())
                 }
                 "email_everyone" => {
-                    let emails_bcc = self.bcc(username);
+                    let emails_bcc = self.bcc_mailboxes(username);
 
-                    if emails_bcc.is_empty() {
-                        Some((
-                            self.clients.get(&index_supplied)?.clone(),
-                            false,
-                            (*command).to_string(),
-                        ))
-                    } else {
-                        let subject = the_rest.first()?;
-                        let email_string = the_rest.get(1..)?.join(" ").replace("\\n", "\n");
+                    let subject = the_rest.first()?;
+                    let email_string = the_rest.get(1..)?.join(" ").replace("\\n", "\n");
 
-                        info!("{index_supplied} {username} email_everyone");
+                    info!("{index_supplied} {username} email_everyone");
 
-                        let email = lettre::Message::builder()
-                            .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
-                            .bcc(emails_bcc.join(", ").parse().ok()?)
-                            .subject(*subject)
-                            .header(ContentType::TEXT_PLAIN)
-                            .body(email_string)
-                            .ok()?;
+                    let mut email = lettre::Message::builder();
 
-                        let credentials = Credentials::new(
-                            self.smtp.username.clone(),
-                            self.smtp.password.clone(),
-                        );
+                    for email_bcc in emails_bcc {
+                        email = email.bcc(email_bcc);
+                    }
 
-                        let mailer = SmtpTransport::relay(&self.smtp.service)
-                            .ok()?
-                            .credentials(credentials)
-                            .build();
+                    let email = email
+                        .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
+                        .subject(*subject)
+                        .header(ContentType::TEXT_PLAIN)
+                        .body(email_string)
+                        .ok()?;
 
-                        match mailer.send(&email) {
-                            Ok(_) => {
-                                info!("emails sent successfully!");
+                    let credentials =
+                        Credentials::new(self.smtp.username.clone(), self.smtp.password.clone());
 
-                                Some((
-                                    self.clients.get(&index_supplied)?.clone(),
-                                    true,
-                                    (*command).to_string(),
-                                ))
-                            }
-                            Err(err) => {
-                                let reply = "could not send emails";
-                                error!("{reply}: {err}");
+                    let mailer = SmtpTransport::relay(&self.smtp.service)
+                        .ok()?
+                        .credentials(credentials)
+                        .build();
 
-                                Some((
-                                    self.clients.get(&index_supplied)?.clone(),
-                                    false,
-                                    reply.to_string(),
-                                ))
-                            }
+                    match mailer.send(&email) {
+                        Ok(_) => {
+                            info!("emails sent successfully!");
+
+                            Some((
+                                self.clients.get(&index_supplied)?.clone(),
+                                true,
+                                (*command).to_string(),
+                            ))
+                        }
+                        Err(err) => {
+                            let reply = "could not send emails";
+                            error!("{reply}: {err}");
+
+                            Some((
+                                self.clients.get(&index_supplied)?.clone(),
+                                false,
+                                reply.to_string(),
+                            ))
                         }
                     }
                 }
                 "emails_bcc" => {
-                    let emails_bcc = self.bcc(username).join(" ");
+                    let emails_bcc = self.bcc_send(username);
 
                     if !emails_bcc.is_empty() {
                         self.clients
@@ -1182,7 +1192,7 @@ impl Server {
 
                             let message = lettre::Message::builder()
                                 .from("Hnefatafl Org <no-reply@hnefatafl.org>".parse().ok()?)
-                                .to(email.address.parse().ok()?)
+                                .to(email.to_mailbox()?)
                                 .subject("Password Reset")
                                 .header(ContentType::TEXT_PLAIN)
                                 .body(format!(

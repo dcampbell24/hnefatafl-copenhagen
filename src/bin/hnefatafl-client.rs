@@ -739,6 +739,7 @@ impl Client {
                                 if let (Some(address), Some(verified)) = (text.next(), text.next())
                                 {
                                     self.email = Some(Email {
+                                        username: String::new(),
                                         address: address.to_string(),
                                         code: None,
                                         verified: verified.parse().unwrap(),
