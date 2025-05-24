@@ -185,6 +185,8 @@ struct Client {
     #[serde(skip)]
     password: String,
     #[serde(skip)]
+    password_no_save: bool,
+    #[serde(skip)]
     password_show: bool,
     #[serde(skip)]
     play_from: Option<Vertex>,
@@ -570,7 +572,11 @@ impl Client {
                     self.send(format!("new_game {role} {} {:?}\n", self.rated, self.timed));
                 }
             }
-            Message::PasswordChanged(password) => self.password = password,
+            Message::PasswordChanged(password) => {
+                let (password, ends_with_whitespace) = split_whitespace(&password);
+                self.password_no_save = ends_with_whitespace;
+                self.password = password;
+            }
             Message::PasswordShow(show_password) => {
                 self.password_show = show_password;
             }
@@ -1393,14 +1399,22 @@ impl Client {
                     columns = columns.push(row![text(format!("error: {error}"))]);
                 }
 
-                columns = columns.push(row![
-                    text("change password: "),
-                    text_input("", &self.password)
-                        .secure(!self.password_show)
-                        .on_input(Message::PasswordChanged)
-                        .on_paste(Message::PasswordChanged)
-                        .on_submit(Message::TextSend),
-                ]);
+                let mut change_password_button = button("Change Password");
+
+                if !self.password_no_save {
+                    change_password_button = change_password_button.on_press(Message::TextSend);
+                }
+
+                columns = columns.push(
+                    row![
+                        change_password_button,
+                        text_input("", &self.password)
+                            .secure(!self.password_show)
+                            .on_input(Message::PasswordChanged)
+                            .on_paste(Message::PasswordChanged),
+                    ]
+                    .spacing(SPACING),
+                );
 
                 columns = columns.push(
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow),
@@ -1753,7 +1767,7 @@ impl Client {
                 let login = button("Login").on_press(Message::TextSendLogin);
 
                 let mut create_account = button("Create Account");
-                if !self.text_input.is_empty() {
+                if !self.text_input.is_empty() && !self.password_no_save {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
                 }
 
@@ -2004,6 +2018,20 @@ fn open_url(url: &str) {
     }
     #[cfg(not(feature = "www"))]
     info!("You are trying to visit: {url}");
+}
+
+fn split_whitespace(string: &str) -> (String, bool) {
+    let mut ends_with_whitespace = false;
+    if string.ends_with(|ch: char| ch.is_whitespace()) {
+        ends_with_whitespace = true;
+    }
+
+    let mut string: String = string.split_whitespace().collect();
+    if ends_with_whitespace {
+        string.push(' ');
+    }
+
+    (string, ends_with_whitespace)
 }
 
 fn text_collect(text: SplitAsciiWhitespace<'_>) -> String {
