@@ -646,7 +646,7 @@ impl Client {
             }
             Message::TextChanged(string) => {
                 if self.screen == Screen::Login {
-                    let string: Vec<_> = string.split_ascii_whitespace().collect();
+                    let string: Vec<_> = string.split_whitespace().collect();
                     if let Some(string) = string.first() {
                         self.text_input = string.to_ascii_lowercase();
                     } else {
@@ -1051,15 +1051,13 @@ impl Client {
             }
             Message::TextSendCreateAccount => {
                 if !self.text_input.trim().is_empty() {
-                    if let Some(username) = self.text_input.split_ascii_whitespace().next() {
-                        let username = username.to_string();
-                        self.send(format!(
-                            "{VERSION_ID} create_account {username} {}\n",
-                            self.password,
-                        ));
-                        self.username = username;
-                        self.password.clear();
-                    }
+                    let username = self.text_input.to_string();
+                    self.send(format!(
+                        "{VERSION_ID} create_account {username} {}\n",
+                        self.password,
+                    ));
+                    self.username = username;
+                    self.password.clear();
                 }
                 self.text_input.clear();
                 self.save_client();
@@ -1073,13 +1071,11 @@ impl Client {
                         self.password
                     ));
                     self.username = username;
-                } else if let Some(username) = self.text_input.split_ascii_whitespace().next() {
-                    let username = username.to_string();
+                } else {
+                    let username = self.text_input.to_string();
 
                     self.send(format!("{VERSION_ID} login {username} {}\n", self.password));
                     self.username = username;
-                } else {
-                    panic!("You can't reach this path!")
                 }
 
                 self.password.clear();
