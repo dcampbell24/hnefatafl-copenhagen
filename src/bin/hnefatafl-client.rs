@@ -1764,7 +1764,10 @@ impl Client {
                 let show_password =
                     checkbox("show password", self.password_show).on_toggle(Message::PasswordShow);
 
-                let login = button("Login").on_press(Message::TextSendLogin);
+                let mut login = button("Login");
+                if !self.password_no_save {
+                    login = login.on_press(Message::TextSendLogin);
+                }
 
                 let mut create_account = button("Create Account");
                 if !self.text_input.is_empty() && !self.password_no_save {
@@ -2022,11 +2025,17 @@ fn open_url(url: &str) {
 
 fn split_whitespace(string: &str) -> (String, bool) {
     let mut ends_with_whitespace = false;
+
     if string.ends_with(|ch: char| ch.is_whitespace()) {
         ends_with_whitespace = true;
     }
 
     let mut string: String = string.split_whitespace().collect();
+
+    if string.is_empty() {
+        ends_with_whitespace = false;
+    }
+
     if ends_with_whitespace {
         string.push(' ');
     }
