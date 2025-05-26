@@ -10,7 +10,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "https://hnefatafl.org",
         "https://hnefatafl.org/index.html",
         "https://hnefatafl.org/install.html",
-        "https://hnefatafl.org/rules.html"
+        "https://hnefatafl.org/rules.html",
+        "https://hnefatafl.org/sitemap.xml"
     ]
 }
 "#;
