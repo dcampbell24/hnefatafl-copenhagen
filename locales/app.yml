@@ -8,6 +8,26 @@ password:
   en: password
   fr: mot de passe
 
+game id:
+  en: game id
+  fr: identifiant de jeu
+
+attacker:
+  en: attacker
+  fr: attaquant
+
+defender:
+  en: defender
+  fr: défenseur
+
+rated:
+ en: rated
+ fr: évalué
+
+timed:
+ en: timed
+ fr: chronométré
+
 rating:
   en: rating
   fr: classement
