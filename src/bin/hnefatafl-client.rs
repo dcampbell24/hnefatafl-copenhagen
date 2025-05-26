@@ -1,6 +1,9 @@
 // Don't open the terminal on Windows.
 #![windows_subsystem = "windows"]
 
+#[macro_use]
+extern crate tr;
+
 #[cfg(feature = "sound")]
 use std::{io::Cursor, time::Duration};
 
@@ -72,7 +75,10 @@ struct Args {
     host: String,
 }
 
-fn client_maybe_from_file() -> Client {
+fn init_client() -> Client {
+    #[cfg(target_os = "linux")]
+    tr_init!("/usr/share/locale/");
+
     let data_file = data_file();
     let mut error = None;
     let mut client: Client = match &fs::read_to_string(&data_file) {
@@ -116,7 +122,7 @@ fn main() -> anyhow::Result<()> {
     #[cfg(feature = "icon_2")]
     let king = include_bytes!("king_2_256x256.rgba").to_vec();
 
-    iced::application(client_maybe_from_file, Client::update, Client::view)
+    iced::application(init_client, Client::update, Client::view)
         .title("Hnefatafl Copenhagen")
         .subscription(Client::subscriptions)
         .window(window::Settings {
@@ -1737,7 +1743,7 @@ impl Client {
             }
             Screen::Login => {
                 let username = row![
-                    text("username:").size(20),
+                    text(tr!("username:")).size(20),
                     text_input("", &self.text_input)
                         .on_input(Message::TextChanged)
                         .on_paste(Message::TextChanged),
