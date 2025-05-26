@@ -1,13 +1,16 @@
 // Don't open the terminal on Windows.
 #![windows_subsystem = "windows"]
 
+#[macro_use]
+extern crate rust_i18n;
+
 #[cfg(feature = "sound")]
 use std::{io::Cursor, time::Duration};
 
 use std::{
     collections::{HashMap, HashSet, VecDeque},
     env, f64,
-    fmt::Write as fmt_write,
+    fmt::{self, Write as fmt_write},
     fs::{self, File},
     io::{BufRead, BufReader, ErrorKind, Write},
     net::{Shutdown, TcpStream},
@@ -48,18 +51,21 @@ use iced::{
     futures::Stream,
     stream,
     widget::{
-        Column, Container, Row, Scrollable, button, checkbox, column, container, radio, row,
-        scrollable, text, text_editor, text_input, tooltip,
+        Column, Container, Row, Scrollable, button, checkbox, column, container, pick_list, radio,
+        row, scrollable, text, text_editor, text_input, tooltip,
     },
     window::{self, icon},
 };
 use log::{LevelFilter, debug, error, info, trace};
+use rust_i18n::t;
 use serde::{Deserialize, Serialize};
 
 const PORT: &str = ":49152";
 const PADDING: u16 = 10;
 const SPACING: Pixels = Pixels(10.0);
 const SPACING_B: Pixels = Pixels(20.0);
+
+i18n!();
 
 /// A Hnefatafl Copenhagen Client
 ///
@@ -103,12 +109,17 @@ fn client_maybe_from_file() -> Client {
         client.error_persistent = error;
     }
 
+    if let Some(locale) = client.locale_selected.as_ref() {
+        rust_i18n::set_locale(&locale.txt());
+    }
+
     client.text_input = client.username.clone();
     client
 }
 
 fn main() -> anyhow::Result<()> {
     init_logger();
+    i18n!();
 
     #[cfg(not(feature = "icon_2"))]
     let king = include_bytes!("king_1_256x256.rgba").to_vec();
@@ -180,6 +191,8 @@ struct Client {
     game_id: usize,
     #[serde(skip)]
     games_light: ServerGamesLight,
+    #[serde(default)]
+    locale_selected: Option<Locale>,
     #[serde(skip)]
     my_turn: bool,
     #[serde(skip)]
@@ -525,6 +538,11 @@ impl Client {
                 }
                 Screen::Login => self.send("quit\n".to_string()),
             },
+            Message::LocaleSelected(locale) => {
+                rust_i18n::set_locale(&locale.txt());
+                self.locale_selected = Some(locale);
+                self.save_client();
+            }
             Message::OpenUrl(string) => open_url(&string),
             Message::GameNew => self.screen = Screen::GameNew,
             Message::GameResume(id) => {
@@ -1303,7 +1321,13 @@ impl Client {
         }
 
         let ratings = column![text("rating"), text("------"), ratings].padding(PADDING);
-        let usernames = column![text("username"), text("--------"), usernames].padding(PADDING);
+        let usernames = column![
+            // Fixme!
+            text(t!("username")),
+            text("--------"),
+            usernames
+        ]
+        .padding(PADDING);
         let wins = column![text("wins"), text("----"), wins].padding(PADDING);
         let losses = column![text("losses"), text("------"), losses].padding(PADDING);
         let draws = column![text("draws"), text("-----"), draws].padding(PADDING);
@@ -1345,7 +1369,7 @@ impl Client {
 
                 let mut columns = column![
                     text(format!("connected to {} via TCP", &self.connected_to)),
-                    text(format!("username: {}", &self.username)),
+                    text(format!("{}: {}", t!("username"), &self.username)),
                     text(format!("rating: {rating}")),
                     text(format!("wins: {wins}")),
                     text(format!("losses: {losses}")),
@@ -1417,7 +1441,8 @@ impl Client {
                 );
 
                 columns = columns.push(
-                    checkbox("show password", self.password_show).on_toggle(Message::PasswordShow),
+                    checkbox(t!("show password"), self.password_show)
+                        .on_toggle(Message::PasswordShow),
                 );
 
                 if self.delete_account {
@@ -1713,7 +1738,7 @@ impl Client {
 
                 let theme = theme.padding(PADDING).spacing(SPACING);
 
-                let username = row![text("username: "), text(&self.username)];
+                let username = row![text(format!("{}: {}", t!("username"), &self.username))];
                 let username = container(username)
                     .padding(PADDING / 2)
                     .style(container::bordered_box);
@@ -1737,7 +1762,7 @@ impl Client {
             }
             Screen::Login => {
                 let username = row![
-                    text("username:").size(20),
+                    text(format!("{}:", t!("username"))).size(20),
                     text_input("", &self.text_input)
                         .on_input(Message::TextChanged)
                         .on_paste(Message::TextChanged),
@@ -1749,7 +1774,7 @@ impl Client {
                     .style(container::bordered_box);
 
                 let password = row![
-                    text("password:").size(20),
+                    text(format!("{}:", t!("password"))).size(20),
                     text_input("", &self.password)
                         .secure(!self.password_show)
                         .on_input(Message::PasswordChanged)
@@ -1761,8 +1786,8 @@ impl Client {
                     .padding(PADDING)
                     .style(container::bordered_box);
 
-                let show_password =
-                    checkbox("show password", self.password_show).on_toggle(Message::PasswordShow);
+                let show_password = checkbox(t!("show password"), self.password_show)
+                    .on_toggle(Message::PasswordShow);
 
                 let mut login = button("Login");
                 if !self.password_no_save {
@@ -1784,9 +1809,8 @@ impl Client {
                     .on_press(Message::OpenUrl("https://hnefatafl.org".to_string()));
                 let quit = button("Quit").on_press(Message::Leave);
 
-                let buttons = row![login, create_account, reset_password, website, quit]
-                    .spacing(SPACING)
-                    .padding(PADDING);
+                let buttons =
+                    row![login, create_account, reset_password, website, quit].spacing(SPACING);
 
                 let mut error = text("");
                 if let Some(error_) = &self.error {
@@ -1798,11 +1822,19 @@ impl Client {
                     error_persistent = text(error_);
                 }
 
+                let locale = [Locale::En, Locale::Fr];
+
+                let locale = row![
+                    text(format!("{}: ", t!("locale"))).size(20),
+                    pick_list(locale, self.locale_selected, Message::LocaleSelected),
+                ];
+
                 column![
                     username,
                     password,
                     show_password,
                     buttons,
+                    locale,
                     error,
                     error_persistent
                 ]
@@ -1845,6 +1877,30 @@ impl Client {
     }
 }
 
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+enum Locale {
+    En,
+    Fr,
+}
+
+impl Locale {
+    fn txt(self) -> String {
+        match self {
+            Self::En => "en".to_string(),
+            Self::Fr => "fr".to_string(),
+        }
+    }
+}
+
+impl fmt::Display for Locale {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::En => write!(f, "English"),
+            Self::Fr => write!(f, "Français"),
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 enum Message {
     AccountSettings,
@@ -1861,6 +1917,7 @@ enum Message {
     GameSubmit,
     GameWatch(usize),
     Leave,
+    LocaleSelected(Locale),
     OpenUrl(String),
     PasswordChanged(String),
     PasswordShow(bool),
