@@ -78,7 +78,7 @@ struct Args {
     host: String,
 }
 
-fn client_maybe_from_file() -> Client {
+fn init_client() -> Client {
     let data_file = data_file();
     let mut error = None;
     let mut client: Client = match &fs::read_to_string(&data_file) {
@@ -109,17 +109,36 @@ fn client_maybe_from_file() -> Client {
         client.error_persistent = error;
     }
 
-    if let Some(locale) = client.locale_selected.as_ref() {
-        rust_i18n::set_locale(&locale.txt());
-    }
+    rust_i18n::set_locale(&client.locale_selected.txt());
 
     client.text_input = client.username.clone();
+
+    let mut strings = HashMap::new();
+    let mut strings_values = Vec::new();
+
+    strings.insert("Login".to_string(), t!("Login").to_string());
+    strings_values.push("Login".to_string());
+    strings.insert(
+        "Create Account".to_string(),
+        t!("Create Account").to_string(),
+    );
+    strings_values.push("Create Account".to_string());
+    strings.insert(
+        "Reset Password".to_string(),
+        t!("Reset Password").to_string(),
+    );
+    strings_values.push("Reset Password".to_string());
+    strings.insert("Quit".to_string(), t!("Quit").to_string());
+    strings_values.push("Quit".to_string());
+
+    client.strings = strings;
+    client.strings_values = strings_values;
+
     client
 }
 
 fn main() -> anyhow::Result<()> {
     init_logger();
-    i18n!();
 
     #[cfg(not(feature = "icon_2"))]
     let king = include_bytes!("king_1_256x256.rgba").to_vec();
@@ -127,7 +146,7 @@ fn main() -> anyhow::Result<()> {
     #[cfg(feature = "icon_2")]
     let king = include_bytes!("king_2_256x256.rgba").to_vec();
 
-    iced::application(client_maybe_from_file, Client::update, Client::view)
+    iced::application(init_client, Client::update, Client::view)
         .title("Hnefatafl Copenhagen")
         .subscription(Client::subscriptions)
         .window(window::Settings {
@@ -192,7 +211,7 @@ struct Client {
     #[serde(skip)]
     games_light: ServerGamesLight,
     #[serde(default)]
-    locale_selected: Option<Locale>,
+    locale_selected: Locale,
     #[serde(skip)]
     my_turn: bool,
     #[serde(skip)]
@@ -247,6 +266,10 @@ struct Client {
     username: String,
     #[serde(skip)]
     users: HashMap<String, User>,
+    #[serde(skip)]
+    strings: HashMap<String, String>,
+    #[serde(skip)]
+    strings_values: Vec<String>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -540,7 +563,13 @@ impl Client {
             },
             Message::LocaleSelected(locale) => {
                 rust_i18n::set_locale(&locale.txt());
-                self.locale_selected = Some(locale);
+
+                for string in &self.strings_values {
+                    self.strings
+                        .insert(string.to_string(), t!(string.to_string()).to_string());
+                }
+
+                self.locale_selected = locale;
                 self.save_client();
             }
             Message::OpenUrl(string) => open_url(&string),
@@ -1320,17 +1349,29 @@ impl Client {
             }
         }
 
-        let ratings = column![text("rating"), text("------"), ratings].padding(PADDING);
+        let rating = t!("rating");
+        let ratings = column![
+            text(rating.to_string()),
+            text("-".repeat(rating.len())),
+            ratings
+        ]
+        .padding(PADDING);
+        let username = t!("username");
         let usernames = column![
-            // Fixme!
-            text(t!("username")),
-            text("--------"),
+            text(username.to_string()),
+            text("-".repeat(username.len())),
             usernames
         ]
         .padding(PADDING);
-        let wins = column![text("wins"), text("----"), wins].padding(PADDING);
-        let losses = column![text("losses"), text("------"), losses].padding(PADDING);
-        let draws = column![text("draws"), text("-----"), draws].padding(PADDING);
+        let win = t!("wins");
+        let wins =
+            column![text(win.to_string()), text("-".repeat(win.len())), wins].padding(PADDING);
+        let loss = t!("losses");
+        let losses =
+            column![text(loss.to_string()), text("-".repeat(loss.len())), losses].padding(PADDING);
+        let draw = t!("draws");
+        let draws =
+            column![text(draw.to_string()), text("-".repeat(draw.len())), draws].padding(PADDING);
 
         scrollable(row![ratings, usernames, wins, losses, draws])
     }
@@ -1789,17 +1830,17 @@ impl Client {
                 let show_password = checkbox(t!("show password"), self.password_show)
                     .on_toggle(Message::PasswordShow);
 
-                let mut login = button("Login");
+                let mut login = button(self.strings["Login"].as_str());
                 if !self.password_no_save {
                     login = login.on_press(Message::TextSendLogin);
                 }
 
-                let mut create_account = button("Create Account");
+                let mut create_account = button(self.strings["Create Account"].as_str());
                 if !self.text_input.is_empty() && !self.password_no_save {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
                 }
 
-                let mut reset_password = button("Reset Password");
+                let mut reset_password = button(self.strings["Reset Password"].as_str());
                 if !self.text_input.is_empty() {
                     reset_password =
                         reset_password.on_press(Message::ResetPassword(self.text_input.clone()));
@@ -1807,7 +1848,8 @@ impl Client {
 
                 let website = button("https://hnefatafl.org")
                     .on_press(Message::OpenUrl("https://hnefatafl.org".to_string()));
-                let quit = button("Quit").on_press(Message::Leave);
+
+                let quit = button(self.strings["Quit"].as_str()).on_press(Message::Leave);
 
                 let buttons =
                     row![login, create_account, reset_password, website, quit].spacing(SPACING);
@@ -1826,7 +1868,7 @@ impl Client {
 
                 let locale = row![
                     text(format!("{}: ", t!("locale"))).size(20),
-                    pick_list(locale, self.locale_selected, Message::LocaleSelected),
+                    pick_list(locale, Some(self.locale_selected), Message::LocaleSelected),
                 ];
 
                 column![
@@ -1877,8 +1919,9 @@ impl Client {
     }
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 enum Locale {
+    #[default]
     En,
     Fr,
 }

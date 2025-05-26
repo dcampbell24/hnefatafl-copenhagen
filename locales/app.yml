@@ -1,25 +1,49 @@
 _version: 2
+
 username:
   en: username
   fr: nom d'utilisateur
+
 password:
   en: password
   fr: mot de passe
+
+rating:
+  en: rating
+  fr: classement
+
+wins:
+  en: wins
+  fr: victoires
+
+losses:
+  en: losses
+  fr: défaites
+
+draws:
+  en: draws
+  fr: nuls
+
 show password:
   en: show password
   fr: afficher le mot de passe
+
 Login:
   en: Login
   fr: Connexion
+
 Create Account:
   en: Create Account
   fr: Créer un Compte
-Reset password:
+
+Reset Password:
   en: Reset Password
   fr: Réinitialiser Le Mot de Passe
+
 Quit:
   en: Quit
   fr: Quitter
+
 locale:
   en: locale
   fr: lieu
