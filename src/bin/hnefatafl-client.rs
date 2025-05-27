@@ -157,6 +157,13 @@ fn init_client() -> Client {
         t!("REALLY DELETE ACCOUNT").to_string(),
     );
 
+    strings.insert("New Game".to_string(), t!("New Game").to_string());
+    strings.insert("Accept".to_string(), t!("Accept").to_string());
+    strings.insert("Decline".to_string(), t!("Decline").to_string());
+    strings.insert("Watch".to_string(), t!("Watch").to_string());
+    strings.insert("Join".to_string(), t!("Join").to_string());
+    strings.insert("Resume".to_string(), t!("Resume").to_string());
+
     client.strings = strings;
     client
 }
@@ -472,7 +479,7 @@ impl Client {
     }
 
     fn texting(&self, in_game: bool) -> Container<Message> {
-        let text_input = text_input("message…", &self.text_input)
+        let text_input = text_input(&format!("{}…", t!("message")), &self.text_input)
             .on_input(Message::TextChanged)
             .on_paste(Message::TextChanged)
             .on_submit(Message::TextSend);
@@ -1261,15 +1268,19 @@ impl Client {
                 && !(Some(&self.username) == game.attacker.as_ref()
                     || Some(&self.username) == game.defender.as_ref())
             {
-                buttons_row = buttons_row.push(button("watch").on_press(Message::GameWatch(id)));
+                buttons_row = buttons_row
+                    .push(button(self.strings["Watch"].as_str()).on_press(Message::GameWatch(id)));
             } else if game.attacker.is_none() || game.defender.is_none() {
-                buttons_row = buttons_row.push(button("join").on_press(Message::GameJoin(id)));
+                buttons_row = buttons_row
+                    .push(button(self.strings["Join"].as_str()).on_press(Message::GameJoin(id)));
             }
 
             if game.attacker.as_ref() == Some(&self.username)
                 || game.defender.as_ref() == Some(&self.username)
             {
-                buttons_row = buttons_row.push(button("resume").on_press(Message::GameResume(id)));
+                buttons_row = buttons_row.push(
+                    button(self.strings["Resume"].as_str()).on_press(Message::GameResume(id)),
+                );
             }
 
             buttons = buttons.push(buttons_row);
@@ -1756,40 +1767,42 @@ impl Client {
             }
             Screen::GameNew => {
                 let attacker = radio(
-                    "attacker ",
+                    t!("attacker"),
                     Role::Attacker,
                     self.role_selected,
                     Message::RoleSelected,
                 );
 
                 let defender = radio(
-                    "defender ",
+                    t!("defender"),
                     Role::Defender,
                     self.role_selected,
                     Message::RoleSelected,
                 );
 
-                let rated = checkbox("rated", self.rated.into()).on_toggle(Message::RatedSelected);
+                let rated =
+                    checkbox(t!("rated"), self.rated.into()).on_toggle(Message::RatedSelected);
 
-                let mut new_game = button("New Game");
+                let mut new_game = button(self.strings["New Game"].as_str());
                 if self.role_selected.is_some() {
                     new_game = new_game.on_press(Message::GameSubmit);
                 }
 
-                let leave = button("Leave").on_press(Message::Leave);
+                let leave = button(self.strings["Leave"].as_str()).on_press(Message::Leave);
 
                 let mut time = row![
-                    checkbox("timed ", self.timed.clone().into()).on_toggle(Message::TimeCheckbox)
+                    checkbox(t!("timed"), self.timed.clone().into())
+                        .on_toggle(Message::TimeCheckbox)
                 ];
 
                 if self.timed.0.is_some() {
-                    time = time.push(text("minutes"));
+                    time = time.push(text(t!("minutes")));
                     time = time.push(
                         text_input("15", &self.time_minutes)
                             .on_input(Message::TimeMinutes)
                             .on_paste(Message::TimeMinutes),
                     );
-                    time = time.push(text("add seconds"));
+                    time = time.push(text(t!("add seconds")));
                     time = time.push(
                         text_input("10", &self.time_add_seconds)
                             .on_input(Message::TimeAddSeconds)
@@ -1798,9 +1811,15 @@ impl Client {
                 }
                 time = time.spacing(SPACING);
 
-                let row_1 = row![text("role: "), attacker, defender, rated, time,]
-                    .padding(PADDING)
-                    .spacing(SPACING);
+                let row_1 = row![
+                    text(format!("{}:", t!("role"))),
+                    attacker,
+                    defender,
+                    rated,
+                    time,
+                ]
+                .padding(PADDING)
+                .spacing(SPACING);
 
                 let row_2 = row![new_game, leave].padding(PADDING).spacing(SPACING);
                 column![row_1, row_2].into()
@@ -1811,7 +1830,9 @@ impl Client {
                 };
 
                 let mut buttons_live = false;
-                let mut game_display = column![text(format!("role: {role}"))].padding(PADDING);
+                let mut game_display =
+                    column![text(format!("{}: {}", t!("role"), t!(role.to_string())))]
+                        .padding(PADDING);
                 if let Some(game) = self.games_light.0.get(&self.game_id) {
                     game_display = game_display.push(text(game.to_string()));
 
@@ -1821,18 +1842,20 @@ impl Client {
                 }
 
                 let mut buttons = if self.challenger {
-                    row![button("Leave").on_press(Message::Leave)]
+                    row![button(self.strings["Leave"].as_str()).on_press(Message::Leave)]
                 } else if buttons_live {
                     row![
-                        button("Accept").on_press(Message::GameAccept(self.game_id)),
-                        button("Decline").on_press(Message::GameDecline(self.game_id)),
-                        button("Leave").on_press(Message::Leave),
+                        button(self.strings["Accept"].as_str())
+                            .on_press(Message::GameAccept(self.game_id)),
+                        button(self.strings["Decline"].as_str())
+                            .on_press(Message::GameDecline(self.game_id)),
+                        button(self.strings["Leave"].as_str()).on_press(Message::Leave),
                     ]
                 } else {
                     row![
-                        button("Accept"),
-                        button("Decline"),
-                        button("Leave").on_press(Message::Leave),
+                        button(self.strings["Accept"].as_str()),
+                        button(self.strings["Decline"].as_str()),
+                        button(self.strings["Leave"].as_str()).on_press(Message::Leave),
                     ]
                 };
                 buttons = buttons.padding(PADDING).spacing(SPACING);

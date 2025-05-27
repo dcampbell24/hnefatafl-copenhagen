@@ -139,3 +139,43 @@ Delete Account:
 REALLY DELETE ACCOUNT:
   en: REALLY DELETE ACCOUNT
   fr: VRAIMENT SUPPRIMER LE COMPTE
+
+minutes:
+  en: minutes
+  fr: minutes
+
+add seconds:
+  en: add seconds
+  fr: ajouter des secondes
+
+role:
+  en: role
+  fr: rôle
+
+New Game:
+  en: New Game
+  fr: Nouveau Jeu
+
+Accept:
+  en: Accept
+  fr: Accepter
+
+Decline:
+  en: Decline
+  fr: Refuse
+
+Watch:
+  en: Watch
+  fr: Regarde
+
+Join:
+  en: Join
+  fr: Rejoindre
+
+Resume:
+  en: Resume
+  fr: Reprendre
+
+message:
+  en: message
+  fr: message
