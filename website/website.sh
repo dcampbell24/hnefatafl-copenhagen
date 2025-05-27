@@ -1,4 +1,4 @@
-#! /bin/bash -e
+#! /bin/bash -ex
 
 mdbook build --dest-dir /var/www/html/
 
