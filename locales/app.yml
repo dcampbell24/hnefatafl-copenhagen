@@ -103,3 +103,39 @@ Account Settings:
 Rules:
   en: Rules
   fr: Règles
+
+connected to:
+  en: connected to
+  fr: connecté à
+
+via:
+  en: via
+  fr: par
+
+email address:
+  en: email address
+  fr: adresse email
+
+verified:
+  en: verified
+  fr: accepté
+
+unverified:
+  en: unverified
+  fr: non vérifié
+
+Reset Email:
+  en: Reset Email
+  fr: Réinitialiser l'email
+
+Change Password:
+  en: Change Password
+  fr: Changer le Mot de Passe
+
+Delete Account:
+  en: Delete Account
+  fr: Supprimer le Compte
+
+REALLY DELETE ACCOUNT:
+  en: REALLY DELETE ACCOUNT
+  fr: VRAIMENT SUPPRIMER LE COMPTE

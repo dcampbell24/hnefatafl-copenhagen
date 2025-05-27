@@ -140,6 +140,22 @@ fn init_client() -> Client {
     );
 
     strings.insert("Rules".to_string(), t!("Rules").to_string());
+    strings.insert("Reset Email".to_string(), t!("Reset Email").to_string());
+
+    strings.insert(
+        "Change Password".to_string(),
+        t!("Change Password").to_string(),
+    );
+
+    strings.insert(
+        "Delete Account".to_string(),
+        t!("Delete Account").to_string(),
+    );
+
+    strings.insert(
+        "REALLY DELETE ACCOUNT".to_string(),
+        t!("REALLY DELETE ACCOUNT").to_string(),
+    );
 
     client.strings = strings;
     client
@@ -1457,7 +1473,12 @@ impl Client {
                 }
 
                 let mut columns = column![
-                    text(format!("connected to {} via TCP", &self.connected_to)),
+                    text(format!(
+                        "{} {} {} TCP",
+                        t!("connected to"),
+                        &self.connected_to,
+                        t!("via")
+                    )),
                     text(format!("{}: {}", t!("username"), &self.username)),
                     text(format!("{}: {rating}", t!("rating"))),
                     text(format!("{}: {wins}", t!("wins"))),
@@ -1471,14 +1492,18 @@ impl Client {
                     let mut row = Row::new();
                     if email.verified {
                         row = row.push(text(format!(
-                            "email address: [verified] {} ",
-                            email.address
+                            "{}: [{}] {} ",
+                            t!("email address"),
+                            t!("verified"),
+                            email.address,
                         )));
                         columns = columns.push(row);
                     } else {
                         row = row.push(text(format!(
-                            "email address: [unverified] {} ",
-                            email.address
+                            "{}: [{}] {} ",
+                            t!("email address"),
+                            t!("unverified"),
+                            email.address,
                         )));
                         columns = columns.push(row);
 
@@ -1506,13 +1531,15 @@ impl Client {
                     columns = columns.push(row![text("email code:")]);
                 }
 
-                columns = columns.push(row![button("Reset Email").on_press(Message::EmailReset)]);
+                columns = columns.push(row![
+                    button(self.strings["Reset Email"].as_str()).on_press(Message::EmailReset)
+                ]);
 
                 if let Some(error) = &self.error_email {
                     columns = columns.push(row![text(format!("error: {error}"))]);
                 }
 
-                let mut change_password_button = button("Change Password");
+                let mut change_password_button = button(self.strings["Change Password"].as_str());
 
                 if !self.password_no_save {
                     change_password_button = change_password_button.on_press(Message::TextSend);
@@ -1535,14 +1562,19 @@ impl Client {
                 );
 
                 if self.delete_account {
-                    columns = columns
-                        .push(button("REALLY DELETE ACCOUNT").on_press(Message::DeleteAccount));
+                    columns = columns.push(
+                        button(self.strings["REALLY DELETE ACCOUNT"].as_str())
+                            .on_press(Message::DeleteAccount),
+                    );
                 } else {
-                    columns =
-                        columns.push(button("Delete Account").on_press(Message::DeleteAccount));
+                    columns = columns.push(
+                        button(self.strings["Delete Account"].as_str())
+                            .on_press(Message::DeleteAccount),
+                    );
                 }
 
-                columns = columns.push(button("Leave").on_press(Message::Leave));
+                columns =
+                    columns.push(button(self.strings["Leave"].as_str()).on_press(Message::Leave));
 
                 columns.into()
             }
