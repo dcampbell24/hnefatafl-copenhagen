@@ -67,3 +67,15 @@ Quit:
 locale:
   en: locale
   fr: lieu
+
+logged in:
+  en: logged in
+  fr: connecté
+
+logged out:
+  en: logged out
+  fr: déconnecté
+
+Leave:
+  en: Leave
+  fr: Laisser

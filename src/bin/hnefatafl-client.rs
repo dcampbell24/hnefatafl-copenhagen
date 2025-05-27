@@ -118,16 +118,22 @@ fn init_client() -> Client {
 
     strings.insert("Login".to_string(), t!("Login").to_string());
     strings_values.push("Login".to_string());
+
     strings.insert(
         "Create Account".to_string(),
         t!("Create Account").to_string(),
     );
     strings_values.push("Create Account".to_string());
+
     strings.insert(
         "Reset Password".to_string(),
         t!("Reset Password").to_string(),
     );
     strings_values.push("Reset Password".to_string());
+
+    strings.insert("Leave".to_string(), t!("Leave").to_string());
+    strings_values.push("Leave".to_string());
+
     strings.insert("Quit".to_string(), t!("Quit").to_string());
     strings_values.push("Quit".to_string());
 
@@ -1927,11 +1933,12 @@ impl Client {
                 .into()
             }
             Screen::Users => scrollable(column![
-                text("logged in"),
+                text(t!("logged in")),
                 self.users(true),
-                text("logged out"),
+                text(t!("logged out")),
                 self.users(false),
-                row![button("Leave").on_press(Message::Leave)].padding(PADDING),
+                row![button(self.strings["Leave"].as_str()).on_press(Message::Leave)]
+                    .padding(PADDING),
             ])
             .spacing(SPACING)
             .into(),
