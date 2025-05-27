@@ -114,32 +114,25 @@ fn init_client() -> Client {
     client.text_input = client.username.clone();
 
     let mut strings = HashMap::new();
-    let mut strings_values = Vec::new();
 
     strings.insert("Login".to_string(), t!("Login").to_string());
-    strings_values.push("Login".to_string());
 
     strings.insert(
         "Create Account".to_string(),
         t!("Create Account").to_string(),
     );
-    strings_values.push("Create Account".to_string());
 
     strings.insert(
         "Reset Password".to_string(),
         t!("Reset Password").to_string(),
     );
-    strings_values.push("Reset Password".to_string());
 
     strings.insert("Leave".to_string(), t!("Leave").to_string());
-    strings_values.push("Leave".to_string());
-
     strings.insert("Quit".to_string(), t!("Quit").to_string());
-    strings_values.push("Quit".to_string());
+    strings.insert("Dark".to_string(), t!("Dark").to_string());
+    strings.insert("Light".to_string(), t!("Light").to_string());
 
     client.strings = strings;
-    client.strings_values = strings_values;
-
     client
 }
 
@@ -274,8 +267,6 @@ struct Client {
     users: HashMap<String, User>,
     #[serde(skip)]
     strings: HashMap<String, String>,
-    #[serde(skip)]
-    strings_values: Vec<String>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -570,9 +561,9 @@ impl Client {
             Message::LocaleSelected(locale) => {
                 rust_i18n::set_locale(&locale.txt());
 
-                for string in &self.strings_values {
-                    self.strings
-                        .insert(string.to_string(), t!(string.to_string()).to_string());
+                let strings_values: Vec<_> = self.strings.values().cloned().collect();
+                for string in strings_values {
+                    self.strings.insert(string.clone(), t!(string).to_string());
                 }
 
                 self.locale_selected = locale;
@@ -1810,13 +1801,15 @@ impl Client {
             Screen::Games => {
                 let mut theme = if self.theme == Theme::Light {
                     row![
-                        button(text("Dark")).on_press(Message::ChangeTheme(Theme::Dark)),
-                        button(text("Light")),
+                        button(text(self.strings["Dark"].as_str()))
+                            .on_press(Message::ChangeTheme(Theme::Dark)),
+                        button(text(self.strings["Light"].as_str())),
                     ]
                 } else {
                     row![
-                        button(text("Dark")),
-                        button(text("Light")).on_press(Message::ChangeTheme(Theme::Light)),
+                        button(text(self.strings["Dark"].as_str())),
+                        button(text(self.strings["Light"].as_str()))
+                            .on_press(Message::ChangeTheme(Theme::Light)),
                     ]
                 };
 

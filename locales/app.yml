@@ -79,3 +79,11 @@ logged out:
 Leave:
   en: Leave
   fr: Laisser
+
+Dark:
+  en: Dark
+  fr: Sombre
+
+Light:
+  en: Light
+  fr: Lumière
