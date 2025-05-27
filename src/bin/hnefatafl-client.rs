@@ -131,6 +131,15 @@ fn init_client() -> Client {
     strings.insert("Quit".to_string(), t!("Quit").to_string());
     strings.insert("Dark".to_string(), t!("Dark").to_string());
     strings.insert("Light".to_string(), t!("Light").to_string());
+    strings.insert("Create Game".to_string(), t!("Create Game").to_string());
+    strings.insert("Users".to_string(), t!("Users").to_string());
+
+    strings.insert(
+        "Account Settings".to_string(),
+        t!("Account Settings").to_string(),
+    );
+
+    strings.insert("Rules".to_string(), t!("Rules").to_string());
 
     client.strings = strings;
     client
@@ -561,8 +570,8 @@ impl Client {
             Message::LocaleSelected(locale) => {
                 rust_i18n::set_locale(&locale.txt());
 
-                let strings_values: Vec<_> = self.strings.values().cloned().collect();
-                for string in strings_values {
+                let string_keys: Vec<_> = self.strings.keys().cloned().collect();
+                for string in string_keys {
                     self.strings.insert(string.clone(), t!(string).to_string());
                 }
 
@@ -1450,10 +1459,10 @@ impl Client {
                 let mut columns = column![
                     text(format!("connected to {} via TCP", &self.connected_to)),
                     text(format!("{}: {}", t!("username"), &self.username)),
-                    text(format!("rating: {rating}")),
-                    text(format!("wins: {wins}")),
-                    text(format!("losses: {losses}")),
-                    text(format!("draws: {draws}")),
+                    text(format!("{}: {rating}", t!("rating"))),
+                    text(format!("{}: {wins}", t!("wins"))),
+                    text(format!("{}: {losses}", t!("losses"))),
+                    text(format!("{}: {draws}", t!("draws"))),
                 ]
                 .padding(PADDING)
                 .spacing(SPACING);
@@ -1825,14 +1834,16 @@ impl Client {
                     .padding(PADDING / 2)
                     .style(container::bordered_box);
 
-                let create_game = button("Create Game").on_press(Message::GameNew);
-                let users = button("Users").on_press(Message::Users);
-                let account_setting = button("Account Settings").on_press(Message::AccountSettings);
-                let website = button("Rules").on_press(Message::OpenUrl(
+                let create_game =
+                    button(self.strings["Create Game"].as_str()).on_press(Message::GameNew);
+                let users = button(self.strings["Users"].as_str()).on_press(Message::Users);
+                let account_setting = button(self.strings["Account Settings"].as_str())
+                    .on_press(Message::AccountSettings);
+                let website = button(self.strings["Rules"].as_str()).on_press(Message::OpenUrl(
                     "https://hnefatafl.org/rules.html".to_string(),
                 ));
 
-                let quit = button("Quit").on_press(Message::Leave);
+                let quit = button(self.strings["Quit"].as_str()).on_press(Message::Leave);
 
                 let top = row![username, create_game, users, account_setting, website, quit]
                     .padding(PADDING)
