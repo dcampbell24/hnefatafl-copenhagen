@@ -2,7 +2,11 @@ use std::str::FromStr;
 
 use anyhow::Context;
 
-use crate::{play::Plae, time};
+use crate::{
+    color::Color,
+    play::{Plae, Vertex},
+    time,
+};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -13,6 +17,8 @@ pub enum Message {
     ListCommands,
     Name,
     Play(Plae),
+    PlayFrom,
+    PlayTo((Color, Vertex)),
     ProtocolVersion,
     Quit,
     ResetBoard,
@@ -21,13 +27,15 @@ pub enum Message {
     Version,
 }
 
-pub static COMMANDS: [&str; 12] = [
+pub static COMMANDS: [&str; 14] = [
     "final_status",
     "generate_move",
     "known_command",
     "list_commands",
     "name",
     "play",
+    "play_from",
+    "play_to",
     "protocol_version",
     "quit",
     "reset_board",
@@ -57,6 +65,16 @@ impl FromStr for Message {
             "play" => {
                 let play = Plae::try_from(args)?;
                 Ok(Self::Play(play))
+            }
+            "play_from" => Ok(Self::PlayFrom),
+            "play_to" => {
+                if let (Some(color), Some(vertex)) = (args.get(1), args.get(2)) {
+                    let color = Color::from_str(color)?;
+                    let vertex = Vertex::from_str(vertex)?;
+                    Ok(Self::PlayTo((color, vertex)))
+                } else {
+                    Err(anyhow::Error::msg("expected: play_to color vertex"))
+                }
             }
             "protocol_version" => Ok(Self::ProtocolVersion),
             "quit" => Ok(Self::Quit),

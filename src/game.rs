@@ -309,6 +309,41 @@ impl Game {
                 Ok(Some(name.to_string()))
             }
             Message::Play(play) => self.play(&play).map(|captures| Some(captures.to_string())),
+            Message::PlayFrom => {
+                let moves = self.all_legal_moves();
+                Ok(Some(format!(
+                    "{} {}",
+                    moves.color,
+                    moves
+                        .moves
+                        .keys()
+                        .map(ToString::to_string)
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                )))
+            }
+            Message::PlayTo(from) => {
+                let (color, vertex) = from;
+                let moves = self.all_legal_moves();
+                if color != moves.color {
+                    return Err(anyhow::Error::msg(format!(
+                        "tried play_to {color}, but it's {} turn",
+                        moves.color
+                    )));
+                }
+
+                if let Some(moves) = moves.moves.get(&vertex) {
+                    Ok(Some(
+                        moves
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect::<Vec<_>>()
+                            .join(" "),
+                    ))
+                } else {
+                    Err(anyhow::Error::msg("invalid from vertex"))
+                }
+            }
             Message::ProtocolVersion => Ok(Some("1-beta".to_string())),
             Message::Quit => exit(0),
             Message::ResetBoard => {
