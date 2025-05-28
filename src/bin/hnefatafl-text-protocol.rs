@@ -4,7 +4,6 @@ use std::{
     process::{Command, ExitStatus},
 };
 
-use chrono::Local;
 use clap::command;
 use clap::{self, Parser};
 
@@ -13,7 +12,6 @@ use hnefatafl_copenhagen::{
     game::Game,
     read_response,
     status::Status,
-    time::{Time, TimeSettings},
     write_command,
 };
 
@@ -82,18 +80,7 @@ fn main() -> anyhow::Result<()> {
     let mut buffer = String::new();
     let stdin = io::stdin();
 
-    let mut game = Game {
-        black_time: TimeSettings(Some(Time {
-            add_seconds: 10,
-            milliseconds_left: 15 * 60_000,
-        })),
-        white_time: TimeSettings(Some(Time {
-            add_seconds: 10,
-            milliseconds_left: 15 * 60_000,
-        })),
-        time: Some(Local::now().to_utc().timestamp_millis()),
-        ..Game::default()
-    };
+    let mut game = Game::default();
 
     if args.display_game {
         #[cfg(any(target_family = "unix", target_family = "windows"))]
