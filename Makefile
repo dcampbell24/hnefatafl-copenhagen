@@ -32,10 +32,10 @@ cargo-deps:
 
 .PHONY: js
 js:
-	wasm-pack build --no-default-features --release
+	wasm-pack build --no-default-features --features js
 
 .PHONY: html-client
 html-client:
 	sudo cp hnefatafl.html /var/www/html/index.html
-	sudo mkdir /var/www/html/pkg
-	sudo cp pkg/* /var/www/html/pkg
+	sudo mkdir --parent /var/www/html/pkg
+	sudo cp -r pkg /var/www/html
