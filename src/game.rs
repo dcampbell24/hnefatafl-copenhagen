@@ -33,8 +33,6 @@ pub struct Game {
     pub turn: Color,
 }
 
-
-
 #[cfg(feature = "js")]
 #[wasm_bindgen]
 #[allow(clippy::unsafe_derive_deserialize)]
