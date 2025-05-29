@@ -30,6 +30,7 @@ clap = { version ="4", features = ["derive"] }
 csv = "1"
 dirs = "6"
 env_logger = "0.11"
+getrandom = { version = "0.2", features = ["js"] }
 log = "0.4"
 rand = "0.8"
 # rayon = "1"
@@ -37,6 +38,7 @@ ron = "0.10"
 rustc-hash = "2"
 serde = { version = "1", features = ["derive"] }
 serde_with = "3"
+wasm-bindgen = "0.2"
 
 # client only
 futures = { version = "0.3", optional = true }
@@ -61,6 +63,9 @@ sound = ["dep:rodio"]
 timer = ["iced/smol"]
 urls = ["dep:reqwest"]
 www = ["dep:webbrowser"]
+
+[lib]
+crate-type = ["cdylib", "staticlib", "lib"]
 
 [[bin]]
 name = "hnefatafl-client"

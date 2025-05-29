@@ -3,6 +3,7 @@ use std::{borrow::Cow, collections::HashMap, fmt, process::exit, str::FromStr};
 use chrono::Local;
 use rustc_hash::FxHashSet;
 use serde::{Deserialize, Serialize};
+use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
     ai::{AI, AiBanal},
@@ -16,17 +17,28 @@ use crate::{
     time::TimeSettings,
 };
 
+#[wasm_bindgen]
+#[allow(clippy::unsafe_derive_deserialize)]
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Game {
     #[serde(skip)]
+    #[wasm_bindgen(skip)]
     pub ai: AiBanal,
+    #[wasm_bindgen(skip)]
     pub board: Board,
+    #[wasm_bindgen(skip)]
     pub plays: Vec<Play>,
+    #[wasm_bindgen(skip)]
     pub previous_boards: PreviousBoards,
+    #[wasm_bindgen(skip)]
     pub status: Status,
+    #[wasm_bindgen(skip)]
     pub time: Option<i64>,
+    #[wasm_bindgen(skip)]
     pub black_time: TimeSettings,
+    #[wasm_bindgen(skip)]
     pub white_time: TimeSettings,
+    #[wasm_bindgen(skip)]
     pub turn: Color,
 }
 
@@ -67,6 +79,40 @@ impl fmt::Display for Game {
         }
 
         write!(f, "turn: {}", self.turn)
+    }
+}
+
+#[wasm_bindgen]
+impl Game {
+    #[must_use]
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Game {
+        Game::default()
+    }
+
+    /// # Errors
+    ///
+    /// If the command is illegal or invalid.
+    #[wasm_bindgen]
+    pub fn read_line_js(&mut self, buffer: &str) -> String {
+        let mut buffer = Cow::from(buffer);
+        if let Some(comment_offset) = buffer.find('#') {
+            buffer.to_mut().replace_range(comment_offset.., "");
+        }
+
+        match Message::from_str(buffer.as_ref()) {
+            Ok(message) => match self.update(message) {
+                Ok(update) => {
+                    if let Some(update) = update {
+                        format!("= {update}")
+                    } else {
+                        String::new()
+                    }
+                }
+                Err(err) => format!("? {err}"),
+            },
+            Err(err) => format!("error: {err}"),
+        }
     }
 }
 

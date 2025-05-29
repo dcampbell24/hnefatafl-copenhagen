@@ -29,3 +29,13 @@ ssl:
 .PHONY: cargo-deps
 cargo-deps:
 	python3 ../flatpak-builder-tools/cargo/flatpak-cargo-generator.py Cargo.lock -o cargo-sources.json
+
+.PHONY: js
+js:
+	wasm-pack build --no-default-features --release
+
+.PHONY: html-client
+html-client:
+	sudo cp hnefatafl.html /var/www/html/index.html
+	sudo mkdir /var/www/html/pkg
+	sudo cp pkg/* /var/www/html/pkg
