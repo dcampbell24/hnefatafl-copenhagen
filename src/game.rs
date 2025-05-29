@@ -3,6 +3,7 @@ use std::{borrow::Cow, collections::HashMap, fmt, process::exit, str::FromStr};
 use chrono::Local;
 use rustc_hash::FxHashSet;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "js")]
 use wasm_bindgen::prelude::wasm_bindgen;
 
 use crate::{
@@ -17,6 +18,24 @@ use crate::{
     time::TimeSettings,
 };
 
+#[cfg(not(feature = "js"))]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct Game {
+    #[serde(skip)]
+    pub ai: AiBanal,
+    pub board: Board,
+    pub plays: Vec<Play>,
+    pub previous_boards: PreviousBoards,
+    pub status: Status,
+    pub time: Option<i64>,
+    pub black_time: TimeSettings,
+    pub white_time: TimeSettings,
+    pub turn: Color,
+}
+
+
+
+#[cfg(feature = "js")]
 #[wasm_bindgen]
 #[allow(clippy::unsafe_derive_deserialize)]
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -82,6 +101,7 @@ impl fmt::Display for Game {
     }
 }
 
+#[cfg(feature = "js")]
 #[wasm_bindgen]
 impl Game {
     #[must_use]
