@@ -36,6 +36,6 @@ js:
 
 .PHONY: html-client
 html-client:
-	sudo cp hnefatafl.html /var/www/html/index.html
+	sudo cp html-client/index.html /var/www/html/index.html
 	sudo mkdir --parent /var/www/html/pkg
 	sudo cp -r pkg /var/www/html
