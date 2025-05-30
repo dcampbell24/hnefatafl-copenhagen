@@ -49,12 +49,12 @@ Marvin T. [@marvintubat123].
 
 ## Packaging Status
 
-[AUR] (only the client)  
+[AUR] (client)  
 [crates.io] (everything)  
-[chocolatey.org] (only the client)  
+[chocolatey.org] (client)  
 [deb] (attacker AI, defender AI, server, client)  
-[flathub.org] (only the client)  
-[npm] (only the engine)  
+[flathub.org] (client)  
+[npm] (engine)  
 
 [AUR]: https://aur.archlinux.org/packages/hnefatafl-copenhagen
 [crates.io]: https://crates.io/crates/hnefatafl-copenhagen
