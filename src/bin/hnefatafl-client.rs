@@ -167,7 +167,6 @@ fn init_client() -> Client {
     strings.insert("Resign".to_string(), t!("Resign").to_string());
     strings.insert("Request Draw".to_string(), t!("Request Draw").to_string());
     strings.insert("Accept Draw".to_string(), t!("Accept Draw").to_string());
-    strings.insert("Decline Draw".to_string(), t!("Decline Draw").to_string());
 
     client.strings = strings;
     client
@@ -1734,10 +1733,6 @@ impl Client {
                                 row![
                                     button(self.strings["Accept Draw"].as_str())
                                         .on_press(Message::PlayDrawDecision(Draw::Accept)),
-                                ],
-                                row![
-                                    button(self.strings["Decline Draw"].as_str())
-                                        .on_press(Message::PlayDrawDecision(Draw::Decline)),
                                 ]
                                 .spacing(SPACING)
                             ]
