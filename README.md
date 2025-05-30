@@ -52,7 +52,7 @@ Marvin T. [@marvintubat123].
 [AUR]  (only the client)  
 [crates.io]  (everything)  
 [chocolatey.org]  (only the client)  
-[deb]  (attacker AI, defender AI, server, client)
+[deb]  (attacker AI, defender AI, server, client)  
 [flathub.org]  (only the client)  
 [npm]  (only the engine)  
 
