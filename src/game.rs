@@ -129,7 +129,7 @@ impl Game {
                 }
                 Err(err) => format!("? {err}"),
             },
-            Err(err) => format!("error: {err}"),
+            Err(err) => format!("? {err}"),
         }
     }
 }
