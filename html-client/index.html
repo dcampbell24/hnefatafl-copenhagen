@@ -1,22 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Rust in Web</title>
+    <title>Copenhagen Hnefatafl</title>
 </head>
 <body>
-    <h1>Rust in Web</h1>
+    <h1>Copenhagen Hnefatafl</h1>
     <div id="output"></div>
     <script type="module">
-        import init, { hnefatafl } from '../pkg/hnefatafl_copenhagen.js';
+        import init, { Game } from '../pkg/hnefatafl_copenhagen.js';
 
         init().then(() => {
-            //const game = constructor();
-
-            //const userInput = prompt("Enter some text:");
-            //console.log("<- ", userInput);
-
-            //const output = read_line_js(userInput);
-            //console.log("-> ", output);
+            const game = new Game();
+            const output = game.read_line_js("show_board");
+            console.log(output);
         });
     </script>
 </body>
