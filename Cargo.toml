@@ -38,13 +38,15 @@ ron = "0.10"
 rustc-hash = "2"
 serde = { version = "1", features = ["derive"] }
 serde_with = "3"
-wasm-bindgen = { version = "0.2", optional = true }
 
 # client only
 futures = { version = "0.3", optional = true }
 rodio = { version = "0.20", optional = true }
 rust-i18n = { version = "3", optional = true }
 webbrowser = { version = "1", features = ["hardened"], optional = true }
+
+# js engine only
+wasm-bindgen = { version = "0.2", optional = true }
 
 # send-website-urls only
 reqwest = { version = "0.12", features = ["blocking"], optional = true }
