@@ -491,11 +491,11 @@ impl Client {
         let mut texting = Column::new();
         if in_game {
             for message in &self.texts_game {
-                texting = texting.push(text(message));
+                texting = texting.push(text(message).shaping(text::Shaping::Advanced));
             }
         } else {
             for message in &self.texts {
-                texting = texting.push(text(message));
+                texting = texting.push(text(message).shaping(text::Shaping::Advanced));
             }
         }
 
@@ -1429,7 +1429,7 @@ impl Client {
         .padding(PADDING);
         let username = t!("username");
         let usernames = column![
-            text(username.to_string()),
+            text(username.to_string()).shaping(text::Shaping::Advanced),
             text("-".repeat(username.chars().count())),
             usernames
         ]
@@ -1498,7 +1498,8 @@ impl Client {
                         &self.connected_to,
                         t!("via")
                     )),
-                    text(format!("{}: {}", t!("username"), &self.username)),
+                    text(format!("{}: {}", t!("username"), &self.username))
+                        .shaping(text::Shaping::Advanced),
                     text(format!("{}: {rating}", t!("rating"))),
                     text(format!("{}: {wins}", t!("wins"))),
                     text(format!("{}: {losses}", t!("losses"))),
@@ -1901,7 +1902,10 @@ impl Client {
 
                 let theme = theme.padding(PADDING).spacing(SPACING);
 
-                let username = row![text(format!("{}: {}", t!("username"), &self.username))];
+                let username = row![
+                    text(format!("{}: {}", t!("username"), &self.username))
+                        .shaping(text::Shaping::Advanced)
+                ];
                 let username = container(username)
                     .padding(PADDING / 2)
                     .style(container::bordered_box);
@@ -1927,7 +1931,9 @@ impl Client {
             }
             Screen::Login => {
                 let username = row![
-                    text(format!("{}:", t!("username"))).size(20),
+                    text(format!("{}:", t!("username")))
+                        .shaping(text::Shaping::Advanced)
+                        .size(20),
                     text_input("", &self.text_input)
                         .on_input(Message::TextChanged)
                         .on_paste(Message::TextChanged),
@@ -1939,7 +1945,9 @@ impl Client {
                     .style(container::bordered_box);
 
                 let password = row![
-                    text(format!("{}:", t!("password"))).size(20),
+                    text(format!("{}:", t!("password")))
+                        .shaping(text::Shaping::Advanced)
+                        .size(20),
                     text_input("", &self.password)
                         .secure(!self.password_show)
                         .on_input(Message::PasswordChanged)
@@ -1952,14 +1960,20 @@ impl Client {
                     .style(container::bordered_box);
 
                 let show_password = checkbox(t!("show password"), self.password_show)
+                    .text_shaping(text::Shaping::Advanced)
                     .on_toggle(Message::PasswordShow);
 
-                let mut login = button(self.strings["Login"].as_str());
+                let mut login = button(
+                    text!("{}", self.strings["Login"].as_str()).shaping(text::Shaping::Advanced),
+                );
                 if !self.password_no_save {
                     login = login.on_press(Message::TextSendLogin);
                 }
 
-                let mut create_account = button(self.strings["Create Account"].as_str());
+                let mut create_account = button(
+                    text!("{}", self.strings["Create Account"].as_str())
+                        .shaping(text::Shaping::Advanced),
+                );
                 if !self.text_input.is_empty() && !self.password_no_save {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
                 }
@@ -1988,11 +2002,12 @@ impl Client {
                     error_persistent = text(error_);
                 }
 
-                let locale = [Locale::En, Locale::Fr];
+                let locale = [Locale::English, Locale::Chinese, Locale::French];
 
                 let locale = row![
                     text(format!("{}: ", t!("locale"))).size(20),
-                    pick_list(locale, Some(self.locale_selected), Message::LocaleSelected),
+                    pick_list(locale, Some(self.locale_selected), Message::LocaleSelected)
+                        .text_shaping(text::Shaping::Advanced),
                 ];
 
                 column![
@@ -2047,15 +2062,17 @@ impl Client {
 #[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 enum Locale {
     #[default]
-    En,
-    Fr,
+    English,
+    Chinese,
+    French,
 }
 
 impl Locale {
     fn txt(self) -> String {
         match self {
-            Self::En => "en".to_string(),
-            Self::Fr => "fr".to_string(),
+            Self::English => "en".to_string(),
+            Self::Chinese => "zh-CN".to_string(),
+            Self::French => "fr".to_string(),
         }
     }
 }
@@ -2063,8 +2080,9 @@ impl Locale {
 impl fmt::Display for Locale {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::En => write!(f, "English"),
-            Self::Fr => write!(f, "Français"),
+            Self::English => write!(f, "English"),
+            Self::Chinese => write!(f, "中文"),
+            Self::French => write!(f, "Français"),
         }
     }
 }

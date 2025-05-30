@@ -2,217 +2,271 @@ _version: 2
 
 username:
   en: username
+  zh-CN: 用户名
   fr: nom d'utilisateur
 
 password:
   en: password
+  zh-CN: 密码
   fr: mot de passe
 
 game id:
   en: game id
+  zh-CN:
   fr: identifiant de jeu
 
 attacker:
   en: attacker
+  zh-CN:
   fr: attaquant
 
 defender:
   en: defender
+  zh-CN:
   fr: défenseur
 
 rated:
  en: rated
+ zh-CN:
  fr: évalué
 
 timed:
  en: timed
+ zh-CN:
  fr: chronométré
 
 rating:
   en: rating
+  zh-CN:
   fr: classement
 
 wins:
   en: wins
+  zh-CN:
   fr: victoires
 
 losses:
   en: losses
+  zh-CN:
   fr: défaites
 
 draws:
   en: draws
+  zh-CN:
   fr: nuls
 
 show password:
   en: show password
+  zh-CN: 显示密码
   fr: afficher le mot de passe
 
 Login:
   en: Login
+  zh-CN: 登录
   fr: Connexion
 
 Create Account:
   en: Create Account
+  zh-CN: 创建账户
   fr: Créer un Compte
 
 Reset Password:
   en: Reset Password
+  zh-CN:
   fr: Réinitialiser Le Mot de Passe
 
 Quit:
   en: Quit
+  zh-CN:
   fr: Quitter
 
 locale:
   en: locale
+  zh-CN:
   fr: lieu
 
 logged in:
   en: logged in
+  zh-CN:
   fr: connecté
 
 logged out:
   en: logged out
+  zh-CN:
   fr: déconnecté
 
 Leave:
   en: Leave
+  zh-CN:
   fr: Laisser
 
 Dark:
   en: Dark
+  zh-CN:
   fr: Sombre
 
 Light:
   en: Light
+  zh-CN:
   fr: Lumière
 
 Create Game:
   en: Create Game
+  zh-CN:
   fr: Créer un Jeu
 
 Users:
   en: Users
+  zh-CN:
   fr: Usagers
 
 Account Settings:
   en: Account Settings
+  zh-CN:
   fr: Paramètres du Compte
 
 Rules:
   en: Rules
+  zh-CN:
   fr: Règles
 
 connected to:
   en: connected to
+  zh-CN:
   fr: connecté à
 
 via:
   en: via
+  zh-CN:
   fr: par
 
 email address:
   en: email address
+  zh-CN:
   fr: adresse email
 
 verified:
   en: verified
+  zh-CN:
   fr: accepté
 
 unverified:
   en: unverified
+  zh-CN:
   fr: non vérifié
 
 Reset Email:
   en: Reset Email
+  zh-CN:
   fr: Réinitialiser l'email
 
 Change Password:
   en: Change Password
+  zh-CN:
   fr: Changer le Mot de Passe
 
 Delete Account:
   en: Delete Account
+  zh-CN:
   fr: Supprimer le Compte
 
 REALLY DELETE ACCOUNT:
   en: REALLY DELETE ACCOUNT
+  zh-CN:
   fr: VRAIMENT SUPPRIMER LE COMPTE
 
 minutes:
   en: minutes
+  zh-CN:
   fr: minutes
 
 add seconds:
   en: add seconds
+  zh-CN:
   fr: ajouter des secondes
 
 role:
   en: role
+  zh-CN:
   fr: rôle
 
 New Game:
   en: New Game
+  zh-CN:
   fr: Nouveau Jeu
 
 Accept:
   en: Accept
+  zh-CN:
   fr: Accepter
 
 Decline:
   en: Decline
+  zh-CN:
   fr: Refuse
 
 Watch:
   en: Watch
+  zh-CN:
   fr: Regarde
 
 Join:
   en: Join
+  zh-CN:
   fr: Rejoindre
 
 Resume:
   en: Resume
+  zh-CN:
   fr: Reprendre
 
 message:
   en: message
+  zh-CN:
   fr: message
 
 move:
   en: move
+  zh-CN:
   fr: déplacer
 
 yes:
   en: yes
+  zh-CN:
   fr: oui
 
 no:
   en: no
+  zh-CN:
   fr: non
 
 Muted:
   en: Muted
+  zh-CN:
   fr: Sourdine
 
 I rejoined:
   en: I rejoined
+  zh-CN:
   fr: J'ai rejoint
 
 I'm leaving:
   en: I'm leaving
+  zh-CN:
   fr: Je pars
 
 Resign:
   en: Resign
+  zh-CN:
   fr: Démissionner
 
 Request Draw:
   en: Request Draw
+  zh-CN:
   fr: Demande Dessin
 
 Accept Draw:
   en: Accept Draw
+  zh-CN:
   fr: Accepter Dessin
 
