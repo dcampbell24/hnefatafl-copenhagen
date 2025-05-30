@@ -164,6 +164,11 @@ fn init_client() -> Client {
     strings.insert("Join".to_string(), t!("Join").to_string());
     strings.insert("Resume".to_string(), t!("Resume").to_string());
 
+    strings.insert("Resign".to_string(), t!("Resign").to_string());
+    strings.insert("Request Draw".to_string(), t!("Request Draw").to_string());
+    strings.insert("Accept Draw".to_string(), t!("Accept Draw").to_string());
+    strings.insert("Decline Draw".to_string(), t!("Decline Draw").to_string());
+
     client.strings = strings;
     client
 }
@@ -570,7 +575,11 @@ impl Client {
                 }
                 Screen::Game => {
                     if self.username == self.attacker || self.username == self.defender {
-                        self.send(format!("text_game {} I'm leaving.\n", self.game_id));
+                        self.send(format!(
+                            "text_game {} {}.\n",
+                            self.game_id,
+                            t!("I'm leaving")
+                        ));
                     }
                     self.screen = Screen::Games;
                     self.my_turn = false;
@@ -606,7 +615,7 @@ impl Client {
             Message::GameResume(id) => {
                 self.game_id = id;
                 self.send(format!("resume_game {id}\n"));
-                self.send(format!("text_game {id} I rejoined.\n"));
+                self.send(format!("text_game {id} {}.\n", t!("I rejoined")));
             }
             Message::GameSubmit => {
                 if let Some(role) = self.role_selected {
@@ -1626,12 +1635,6 @@ impl Client {
                 scrollable(column).into()
             }
             Screen::Game => {
-                let mut rated = "rated: ".to_string();
-                match self.rated {
-                    Rated::No => rated.push_str("no"),
-                    Rated::Yes => rated.push_str("yes"),
-                }
-
                 let Some(game) = &self.game else {
                     panic!("we are in a game");
                 };
@@ -1681,9 +1684,16 @@ impl Client {
                 let mut user_area = column![text(format!("#{} {}", self.game_id, &self.username,))]
                     .spacing(SPACING);
 
+                let is_rated = match self.rated {
+                    Rated::No => t!("no"),
+                    Rated::Yes => t!("yes"),
+                };
+
                 user_area = user_area.push(text(format!(
-                    "move: {} {rated}",
-                    game.previous_boards.0.len()
+                    "{}: {} {}: {is_rated}",
+                    t!("move"),
+                    game.previous_boards.0.len(),
+                    t!("rated"),
                 )));
 
                 user_area = user_area.push(user_area_);
@@ -1704,33 +1714,45 @@ impl Client {
                 if !watching {
                     if self.my_turn {
                         user_area = user_area.push(
-                            row![
-                                button("Resign").on_press(Message::PlayResign),
-                                button("Request Draw").on_press(Message::PlayDraw),
+                            column![
+                                row![
+                                    button(self.strings["Resign"].as_str())
+                                        .on_press(Message::PlayResign),
+                                ]
+                                .spacing(SPACING),
+                                row![
+                                    button(self.strings["Request Draw"].as_str())
+                                        .on_press(Message::PlayDraw),
+                                ]
+                                .spacing(SPACING),
                             ]
                             .spacing(SPACING),
                         );
                     } else {
                         let row = if self.request_draw {
-                            row![
-                                button("Resign"),
-                                button("Accept Draw")
-                                    .on_press(Message::PlayDrawDecision(Draw::Accept)),
-                                button("Decline Draw")
-                                    .on_press(Message::PlayDrawDecision(Draw::Decline)),
+                            column![
+                                row![
+                                    button(self.strings["Accept Draw"].as_str())
+                                        .on_press(Message::PlayDrawDecision(Draw::Accept)),
+                                ],
+                                row![
+                                    button(self.strings["Decline Draw"].as_str())
+                                        .on_press(Message::PlayDrawDecision(Draw::Decline)),
+                                ]
+                                .spacing(SPACING)
                             ]
-                            .spacing(SPACING)
                         } else {
-                            row![button("Resign"), button("Request Draw")].spacing(SPACING)
+                            Column::new()
                         };
                         user_area = user_area.push(row.spacing(SPACING));
                     }
                 }
 
-                let muted = checkbox("Muted", self.sound_muted)
+                let muted = checkbox(t!("Muted"), self.sound_muted)
                     .on_toggle(Message::SoundMuted)
                     .size(32);
-                let leave = button("Leave").on_press(Message::Leave);
+
+                let leave = button(self.strings["Leave"].as_str()).on_press(Message::Leave);
 
                 user_area = user_area.push(row![muted, leave].spacing(SPACING));
 

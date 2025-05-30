@@ -179,3 +179,43 @@ Resume:
 message:
   en: message
   fr: message
+
+move:
+  en: move
+  fr: déplacer
+
+yes:
+  en: yes
+  fr: oui
+
+no:
+  en: no
+  fr: non
+
+Muted:
+  en: Muted
+  fr: Sourdine
+
+I rejoined:
+  en: I rejoined
+  fr: J'ai rejoint
+
+I'm leaving:
+  en: I'm leaving
+  fr: Je pars
+
+Resign:
+  en: Resign
+  fr: Démissionner
+
+Request Draw:
+  en: Request Draw
+  fr: Demande Dessin
+
+Accept Draw:
+  en: Accept Draw
+  fr: Accepter Dessin
+
+Decline Draw:
+  en: Decline Draw
+  fr: Déclin Dessin
