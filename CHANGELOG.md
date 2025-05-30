@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Port the engine to javascript.
 - hnefatafl-client: handle whitespace in a password better.
 
 ## [1.1.4] - 2025-05-23
