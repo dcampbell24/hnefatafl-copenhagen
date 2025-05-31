@@ -12,47 +12,47 @@ password:
 
 game id:
   en: game id
-  zh-CN:
+  zh-CN: 游戏ID
   fr: identifiant de jeu
 
 attacker:
   en: attacker
-  zh-CN:
+  zh-CN: 攻击者
   fr: attaquant
 
 defender:
   en: defender
-  zh-CN:
+  zh-CN: 后卫
   fr: défenseur
 
 rated:
  en: rated
- zh-CN:
+ zh-CN: 额定
  fr: évalué
 
 timed:
  en: timed
- zh-CN:
+ zh-CN: 定时
  fr: chronométré
 
 rating:
   en: rating
-  zh-CN:
+  zh-CN: 等级
   fr: classement
 
 wins:
   en: wins
-  zh-CN:
+  zh-CN: 胜利
   fr: victoires
 
 losses:
   en: losses
-  zh-CN:
+  zh-CN: 损失
   fr: défaites
 
 draws:
   en: draws
-  zh-CN:
+  zh-CN: 抽签
   fr: nuls
 
 show password:

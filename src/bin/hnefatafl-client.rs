@@ -1294,35 +1294,35 @@ impl Client {
 
         let game_id = t!("game id");
         let game_ids = column![
-            text(game_id.to_string()),
+            text(game_id.to_string()).shaping(text::Shaping::Advanced),
             text("-".repeat(game_id.chars().count())),
             game_ids
         ]
         .padding(PADDING);
         let attacker = t!("attacker");
         let attackers = column![
-            text(attacker.to_string()),
+            text(attacker.to_string()).shaping(text::Shaping::Advanced),
             text("-".repeat(attacker.chars().count())),
             attackers
         ]
         .padding(PADDING);
         let defender = t!("defender");
         let defenders = column![
-            text(defender.to_string()),
+            text(defender.to_string()).shaping(text::Shaping::Advanced),
             text("-".repeat(defender.chars().count())),
             defenders
         ]
         .padding(PADDING);
         let rated = t!("rated");
         let ratings = column![
-            text(rated.to_string()),
+            text(rated.to_string()).shaping(text::Shaping::Advanced),
             text("-".repeat(rated.chars().count())),
             ratings
         ]
         .padding(PADDING);
         let timed = t!("timed");
         let timings = column![
-            text(timed.to_string()),
+            text(timed.to_string()).shaping(text::Shaping::Advanced),
             text("-".repeat(timed.chars().count())),
             timings
         ]
@@ -1420,7 +1420,7 @@ impl Client {
 
         let rating = t!("rating");
         let ratings = column![
-            text(rating.to_string()),
+            text(rating.to_string()).shaping(text::Shaping::Advanced),
             text("-".repeat(rating.chars().count())),
             ratings
         ]
@@ -1434,21 +1434,21 @@ impl Client {
         .padding(PADDING);
         let win = t!("wins");
         let wins = column![
-            text(win.to_string()),
+            text(win.to_string()).shaping(text::Shaping::Advanced),
             text("-".repeat(win.chars().count())),
             wins
         ]
         .padding(PADDING);
         let loss = t!("losses");
         let losses = column![
-            text(loss.to_string()),
+            text(loss.to_string()).shaping(text::Shaping::Advanced),
             text("-".repeat(loss.chars().count())),
             losses
         ]
         .padding(PADDING);
         let draw = t!("draws");
         let draws = column![
-            text(draw.to_string()),
+            text(draw.to_string()).shaping(text::Shaping::Advanced),
             text("-".repeat(draw.chars().count())),
             draws
         ]
