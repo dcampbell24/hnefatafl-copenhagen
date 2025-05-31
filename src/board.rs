@@ -96,7 +96,7 @@ impl fmt::Display for Board {
                     || (y, x) == (5, 5))
                     && self.spaces[y * 11 + x] == Space::Empty
                 {
-                    write!(f, "■")?;
+                    write!(f, "⌘")?;
                 } else {
                     write!(f, "{}", self.spaces[y * 11 + x])?;
                 }
