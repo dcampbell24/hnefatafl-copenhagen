@@ -17,6 +17,10 @@ This is a TCP client that connects to a server.
     connect to the HTP server at host
     [default: hnefatafl.org]
 
+: *\-\-tiny\-window*
+
+    Make the window size tiny
+
 : *-h*, *\-\-help*
 
     print help

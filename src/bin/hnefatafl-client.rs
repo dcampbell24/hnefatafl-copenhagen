@@ -73,9 +73,13 @@ i18n!();
 #[derive(Parser, Debug)]
 #[command(version, about)]
 struct Args {
-    /// Connect to the HTP server at host.
+    /// Connect to the HTP server at host
     #[arg(default_value = "hnefatafl.org", long)]
     host: String,
+
+    /// Make the window size tiny
+    #[arg(default_value = "false", long)]
+    tiny_window: bool,
 }
 
 fn init_client() -> Client {
@@ -181,7 +185,7 @@ fn main() -> anyhow::Result<()> {
     #[cfg(feature = "icon_2")]
     let king = include_bytes!("king_2_256x256.rgba").to_vec();
 
-    iced::application(init_client, Client::update, Client::view)
+    let mut application = iced::application(init_client, Client::update, Client::view)
         .title("Hnefatafl Copenhagen")
         .subscription(Client::subscriptions)
         .window(window::Settings {
@@ -196,17 +200,19 @@ fn main() -> anyhow::Result<()> {
             icon: Some(icon::from_rgba(king, 256, 256)?),
             ..window::Settings::default()
         })
-        // For screenshots.
-        /*
-        .window_size(iced::Size {
+        .theme(Client::theme)
+        .default_font(Font::MONOSPACE);
+
+    // For screenshots.
+    let args = Args::parse();
+    if args.tiny_window {
+        application = application.window_size(iced::Size {
             width: 870.0,
             height: 541.0,
-        })
-        */
-        .theme(Client::theme)
-        .default_font(Font::MONOSPACE)
-        .run()?;
+        });
+    }
 
+    application.run()?;
     Ok(())
 }
 
