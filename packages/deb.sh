@@ -13,7 +13,7 @@ gzip --no-name --best packages/hnefatafl-ai.1
 pandoc\
     --variable=title:hnefatafl-client\
     --variable=section:1\
-    --variable=date:2025-02-22\
+    --variable=date:2025-05-31\
     --standalone --to=man packages/hnefatafl-client.1.dj --output=packages/hnefatafl-client.1
 
 gzip --no-name --best packages/hnefatafl-client.1
