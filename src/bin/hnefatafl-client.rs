@@ -347,11 +347,7 @@ impl Client {
 
         for i in 0..11 {
             let i = 11 - i;
-            column = column.push(
-                text(format!("{i:2}"))
-                    .size(letter_size)
-                    .align_y(Vertical::Center),
-            );
+            column = column.push(text!("{i:2}").size(letter_size).align_y(Vertical::Center));
         }
         game_display = game_display.push(column);
 
@@ -443,11 +439,7 @@ impl Client {
         let mut column = column![text(" ").size(letter_size)].spacing(spacing);
         for i in 0..11 {
             let i = 11 - i;
-            column = column.push(
-                text(format!("{i:2}"))
-                    .size(letter_size)
-                    .align_y(Vertical::Center),
-            );
+            column = column.push(text!("{i:2}").size(letter_size).align_y(Vertical::Center));
         }
 
         game_display = game_display.push(column);
@@ -1492,18 +1484,18 @@ impl Client {
                 }
 
                 let mut columns = column![
-                    text(format!(
+                    text!(
                         "{} {} {} TCP",
                         t!("connected to"),
                         &self.connected_to,
                         t!("via")
-                    )),
-                    text(format!("{}: {}", t!("username"), &self.username))
+                    ),
+                    text!("{}: {}", t!("username"), &self.username)
                         .shaping(text::Shaping::Advanced),
-                    text(format!("{}: {rating}", t!("rating"))),
-                    text(format!("{}: {wins}", t!("wins"))),
-                    text(format!("{}: {losses}", t!("losses"))),
-                    text(format!("{}: {draws}", t!("draws"))),
+                    text!("{}: {rating}", t!("rating")),
+                    text!("{}: {wins}", t!("wins")),
+                    text!("{}: {losses}", t!("losses")),
+                    text!("{}: {draws}", t!("draws")),
                 ]
                 .padding(PADDING)
                 .spacing(SPACING);
@@ -1511,20 +1503,20 @@ impl Client {
                 if let Some(email) = &self.email {
                     let mut row = Row::new();
                     if email.verified {
-                        row = row.push(text(format!(
+                        row = row.push(text!(
                             "{}: [{}] {} ",
                             t!("email address"),
                             t!("verified"),
                             email.address,
-                        )));
+                        ));
                         columns = columns.push(row);
                     } else {
-                        row = row.push(text(format!(
+                        row = row.push(text!(
                             "{}: [{}] {} ",
                             t!("email address"),
                             t!("unverified"),
                             email.address,
-                        )));
+                        ));
                         columns = columns.push(row);
 
                         let mut row = Row::new();
@@ -1556,7 +1548,7 @@ impl Client {
                 ]);
 
                 if let Some(error) = &self.error_email {
-                    columns = columns.push(row![text(format!("error: {error}"))]);
+                    columns = columns.push(row![text!("error: {error}")]);
                 }
 
                 let mut change_password_button = button(self.strings["Change Password"].as_str());
@@ -1618,7 +1610,7 @@ impl Client {
                     text("From: Hnefatafl Org <no-reply@hnefatafl.org>"),
                     text("Content-Type: text/plain; charset=utf-8"),
                     text("Content-Transfer-Encoding: 7bit"),
-                    text(format!("Date: {}", Utc::now().to_rfc2822())),
+                    text!("Date: {}", Utc::now().to_rfc2822()),
                     text("Body:"),
                     editor,
                     send_emails,
@@ -1681,20 +1673,20 @@ impl Client {
                 let mut watching = false;
                 let texting = self.texting(true);
 
-                let mut user_area = column![text(format!("#{} {}", self.game_id, &self.username,))]
-                    .spacing(SPACING);
+                let mut user_area =
+                    column![text!("#{} {}", self.game_id, &self.username)].spacing(SPACING);
 
                 let is_rated = match self.rated {
                     Rated::No => t!("no"),
                     Rated::Yes => t!("yes"),
                 };
 
-                user_area = user_area.push(text(format!(
+                user_area = user_area.push(text!(
                     "{}: {} {}: {is_rated}",
                     t!("move"),
                     game.previous_boards.0.len(),
                     t!("rated"),
-                )));
+                ));
 
                 user_area = user_area.push(user_area_);
 
@@ -1760,8 +1752,7 @@ impl Client {
                 }
 
                 let spectator = column![
-                    text(format!("👥 ({})", self.spectators.len()))
-                        .shaping(text::Shaping::Advanced)
+                    text!("👥 ({})", self.spectators.len()).shaping(text::Shaping::Advanced)
                 ];
 
                 if self.spectators.is_empty() {
@@ -1829,15 +1820,9 @@ impl Client {
                 }
                 time = time.spacing(SPACING);
 
-                let row_1 = row![
-                    text(format!("{}:", t!("role"))),
-                    attacker,
-                    defender,
-                    rated,
-                    time,
-                ]
-                .padding(PADDING)
-                .spacing(SPACING);
+                let row_1 = row![text!("{}:", t!("role")), attacker, defender, rated, time,]
+                    .padding(PADDING)
+                    .spacing(SPACING);
 
                 let row_2 = row![new_game, leave].padding(PADDING).spacing(SPACING);
                 column![row_1, row_2].into()
@@ -1849,8 +1834,7 @@ impl Client {
 
                 let mut buttons_live = false;
                 let mut game_display =
-                    column![text(format!("{}: {}", t!("role"), t!(role.to_string())))]
-                        .padding(PADDING);
+                    column![text!("{}: {}", t!("role"), t!(role.to_string()))].padding(PADDING);
                 if let Some(game) = self.games_light.0.get(&self.game_id) {
                     game_display = game_display.push(text(game.to_string()));
 
@@ -1911,7 +1895,7 @@ impl Client {
                 let theme = theme.padding(PADDING).spacing(SPACING);
 
                 let username = row![
-                    text(format!("{}: {}", t!("username"), &self.username))
+                    text!("{}: {}", t!("username"), &self.username)
                         .shaping(text::Shaping::Advanced)
                 ];
                 let username = container(username)
@@ -1950,7 +1934,7 @@ impl Client {
             }
             Screen::Login => {
                 let username = row![
-                    text(format!("{}:", t!("username")))
+                    text!("{}:", t!("username"))
                         .shaping(text::Shaping::Advanced)
                         .size(20),
                     text_input("", &self.text_input)
@@ -1964,7 +1948,7 @@ impl Client {
                     .style(container::bordered_box);
 
                 let password = row![
-                    text(format!("{}:", t!("password")))
+                    text!("{}:", t!("password"))
                         .shaping(text::Shaping::Advanced)
                         .size(20),
                     text_input("", &self.password)
@@ -2026,7 +2010,7 @@ impl Client {
                 let locale = [Locale::English, Locale::Chinese, Locale::French];
 
                 let locale = row![
-                    text(format!("{}: ", t!("locale")))
+                    text!("{}: ", t!("locale"))
                         .shaping(text::Shaping::Advanced)
                         .size(20),
                     pick_list(locale, Some(self.locale_selected), Message::LocaleSelected)
