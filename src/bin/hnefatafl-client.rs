@@ -1274,18 +1274,23 @@ impl Client {
                 && !(Some(&self.username) == game.attacker.as_ref()
                     || Some(&self.username) == game.defender.as_ref())
             {
-                buttons_row = buttons_row
-                    .push(button(self.strings["Watch"].as_str()).on_press(Message::GameWatch(id)));
+                buttons_row = buttons_row.push(
+                    button(text(self.strings["Watch"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::GameWatch(id)),
+                );
             } else if game.attacker.is_none() || game.defender.is_none() {
-                buttons_row = buttons_row
-                    .push(button(self.strings["Join"].as_str()).on_press(Message::GameJoin(id)));
+                buttons_row = buttons_row.push(
+                    button(text(self.strings["Join"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::GameJoin(id)),
+                );
             }
 
             if game.attacker.as_ref() == Some(&self.username)
                 || game.defender.as_ref() == Some(&self.username)
             {
                 buttons_row = buttons_row.push(
-                    button(self.strings["Resume"].as_str()).on_press(Message::GameResume(id)),
+                    button(text(self.strings["Resume"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::GameResume(id)),
                 );
             }
 
@@ -1495,13 +1500,14 @@ impl Client {
                         t!("connected to"),
                         &self.connected_to,
                         t!("via")
-                    ),
+                    )
+                    .shaping(text::Shaping::Advanced),
                     text!("{}: {}", t!("username"), &self.username)
                         .shaping(text::Shaping::Advanced),
-                    text!("{}: {rating}", t!("rating")),
-                    text!("{}: {wins}", t!("wins")),
-                    text!("{}: {losses}", t!("losses")),
-                    text!("{}: {draws}", t!("draws")),
+                    text!("{}: {rating}", t!("rating")).shaping(text::Shaping::Advanced),
+                    text!("{}: {wins}", t!("wins")).shaping(text::Shaping::Advanced),
+                    text!("{}: {losses}", t!("losses")).shaping(text::Shaping::Advanced),
+                    text!("{}: {draws}", t!("draws")).shaping(text::Shaping::Advanced),
                 ]
                 .padding(PADDING)
                 .spacing(SPACING);
@@ -1509,24 +1515,32 @@ impl Client {
                 if let Some(email) = &self.email {
                     let mut row = Row::new();
                     if email.verified {
-                        row = row.push(text!(
-                            "{}: [{}] {} ",
-                            t!("email address"),
-                            t!("verified"),
-                            email.address,
-                        ));
+                        row = row.push(
+                            text!(
+                                "{}: [{}] {} ",
+                                t!("email address"),
+                                t!("verified"),
+                                email.address,
+                            )
+                            .shaping(text::Shaping::Advanced),
+                        );
                         columns = columns.push(row);
                     } else {
-                        row = row.push(text!(
-                            "{}: [{}] {} ",
-                            t!("email address"),
-                            t!("unverified"),
-                            email.address,
-                        ));
+                        row = row.push(
+                            text!(
+                                "{}: [{}] {} ",
+                                t!("email address"),
+                                t!("unverified"),
+                                email.address,
+                            )
+                            .shaping(text::Shaping::Advanced),
+                        );
                         columns = columns.push(row);
 
                         let mut row = Row::new();
-                        row = row.push(text("email code: ".to_string()));
+                        row = row.push(
+                            text!("{}: ", t!("email code)")).shaping(text::Shaping::Advanced),
+                        );
                         row = row.push(
                             text_input("", &self.text_input)
                                 .on_input(Message::TextChanged)
@@ -1537,7 +1551,8 @@ impl Client {
                     }
                 } else {
                     let mut row = Row::new();
-                    row = row.push(text("email address: ".to_string()));
+                    row = row
+                        .push(text!("{}: ", t!("email address")).shaping(text::Shaping::Advanced));
                     row = row.push(
                         text_input("", &self.text_input)
                             .on_input(Message::TextChanged)
@@ -1546,18 +1561,25 @@ impl Client {
                     );
 
                     columns = columns.push(row);
-                    columns = columns.push(row![text("email code:")]);
+                    columns = columns.push(row![
+                        text!("{}: ", t!("email code")).shaping(text::Shaping::Advanced)
+                    ]);
                 }
 
                 columns = columns.push(row![
-                    button(self.strings["Reset Email"].as_str()).on_press(Message::EmailReset)
+                    button(
+                        text(self.strings["Reset Email"].as_str()).shaping(text::Shaping::Advanced)
+                    )
+                    .on_press(Message::EmailReset)
                 ]);
 
                 if let Some(error) = &self.error_email {
                     columns = columns.push(row![text!("error: {error}")]);
                 }
 
-                let mut change_password_button = button(self.strings["Change Password"].as_str());
+                let mut change_password_button = button(
+                    text(self.strings["Change Password"].as_str()).shaping(text::Shaping::Advanced),
+                );
 
                 if !self.password_no_save {
                     change_password_button = change_password_button.on_press(Message::TextSend);
@@ -1576,23 +1598,32 @@ impl Client {
 
                 columns = columns.push(
                     checkbox(t!("show password"), self.password_show)
+                        .text_shaping(text::Shaping::Advanced)
                         .on_toggle(Message::PasswordShow),
                 );
 
                 if self.delete_account {
                     columns = columns.push(
-                        button(self.strings["REALLY DELETE ACCOUNT"].as_str())
-                            .on_press(Message::DeleteAccount),
+                        button(
+                            text(self.strings["REALLY DELETE ACCOUNT"].as_str())
+                                .shaping(text::Shaping::Advanced),
+                        )
+                        .on_press(Message::DeleteAccount),
                     );
                 } else {
                     columns = columns.push(
-                        button(self.strings["Delete Account"].as_str())
-                            .on_press(Message::DeleteAccount),
+                        button(
+                            text(self.strings["Delete Account"].as_str())
+                                .shaping(text::Shaping::Advanced),
+                        )
+                        .on_press(Message::DeleteAccount),
                     );
                 }
 
-                columns =
-                    columns.push(button(self.strings["Leave"].as_str()).on_press(Message::Leave));
+                columns = columns.push(
+                    button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::Leave),
+                );
 
                 columns.into()
             }
@@ -1687,12 +1718,15 @@ impl Client {
                     Rated::Yes => t!("yes"),
                 };
 
-                user_area = user_area.push(text!(
-                    "{}: {} {}: {is_rated}",
-                    t!("move"),
-                    game.previous_boards.0.len(),
-                    t!("rated"),
-                ));
+                user_area = user_area.push(
+                    text!(
+                        "{}: {} {}: {is_rated}",
+                        t!("move"),
+                        game.previous_boards.0.len(),
+                        t!("rated"),
+                    )
+                    .shaping(text::Shaping::Advanced),
+                );
 
                 user_area = user_area.push(user_area_);
 
@@ -1746,7 +1780,9 @@ impl Client {
                     .on_toggle(Message::SoundMuted)
                     .size(32);
 
-                let leave = button(self.strings["Leave"].as_str()).on_press(Message::Leave);
+                let leave =
+                    button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::Leave);
 
                 user_area = user_area.push(row![muted, leave].spacing(SPACING));
 
@@ -1786,38 +1822,46 @@ impl Client {
                     Role::Attacker,
                     self.role_selected,
                     Message::RoleSelected,
-                );
+                )
+                .text_shaping(text::Shaping::Advanced);
 
                 let defender = radio(
                     t!("defender"),
                     Role::Defender,
                     self.role_selected,
                     Message::RoleSelected,
+                )
+                .text_shaping(text::Shaping::Advanced);
+
+                let rated = checkbox(t!("rated"), self.rated.into())
+                    .on_toggle(Message::RatedSelected)
+                    .text_shaping(text::Shaping::Advanced);
+
+                let mut new_game = button(
+                    text(self.strings["New Game"].as_str()).shaping(text::Shaping::Advanced),
                 );
-
-                let rated =
-                    checkbox(t!("rated"), self.rated.into()).on_toggle(Message::RatedSelected);
-
-                let mut new_game = button(self.strings["New Game"].as_str());
                 if self.role_selected.is_some() {
                     new_game = new_game.on_press(Message::GameSubmit);
                 }
 
-                let leave = button(self.strings["Leave"].as_str()).on_press(Message::Leave);
+                let leave =
+                    button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::Leave);
 
                 let mut time = row![
                     checkbox(t!("timed"), self.timed.clone().into())
+                        .text_shaping(text::Shaping::Advanced)
                         .on_toggle(Message::TimeCheckbox)
                 ];
 
                 if self.timed.0.is_some() {
-                    time = time.push(text(t!("minutes")));
+                    time = time.push(text(t!("minutes")).shaping(text::Shaping::Advanced));
                     time = time.push(
                         text_input("15", &self.time_minutes)
                             .on_input(Message::TimeMinutes)
                             .on_paste(Message::TimeMinutes),
                     );
-                    time = time.push(text(t!("add seconds")));
+                    time = time.push(text(t!("add seconds")).shaping(text::Shaping::Advanced));
                     time = time.push(
                         text_input("10", &self.time_add_seconds)
                             .on_input(Message::TimeAddSeconds)
@@ -1826,9 +1870,15 @@ impl Client {
                 }
                 time = time.spacing(SPACING);
 
-                let row_1 = row![text!("{}:", t!("role")), attacker, defender, rated, time,]
-                    .padding(PADDING)
-                    .spacing(SPACING);
+                let row_1 = row![
+                    text!("{}:", t!("role")).shaping(text::Shaping::Advanced),
+                    attacker,
+                    defender,
+                    rated,
+                    time,
+                ]
+                .padding(PADDING)
+                .spacing(SPACING);
 
                 let row_2 = row![new_game, leave].padding(PADDING).spacing(SPACING);
                 column![row_1, row_2].into()
@@ -1839,8 +1889,11 @@ impl Client {
                 };
 
                 let mut buttons_live = false;
-                let mut game_display =
-                    column![text!("{}: {}", t!("role"), t!(role.to_string()))].padding(PADDING);
+                let mut game_display = column![
+                    text!("{}: {}", t!("role"), t!(role.to_string()))
+                        .shaping(text::Shaping::Advanced)
+                ]
+                .padding(PADDING);
                 if let Some(game) = self.games_light.0.get(&self.game_id) {
                     game_display = game_display.push(text(game.to_string()));
 
@@ -1850,20 +1903,39 @@ impl Client {
                 }
 
                 let mut buttons = if self.challenger {
-                    row![button(self.strings["Leave"].as_str()).on_press(Message::Leave)]
+                    row![
+                        button(
+                            text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced)
+                        )
+                        .on_press(Message::Leave)
+                    ]
                 } else if buttons_live {
                     row![
-                        button(self.strings["Accept"].as_str())
-                            .on_press(Message::GameAccept(self.game_id)),
-                        button(self.strings["Decline"].as_str())
-                            .on_press(Message::GameDecline(self.game_id)),
-                        button(self.strings["Leave"].as_str()).on_press(Message::Leave),
+                        button(
+                            text(self.strings["Accept"].as_str()).shaping(text::Shaping::Advanced)
+                        )
+                        .on_press(Message::GameAccept(self.game_id)),
+                        button(
+                            text(self.strings["Decline"].as_str()).shaping(text::Shaping::Advanced)
+                        )
+                        .on_press(Message::GameDecline(self.game_id)),
+                        button(
+                            text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced)
+                        )
+                        .on_press(Message::Leave),
                     ]
                 } else {
                     row![
-                        button(self.strings["Accept"].as_str()),
-                        button(self.strings["Decline"].as_str()),
-                        button(self.strings["Leave"].as_str()).on_press(Message::Leave),
+                        button(
+                            text(self.strings["Accept"].as_str()).shaping(text::Shaping::Advanced)
+                        ),
+                        button(
+                            text(self.strings["Decline"].as_str()).shaping(text::Shaping::Advanced)
+                        ),
+                        button(
+                            text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced)
+                        )
+                        .on_press(Message::Leave),
                     ]
                 };
                 buttons = buttons.padding(PADDING).spacing(SPACING);
@@ -2037,12 +2109,15 @@ impl Client {
                 .into()
             }
             Screen::Users => scrollable(column![
-                text(t!("logged in")),
+                text(t!("logged in")).shaping(text::Shaping::Advanced),
                 self.users(true),
-                text(t!("logged out")),
+                text(t!("logged out")).shaping(text::Shaping::Advanced),
                 self.users(false),
-                row![button(self.strings["Leave"].as_str()).on_press(Message::Leave)]
-                    .padding(PADDING),
+                row![
+                    button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::Leave)
+                ]
+                .padding(PADDING),
             ])
             .spacing(SPACING)
             .into(),

@@ -87,17 +87,17 @@ locale:
 
 logged in:
   en: logged in
-  zh-CN:
+  zh-CN: 登录
   fr: connecté
 
 logged out:
   en: logged out
-  zh-CN:
+  zh-CN: 已注销
   fr: déconnecté
 
 Leave:
   en: Leave
-  zh-CN:
+  zh-CN: 撤走
   fr: Laisser
 
 Dark:
@@ -132,92 +132,97 @@ Rules:
 
 connected to:
   en: connected to
-  zh-CN:
+  zh-CN: 连接到
   fr: connecté à
 
 via:
   en: via
-  zh-CN:
+  zh-CN: 通过
   fr: par
 
 email address:
   en: email address
-  zh-CN:
+  zh-CN: 电子邮件
   fr: adresse email
+
+email code:
+  en: email code
+  zh-CN: 电子邮件代码
+  fr: code email
 
 verified:
   en: verified
-  zh-CN:
+  zh-CN: 已验证
   fr: accepté
 
 unverified:
   en: unverified
-  zh-CN:
+  zh-CN: 未经验证
   fr: non vérifié
 
 Reset Email:
   en: Reset Email
-  zh-CN:
+  zh-CN: 重置电子邮件
   fr: Réinitialiser l'email
 
 Change Password:
   en: Change Password
-  zh-CN:
+  zh-CN: 更改密码
   fr: Changer le Mot de Passe
 
 Delete Account:
   en: Delete Account
-  zh-CN:
+  zh-CN: 删除帐户
   fr: Supprimer le Compte
 
 REALLY DELETE ACCOUNT:
   en: REALLY DELETE ACCOUNT
-  zh-CN:
-  fr: VRAIMENT SUPPRIMER LE COMPTE
+  zh-CN: 确实删除帐户
+  fr: SUPPRIMER VRAIMENT LE COMPTE
 
 minutes:
   en: minutes
-  zh-CN:
+  zh-CN: 分钟
   fr: minutes
 
 add seconds:
   en: add seconds
-  zh-CN:
+  zh-CN: 添加秒
   fr: ajouter des secondes
 
 role:
   en: role
-  zh-CN:
+  zh-CN: 角色
   fr: rôle
 
 New Game:
   en: New Game
-  zh-CN:
+  zh-CN: 新游戏
   fr: Nouveau Jeu
 
 Accept:
   en: Accept
-  zh-CN:
+  zh-CN: 接受
   fr: Accepter
 
 Decline:
   en: Decline
-  zh-CN:
+  zh-CN: 拒绝
   fr: Refuse
 
 Watch:
   en: Watch
-  zh-CN:
+  zh-CN: 观
   fr: Regarde
 
 Join:
   en: Join
-  zh-CN:
+  zh-CN: 加入
   fr: Rejoindre
 
 Resume:
   en: Resume
-  zh-CN:
+  zh-CN: 重新开始
   fr: Reprendre
 
 message:
