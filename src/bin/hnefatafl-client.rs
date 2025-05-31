@@ -1883,15 +1883,23 @@ impl Client {
             Screen::Games => {
                 let mut theme = if self.theme == Theme::Light {
                     row![
-                        button(text(self.strings["Dark"].as_str()))
-                            .on_press(Message::ChangeTheme(Theme::Dark)),
-                        button(text(self.strings["Light"].as_str())),
+                        button(
+                            text(self.strings["Dark"].as_str()).shaping(text::Shaping::Advanced)
+                        )
+                        .on_press(Message::ChangeTheme(Theme::Dark)),
+                        button(
+                            text(self.strings["Light"].as_str()).shaping(text::Shaping::Advanced)
+                        ),
                     ]
                 } else {
                     row![
-                        button(text(self.strings["Dark"].as_str())),
-                        button(text(self.strings["Light"].as_str()))
-                            .on_press(Message::ChangeTheme(Theme::Light)),
+                        button(
+                            text(self.strings["Dark"].as_str()).shaping(text::Shaping::Advanced)
+                        ),
+                        button(
+                            text(self.strings["Light"].as_str()).shaping(text::Shaping::Advanced)
+                        )
+                        .on_press(Message::ChangeTheme(Theme::Light)),
                     ]
                 };
 
@@ -1910,16 +1918,27 @@ impl Client {
                     .padding(PADDING / 2)
                     .style(container::bordered_box);
 
-                let create_game =
-                    button(self.strings["Create Game"].as_str()).on_press(Message::GameNew);
-                let users = button(self.strings["Users"].as_str()).on_press(Message::Users);
-                let account_setting = button(self.strings["Account Settings"].as_str())
-                    .on_press(Message::AccountSettings);
-                let website = button(self.strings["Rules"].as_str()).on_press(Message::OpenUrl(
-                    "https://hnefatafl.org/rules.html".to_string(),
-                ));
+                let create_game = button(
+                    text(self.strings["Create Game"].as_str()).shaping(text::Shaping::Advanced),
+                )
+                .on_press(Message::GameNew);
+                let users =
+                    button(text(self.strings["Users"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::Users);
+                let account_setting = button(
+                    text(self.strings["Account Settings"].as_str())
+                        .shaping(text::Shaping::Advanced),
+                )
+                .on_press(Message::AccountSettings);
+                let website =
+                    button(text(self.strings["Rules"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::OpenUrl(
+                            "https://hnefatafl.org/rules.html".to_string(),
+                        ));
 
-                let quit = button(self.strings["Quit"].as_str()).on_press(Message::Leave);
+                let quit =
+                    button(text(self.strings["Quit"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::Leave);
 
                 let top = row![username, create_game, users, account_setting, website, quit]
                     .padding(PADDING)
@@ -1963,22 +1982,22 @@ impl Client {
                     .text_shaping(text::Shaping::Advanced)
                     .on_toggle(Message::PasswordShow);
 
-                let mut login = button(
-                    text!("{}", self.strings["Login"].as_str()).shaping(text::Shaping::Advanced),
-                );
+                let mut login =
+                    button(text(self.strings["Login"].as_str()).shaping(text::Shaping::Advanced));
                 if !self.password_no_save {
                     login = login.on_press(Message::TextSendLogin);
                 }
 
                 let mut create_account = button(
-                    text!("{}", self.strings["Create Account"].as_str())
-                        .shaping(text::Shaping::Advanced),
+                    text(self.strings["Create Account"].as_str()).shaping(text::Shaping::Advanced),
                 );
                 if !self.text_input.is_empty() && !self.password_no_save {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
                 }
 
-                let mut reset_password = button(self.strings["Reset Password"].as_str());
+                let mut reset_password = button(
+                    text(self.strings["Reset Password"].as_str()).shaping(text::Shaping::Advanced),
+                );
                 if !self.text_input.is_empty() {
                     reset_password =
                         reset_password.on_press(Message::ResetPassword(self.text_input.clone()));
@@ -1987,7 +2006,9 @@ impl Client {
                 let website = button("https://hnefatafl.org")
                     .on_press(Message::OpenUrl("https://hnefatafl.org".to_string()));
 
-                let quit = button(self.strings["Quit"].as_str()).on_press(Message::Leave);
+                let quit =
+                    button(text(self.strings["Quit"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::Leave);
 
                 let buttons =
                     row![login, create_account, reset_password, website, quit].spacing(SPACING);
@@ -2005,7 +2026,9 @@ impl Client {
                 let locale = [Locale::English, Locale::Chinese, Locale::French];
 
                 let locale = row![
-                    text(format!("{}: ", t!("locale"))).size(20),
+                    text(format!("{}: ", t!("locale")))
+                        .shaping(text::Shaping::Advanced)
+                        .size(20),
                     pick_list(locale, Some(self.locale_selected), Message::LocaleSelected)
                         .text_shaping(text::Shaping::Advanced),
                 ];

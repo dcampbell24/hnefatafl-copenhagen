@@ -72,17 +72,17 @@ Create Account:
 
 Reset Password:
   en: Reset Password
-  zh-CN:
+  zh-CN: 重置密码
   fr: Réinitialiser Le Mot de Passe
 
 Quit:
   en: Quit
-  zh-CN:
+  zh-CN: 辞职
   fr: Quitter
 
 locale:
   en: locale
-  zh-CN:
+  zh-CN: 区域设置
   fr: lieu
 
 logged in:
@@ -102,32 +102,32 @@ Leave:
 
 Dark:
   en: Dark
-  zh-CN:
+  zh-CN: 黑暗
   fr: Sombre
 
 Light:
   en: Light
-  zh-CN:
+  zh-CN: 亮
   fr: Lumière
 
 Create Game:
   en: Create Game
-  zh-CN:
+  zh-CN: 创建游戏
   fr: Créer un Jeu
 
 Users:
   en: Users
-  zh-CN:
+  zh-CN: 用户
   fr: Usagers
 
 Account Settings:
   en: Account Settings
-  zh-CN:
+  zh-CN: 帐户设置
   fr: Paramètres du Compte
 
 Rules:
   en: Rules
-  zh-CN:
+  zh-CN: 规则
   fr: Règles
 
 connected to:
