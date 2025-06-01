@@ -1,112 +1,112 @@
 _version: 2
 
 username:
-  en: username
+  en-US: username
   zh-CN: 用户名
   fr: nom d'utilisateur
 
 password:
-  en: password
+  en-US: password
   zh-CN: 密码
   fr: mot de passe
 
 game id:
-  en: game id
+  en-US: game id
   zh-CN: 游戏ID
   fr: identifiant de jeu
 
 attacker:
-  en: attacker
+  en-US: attacker
   zh-CN: 攻击者
   fr: attaquant
 
 defender:
-  en: defender
+  en-US: defender
   zh-CN: 后卫
   fr: défenseur
 
 rated:
- en: rated
+ en-US: rated
  zh-CN: 额定
  fr: évalué
 
 timed:
- en: timed
+ en-US: timed
  zh-CN: 定时
  fr: chronométré
 
 rating:
-  en: rating
+  en-US: rating
   zh-CN: 等级
   fr: classement
 
 wins:
-  en: wins
+  en-US: wins
   zh-CN: 胜利
   fr: victoires
 
 losses:
-  en: losses
+  en-US: losses
   zh-CN: 损失
   fr: défaites
 
 draws:
-  en: draws
+  en-US: draws
   zh-CN: 抽签
   fr: nuls
 
 show password:
-  en: show password
+  en-US: show password
   zh-CN: 显示密码
   fr: afficher le mot de passe
 
 Login:
-  en: Login
+  en-US: Login
   zh-CN: 登录
   fr: Connexion
 
 Create Account:
-  en: Create Account
+  en-US: Create Account
   zh-CN: 创建账户
   fr: Créer un Compte
 
 Reset Password:
-  en: Reset Password
+  en-uS: Reset Password
   zh-CN: 重置密码
   fr: Réinitialiser Le Mot de Passe
 
 Quit:
-  en: Quit
+  en-US: Quit
   zh-CN: 辞职
   fr: Quitter
 
 locale:
-  en: locale
+  en-US: locale
   zh-CN: 区域设置
   fr: lieu
 
 logged in:
-  en: logged in
+  en-US: logged in
   zh-CN: 登录
   fr: connecté
 
 logged out:
-  en: logged out
+  en-US: logged out
   zh-CN: 已注销
   fr: déconnecté
 
 Leave:
-  en: Leave
+  en-US: Leave
   zh-CN: 撤走
   fr: Laisser
 
 Dark:
-  en: Dark
+  en-US: Dark
   zh-CN: 黑暗
   fr: Sombre
 
 Light:
-  en: Light
+  en-US: Light
   zh-CN: 亮
   fr: Lumière
 
@@ -116,162 +116,162 @@ Create Game:
   fr: Créer un Jeu
 
 Users:
-  en: Users
+  en-US: Users
   zh-CN: 用户
   fr: Usagers
 
 Account Settings:
-  en: Account Settings
+  en-US: Account Settings
   zh-CN: 帐户设置
   fr: Paramètres du Compte
 
 Rules:
-  en: Rules
+  en-US: Rules
   zh-CN: 规则
   fr: Règles
 
 connected to:
-  en: connected to
+  en-US: connected to
   zh-CN: 连接到
   fr: connecté à
 
 via:
-  en: via
+  en-US: via
   zh-CN: 通过
   fr: par
 
 email address:
-  en: email address
+  en-US: email address
   zh-CN: 电子邮件
   fr: adresse email
 
 email code:
-  en: email code
+  en-US: email code
   zh-CN: 电子邮件代码
   fr: code email
 
 verified:
-  en: verified
+  en-US: verified
   zh-CN: 已验证
   fr: accepté
 
 unverified:
-  en: unverified
+  en-US: unverified
   zh-CN: 未经验证
   fr: non vérifié
 
 Reset Email:
-  en: Reset Email
+  en-US: Reset Email
   zh-CN: 重置电子邮件
   fr: Réinitialiser l'email
 
 Change Password:
-  en: Change Password
+  en-US: Change Password
   zh-CN: 更改密码
   fr: Changer le Mot de Passe
 
 Delete Account:
-  en: Delete Account
+  en-US: Delete Account
   zh-CN: 删除帐户
   fr: Supprimer le Compte
 
 REALLY DELETE ACCOUNT:
-  en: REALLY DELETE ACCOUNT
+  en-US: REALLY DELETE ACCOUNT
   zh-CN: 确实删除帐户
   fr: SUPPRIMER VRAIMENT LE COMPTE
 
 minutes:
-  en: minutes
+  en-US: minutes
   zh-CN: 分钟
   fr: minutes
 
 add seconds:
-  en: add seconds
+  en-US: add seconds
   zh-CN: 添加秒
   fr: ajouter des secondes
 
 role:
-  en: role
+  en-US: role
   zh-CN: 角色
   fr: rôle
 
 New Game:
-  en: New Game
+  en-US: New Game
   zh-CN: 新游戏
   fr: Nouveau Jeu
 
 Accept:
-  en: Accept
+  en-US: Accept
   zh-CN: 接受
   fr: Accepter
 
 Decline:
-  en: Decline
+  en-US: Decline
   zh-CN: 拒绝
   fr: Refuse
 
 Watch:
-  en: Watch
+  en-US: Watch
   zh-CN: 观
   fr: Regarde
 
 Join:
-  en: Join
+  en-US: Join
   zh-CN: 加入
   fr: Rejoindre
 
 Resume:
-  en: Resume
+  en-US: Resume
   zh-CN: 重新开始
   fr: Reprendre
 
 message:
-  en: message
+  en-US: message
   zh-CN:
   fr: message
 
 move:
-  en: move
+  en-US: move
   zh-CN: 举动
   fr: déplacer
 
 yes:
-  en: yes
+  en-US: yes
   zh-CN: 是的
   fr: oui
 
 no:
-  en: no
+  en-US: no
   zh-CN: 不
   fr: non
 
 Muted:
-  en: Muted
+  en-US: Muted
   zh-CN: 静音
   fr: Sourdine
 
 I rejoined:
-  en: I rejoined
+  en-US: I rejoined
   zh-CN: 我重新加入
   fr: J'ai rejoint
 
 I'm leaving:
-  en: I'm leaving
+  en-US: I'm leaving
   zh-CN: 我要走了
   fr: Je pars
 
 Resign:
-  en: Resign
+  en-US: Resign
   zh-CN: 辞职
   fr: Démissionner
 
 Request Draw:
-  en: Request Draw
+  en-US: Request Draw
   zh-CN: 请求抽奖
   fr: Demande Dessin
 
 Accept Draw:
-  en: Accept Draw
+  en-US: Accept Draw
   zh-CN: 接受抽签
   fr: Accepter Dessin
 

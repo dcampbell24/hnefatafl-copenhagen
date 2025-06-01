@@ -2179,17 +2179,17 @@ enum Locale {
 impl Locale {
     fn txt(self) -> String {
         match self {
-            Self::English => "en".to_string(),
+            Self::English => "en-US".to_string(),
             Self::Chinese => "zh-CN".to_string(),
-            Self::Spanish => "a".to_string(),
-            Self::Arabic => "b".to_string(),
-            Self::Indonesian => "c".to_string(),
-            Self::Portuguese => "d".to_string(),
+            Self::Spanish => "es".to_string(),
+            Self::Arabic => "ar".to_string(),
+            Self::Indonesian => "id".to_string(),
+            Self::Portuguese => "pt-PT".to_string(),
             Self::French => "fr".to_string(),
-            Self::Japanese => "e".to_string(),
-            Self::Russian => "f".to_string(),
-            Self::German => "g".to_string(),
-            Self::Swedish => "h".to_string(),
+            Self::Japanese => "ja".to_string(),
+            Self::Russian => "ru".to_string(),
+            Self::German => "de".to_string(),
+            Self::Swedish => "sv".to_string(),
         }
     }
 }
@@ -2197,17 +2197,17 @@ impl Locale {
 impl fmt::Display for Locale {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::English => write!(f, "English"),
-            Self::Chinese => write!(f, "中文"),
-            Self::Spanish => write!(f, "a"),
-            Self::Arabic => write!(f, "b"),
-            Self::Indonesian => write!(f, "c"),
-            Self::Portuguese => write!(f, "d"),
+            Self::English => write!(f, "English (United States)"),
+            Self::Chinese => write!(f, "中文 (中国)"),
+            Self::Spanish => write!(f, "Español"),
+            Self::Arabic => write!(f, "العربية"),
+            Self::Indonesian => write!(f, "bahasa Indonesia"),
+            Self::Portuguese => write!(f, "Português (Portugal)"),
             Self::French => write!(f, "Français"),
-            Self::Japanese => write!(f, "e"),
-            Self::Russian => write!(f, "f"),
-            Self::German => write!(f, "g"),
-            Self::Swedish => write!(f, "h"),
+            Self::Japanese => write!(f, "日本人"),
+            Self::Russian => write!(f, "Русский"),
+            Self::German => write!(f, "Deutsch"),
+            Self::Swedish => write!(f, "Svenska"),
         }
     }
 }
