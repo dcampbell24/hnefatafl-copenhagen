@@ -2165,7 +2165,15 @@ enum Locale {
     #[default]
     English,
     Chinese,
+    Spanish,
+    Arabic,
+    Indonesian,
+    Portuguese,
     French,
+    Japanese,
+    Russian,
+    German,
+    Swedish,
 }
 
 impl Locale {
@@ -2173,7 +2181,15 @@ impl Locale {
         match self {
             Self::English => "en".to_string(),
             Self::Chinese => "zh-CN".to_string(),
+            Self::Spanish => "a".to_string(),
+            Self::Arabic => "b".to_string(),
+            Self::Indonesian => "c".to_string(),
+            Self::Portuguese => "d".to_string(),
             Self::French => "fr".to_string(),
+            Self::Japanese => "e".to_string(),
+            Self::Russian => "f".to_string(),
+            Self::German => "g".to_string(),
+            Self::Swedish => "h".to_string(),
         }
     }
 }
@@ -2183,7 +2199,15 @@ impl fmt::Display for Locale {
         match self {
             Self::English => write!(f, "English"),
             Self::Chinese => write!(f, "中文"),
+            Self::Spanish => write!(f, "a"),
+            Self::Arabic => write!(f, "b"),
+            Self::Indonesian => write!(f, "c"),
+            Self::Portuguese => write!(f, "d"),
             Self::French => write!(f, "Français"),
+            Self::Japanese => write!(f, "e"),
+            Self::Russian => write!(f, "f"),
+            Self::German => write!(f, "g"),
+            Self::Swedish => write!(f, "h"),
         }
     }
 }
