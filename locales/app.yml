@@ -232,46 +232,46 @@ message:
 
 move:
   en: move
-  zh-CN:
+  zh-CN: 举动
   fr: déplacer
 
 yes:
   en: yes
-  zh-CN:
+  zh-CN: 是的
   fr: oui
 
 no:
   en: no
-  zh-CN:
+  zh-CN: 不
   fr: non
 
 Muted:
   en: Muted
-  zh-CN:
+  zh-CN: 静音
   fr: Sourdine
 
 I rejoined:
   en: I rejoined
-  zh-CN:
+  zh-CN: 我重新加入
   fr: J'ai rejoint
 
 I'm leaving:
   en: I'm leaving
-  zh-CN:
+  zh-CN: 我要走了
   fr: Je pars
 
 Resign:
   en: Resign
-  zh-CN:
+  zh-CN: 辞职
   fr: Démissionner
 
 Request Draw:
   en: Request Draw
-  zh-CN:
+  zh-CN: 请求抽奖
   fr: Demande Dessin
 
 Accept Draw:
   en: Accept Draw
-  zh-CN:
+  zh-CN: 接受抽签
   fr: Accepter Dessin
 

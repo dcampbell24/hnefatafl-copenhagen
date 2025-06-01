@@ -573,9 +573,9 @@ impl Client {
                 Screen::Game => {
                     if self.username == self.attacker || self.username == self.defender {
                         self.send(format!(
-                            "text_game {} {}.\n",
+                            "text_game {} {}\n",
                             self.game_id,
-                            t!("I'm leaving")
+                            t!("I'm leaving.")
                         ));
                     }
                     self.screen = Screen::Games;
@@ -612,7 +612,7 @@ impl Client {
             Message::GameResume(id) => {
                 self.game_id = id;
                 self.send(format!("resume_game {id}\n"));
-                self.send(format!("text_game {id} {}.\n", t!("I rejoined")));
+                self.send(format!("text_game {id} {}\n", t!("I rejoined.")));
             }
             Message::GameSubmit => {
                 if let Some(role) = self.role_selected {
@@ -1685,7 +1685,7 @@ impl Client {
                         text(self.time_attacker.fmt_shorthand()).size(40).center(),
                         text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(self.attacker.to_string()),
+                            text(self.attacker.to_string()).shaping(text::Shaping::Advanced),
                             text(captured.white().to_string()).shaping(text::Shaping::Advanced),
                             text(attacker_rating.to_string()).center(),
                         ]
@@ -1695,7 +1695,7 @@ impl Client {
                         text(self.time_defender.fmt_shorthand()).size(40).center(),
                         text("🛡").shaping(text::Shaping::Advanced).size(40).center(),
                         column![
-                            text(self.defender.to_string()),
+                            text(self.defender.to_string()).shaping(text::Shaping::Advanced),
                             text(captured.black().to_string()).shaping(text::Shaping::Advanced),
                             text(defender_rating.to_string()).center(),
                         ]
@@ -1710,8 +1710,10 @@ impl Client {
                 let mut watching = false;
                 let texting = self.texting(true);
 
-                let mut user_area =
-                    column![text!("#{} {}", self.game_id, &self.username)].spacing(SPACING);
+                let mut user_area = column![
+                    text!("#{} {}", self.game_id, &self.username).shaping(text::Shaping::Advanced)
+                ]
+                .spacing(SPACING);
 
                 let is_rated = match self.rated {
                     Rated::No => t!("no"),
@@ -1748,13 +1750,19 @@ impl Client {
                         user_area = user_area.push(
                             column![
                                 row![
-                                    button(self.strings["Resign"].as_str())
-                                        .on_press(Message::PlayResign),
+                                    button(
+                                        text(self.strings["Resign"].as_str())
+                                            .shaping(text::Shaping::Advanced)
+                                    )
+                                    .on_press(Message::PlayResign),
                                 ]
                                 .spacing(SPACING),
                                 row![
-                                    button(self.strings["Request Draw"].as_str())
-                                        .on_press(Message::PlayDraw),
+                                    button(
+                                        text(self.strings["Request Draw"].as_str())
+                                            .shaping(text::Shaping::Advanced)
+                                    )
+                                    .on_press(Message::PlayDraw),
                                 ]
                                 .spacing(SPACING),
                             ]
@@ -1764,8 +1772,11 @@ impl Client {
                         let row = if self.request_draw {
                             column![
                                 row![
-                                    button(self.strings["Accept Draw"].as_str())
-                                        .on_press(Message::PlayDrawDecision(Draw::Accept)),
+                                    button(
+                                        text(self.strings["Accept Draw"].as_str())
+                                            .shaping(text::Shaping::Advanced)
+                                    )
+                                    .on_press(Message::PlayDrawDecision(Draw::Accept)),
                                 ]
                                 .spacing(SPACING)
                             ]
@@ -1777,6 +1788,7 @@ impl Client {
                 }
 
                 let muted = checkbox(t!("Muted"), self.sound_muted)
+                    .text_shaping(text::Shaping::Advanced)
                     .on_toggle(Message::SoundMuted)
                     .size(32);
 
@@ -1895,7 +1907,8 @@ impl Client {
                 ]
                 .padding(PADDING);
                 if let Some(game) = self.games_light.0.get(&self.game_id) {
-                    game_display = game_display.push(text(game.to_string()));
+                    game_display =
+                        game_display.push(text(game.to_string()).shaping(text::Shaping::Advanced));
 
                     if game.attacker.is_some() && game.defender.is_some() {
                         buttons_live = true;
