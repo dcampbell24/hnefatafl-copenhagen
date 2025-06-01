@@ -1999,14 +1999,17 @@ impl Client {
                     text(self.strings["Create Game"].as_str()).shaping(text::Shaping::Advanced),
                 )
                 .on_press(Message::GameNew);
+
                 let users =
                     button(text(self.strings["Users"].as_str()).shaping(text::Shaping::Advanced))
                         .on_press(Message::Users);
+
                 let account_setting = button(
                     text(self.strings["Account Settings"].as_str())
                         .shaping(text::Shaping::Advanced),
                 )
                 .on_press(Message::AccountSettings);
+
                 let website =
                     button(text(self.strings["Rules"].as_str()).shaping(text::Shaping::Advanced))
                         .on_press(Message::OpenUrl(
@@ -2018,7 +2021,6 @@ impl Client {
                         .on_press(Message::Leave);
 
                 let top = row![create_game, users, account_setting, website, quit].spacing(SPACING);
-
                 let user_area = self.user_area(false);
 
                 column![theme, username, top, user_area]
