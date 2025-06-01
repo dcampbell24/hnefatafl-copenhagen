@@ -330,7 +330,7 @@ impl Client {
     fn board(&self) -> Row<Message> {
         let letters: Vec<_> = BOARD_LETTERS.chars().collect();
         let (board_size, letter_size, piece_size, spacing) = match self.screen_size {
-            Size::Large => (75, 55, 60, 6),
+            Size::Large | Size::Giant => (75, 55, 60, 6),
             Size::Medium => (65, 45, 50, 8),
             Size::Small => (55, 35, 40, 11),
             Size::Tiny => (40, 20, 25, 16),
@@ -1215,7 +1215,9 @@ impl Client {
             }
             Message::Users => self.screen = Screen::Users,
             Message::WindowResized((width, height)) => {
-                if width >= 1_400.0 && height >= 1_000.0 {
+                if width >= 1_500.0 && height >= 1_000.0 {
+                    self.screen_size = Size::Giant;
+                } else if width >= 1_300.0 && height >= 1_000.0 {
                     self.screen_size = Size::Large;
                 } else if width >= 1_200.0 && height >= 850.0 {
                     self.screen_size = Size::Medium;
@@ -1746,10 +1748,10 @@ impl Client {
                 );
 
                 match self.screen_size {
-                    Size::Tiny | Size::Small | Size::Medium => {
+                    Size::Tiny | Size::Small | Size::Medium | Size::Large => {
                         user_area = user_area.push(column![attacker, defender].spacing(SPACING));
                     }
-                    Size::Large => {
+                    Size::Giant => {
                         user_area = user_area.push(row![attacker, defender].spacing(SPACING));
                     }
                 }
@@ -1788,7 +1790,7 @@ impl Client {
                                     .spacing(SPACING),
                                 );
                             }
-                            Size::Medium | Size::Large => {
+                            Size::Medium | Size::Large | Size::Giant => {
                                 user_area =
                                     user_area.push(row![resign, request_draw].spacing(SPACING));
                             }
@@ -2458,6 +2460,7 @@ enum Size {
     Small,
     Medium,
     Large,
+    Giant,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
