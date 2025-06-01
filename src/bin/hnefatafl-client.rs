@@ -1681,14 +1681,20 @@ impl Client {
 
                 let captured = game.board.captured();
                 let attacker = container(
-                    row![
-                        text(self.time_attacker.fmt_shorthand()).size(40).center(),
-                        text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
-                        column![
+                    column![
+                        row![
                             text(self.attacker.to_string()).shaping(text::Shaping::Advanced),
-                            text(captured.white().to_string()).shaping(text::Shaping::Advanced),
                             text(attacker_rating.to_string()).center(),
                         ]
+                        .spacing(SPACING),
+                        row![
+                            text(self.time_attacker.fmt_shorthand()).size(35).center(),
+                            text("⚔").shaping(text::Shaping::Advanced).size(35).center(),
+                            text(captured.white().to_string())
+                                .shaping(text::Shaping::Advanced)
+                                .size(35),
+                        ]
+                        .spacing(SPACING),
                     ]
                     .spacing(SPACING),
                 )
@@ -1696,14 +1702,20 @@ impl Client {
                 .style(container::bordered_box);
 
                 let defender = container(
-                    row![
-                        text(self.time_defender.fmt_shorthand()).size(40).center(),
-                        text("🛡").shaping(text::Shaping::Advanced).size(40).center(),
-                        column![
+                    column![
+                        row![
                             text(self.defender.to_string()).shaping(text::Shaping::Advanced),
-                            text(captured.black().to_string()).shaping(text::Shaping::Advanced),
                             text(defender_rating.to_string()).center(),
                         ]
+                        .spacing(SPACING),
+                        row![
+                            text(self.time_defender.fmt_shorthand()).size(35).center(),
+                            text("🛡").shaping(text::Shaping::Advanced).size(35).center(),
+                            text(captured.black().to_string())
+                                .shaping(text::Shaping::Advanced)
+                                .size(35),
+                        ]
+                        .spacing(SPACING),
                     ]
                     .spacing(SPACING),
                 )
