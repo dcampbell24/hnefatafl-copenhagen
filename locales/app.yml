@@ -4,328 +4,383 @@ username:
   en-US: username
   zh-CN: 用户名
   es: nombre de usuario
+  ar: اسم المستخدم
   fr: nom d'utilisateur
 
 password:
   en-US: password
   zh-CN: 密码
   es: contraseña
+  ar: كلمة المرور
   fr: mot de passe
 
 game id:
   en-US: game id
   zh-CN: 游戏ID
   es: identificación del juego
+  ar: معرف اللعبة
   fr: identifiant de jeu
 
 attacker:
   en-US: attacker
   zh-CN: 攻击者
   es: agresor
+  ar: مهاجم
   fr: attaquant
 
 defender:
   en-US: defender
   zh-CN: 后卫
   es: defensor
+  ar: مناصر
   fr: défenseur
 
 rated:
  en-US: rated
  zh-CN: 额定
  es: calificado
+ ar: مصنف
  fr: évalué
 
 timed:
  en-US: timed
  zh-CN: 定时
  es: cronometrado
+ ar: موقوت
  fr: chronométré
 
 rating:
   en-US: rating
   zh-CN: 等级
   es: clasificación
+  ar: تصنيف
   fr: classement
 
 wins:
   en-US: wins
   zh-CN: 胜利
   es: victorias
+  ar: يفوز
   fr: victoires
 
 losses:
   en-US: losses
   zh-CN: 损失
   es: pérdidas
+  ar: خسائر
   fr: défaites
 
 draws:
   en-US: draws
   zh-CN: 抽签
   es: sorteos
+  ar: تعادلات
   fr: nuls
 
 show password:
   en-US: show password
   zh-CN: 显示密码
   es: mostrar contraseña
+  ar: إظهار كلمة المرور
   fr: afficher le mot de passe
 
 Login:
   en-US: Login
   zh-CN: 登录
   es: Acceso
+  ar: تسجيل الدخول
   fr: Connexion
 
 Create Account:
   en-US: Create Account
   zh-CN: 创建账户
   es: Crear una cuenta
+  ar: إنشاء حساب
   fr: Créer un Compte
 
 Reset Password:
   en-uS: Reset Password
   zh-CN: 重置密码
   es: Restablecer contraseña
+  ar: إعادة تعيين كلمة المرور
   fr: Réinitialiser Le Mot de Passe
 
 Quit:
   en-US: Quit
   zh-CN: 辞职
   es: Abandonar
+  ar: يترك
   fr: Quitter
 
 locale:
   en-US: locale
   zh-CN: 区域设置
   es: lugar
+  ar: مكان
   fr: lieu
 
 logged in:
   en-US: logged in
   zh-CN: 登录
   es: conectado
+  ar: تم تسجيل الدخول
   fr: connecté
 
 logged out:
   en-US: logged out
   zh-CN: 已注销
   es: cerrado la sesión
+  ar: تم تسجيل الخروج
   fr: déconnecté
 
 Leave:
   en-US: Leave
   zh-CN: 撤走
   es: Dejar
+  ar: يترك
   fr: Laisser
 
 Dark:
   en-US: Dark
   zh-CN: 黑暗
   es: Oscuro
+  ar: مظلم
   fr: Sombre
 
 Light:
   en-US: Light
   zh-CN: 亮
   es: Ligero
+  ar: ضوء
   fr: Lumière
 
 Create Game:
   en: Create Game
   zh-CN: 创建游戏
   es: Crear juego
+  ar: إنشاء لعبة
   fr: Créer un Jeu
 
 Users:
   en-US: Users
   zh-CN: 用户
   es: Usuarios
+  ar: المستخدمون
   fr: Usagers
 
 Account Settings:
   en-US: Account Settings
   zh-CN: 帐户设置
   es: Configuraciones de la cuenta
+  ar: إعدادات الحساب
   fr: Paramètres du Compte
 
 Rules:
   en-US: Rules
   zh-CN: 规则
   es: Normas
+  ar: قواعد
   fr: Règles
 
 connected to:
   en-US: connected to
   zh-CN: 连接到
   es: Conectado a
+  ar: متصل بـ
   fr: connecté à
 
 via:
   en-US: via
   zh-CN: 通过
   es: por
+  ar: عبر
   fr: par
 
 email address:
   en-US: email address
   zh-CN: 电子邮件
   es: dirección de correo electrónico
+  ar: عنوان البريد الإلكتروني
   fr: adresse email
 
 email code:
   en-US: email code
   zh-CN: 电子邮件代码
   es: código de correo electrónico
+  ar: رمز البريد الإلكتروني
   fr: code email
 
 verified:
   en-US: verified
   zh-CN: 已验证
   es: verificado
+  ar: تم التحقق
   fr: accepté
 
 unverified:
   en-US: unverified
   zh-CN: 未经验证
   es: inconfirmado
+  ar: غير مُتحقق
   fr: non vérifié
 
 Reset Email:
   en-US: Reset Email
   zh-CN: 重置电子邮件
   es: Restablecer correo electrónico
+  ar: إعادة تعيين البريد الإلكتروني
   fr: Réinitialiser l'email
 
 Change Password:
   en-US: Change Password
   zh-CN: 更改密码\
   es: Cambiar la contraseña
+  ar: تغيير كلمة المرور
   fr: Changer le Mot de Passe
 
 Delete Account:
   en-US: Delete Account
   zh-CN: 删除帐户
   es: Eliminar cuenta
+  ar: حذف الحساب
   fr: Supprimer le Compte
 
 REALLY DELETE ACCOUNT:
   en-US: REALLY DELETE ACCOUNT
   zh-CN: 确实删除帐户
   es: Realmente eliminar cuenta
+  ar: حذف الحساب حقًا
   fr: SUPPRIMER VRAIMENT LE COMPTE
 
 minutes:
   en-US: minutes
   zh-CN: 分钟
   es: minutos
+  ar: دقائق
   fr: minutes
 
 add seconds:
   en-US: add seconds
   zh-CN: 添加秒
   es: añadir segundos
+  ar: أضف ثواني
   fr: ajouter des secondes
 
 role:
   en-US: role
   zh-CN: 角色
   es: role
+  ar: وظيفة
   fr: rôle
 
 New Game:
   en-US: New Game
   zh-CN: 新游戏
   es: Nuevo juego
+  ar: لعبة جديدة
   fr: Nouveau Jeu
 
 Accept:
   en-US: Accept
   zh-CN: 接受
   es: Aceptar
+  ar: يقبل
   fr: Accepter
 
 Decline:
   en-US: Decline
   zh-CN: 拒绝
   es: Rechazar
+  ar: انخفاض
   fr: Refuse
 
 Watch:
   en-US: Watch
   zh-CN: 观
   es: Mirar
+  ar: يشاهد
   fr: Regarde
 
 Join:
   en-US: Join
   zh-CN: 加入
   es: Unirse
+  ar: ينضم
   fr: Rejoindre
 
 Resume:
   en-US: Resume
   zh-CN: 重新开始
   es: Reanudar
+  ar: سيرة ذاتية
   fr: Reprendre
 
 message:
   en-US: message
   zh-CN: 信息
   es: mensaje
+  ar: رسالة
   fr: message
 
 move:
   en-US: move
   zh-CN: 举动
   es: mover
+  ar: يتحرك
   fr: déplacer
 
 yes:
   en-US: yes
   zh-CN: 是的
   es: Sí
+  ar: نعم
   fr: oui
 
 no:
   en-US: no
   zh-CN: 不
   es: no
+  ar: لا
   fr: non
 
 Muted:
   en-US: Muted
   zh-CN: 静音
   es: Apagado
+  ar: مكتوم
   fr: Sourdine
 
 I rejoined.:
   en-US: I rejoined.
   zh-CN: 我重新加入。
   es: Me reincorporé.
+  ar: لقد انضممت مرة أخرى.
   fr: J'ai rejoint.
 
 I'm leaving.:
   en-US: I'm leaving.
   zh-CN: 我要走了。
   es: Me voy.
+  ar: انا ذاهب.
   fr: Je pars.
 
 Resign:
   en-US: Resign
   zh-CN: 辞职
   es: Renunciar
+  ar: الاستقالة
   fr: Démissionner
 
 Request Draw:
   en-US: Request Draw
   zh-CN: 请求抽奖
   es: Solicitud de sorteo
+  ar: طلب السحب
   fr: Demande Dessin
 
 Accept Draw:
   en-US: Accept Draw
   zh-CN: 接受抽签
   es: Aceptar sorteo
+  ar: قبول السحب
   fr: Accepter Dessin
