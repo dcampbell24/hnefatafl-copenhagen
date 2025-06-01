@@ -191,8 +191,8 @@ fn login(
             let password: Vec<&str> = username_password_etc.collect();
             let password = password.join(" ");
 
-            if username.len() > 32 {
-                stream.write_all(b"? login username is more than 32 characters\n")?;
+            if username.len() > 16 {
+                stream.write_all(b"? login username is more than 16 characters\n")?;
                 buf.clear();
                 continue;
             }
