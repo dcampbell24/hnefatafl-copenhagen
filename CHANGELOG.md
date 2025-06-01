@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: change the game layout.
 - hnefatafl-client: add the argument `--tiny-window`.
 - hnefatafl-client: add i18n.
 - hnefatafl-client: remove decline draw.
