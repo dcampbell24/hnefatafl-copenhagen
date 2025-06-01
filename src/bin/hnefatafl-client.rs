@@ -1680,7 +1680,7 @@ impl Client {
                 }
 
                 let captured = game.board.captured();
-                let user_area_ = column![
+                let attacker = container(
                     row![
                         text(self.time_attacker.fmt_shorthand()).size(40).center(),
                         text("⚔").shaping(text::Shaping::Advanced).size(40).center(),
@@ -1691,6 +1691,11 @@ impl Client {
                         ]
                     ]
                     .spacing(SPACING),
+                )
+                .padding(PADDING)
+                .style(container::bordered_box);
+
+                let defender = container(
                     row![
                         text(self.time_defender.fmt_shorthand()).size(40).center(),
                         text("🛡").shaping(text::Shaping::Advanced).size(40).center(),
@@ -1701,11 +1706,9 @@ impl Client {
                         ]
                     ]
                     .spacing(SPACING),
-                ];
-
-                let user_area_ = container(user_area_)
-                    .padding(PADDING)
-                    .style(container::bordered_box);
+                )
+                .padding(PADDING)
+                .style(container::bordered_box);
 
                 let mut watching = false;
                 let texting = self.texting(true);
@@ -1730,7 +1733,14 @@ impl Client {
                     .shaping(text::Shaping::Advanced),
                 );
 
-                user_area = user_area.push(user_area_);
+                match self.screen_size {
+                    Size::Tiny | Size::Small | Size::Medium => {
+                        user_area = user_area.push(column![attacker, defender].spacing(SPACING));
+                    }
+                    Size::Large => {
+                        user_area = user_area.push(row![attacker, defender].spacing(SPACING));
+                    }
+                }
 
                 let mut spectators = Column::new();
                 for spectator in &self.spectators {
@@ -1745,29 +1755,32 @@ impl Client {
                     spectators = spectators.push(text(spectator.to_string()));
                 }
 
+                let resign =
+                    button(text(self.strings["Resign"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::PlayResign);
+
+                let request_draw = button(
+                    text(self.strings["Request Draw"].as_str()).shaping(text::Shaping::Advanced),
+                )
+                .on_press(Message::PlayDraw);
+
                 if !watching {
                     if self.my_turn {
-                        user_area = user_area.push(
-                            column![
-                                row![
-                                    button(
-                                        text(self.strings["Resign"].as_str())
-                                            .shaping(text::Shaping::Advanced)
-                                    )
-                                    .on_press(Message::PlayResign),
-                                ]
-                                .spacing(SPACING),
-                                row![
-                                    button(
-                                        text(self.strings["Request Draw"].as_str())
-                                            .shaping(text::Shaping::Advanced)
-                                    )
-                                    .on_press(Message::PlayDraw),
-                                ]
-                                .spacing(SPACING),
-                            ]
-                            .spacing(SPACING),
-                        );
+                        match self.screen_size {
+                            Size::Tiny | Size::Small => {
+                                user_area = user_area.push(
+                                    column![
+                                        row![resign].spacing(SPACING),
+                                        row![request_draw].spacing(SPACING),
+                                    ]
+                                    .spacing(SPACING),
+                                );
+                            }
+                            Size::Medium | Size::Large => {
+                                user_area =
+                                    user_area.push(row![resign, request_draw].spacing(SPACING));
+                            }
+                        }
                     } else {
                         let row = if self.request_draw {
                             column![
