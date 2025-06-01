@@ -1983,12 +1983,14 @@ impl Client {
                     theme = theme.push(email_everyone);
                 }
 
-                let theme = theme.padding(PADDING).spacing(SPACING);
+                let theme = theme.spacing(SPACING);
 
                 let username = row![
                     text!("{}: {}", t!("username"), &self.username)
                         .shaping(text::Shaping::Advanced)
-                ];
+                ]
+                .spacing(SPACING);
+
                 let username = container(username)
                     .padding(PADDING / 2)
                     .style(container::bordered_box);
@@ -2015,13 +2017,14 @@ impl Client {
                     button(text(self.strings["Quit"].as_str()).shaping(text::Shaping::Advanced))
                         .on_press(Message::Leave);
 
-                let top = row![username, create_game, users, account_setting, website, quit]
-                    .padding(PADDING)
-                    .spacing(SPACING);
+                let top = row![create_game, users, account_setting, website, quit].spacing(SPACING);
 
                 let user_area = self.user_area(false);
 
-                column![theme, top, user_area].into()
+                column![theme, username, top, user_area]
+                    .padding(PADDING)
+                    .spacing(SPACING)
+                    .into()
             }
             Screen::Login => {
                 let username = row![
