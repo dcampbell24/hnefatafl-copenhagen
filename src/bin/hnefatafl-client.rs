@@ -2098,7 +2098,12 @@ impl Client {
                     error_persistent = text(error_);
                 }
 
-                let locale = [Locale::English, Locale::Chinese, Locale::French];
+                let locale = [
+                    Locale::English,
+                    Locale::Chinese,
+                    Locale::Spanish,
+                    Locale::French,
+                ];
 
                 let locale = row![
                     text!("{}: ", t!("locale"))
