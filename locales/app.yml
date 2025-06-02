@@ -8,6 +8,7 @@ username:
   id: nama belakang
   pt-PT: nome de utilizador
   fr: nom d'utilisateur
+  ja: ユーザー名
 
 password:
   en-US: password
@@ -17,6 +18,7 @@ password:
   id: kata sandi
   pt-PT: palavra-passe
   fr: mot de passe
+  ja: パスワード
 
 game id:
   en-US: game id
@@ -26,6 +28,7 @@ game id:
   id: ID permainan
   pt-PT: id do jogo
   fr: identifiant de jeu
+  ja: ゲームID
 
 attacker:
   en-US: attacker
@@ -35,6 +38,7 @@ attacker:
   id: penyerang
   pt-PT: atacante
   fr: attaquant
+  ja: アタッカー
 
 defender:
   en-US: defender
@@ -44,6 +48,7 @@ defender:
   id: pembela
   pt-PT: defensor
   fr: défenseur
+  ja: ディフェンダー
 
 rated:
  en-US: rated
@@ -53,6 +58,7 @@ rated:
  id: dinilai
  pt-PT: classificado
  fr: évalué
+ ja: 評価
 
 timed:
  en-US: timed
@@ -62,6 +68,7 @@ timed:
  id: waktunya
  pt-PT: cronometrado
  fr: chronométré
+ ja: 時間制限付き
 
 rating:
   en-US: rating
@@ -71,6 +78,7 @@ rating:
   id: pangkat
   pt-PT: avaliação
   fr: classement
+  ja: 評価
 
 wins:
   en-US: wins
@@ -80,6 +88,7 @@ wins:
   id: menang
   pt-PT: vitórias
   fr: victoires
+  ja: 勝利
 
 losses:
   en-US: losses
@@ -89,6 +98,7 @@ losses:
   id: kerugian
   pt-PT: perdas
   fr: défaites
+  ja: 損失
 
 draws:
   en-US: draws
@@ -98,6 +108,7 @@ draws:
   id: menggambar
   pt-PT: empates
   fr: nuls
+  ja: 引き分け
 
 show password:
   en-US: show password
@@ -107,6 +118,7 @@ show password:
   id: tampilkan kata sandi
   pt-PT: mostrar senha
   fr: afficher le mot de passe
+  ja: パスワードを表示
 
 Login:
   en-US: Login
@@ -116,6 +128,7 @@ Login:
   id: Login
   pt-PT: Conecte-se
   fr: Connexion
+  ja: ログイン
 
 Create Account:
   en-US: Create Account
@@ -125,6 +138,7 @@ Create Account:
   id: Buat Akun
   pt-PT: Criar uma conta
   fr: Créer un Compte
+  ja: アカウントを作成する
 
 Reset Password:
   en-uS: Reset Password
@@ -134,6 +148,7 @@ Reset Password:
   id: Setel Ulang Kata Sandi
   pt-PT: Redefinir palavra-passe
   fr: Réinitialiser Le Mot de Passe
+  ja: パスワードをリセットする
 
 Quit:
   en-US: Quit
@@ -143,6 +158,7 @@ Quit:
   id: Berhenti
   pt-PT: Despedir-se
   fr: Quitter
+  ja: やめる
 
 locale:
   en-US: locale
@@ -152,6 +168,7 @@ locale:
   id: lokal
   pt-PT: localidade
   fr: lieu
+  ja: ロケール
 
 logged in:
   en-US: logged in
@@ -161,6 +178,7 @@ logged in:
   id: masuk
   pt-PT: logado
   fr: connecté
+  ja: ログイン
 
 logged out:
   en-US: logged out
@@ -170,6 +188,7 @@ logged out:
   id: keluar
   pt-PT: desconectado
   fr: déconnecté
+  ja: ログアウト
 
 Leave:
   en-US: Leave
@@ -179,6 +198,7 @@ Leave:
   id: Meninggalkan
   pt-PT: Ausência
   fr: Laisser
+  ja: 離れる
 
 Dark:
   en-US: Dark
@@ -188,6 +208,7 @@ Dark:
   id: Gelap
   pt-PT: Escuro
   fr: Sombre
+  ja: 暗い
 
 Light:
   en-US: Light
@@ -197,6 +218,7 @@ Light:
   id: Lampu
   pt-PT: Luz
   fr: Lumière
+  ja: ライト
 
 Create Game:
   en: Create Game
@@ -206,6 +228,7 @@ Create Game:
   id: Buat Game
   pt-PT: 
   fr: Créer un Jeu
+  ja: ゲームを作成する
 
 Users:
   en-US: Users
@@ -215,6 +238,7 @@ Users:
   id: Pengguna
   pt-PT: 
   fr: Usagers
+  ja: ユーザー
 
 Account Settings:
   en-US: Account Settings
@@ -224,6 +248,7 @@ Account Settings:
   id: Pengaturan Akun
   pt-PT: Criar jogo
   fr: Paramètres du Compte
+  ja: アカウント設定
 
 Rules:
   en-US: Rules
@@ -233,6 +258,7 @@ Rules:
   id: Aturan
   pt-PT: Regras
   fr: Règles
+  ja: ルール
 
 connected to:
   en-US: connected to
@@ -242,6 +268,7 @@ connected to:
   id: terhubung ke
   pt-PT: ligado a
   fr: connecté à
+  ja: 接続されている
 
 via:
   en-US: via
@@ -251,6 +278,7 @@ via:
   id: melalui
   pt-PT: através de
   fr: par
+  ja: 経由
 
 email address:
   en-US: email address
@@ -260,6 +288,7 @@ email address:
   id: alamat email
   pt-PT: endereço de email
   fr: adresse email
+  ja: 電子メールアドレス
 
 email code:
   en-US: email code
@@ -269,6 +298,7 @@ email code:
   id: kode email
   pt-PT: código de email
   fr: code email
+  ja: メールコード
 
 verified:
   en-US: verified
@@ -278,6 +308,7 @@ verified:
   id: terverifikasi
   pt-PT: verificado
   fr: accepté
+  ja: 検証済み
 
 unverified:
   en-US: unverified
@@ -287,6 +318,7 @@ unverified:
   id: belum diverifikasi
   pt-PT: não verificado
   fr: non vérifié
+  ja: 未確認
 
 Reset Email:
   en-US: Reset Email
@@ -296,6 +328,7 @@ Reset Email:
   id: Setel Ulang Email
   pt-PT: Redefinir email
   fr: Réinitialiser l'email
+  ja: メールをリセット
 
 Change Password:
   en-US: Change Password
@@ -305,6 +338,7 @@ Change Password:
   id: Ubah Kata Sandi
   pt-PT: Alterar a palavra-passe
   fr: Changer le Mot de Passe
+  ja: パスワードを変更する
 
 Delete Account:
   en-US: Delete Account
@@ -314,6 +348,7 @@ Delete Account:
   id: Hapus Akun
   pt-PT: Apagar conta
   fr: Supprimer le Compte
+  ja: アカウントを削除
 
 REALLY DELETE ACCOUNT:
   en-US: REALLY DELETE ACCOUNT
@@ -321,8 +356,9 @@ REALLY DELETE ACCOUNT:
   es: REALMENTE ELIMINAR CUENTA
   ar: حذف الحساب حقًا
   id: BENAR-BENAR HAPUS AKUN
-  pt-PT: Realmente Apagar Conta
+  pt-PT: REALMENTE APAGAR CONTA
   fr: SUPPRIMER VRAIMENT LE COMPTE
+  ja: 本当にアカウントを削除する
 
 minutes:
   en-US: minutes
@@ -332,6 +368,7 @@ minutes:
   id: menit
   pt-PT: minutos
   fr: minutes
+  ja: 分
 
 add seconds:
   en-US: add seconds
@@ -341,6 +378,7 @@ add seconds:
   id: tambahkan detik
   pt-PT: adicionar segundos
   fr: ajouter des secondes
+  ja: 秒を追加
 
 role:
   en-US: role
@@ -350,6 +388,7 @@ role:
   id: peran
   pt-PT: papel
   fr: rôle
+  ja: 役割
 
 New Game:
   en-US: New Game
@@ -359,6 +398,7 @@ New Game:
   id: Permainan Baru
   pt-PT: Novo jogo
   fr: Nouveau Jeu
+  ja: 新しいゲーム
 
 Accept:
   en-US: Accept
@@ -368,6 +408,7 @@ Accept:
   id: Menerima
   pt-PT: Aceitar
   fr: Accepter
+  ja: 受け入れる
 
 Decline:
   en-US: Decline
@@ -377,6 +418,7 @@ Decline:
   id: Menolak
   pt-PT: Recusar
   fr: Refuse
+  ja: 衰退
 
 Watch:
   en-US: Watch
@@ -386,6 +428,7 @@ Watch:
   id: Jam tangan
   pt-PT: Relógio
   fr: Regarde
+  ja: 時計
 
 Join:
   en-US: Join
@@ -395,6 +438,7 @@ Join:
   id: Bergabung
   pt-PT: Juntar
   fr: Rejoindre
+  ja: 参加する
 
 Resume:
   en-US: Resume
@@ -404,6 +448,7 @@ Resume:
   id: Melanjutkan
   pt-PT: Retomar
   fr: Reprendre
+  ja: 再開する
 
 message:
   en-US: message
@@ -413,6 +458,7 @@ message:
   id: pesan
   pt-PT: mensagem
   fr: message
+  ja: メッセージ
 
 move:
   en-US: move
@@ -422,6 +468,7 @@ move:
   id: bergerak
   pt-PT: mover
   fr: déplacer
+  ja: 動く
 
 yes:
   en-US: yes
@@ -431,6 +478,7 @@ yes:
   id: ya
   pt-PT: Sim
   fr: oui
+  ja: はい
 
 no:
   en-US: no
@@ -440,6 +488,7 @@ no:
   id: tidak
   pt-PT: Não
   fr: non
+  ja: いいえ
 
 Muted:
   en-US: Muted
@@ -449,6 +498,7 @@ Muted:
   id: Meredam
   pt-PT: Silenciado
   fr: Sourdine
+  ja: ミュート
 
 I rejoined.:
   en-US: I rejoined.
@@ -458,6 +508,7 @@ I rejoined.:
   id: Saya bergabung kembali.
   pt-PT: Eu voltei.
   fr: J'ai rejoint.
+  ja: 再参加しました。
 
 I'm leaving.:
   en-US: I'm leaving.
@@ -467,6 +518,7 @@ I'm leaving.:
   id: Aku pergi.
   pt-PT: Vou embora.
   fr: Je pars.
+  ja: 私は行きます。
 
 Resign:
   en-US: Resign
@@ -476,6 +528,7 @@ Resign:
   id: Berhenti
   pt-PT: Demitir-se
   fr: Démissionner
+  ja: 辞任する
 
 Request Draw:
   en-US: Request Draw
@@ -485,6 +538,7 @@ Request Draw:
   id: Permintaan Undian
   pt-PT: Solicitar sorteio
   fr: Demande Dessin
+  ja: 抽選をリクエスト
 
 Accept Draw:
   en-US: Accept Draw
@@ -494,3 +548,4 @@ Accept Draw:
   id: Terima Undian
   pt-PT: Aceitar sorteio
   fr: Accepter Dessin
+  ja: 引き分けを受け入れる
