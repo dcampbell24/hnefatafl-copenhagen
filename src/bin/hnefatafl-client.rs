@@ -2135,6 +2135,7 @@ impl Client {
                     Locale::Chinese,
                     Locale::Spanish,
                     Locale::Arabic,
+                    Locale::Indonesian,
                     Locale::French,
                 ];
 

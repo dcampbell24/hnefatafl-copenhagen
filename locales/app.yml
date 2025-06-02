@@ -5,6 +5,7 @@ username:
   zh-CN: 用户名
   es: nombre de usuario
   ar: اسم المستخدم
+  id: nama belakang
   fr: nom d'utilisateur
 
 password:
@@ -12,6 +13,7 @@ password:
   zh-CN: 密码
   es: contraseña
   ar: كلمة المرور
+  id: kata sandi
   fr: mot de passe
 
 game id:
@@ -19,6 +21,7 @@ game id:
   zh-CN: 游戏ID
   es: identificación del juego
   ar: معرف اللعبة
+  id: ID permainan
   fr: identifiant de jeu
 
 attacker:
@@ -26,6 +29,7 @@ attacker:
   zh-CN: 攻击者
   es: agresor
   ar: مهاجم
+  id: penyerang
   fr: attaquant
 
 defender:
@@ -33,6 +37,7 @@ defender:
   zh-CN: 后卫
   es: defensor
   ar: مناصر
+  id: pembela
   fr: défenseur
 
 rated:
@@ -40,6 +45,7 @@ rated:
  zh-CN: 额定
  es: calificado
  ar: مصنف
+ id: dinilai
  fr: évalué
 
 timed:
@@ -47,6 +53,7 @@ timed:
  zh-CN: 定时
  es: cronometrado
  ar: موقوت
+ id: waktunya
  fr: chronométré
 
 rating:
@@ -54,6 +61,7 @@ rating:
   zh-CN: 等级
   es: clasificación
   ar: تصنيف
+  id: pangkat
   fr: classement
 
 wins:
@@ -61,6 +69,7 @@ wins:
   zh-CN: 胜利
   es: victorias
   ar: يفوز
+  id: menang
   fr: victoires
 
 losses:
@@ -68,6 +77,7 @@ losses:
   zh-CN: 损失
   es: pérdidas
   ar: خسائر
+  id: kerugian
   fr: défaites
 
 draws:
@@ -75,6 +85,7 @@ draws:
   zh-CN: 抽签
   es: sorteos
   ar: تعادلات
+  id: menggambar
   fr: nuls
 
 show password:
@@ -82,6 +93,7 @@ show password:
   zh-CN: 显示密码
   es: mostrar contraseña
   ar: إظهار كلمة المرور
+  id: tampilkan kata sandi
   fr: afficher le mot de passe
 
 Login:
@@ -89,6 +101,7 @@ Login:
   zh-CN: 登录
   es: Acceso
   ar: تسجيل الدخول
+  id: Login
   fr: Connexion
 
 Create Account:
@@ -96,6 +109,7 @@ Create Account:
   zh-CN: 创建账户
   es: Crear una cuenta
   ar: إنشاء حساب
+  id: Buat Akun
   fr: Créer un Compte
 
 Reset Password:
@@ -103,6 +117,7 @@ Reset Password:
   zh-CN: 重置密码
   es: Restablecer contraseña
   ar: إعادة تعيين كلمة المرور
+  id: Setel Ulang Kata Sandi
   fr: Réinitialiser Le Mot de Passe
 
 Quit:
@@ -110,6 +125,7 @@ Quit:
   zh-CN: 辞职
   es: Abandonar
   ar: يترك
+  id: Berhenti
   fr: Quitter
 
 locale:
@@ -117,6 +133,7 @@ locale:
   zh-CN: 区域设置
   es: lugar
   ar: مكان
+  id: lokal
   fr: lieu
 
 logged in:
@@ -124,6 +141,7 @@ logged in:
   zh-CN: 登录
   es: conectado
   ar: تم تسجيل الدخول
+  id: masuk
   fr: connecté
 
 logged out:
@@ -131,6 +149,7 @@ logged out:
   zh-CN: 已注销
   es: cerrado la sesión
   ar: تم تسجيل الخروج
+  id: keluar
   fr: déconnecté
 
 Leave:
@@ -138,6 +157,7 @@ Leave:
   zh-CN: 撤走
   es: Dejar
   ar: يترك
+  id: Meninggalkan
   fr: Laisser
 
 Dark:
@@ -145,6 +165,7 @@ Dark:
   zh-CN: 黑暗
   es: Oscuro
   ar: مظلم
+  id: Gelap
   fr: Sombre
 
 Light:
@@ -152,6 +173,7 @@ Light:
   zh-CN: 亮
   es: Ligero
   ar: ضوء
+  id: Lampu
   fr: Lumière
 
 Create Game:
@@ -159,6 +181,7 @@ Create Game:
   zh-CN: 创建游戏
   es: Crear juego
   ar: إنشاء لعبة
+  id: Buat Game
   fr: Créer un Jeu
 
 Users:
@@ -166,6 +189,7 @@ Users:
   zh-CN: 用户
   es: Usuarios
   ar: المستخدمون
+  id: Pengguna
   fr: Usagers
 
 Account Settings:
@@ -173,6 +197,7 @@ Account Settings:
   zh-CN: 帐户设置
   es: Configuraciones de la cuenta
   ar: إعدادات الحساب
+  id: Pengaturan Akun
   fr: Paramètres du Compte
 
 Rules:
@@ -180,6 +205,7 @@ Rules:
   zh-CN: 规则
   es: Normas
   ar: قواعد
+  id: Aturan
   fr: Règles
 
 connected to:
@@ -187,6 +213,7 @@ connected to:
   zh-CN: 连接到
   es: Conectado a
   ar: متصل بـ
+  id: terhubung ke
   fr: connecté à
 
 via:
@@ -194,6 +221,7 @@ via:
   zh-CN: 通过
   es: por
   ar: عبر
+  id: melalui
   fr: par
 
 email address:
@@ -201,6 +229,7 @@ email address:
   zh-CN: 电子邮件
   es: dirección de correo electrónico
   ar: عنوان البريد الإلكتروني
+  id: alamat email
   fr: adresse email
 
 email code:
@@ -208,6 +237,7 @@ email code:
   zh-CN: 电子邮件代码
   es: código de correo electrónico
   ar: رمز البريد الإلكتروني
+  id: kode email
   fr: code email
 
 verified:
@@ -215,6 +245,7 @@ verified:
   zh-CN: 已验证
   es: verificado
   ar: تم التحقق
+  id: terverifikasi
   fr: accepté
 
 unverified:
@@ -222,6 +253,7 @@ unverified:
   zh-CN: 未经验证
   es: inconfirmado
   ar: غير مُتحقق
+  id: belum diverifikasi
   fr: non vérifié
 
 Reset Email:
@@ -229,6 +261,7 @@ Reset Email:
   zh-CN: 重置电子邮件
   es: Restablecer correo electrónico
   ar: إعادة تعيين البريد الإلكتروني
+  id: Setel Ulang Email
   fr: Réinitialiser l'email
 
 Change Password:
@@ -236,6 +269,7 @@ Change Password:
   zh-CN: 更改密码\
   es: Cambiar la contraseña
   ar: تغيير كلمة المرور
+  id: Ubah Kata Sandi
   fr: Changer le Mot de Passe
 
 Delete Account:
@@ -243,13 +277,15 @@ Delete Account:
   zh-CN: 删除帐户
   es: Eliminar cuenta
   ar: حذف الحساب
+  id: Hapus Akun
   fr: Supprimer le Compte
 
 REALLY DELETE ACCOUNT:
   en-US: REALLY DELETE ACCOUNT
   zh-CN: 确实删除帐户
-  es: Realmente eliminar cuenta
+  es: REALMENTE ELIMINAR CUENTA
   ar: حذف الحساب حقًا
+  id: BENAR-BENAR HAPUS AKUN
   fr: SUPPRIMER VRAIMENT LE COMPTE
 
 minutes:
@@ -257,6 +293,7 @@ minutes:
   zh-CN: 分钟
   es: minutos
   ar: دقائق
+  id: menit
   fr: minutes
 
 add seconds:
@@ -264,6 +301,7 @@ add seconds:
   zh-CN: 添加秒
   es: añadir segundos
   ar: أضف ثواني
+  id: tambahkan detik
   fr: ajouter des secondes
 
 role:
@@ -271,6 +309,7 @@ role:
   zh-CN: 角色
   es: role
   ar: وظيفة
+  id: peran
   fr: rôle
 
 New Game:
@@ -278,6 +317,7 @@ New Game:
   zh-CN: 新游戏
   es: Nuevo juego
   ar: لعبة جديدة
+  id: Permainan Baru
   fr: Nouveau Jeu
 
 Accept:
@@ -285,6 +325,7 @@ Accept:
   zh-CN: 接受
   es: Aceptar
   ar: يقبل
+  id: Menerima
   fr: Accepter
 
 Decline:
@@ -292,6 +333,7 @@ Decline:
   zh-CN: 拒绝
   es: Rechazar
   ar: انخفاض
+  id: Menolak
   fr: Refuse
 
 Watch:
@@ -299,6 +341,7 @@ Watch:
   zh-CN: 观
   es: Mirar
   ar: يشاهد
+  id: Jam tangan
   fr: Regarde
 
 Join:
@@ -306,6 +349,7 @@ Join:
   zh-CN: 加入
   es: Unirse
   ar: ينضم
+  id: Bergabung
   fr: Rejoindre
 
 Resume:
@@ -313,6 +357,7 @@ Resume:
   zh-CN: 重新开始
   es: Reanudar
   ar: سيرة ذاتية
+  id: Melanjutkan
   fr: Reprendre
 
 message:
@@ -320,6 +365,7 @@ message:
   zh-CN: 信息
   es: mensaje
   ar: رسالة
+  id: pesan
   fr: message
 
 move:
@@ -327,6 +373,7 @@ move:
   zh-CN: 举动
   es: mover
   ar: يتحرك
+  id: bergerak
   fr: déplacer
 
 yes:
@@ -334,6 +381,7 @@ yes:
   zh-CN: 是的
   es: Sí
   ar: نعم
+  id: ya
   fr: oui
 
 no:
@@ -341,6 +389,7 @@ no:
   zh-CN: 不
   es: no
   ar: لا
+  id: tidak
   fr: non
 
 Muted:
@@ -348,6 +397,7 @@ Muted:
   zh-CN: 静音
   es: Apagado
   ar: مكتوم
+  id: Meredam
   fr: Sourdine
 
 I rejoined.:
@@ -355,6 +405,7 @@ I rejoined.:
   zh-CN: 我重新加入。
   es: Me reincorporé.
   ar: لقد انضممت مرة أخرى.
+  id: Saya bergabung kembali.
   fr: J'ai rejoint.
 
 I'm leaving.:
@@ -362,6 +413,7 @@ I'm leaving.:
   zh-CN: 我要走了。
   es: Me voy.
   ar: انا ذاهب.
+  id: Aku pergi.
   fr: Je pars.
 
 Resign:
@@ -369,6 +421,7 @@ Resign:
   zh-CN: 辞职
   es: Renunciar
   ar: الاستقالة
+  id: Berhenti
   fr: Démissionner
 
 Request Draw:
@@ -376,6 +429,7 @@ Request Draw:
   zh-CN: 请求抽奖
   es: Solicitud de sorteo
   ar: طلب السحب
+  id: Permintaan Undian
   fr: Demande Dessin
 
 Accept Draw:
@@ -383,4 +437,5 @@ Accept Draw:
   zh-CN: 接受抽签
   es: Aceptar sorteo
   ar: قبول السحب
+  id: Terima Undian
   fr: Accepter Dessin
