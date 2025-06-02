@@ -656,8 +656,10 @@ impl Client {
             }
             Message::PasswordChanged(password) => {
                 let (password, ends_with_whitespace) = split_whitespace(&password);
-                self.password_no_save = password.len() > 32 || ends_with_whitespace;
-                self.password = password;
+                self.password_no_save = ends_with_whitespace;
+                if password.len() <= 32 {
+                    self.password = password;
+                }
             }
             Message::PasswordShow(show_password) => {
                 self.password_show = show_password;
@@ -736,7 +738,9 @@ impl Client {
                 if self.screen == Screen::Login {
                     let string: Vec<_> = string.split_whitespace().collect();
                     if let Some(string) = string.first() {
-                        self.text_input = string.to_ascii_lowercase();
+                        if string.len() <= 16 {
+                            self.text_input = string.to_ascii_lowercase();
+                        }
                     } else {
                         self.text_input = String::new();
                     }
@@ -2091,17 +2095,14 @@ impl Client {
 
                 let mut login =
                     button(text(self.strings["Login"].as_str()).shaping(text::Shaping::Advanced));
-                if !self.password_no_save && self.text_input.len() <= 16 {
+                if !self.password_no_save {
                     login = login.on_press(Message::TextSendLogin);
                 }
 
                 let mut create_account = button(
                     text(self.strings["Create Account"].as_str()).shaping(text::Shaping::Advanced),
                 );
-                if !self.text_input.is_empty()
-                    && !self.password_no_save
-                    && self.text_input.len() <= 16
-                {
+                if !self.text_input.is_empty() && !self.password_no_save {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
                 }
 
