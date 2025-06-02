@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: limit submitting passwords over length 32 and usernames over
+  length 16.
 - hnefatafl-client: change the game layout.
 - hnefatafl-client: add the argument `--tiny-window`.
 - hnefatafl-client: add i18n.

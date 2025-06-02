@@ -656,7 +656,7 @@ impl Client {
             }
             Message::PasswordChanged(password) => {
                 let (password, ends_with_whitespace) = split_whitespace(&password);
-                self.password_no_save = ends_with_whitespace;
+                self.password_no_save = password.len() > 32 || ends_with_whitespace;
                 self.password = password;
             }
             Message::PasswordShow(show_password) => {
@@ -2091,14 +2091,17 @@ impl Client {
 
                 let mut login =
                     button(text(self.strings["Login"].as_str()).shaping(text::Shaping::Advanced));
-                if !self.password_no_save {
+                if !self.password_no_save && self.text_input.len() <= 16 {
                     login = login.on_press(Message::TextSendLogin);
                 }
 
                 let mut create_account = button(
                     text(self.strings["Create Account"].as_str()).shaping(text::Shaping::Advanced),
                 );
-                if !self.text_input.is_empty() && !self.password_no_save {
+                if !self.text_input.is_empty()
+                    && !self.password_no_save
+                    && self.text_input.len() <= 16
+                {
                     create_account = create_account.on_press(Message::TextSendCreateAccount);
                 }
 

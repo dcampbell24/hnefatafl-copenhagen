@@ -383,6 +383,15 @@ impl Server {
 
         let account = self.accounts.0.get_mut(username)?;
         let password = the_rest.join(" ");
+
+        if password.len() > 32 {
+            return Some((
+                self.clients.get(&index_supplied)?.clone(),
+                false,
+                format!("{command} password is greater than 32 characters"),
+            ));
+        }
+
         let hash = hash_password(&password)?;
         account.password = hash;
         self.save_server();
