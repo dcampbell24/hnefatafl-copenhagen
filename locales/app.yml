@@ -10,6 +10,7 @@ username:
   fr: nom d'utilisateur
   ja: ユーザー名
   ru: имя пользователя
+  de: Benutzername
 
 password:
   en-US: password
@@ -21,6 +22,7 @@ password:
   fr: mot de passe
   ja: パスワード
   ru: пароль
+  de: Passwort
 
 game id:
   en-US: game id
@@ -32,6 +34,7 @@ game id:
   fr: identifiant de jeu
   ja: ゲームID
   ru: идентификатор игры
+  de: Spiel-ID
 
 attacker:
   en-US: attacker
@@ -43,6 +46,7 @@ attacker:
   fr: attaquant
   ja: アタッカー
   ru: нападающий
+  de: Angreifer
 
 defender:
   en-US: defender
@@ -54,6 +58,7 @@ defender:
   fr: défenseur
   ja: ディフェンダー
   ru: защитник
+  de: Verteidiger
 
 rated:
  en-US: rated
@@ -65,6 +70,7 @@ rated:
  fr: évalué
  ja: 評価
  ru: оцененный
+ de: bewertet
 
 timed:
  en-US: timed
@@ -76,6 +82,7 @@ timed:
  fr: chronométré
  ja: 時間制限付き
  ru: рассчитанный по времени
+ de: zeitgesteuert
 
 rating:
   en-US: rating
@@ -87,6 +94,7 @@ rating:
   fr: classement
   ja: 評価
   ru: рейтинг
+  de: Bewertung
 
 wins:
   en-US: wins
@@ -98,6 +106,7 @@ wins:
   fr: victoires
   ja: 勝利
   ru: победы
+  de: Siege
 
 losses:
   en-US: losses
@@ -109,6 +118,7 @@ losses:
   fr: défaites
   ja: 損失
   ru: потери
+  de: Verluste
 
 draws:
   en-US: draws
@@ -120,6 +130,7 @@ draws:
   fr: nuls
   ja: 引き分け
   ru: рисует
+  de: zieht
 
 show password:
   en-US: show password
@@ -131,6 +142,7 @@ show password:
   fr: afficher le mot de passe
   ja: パスワードを表示
   ru: показать пароль
+  de: Passwort anzeigen
 
 Login:
   en-US: Login
@@ -142,6 +154,7 @@ Login:
   fr: Connexion
   ja: ログイン
   ru: Авторизоваться
+  de: Login
 
 Create Account:
   en-US: Create Account
@@ -153,6 +166,7 @@ Create Account:
   fr: Créer un Compte
   ja: アカウントを作成する
   ru: Зарегистрироваться
+  de: Benutzerkonto erstellen
 
 Reset Password:
   en-uS: Reset Password
@@ -164,6 +178,7 @@ Reset Password:
   fr: Réinitialiser Le Mot de Passe
   ja: パスワードをリセットする
   ru: Сбросить пароль
+  de: Passwort zurücksetzen
 
 Quit:
   en-US: Quit
@@ -175,6 +190,7 @@ Quit:
   fr: Quitter
   ja: やめる
   ru: Покидать
+  de: Aufhören
 
 locale:
   en-US: locale
@@ -186,6 +202,7 @@ locale:
   fr: lieu
   ja: ロケール
   ru: локаль
+  de: Gebietsschema
 
 logged in:
   en-US: logged in
@@ -197,6 +214,7 @@ logged in:
   fr: connecté
   ja: ログイン
   ru: вошел в систему
+  de: eingeloggt
 
 logged out:
   en-US: logged out
@@ -208,6 +226,7 @@ logged out:
   fr: déconnecté
   ja: ログアウト
   ru: вышел из системы
+  de: abgemeldet
 
 Leave:
   en-US: Leave
@@ -219,6 +238,7 @@ Leave:
   fr: Laisser
   ja: 離れる
   ru: Оставлять
+  de: Verlassen
 
 Dark:
   en-US: Dark
@@ -230,6 +250,7 @@ Dark:
   fr: Sombre
   ja: 暗い
   ru: Темный
+  de: Dunkel
 
 Light:
   en-US: Light
@@ -241,6 +262,7 @@ Light:
   fr: Lumière
   ja: ライト
   ru: Свет
+  de: Licht
 
 Create Game:
   en: Create Game
@@ -252,6 +274,7 @@ Create Game:
   fr: Créer un Jeu
   ja: ゲームを作成する
   ru: Создать игру
+  de: Spiel erstellen
 
 Users:
   en-US: Users
@@ -263,6 +286,7 @@ Users:
   fr: Usagers
   ja: ユーザー
   ru: Пользователи
+  de: Benutzer
 
 Account Settings:
   en-US: Account Settings
@@ -274,6 +298,7 @@ Account Settings:
   fr: Paramètres du Compte
   ja: アカウント設定
   ru: Настройки учетной записи
+  de: Kontoeinstellungen
 
 Rules:
   en-US: Rules
@@ -285,6 +310,7 @@ Rules:
   fr: Règles
   ja: ルール
   ru: Правила
+  de: Regeln
 
 connected to:
   en-US: connected to
@@ -296,6 +322,7 @@ connected to:
   fr: connecté à
   ja: 接続されている
   ru: подключен к
+  de: verbunden mit
 
 via:
   en-US: via
@@ -307,6 +334,7 @@ via:
   fr: par
   ja: 経由
   ru: с помощью
+  de: über
 
 email address:
   en-US: email address
@@ -318,6 +346,7 @@ email address:
   fr: adresse email
   ja: 電子メールアドレス
   ru: Адрес электронной почты
+  de: E-Mail-Adresse
 
 email code:
   en-US: email code
@@ -329,6 +358,7 @@ email code:
   fr: code email
   ja: メールコード
   ru: код электронной почты
+  de: E-Mail-Code
 
 verified:
   en-US: verified
@@ -340,6 +370,7 @@ verified:
   fr: accepté
   ja: 検証済み
   ru: проверено
+  de: verifiziert
 
 unverified:
   en-US: unverified
@@ -351,6 +382,7 @@ unverified:
   fr: non vérifié
   ja: 未確認
   ru: непроверенный
+  de: nicht verifiziert
 
 Reset Email:
   en-US: Reset Email
@@ -362,6 +394,7 @@ Reset Email:
   fr: Réinitialiser l'email
   ja: メールをリセット
   ru: Сбросить адрес электронной почты
+  de: E-Mail zurücksetzen
 
 Change Password:
   en-US: Change Password
@@ -373,6 +406,7 @@ Change Password:
   fr: Changer le Mot de Passe
   ja: パスワードを変更する
   ru: Изменить пароль
+  de: Kennwort ändern
 
 Delete Account:
   en-US: Delete Account
@@ -384,6 +418,7 @@ Delete Account:
   fr: Supprimer le Compte
   ja: アカウントを削除
   ru: Удалить аккаунт
+  de: Konto löschen
 
 REALLY DELETE ACCOUNT:
   en-US: REALLY DELETE ACCOUNT
@@ -395,6 +430,7 @@ REALLY DELETE ACCOUNT:
   fr: SUPPRIMER VRAIMENT LE COMPTE
   ja: 本当にアカウントを削除する
   ru: Действительно удалить аккаунт
+  de: Konto wirklich löschen
 
 minutes:
   en-US: minutes
@@ -406,6 +442,7 @@ minutes:
   fr: minutes
   ja: 分
   ru: минут
+  de: Minuten
 
 add seconds:
   en-US: add seconds
@@ -417,6 +454,7 @@ add seconds:
   fr: ajouter des secondes
   ja: 秒を追加
   ru: добавить секунды
+  de: Sekunden hinzufügen
 
 role:
   en-US: role
@@ -428,6 +466,7 @@ role:
   fr: rôle
   ja: 役割
   ru: роль
+  de: Rolle
 
 New Game:
   en-US: New Game
@@ -439,6 +478,7 @@ New Game:
   fr: Nouveau Jeu
   ja: 新しいゲーム
   ru: Новая Игра
+  de: Neues Spiel
 
 Accept:
   en-US: Accept
@@ -450,6 +490,7 @@ Accept:
   fr: Accepter
   ja: 受け入れる
   ru: Принимать
+  de: Akzeptieren
 
 Decline:
   en-US: Decline
@@ -461,6 +502,7 @@ Decline:
   fr: Refuse
   ja: 衰退
   ru: Отклонить
+  de: Abfall
 
 Watch:
   en-US: Watch
@@ -472,6 +514,7 @@ Watch:
   fr: Regarde
   ja: 時計
   ru: Смотреть
+  de: Betrachten
 
 Join:
   en-US: Join
@@ -483,6 +526,7 @@ Join:
   fr: Rejoindre
   ja: 参加する
   ru: Присоединиться
+  de: Verbinden
 
 Resume:
   en-US: Resume
@@ -494,6 +538,7 @@ Resume:
   fr: Reprendre
   ja: 再開する
   ru: Резюме
+  de: Wieder aufnehmen
 
 message:
   en-US: message
@@ -505,6 +550,7 @@ message:
   fr: message
   ja: メッセージ
   ru: сообщение
+  de: Nachricht
 
 move:
   en-US: move
@@ -516,6 +562,7 @@ move:
   fr: déplacer
   ja: 動く
   ru: двигаться
+  de: bewegen
 
 yes:
   en-US: yes
@@ -527,6 +574,7 @@ yes:
   fr: oui
   ja: はい
   ru: да
+  de: ja
 
 no:
   en-US: no
@@ -538,6 +586,7 @@ no:
   fr: non
   ja: いいえ
   ru: нет
+  de: nein
 
 Muted:
   en-US: Muted
@@ -549,6 +598,7 @@ Muted:
   fr: Sourdine
   ja: ミュート
   ru: Приглушенный
+  de: Stummgeschaltet
 
 I rejoined.:
   en-US: I rejoined.
@@ -560,6 +610,7 @@ I rejoined.:
   fr: J'ai rejoint.
   ja: 再参加しました。
   ru: Я присоединился снова.
+  de: Ich bin wieder beigetreten.
 
 I'm leaving.:
   en-US: I'm leaving.
@@ -571,6 +622,7 @@ I'm leaving.:
   fr: Je pars.
   ja: 私は行きます。
   ru: Я ухожу.
+  de: Ich gehe.
 
 Resign:
   en-US: Resign
@@ -582,6 +634,7 @@ Resign:
   fr: Démissionner
   ja: 辞任する
   ru: Подать в отставку
+  de: Zurücktreten
 
 Request Draw:
   en-US: Request Draw
@@ -593,6 +646,7 @@ Request Draw:
   fr: Demande Dessin
   ja: 抽選をリクエスト
   ru: Запросить розыгрыш
+  de: Anfrage ziehen
 
 Accept Draw:
   en-US: Accept Draw
@@ -604,3 +658,4 @@ Accept Draw:
   fr: Accepter Dessin
   ja: 引き分けを受け入れる
   ru: Принять ничью
+  de: Unentschieden akzeptieren
