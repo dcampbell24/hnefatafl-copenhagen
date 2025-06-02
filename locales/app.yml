@@ -6,6 +6,7 @@ username:
   es: nombre de usuario
   ar: اسم المستخدم
   id: nama belakang
+  pt-BR: nome de usuário
   pt-PT: nome de utilizador
   fr: nom d'utilisateur
   ja: ユーザー名
@@ -18,6 +19,7 @@ password:
   es: contraseña
   ar: كلمة المرور
   id: kata sandi
+  pt-BR: senha
   pt-PT: palavra-passe
   fr: mot de passe
   ja: パスワード
@@ -30,6 +32,7 @@ game id:
   es: identificación del juego
   ar: معرف اللعبة
   id: ID permainan
+  pt-BR: id do jogo
   pt-PT: id do jogo
   fr: identifiant de jeu
   ja: ゲームID
@@ -42,6 +45,7 @@ attacker:
   es: agresor
   ar: مهاجم
   id: penyerang
+  pt-BR: atacante
   pt-PT: atacante
   fr: attaquant
   ja: アタッカー
@@ -54,6 +58,7 @@ defender:
   es: defensor
   ar: مناصر
   id: pembela
+  pt-BR: defensor
   pt-PT: defensor
   fr: défenseur
   ja: ディフェンダー
@@ -66,6 +71,7 @@ rated:
  es: calificado
  ar: مصنف
  id: dinilai
+ pt-BR: classificado
  pt-PT: classificado
  fr: évalué
  ja: 評価
@@ -78,6 +84,7 @@ timed:
  es: cronometrado
  ar: موقوت
  id: waktunya
+ pt-BR: cronometrado
  pt-PT: cronometrado
  fr: chronométré
  ja: 時間制限付き
@@ -90,6 +97,7 @@ rating:
   es: clasificación
   ar: تصنيف
   id: pangkat
+  pt-BR: avaliação
   pt-PT: avaliação
   fr: classement
   ja: 評価
@@ -102,6 +110,7 @@ wins:
   es: victorias
   ar: يفوز
   id: menang
+  pt-BR: vitórias
   pt-PT: vitórias
   fr: victoires
   ja: 勝利
@@ -114,6 +123,7 @@ losses:
   es: pérdidas
   ar: خسائر
   id: kerugian
+  pt-BR: perdas
   pt-PT: perdas
   fr: défaites
   ja: 損失
@@ -126,6 +136,7 @@ draws:
   es: sorteos
   ar: تعادلات
   id: menggambar
+  pt-BR: empates
   pt-PT: empates
   fr: nuls
   ja: 引き分け
@@ -138,6 +149,7 @@ show password:
   es: mostrar contraseña
   ar: إظهار كلمة المرور
   id: tampilkan kata sandi
+  pt-BR: mostrar senha
   pt-PT: mostrar senha
   fr: afficher le mot de passe
   ja: パスワードを表示
@@ -150,6 +162,7 @@ Login:
   es: Acceso
   ar: تسجيل الدخول
   id: Login
+  pt-BR: Conecte-se
   pt-PT: Conecte-se
   fr: Connexion
   ja: ログイン
@@ -162,6 +175,7 @@ Create Account:
   es: Crear una cuenta
   ar: إنشاء حساب
   id: Buat Akun
+  pt-BR: Criar uma conta
   pt-PT: Criar uma conta
   fr: Créer un Compte
   ja: アカウントを作成する
@@ -174,6 +188,7 @@ Reset Password:
   es: Restablecer contraseña
   ar: إعادة تعيين كلمة المرور
   id: Setel Ulang Kata Sandi
+  pt-BR: Redefinir senha
   pt-PT: Redefinir palavra-passe
   fr: Réinitialiser Le Mot de Passe
   ja: パスワードをリセットする
@@ -186,6 +201,7 @@ Quit:
   es: Abandonar
   ar: يترك
   id: Berhenti
+  pt-BR: Desistir
   pt-PT: Despedir-se
   fr: Quitter
   ja: やめる
@@ -198,6 +214,7 @@ locale:
   es: lugar
   ar: مكان
   id: lokal
+  pt-BR: localidade
   pt-PT: localidade
   fr: lieu
   ja: ロケール
@@ -210,6 +227,7 @@ logged in:
   es: conectado
   ar: تم تسجيل الدخول
   id: masuk
+  pt-BR: logado
   pt-PT: logado
   fr: connecté
   ja: ログイン
@@ -222,6 +240,7 @@ logged out:
   es: cerrado la sesión
   ar: تم تسجيل الخروج
   id: keluar
+  pt-BR: desconectado
   pt-PT: desconectado
   fr: déconnecté
   ja: ログアウト
@@ -234,6 +253,7 @@ Leave:
   es: Dejar
   ar: يترك
   id: Meninggalkan
+  pt-BR: Deixar
   pt-PT: Ausência
   fr: Laisser
   ja: 離れる
@@ -246,6 +266,7 @@ Dark:
   es: Oscuro
   ar: مظلم
   id: Gelap
+  pt-BR: Escuro
   pt-PT: Escuro
   fr: Sombre
   ja: 暗い
@@ -258,6 +279,7 @@ Light:
   es: Ligero
   ar: ضوء
   id: Lampu
+  pt-BR: Luz
   pt-PT: Luz
   fr: Lumière
   ja: ライト
@@ -270,7 +292,8 @@ Create Game:
   es: Crear juego
   ar: إنشاء لعبة
   id: Buat Game
-  pt-PT: 
+  pt-BR: Criar jogo
+  pt-PT: Criar jogo
   fr: Créer un Jeu
   ja: ゲームを作成する
   ru: Создать игру
@@ -282,7 +305,8 @@ Users:
   es: Usuarios
   ar: المستخدمون
   id: Pengguna
-  pt-PT: 
+  pt-BR: Usuários
+  pt-PT: Usuários
   fr: Usagers
   ja: ユーザー
   ru: Пользователи
@@ -294,6 +318,7 @@ Account Settings:
   es: Configuraciones de la cuenta
   ar: إعدادات الحساب
   id: Pengaturan Akun
+  pt-BR: Configurações de Conta
   pt-PT: Criar jogo
   fr: Paramètres du Compte
   ja: アカウント設定
@@ -306,6 +331,7 @@ Rules:
   es: Normas
   ar: قواعد
   id: Aturan
+  pt-BR: Regras
   pt-PT: Regras
   fr: Règles
   ja: ルール
@@ -318,6 +344,7 @@ connected to:
   es: Conectado a
   ar: متصل بـ
   id: terhubung ke
+  pt-BR: conectado a
   pt-PT: ligado a
   fr: connecté à
   ja: 接続されている
@@ -330,6 +357,7 @@ via:
   es: por
   ar: عبر
   id: melalui
+  pt-BR: através de
   pt-PT: através de
   fr: par
   ja: 経由
@@ -342,6 +370,7 @@ email address:
   es: dirección de correo electrónico
   ar: عنوان البريد الإلكتروني
   id: alamat email
+  pt-BR: endereço de email
   pt-PT: endereço de email
   fr: adresse email
   ja: 電子メールアドレス
@@ -354,6 +383,7 @@ email code:
   es: código de correo electrónico
   ar: رمز البريد الإلكتروني
   id: kode email
+  pt-BR: código de email
   pt-PT: código de email
   fr: code email
   ja: メールコード
@@ -366,6 +396,7 @@ verified:
   es: verificado
   ar: تم التحقق
   id: terverifikasi
+  pt-BR: verificado
   pt-PT: verificado
   fr: accepté
   ja: 検証済み
@@ -378,6 +409,7 @@ unverified:
   es: inconfirmado
   ar: غير مُتحقق
   id: belum diverifikasi
+  pt-BR: não verificado
   pt-PT: não verificado
   fr: non vérifié
   ja: 未確認
@@ -390,6 +422,7 @@ Reset Email:
   es: Restablecer correo electrónico
   ar: إعادة تعيين البريد الإلكتروني
   id: Setel Ulang Email
+  pt-BR: Redefinir email
   pt-PT: Redefinir email
   fr: Réinitialiser l'email
   ja: メールをリセット
@@ -402,6 +435,7 @@ Change Password:
   es: Cambiar la contraseña
   ar: تغيير كلمة المرور
   id: Ubah Kata Sandi
+  pt-BR: Alterar a senha
   pt-PT: Alterar a palavra-passe
   fr: Changer le Mot de Passe
   ja: パスワードを変更する
@@ -414,6 +448,7 @@ Delete Account:
   es: Eliminar cuenta
   ar: حذف الحساب
   id: Hapus Akun
+  pt-BR: Excluir conta
   pt-PT: Apagar conta
   fr: Supprimer le Compte
   ja: アカウントを削除
@@ -426,6 +461,7 @@ REALLY DELETE ACCOUNT:
   es: REALMENTE ELIMINAR CUENTA
   ar: حذف الحساب حقًا
   id: BENAR-BENAR HAPUS AKUN
+  pt-BR: REALMENTE EXCLUIR CONTA
   pt-PT: REALMENTE APAGAR CONTA
   fr: SUPPRIMER VRAIMENT LE COMPTE
   ja: 本当にアカウントを削除する
@@ -438,6 +474,7 @@ minutes:
   es: minutos
   ar: دقائق
   id: menit
+  pt-BR: minutos
   pt-PT: minutos
   fr: minutes
   ja: 分
@@ -450,6 +487,7 @@ add seconds:
   es: añadir segundos
   ar: أضف ثواني
   id: tambahkan detik
+  pt-BR: adicionar segundos
   pt-PT: adicionar segundos
   fr: ajouter des secondes
   ja: 秒を追加
@@ -462,6 +500,7 @@ role:
   es: role
   ar: وظيفة
   id: peran
+  pt-BR: papel
   pt-PT: papel
   fr: rôle
   ja: 役割
@@ -474,6 +513,7 @@ New Game:
   es: Nuevo juego
   ar: لعبة جديدة
   id: Permainan Baru
+  pt-BR: Novo jogo
   pt-PT: Novo jogo
   fr: Nouveau Jeu
   ja: 新しいゲーム
@@ -486,6 +526,7 @@ Accept:
   es: Aceptar
   ar: يقبل
   id: Menerima
+  pt-BR: Aceitar
   pt-PT: Aceitar
   fr: Accepter
   ja: 受け入れる
@@ -498,6 +539,7 @@ Decline:
   es: Rechazar
   ar: انخفاض
   id: Menolak
+  pt-BR: Declínio
   pt-PT: Recusar
   fr: Refuse
   ja: 衰退
@@ -510,6 +552,7 @@ Watch:
   es: Mirar
   ar: يشاهد
   id: Jam tangan
+  pt-BR: Assistir
   pt-PT: Relógio
   fr: Regarde
   ja: 時計
@@ -522,6 +565,7 @@ Join:
   es: Unirse
   ar: ينضم
   id: Bergabung
+  pt-BR: Juntar
   pt-PT: Juntar
   fr: Rejoindre
   ja: 参加する
@@ -534,6 +578,7 @@ Resume:
   es: Reanudar
   ar: سيرة ذاتية
   id: Melanjutkan
+  pt-BR: Retomar
   pt-PT: Retomar
   fr: Reprendre
   ja: 再開する
@@ -546,6 +591,7 @@ message:
   es: mensaje
   ar: رسالة
   id: pesan
+  pt-BR: mensagem
   pt-PT: mensagem
   fr: message
   ja: メッセージ
@@ -558,6 +604,7 @@ move:
   es: mover
   ar: يتحرك
   id: bergerak
+  pt-BR: mover
   pt-PT: mover
   fr: déplacer
   ja: 動く
@@ -570,6 +617,7 @@ yes:
   es: Sí
   ar: نعم
   id: ya
+  pt-BR: sim
   pt-PT: Sim
   fr: oui
   ja: はい
@@ -582,6 +630,7 @@ no:
   es: no
   ar: لا
   id: tidak
+  pt-BR: não
   pt-PT: Não
   fr: non
   ja: いいえ
@@ -594,6 +643,7 @@ Muted:
   es: Apagado
   ar: مكتوم
   id: Meredam
+  pt-BR: Silenciado
   pt-PT: Silenciado
   fr: Sourdine
   ja: ミュート
@@ -606,6 +656,7 @@ I rejoined.:
   es: Me reincorporé.
   ar: لقد انضممت مرة أخرى.
   id: Saya bergabung kembali.
+  pt-BR: Eu voltei.
   pt-PT: Eu voltei.
   fr: J'ai rejoint.
   ja: 再参加しました。
@@ -618,6 +669,7 @@ I'm leaving.:
   es: Me voy.
   ar: انا ذاهب.
   id: Aku pergi.
+  pt-BR: Estou indo embora.
   pt-PT: Vou embora.
   fr: Je pars.
   ja: 私は行きます。
@@ -630,6 +682,7 @@ Resign:
   es: Renunciar
   ar: الاستقالة
   id: Berhenti
+  pt-BR: Renunciar
   pt-PT: Demitir-se
   fr: Démissionner
   ja: 辞任する
@@ -642,6 +695,7 @@ Request Draw:
   es: Solicitud de sorteo
   ar: طلب السحب
   id: Permintaan Undian
+  pt-BR: Solicitar sorteio
   pt-PT: Solicitar sorteio
   fr: Demande Dessin
   ja: 抽選をリクエスト
@@ -654,6 +708,7 @@ Accept Draw:
   es: Aceptar sorteo
   ar: قبول السحب
   id: Terima Undian
+  pt-BR: Aceitar sorteio
   pt-PT: Aceitar sorteio
   fr: Accepter Dessin
   ja: 引き分けを受け入れる
