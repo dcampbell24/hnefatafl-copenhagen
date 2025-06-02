@@ -6,6 +6,7 @@ username:
   es: nombre de usuario
   ar: اسم المستخدم
   id: nama belakang
+  pt-PT: nome de utilizador
   fr: nom d'utilisateur
 
 password:
@@ -14,6 +15,7 @@ password:
   es: contraseña
   ar: كلمة المرور
   id: kata sandi
+  pt-PT: palavra-passe
   fr: mot de passe
 
 game id:
@@ -22,6 +24,7 @@ game id:
   es: identificación del juego
   ar: معرف اللعبة
   id: ID permainan
+  pt-PT: id do jogo
   fr: identifiant de jeu
 
 attacker:
@@ -30,6 +33,7 @@ attacker:
   es: agresor
   ar: مهاجم
   id: penyerang
+  pt-PT: atacante
   fr: attaquant
 
 defender:
@@ -38,6 +42,7 @@ defender:
   es: defensor
   ar: مناصر
   id: pembela
+  pt-PT: defensor
   fr: défenseur
 
 rated:
@@ -46,6 +51,7 @@ rated:
  es: calificado
  ar: مصنف
  id: dinilai
+ pt-PT: classificado
  fr: évalué
 
 timed:
@@ -54,6 +60,7 @@ timed:
  es: cronometrado
  ar: موقوت
  id: waktunya
+ pt-PT: cronometrado
  fr: chronométré
 
 rating:
@@ -62,6 +69,7 @@ rating:
   es: clasificación
   ar: تصنيف
   id: pangkat
+  pt-PT: avaliação
   fr: classement
 
 wins:
@@ -70,6 +78,7 @@ wins:
   es: victorias
   ar: يفوز
   id: menang
+  pt-PT: vitórias
   fr: victoires
 
 losses:
@@ -78,6 +87,7 @@ losses:
   es: pérdidas
   ar: خسائر
   id: kerugian
+  pt-PT: perdas
   fr: défaites
 
 draws:
@@ -86,6 +96,7 @@ draws:
   es: sorteos
   ar: تعادلات
   id: menggambar
+  pt-PT: empates
   fr: nuls
 
 show password:
@@ -94,6 +105,7 @@ show password:
   es: mostrar contraseña
   ar: إظهار كلمة المرور
   id: tampilkan kata sandi
+  pt-PT: mostrar senha
   fr: afficher le mot de passe
 
 Login:
@@ -102,6 +114,7 @@ Login:
   es: Acceso
   ar: تسجيل الدخول
   id: Login
+  pt-PT: Conecte-se
   fr: Connexion
 
 Create Account:
@@ -110,6 +123,7 @@ Create Account:
   es: Crear una cuenta
   ar: إنشاء حساب
   id: Buat Akun
+  pt-PT: Criar uma conta
   fr: Créer un Compte
 
 Reset Password:
@@ -118,6 +132,7 @@ Reset Password:
   es: Restablecer contraseña
   ar: إعادة تعيين كلمة المرور
   id: Setel Ulang Kata Sandi
+  pt-PT: Redefinir palavra-passe
   fr: Réinitialiser Le Mot de Passe
 
 Quit:
@@ -126,6 +141,7 @@ Quit:
   es: Abandonar
   ar: يترك
   id: Berhenti
+  pt-PT: Despedir-se
   fr: Quitter
 
 locale:
@@ -134,6 +150,7 @@ locale:
   es: lugar
   ar: مكان
   id: lokal
+  pt-PT: localidade
   fr: lieu
 
 logged in:
@@ -142,6 +159,7 @@ logged in:
   es: conectado
   ar: تم تسجيل الدخول
   id: masuk
+  pt-PT: logado
   fr: connecté
 
 logged out:
@@ -150,6 +168,7 @@ logged out:
   es: cerrado la sesión
   ar: تم تسجيل الخروج
   id: keluar
+  pt-PT: desconectado
   fr: déconnecté
 
 Leave:
@@ -158,6 +177,7 @@ Leave:
   es: Dejar
   ar: يترك
   id: Meninggalkan
+  pt-PT: Ausência
   fr: Laisser
 
 Dark:
@@ -166,6 +186,7 @@ Dark:
   es: Oscuro
   ar: مظلم
   id: Gelap
+  pt-PT: Escuro
   fr: Sombre
 
 Light:
@@ -174,6 +195,7 @@ Light:
   es: Ligero
   ar: ضوء
   id: Lampu
+  pt-PT: Luz
   fr: Lumière
 
 Create Game:
@@ -182,6 +204,7 @@ Create Game:
   es: Crear juego
   ar: إنشاء لعبة
   id: Buat Game
+  pt-PT: 
   fr: Créer un Jeu
 
 Users:
@@ -190,6 +213,7 @@ Users:
   es: Usuarios
   ar: المستخدمون
   id: Pengguna
+  pt-PT: 
   fr: Usagers
 
 Account Settings:
@@ -198,6 +222,7 @@ Account Settings:
   es: Configuraciones de la cuenta
   ar: إعدادات الحساب
   id: Pengaturan Akun
+  pt-PT: Criar jogo
   fr: Paramètres du Compte
 
 Rules:
@@ -206,6 +231,7 @@ Rules:
   es: Normas
   ar: قواعد
   id: Aturan
+  pt-PT: Regras
   fr: Règles
 
 connected to:
@@ -214,6 +240,7 @@ connected to:
   es: Conectado a
   ar: متصل بـ
   id: terhubung ke
+  pt-PT: ligado a
   fr: connecté à
 
 via:
@@ -222,6 +249,7 @@ via:
   es: por
   ar: عبر
   id: melalui
+  pt-PT: através de
   fr: par
 
 email address:
@@ -230,6 +258,7 @@ email address:
   es: dirección de correo electrónico
   ar: عنوان البريد الإلكتروني
   id: alamat email
+  pt-PT: endereço de email
   fr: adresse email
 
 email code:
@@ -238,6 +267,7 @@ email code:
   es: código de correo electrónico
   ar: رمز البريد الإلكتروني
   id: kode email
+  pt-PT: código de email
   fr: code email
 
 verified:
@@ -246,6 +276,7 @@ verified:
   es: verificado
   ar: تم التحقق
   id: terverifikasi
+  pt-PT: verificado
   fr: accepté
 
 unverified:
@@ -254,6 +285,7 @@ unverified:
   es: inconfirmado
   ar: غير مُتحقق
   id: belum diverifikasi
+  pt-PT: não verificado
   fr: non vérifié
 
 Reset Email:
@@ -262,6 +294,7 @@ Reset Email:
   es: Restablecer correo electrónico
   ar: إعادة تعيين البريد الإلكتروني
   id: Setel Ulang Email
+  pt-PT: Redefinir email
   fr: Réinitialiser l'email
 
 Change Password:
@@ -270,6 +303,7 @@ Change Password:
   es: Cambiar la contraseña
   ar: تغيير كلمة المرور
   id: Ubah Kata Sandi
+  pt-PT: Alterar a palavra-passe
   fr: Changer le Mot de Passe
 
 Delete Account:
@@ -278,6 +312,7 @@ Delete Account:
   es: Eliminar cuenta
   ar: حذف الحساب
   id: Hapus Akun
+  pt-PT: Apagar conta
   fr: Supprimer le Compte
 
 REALLY DELETE ACCOUNT:
@@ -286,6 +321,7 @@ REALLY DELETE ACCOUNT:
   es: REALMENTE ELIMINAR CUENTA
   ar: حذف الحساب حقًا
   id: BENAR-BENAR HAPUS AKUN
+  pt-PT: Realmente Apagar Conta
   fr: SUPPRIMER VRAIMENT LE COMPTE
 
 minutes:
@@ -294,6 +330,7 @@ minutes:
   es: minutos
   ar: دقائق
   id: menit
+  pt-PT: minutos
   fr: minutes
 
 add seconds:
@@ -302,6 +339,7 @@ add seconds:
   es: añadir segundos
   ar: أضف ثواني
   id: tambahkan detik
+  pt-PT: adicionar segundos
   fr: ajouter des secondes
 
 role:
@@ -310,6 +348,7 @@ role:
   es: role
   ar: وظيفة
   id: peran
+  pt-PT: papel
   fr: rôle
 
 New Game:
@@ -318,6 +357,7 @@ New Game:
   es: Nuevo juego
   ar: لعبة جديدة
   id: Permainan Baru
+  pt-PT: Novo jogo
   fr: Nouveau Jeu
 
 Accept:
@@ -326,6 +366,7 @@ Accept:
   es: Aceptar
   ar: يقبل
   id: Menerima
+  pt-PT: Aceitar
   fr: Accepter
 
 Decline:
@@ -334,6 +375,7 @@ Decline:
   es: Rechazar
   ar: انخفاض
   id: Menolak
+  pt-PT: Recusar
   fr: Refuse
 
 Watch:
@@ -342,6 +384,7 @@ Watch:
   es: Mirar
   ar: يشاهد
   id: Jam tangan
+  pt-PT: Relógio
   fr: Regarde
 
 Join:
@@ -350,6 +393,7 @@ Join:
   es: Unirse
   ar: ينضم
   id: Bergabung
+  pt-PT: Juntar
   fr: Rejoindre
 
 Resume:
@@ -358,6 +402,7 @@ Resume:
   es: Reanudar
   ar: سيرة ذاتية
   id: Melanjutkan
+  pt-PT: Retomar
   fr: Reprendre
 
 message:
@@ -366,6 +411,7 @@ message:
   es: mensaje
   ar: رسالة
   id: pesan
+  pt-PT: mensagem
   fr: message
 
 move:
@@ -374,6 +420,7 @@ move:
   es: mover
   ar: يتحرك
   id: bergerak
+  pt-PT: mover
   fr: déplacer
 
 yes:
@@ -382,6 +429,7 @@ yes:
   es: Sí
   ar: نعم
   id: ya
+  pt-PT: Sim
   fr: oui
 
 no:
@@ -390,6 +438,7 @@ no:
   es: no
   ar: لا
   id: tidak
+  pt-PT: Não
   fr: non
 
 Muted:
@@ -398,6 +447,7 @@ Muted:
   es: Apagado
   ar: مكتوم
   id: Meredam
+  pt-PT: Silenciado
   fr: Sourdine
 
 I rejoined.:
@@ -406,6 +456,7 @@ I rejoined.:
   es: Me reincorporé.
   ar: لقد انضممت مرة أخرى.
   id: Saya bergabung kembali.
+  pt-PT: Eu voltei.
   fr: J'ai rejoint.
 
 I'm leaving.:
@@ -414,6 +465,7 @@ I'm leaving.:
   es: Me voy.
   ar: انا ذاهب.
   id: Aku pergi.
+  pt-PT: Vou embora.
   fr: Je pars.
 
 Resign:
@@ -422,6 +474,7 @@ Resign:
   es: Renunciar
   ar: الاستقالة
   id: Berhenti
+  pt-PT: Demitir-se
   fr: Démissionner
 
 Request Draw:
@@ -430,6 +483,7 @@ Request Draw:
   es: Solicitud de sorteo
   ar: طلب السحب
   id: Permintaan Undian
+  pt-PT: Solicitar sorteio
   fr: Demande Dessin
 
 Accept Draw:
@@ -438,4 +492,5 @@ Accept Draw:
   es: Aceptar sorteo
   ar: قبول السحب
   id: Terima Undian
+  pt-PT: Aceitar sorteio
   fr: Accepter Dessin

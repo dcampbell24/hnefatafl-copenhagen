@@ -2136,7 +2136,11 @@ impl Client {
                     Locale::Spanish,
                     Locale::Arabic,
                     Locale::Indonesian,
+                    Locale::Portuguese,
                     Locale::French,
+                    Locale::Japanese,
+                    Locale::Russian,
+                    Locale::German,
                 ];
 
                 let locale = row![
