@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-06-02
+
 - hnefatafl-client: limit the passwords to length 32 and usernames to length 16.
 - hnefatafl-client: change the game layout.
 - hnefatafl-client: add the argument `--tiny-window`.
@@ -279,12 +281,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v1.1.4...main
-[1.1.4]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v01.1.3...v1.1.4
-[1.1.3]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v01.1.2...v1.1.3
-[1.1.2]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v01.1.1...v1.1.2
-[1.1.1]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v01.1.0...v1.1.1
-[1.1.0]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v01.0.0...v1.1.0
+[unreleased]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v1.2.0...main
+[1.2.0]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v1.1.4...v1.2.0
+[1.1.4]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v1.1.3...v1.1.4
+[1.1.3]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v1.1.2...v1.1.3
+[1.1.2]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v1.1.1...v1.1.2
+[1.1.1]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v1.1.0...v1.1.1
+[1.1.0]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v1.0.0...v1.1.0
 [1.0.0]:  https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.13.4...v1.0.0
 [0.13.4]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.13.3...v0.13.4
 [0.13.3]: https://github.com/dcampbell24/hnefatafl-copenhagen/compare/v0.13.2...v0.13.3
