@@ -1829,12 +1829,20 @@ impl Client {
 
                 user_area = user_area.push(row![muted, leave].spacing(SPACING));
 
-                // Fixme!
                 match self.status {
-                    Status::BlackWins => user_area = user_area.push(text("Attacker Wins!")),
-                    Status::Draw => user_area = user_area.push(text("It's a draw.")),
+                    Status::BlackWins => {
+                        user_area = user_area
+                            .push(text(t!("Attacker wins!")).shaping(text::Shaping::Advanced));
+                    }
+                    Status::Draw => {
+                        user_area = user_area
+                            .push(text(t!("It's a draw.")).shaping(text::Shaping::Advanced));
+                    }
                     Status::Ongoing => {}
-                    Status::WhiteWins => user_area = user_area.push(text("Defender Wins!")),
+                    Status::WhiteWins => {
+                        user_area = user_area
+                            .push(text(t!("Defender wins!")).shaping(text::Shaping::Advanced));
+                    }
                 }
 
                 let spectator = column![

@@ -714,3 +714,42 @@ Accept Draw:
   ja: 引き分けを受け入れる
   ru: Принять ничью
   de: Unentschieden akzeptieren
+
+Attacker wins!:
+  en-US: Attacker wins!
+  zh-CN: 进攻方获胜！
+  es: ¡La atacante gana!
+  ar: المهاجم يفوز!
+  id: Penyerang Menang!
+  pt-BR: O atacante vence!
+  pt-PT: O atacante vence!
+  fr: L'attaquant gagne !
+  ja: 攻撃者が勝利！
+  ru: Атакующий побеждает!
+  de: Angreifer gewinnt!
+
+It's a draw.:
+  en-US: It's a draw.
+  zh-CN: 平局。
+  es: Es un empate.
+  ar: إنها تعادل.
+  id: Itu seri.
+  pt-BR: É um empate.
+  pt-PT: É um empate.
+  fr: C'est un match nul.
+  ja: 引き分けです。
+  ru: Ничья.
+  de: Es ist unentschieden.
+
+Defender wins!:
+  en-US: Defender wins!
+  zh-CN: 防守者获胜！
+  es: ¡El defensor gana!
+  ar: المدافع يفوز!
+  id: Bek Menang!
+  pt-BR: O defensor vence!
+  pt-PT: O defensor ganha!
+  fr: Le défenseur gagne !
+  ja: ディフェンダーが勝利！
+  ru: Победа защитника!
+  de: Verteidiger gewinnt!
