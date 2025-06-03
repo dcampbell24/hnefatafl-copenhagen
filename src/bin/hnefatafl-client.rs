@@ -1829,6 +1829,7 @@ impl Client {
 
                 user_area = user_area.push(row![muted, leave].spacing(SPACING));
 
+                // Fixme!
                 match self.status {
                     Status::BlackWins => user_area = user_area.push(text("Attacker Wins!")),
                     Status::Draw => user_area = user_area.push(text("It's a draw.")),
