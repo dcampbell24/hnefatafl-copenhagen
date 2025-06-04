@@ -11,7 +11,7 @@
 ## Arch and Derivatives (Linux)
 
 ```sh
-yay --sync --noconfirm --mflags --nocheck hnefatafl-copenhagen
+yay --sync --mflags --nocheck hnefatafl-copenhagen
 ```
 
 ## Chocolatey (Windows)
