@@ -7,6 +7,6 @@ Download the file at https://hnefatafl.org/binaries/nsis/hnefatafl-client-instal
 You can use checksum.exe (choco install checksum).
 
 checksum -t sha256 -f hnefatafl-client-installer-1.2.1.exe
-40FA692EF9EFB859B51D0CE9D7EBBFC6583C71617861AB7BB287EB0FA3508A83
+1B595DC8E9533D961BB141247B22E5898E53B220A06BAD0C3100A7D65FD5DD2F
 
 I am the software author.
