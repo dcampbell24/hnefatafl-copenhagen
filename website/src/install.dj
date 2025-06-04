@@ -23,7 +23,7 @@ See [chocolatey.org](https://community.chocolatey.org/packages/hnefatafl-copenha
 Download [hnefatafl-copenhagen][1], then run:
 
 ```sh
-sudo dpkg --install hnefatafl-copenhagen_1.1.4-1_amd64.deb
+sudo dpkg --install hnefatafl-copenhagen_1.2.1-1_amd64.deb
 ```
 
 It can be removed by running:
@@ -32,7 +32,7 @@ It can be removed by running:
 sudo dpkg --remove hnefatafl-copenhagen
 ```
 
-[1]: binaries/debian/hnefatafl-copenhagen_1.1.4-1_amd64.deb
+[1]: binaries/debian/hnefatafl-copenhagen_1.2.1-1_amd64.deb
 
 ## Flatpak (Linux)
 
@@ -60,10 +60,10 @@ cd hnefatafl-copenhagen
 cargo run --release --bin hnefatafl-client
 ```
 
-Optionally set this to make it less noisy:
+Optionally set this to make it less noisy and get debugging statements:
 
 ```sh
-RUST_LOG=hnefatafl_client=info cargo run --release --bin hnefatafl-client
+RUST_LOG=hnefatafl_client=debug cargo run --release --bin hnefatafl-client
 ```
 
 [2]: https://www.rust-lang.org/learn/get-started
