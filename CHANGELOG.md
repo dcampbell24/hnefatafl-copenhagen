@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: update the swords (to be a dagger) and shield icon.
+
 ## [1.2.0] - 2025-06-02
 
 - hnefatafl-client: limit the passwords to length 32 and usernames to length 16.

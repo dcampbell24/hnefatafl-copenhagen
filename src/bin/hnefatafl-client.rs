@@ -56,6 +56,7 @@ use iced::{
     },
     window::{self, icon},
 };
+use iced_font_awesome::fa_icon_solid;
 use log::{LevelFilter, debug, error, info, trace};
 use rust_i18n::t;
 use serde::{Deserialize, Serialize};
@@ -1695,7 +1696,7 @@ impl Client {
                         .spacing(SPACING),
                         row![
                             text(self.time_attacker.fmt_shorthand()).size(35).center(),
-                            text("⚔").shaping(text::Shaping::Advanced).size(35).center(),
+                            text("🗡").shaping(text::Shaping::Advanced).size(35).center(),
                             text(captured.white().to_string())
                                 .shaping(text::Shaping::Advanced)
                                 .size(35),
@@ -1716,7 +1717,7 @@ impl Client {
                         .spacing(SPACING),
                         row![
                             text(self.time_defender.fmt_shorthand()).size(35).center(),
-                            text("🛡").shaping(text::Shaping::Advanced).size(35).center(),
+                            fa_icon_solid("shield-halved").size(35.0),
                             text(captured.black().to_string())
                                 .shaping(text::Shaping::Advanced)
                                 .size(35),
