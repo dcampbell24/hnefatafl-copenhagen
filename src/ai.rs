@@ -1,7 +1,7 @@
 use std::cmp::{max, min};
 
 use chrono::Utc;
-use rand::{RngCore, rngs::OsRng};
+use rand::{TryRngCore, rngs::OsRng};
 
 use crate::{
     board::Board,
@@ -179,12 +179,16 @@ impl Default for ZobristTable {
 
         let mut hashes = [[0; 3]; 121];
         for hash in &mut hashes {
-            *hash = [rng.next_u64(), rng.next_u64(), rng.next_u64()];
+            *hash = [
+                rng.try_next_u64().unwrap(),
+                rng.try_next_u64().unwrap(),
+                rng.try_next_u64().unwrap(),
+            ];
         }
 
         Self {
             piece_bits: hashes,
-            defender_to_move_bits: rng.next_u64(),
+            defender_to_move_bits: rng.try_next_u64().unwrap(),
         }
     }
 }

@@ -30,9 +30,9 @@ clap = { version ="4", features = ["derive"] }
 csv = "1"
 dirs = "6"
 env_logger = "0.11"
-getrandom = { version = "0.2", features = ["js"] }
+getrandom = "0.3"
 log = "0.4"
-rand = "0.8"
+rand = { version = "0.9", features = ["os_rng"] }
 # rayon = "1"
 ron = "0.10"
 rustc-hash = "2"
@@ -60,7 +60,7 @@ password-hash = { version = "0.5", optional = true }
 default = ["client", "server", "sound", "timer", "www"]
 client = ["dep:futures", "dep:iced", "dep:rust-i18n"]
 icon_2 = []
-js = ["dep:wasm-bindgen"]
+js = ["dep:wasm-bindgen", "getrandom/wasm_js"]
 server = ["dep:argon2", "dep:lettre", "dep:password-hash"]
 sound = ["dep:rodio"]
 timer = ["iced/smol"]
