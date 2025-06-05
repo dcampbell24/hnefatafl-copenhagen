@@ -50,7 +50,7 @@ Marvin T. [@marvintubat123].
 ## Packaging Status
 
 [AUR] (client)  
-[crates.io] (engine, server)  
+[crates.io] (AI, engine, server)  
 [chocolatey.org] (client)  
 [deb] (attacker AI, defender AI, client, server)  
 [flathub.org] (client)  
