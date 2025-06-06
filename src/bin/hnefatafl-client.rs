@@ -2159,6 +2159,7 @@ impl Client {
                     Locale::Russian,
                     Locale::German,
                     Locale::Icelandic,
+                    Locale::IcelandicRunic,
                 ];
 
                 let locale = row![
@@ -2220,40 +2221,6 @@ impl Client {
             .unwrap();
     }
 }
-
-// Icelandic Runic created by Alexander R. (https://www.omniglot.com/conscripts/icelandicrunic.htm)
-// A ᛆ
-// Á ᚨ
-// B ᛒ
-// D ᛑ
-// Ð ᚧ
-// E ᛂ
-// É ᛖ
-// F ᚠ
-// G ᚵ
-// H ᚼ
-// I ᛁ
-// Í ᛇ
-// J ᛃ
-// K ᚴ
-// L ᛚ
-// M ᛘ
-// N ᚿ
-// O ᚮ
-// Ó ᛟ
-// P ᛔ
-// R ᚱ
-// S ᛋ
-// T ᛐ
-// U ᚢ
-// Ú ᚤ
-// V ᚡ
-// X ᛪ
-// Y ᛣ
-// Ý ᛨ
-// Þ ᚦ
-// Æ ᛅ
-// Ö ᚯ
 
 #[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 enum Locale {
