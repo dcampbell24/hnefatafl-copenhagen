@@ -1,9 +1,8 @@
 use std::io;
 
 fn main() {
-    let mut input = String::new();
-
     loop {
+        let mut input = String::new();
         let mut output = String::new();
 
         match io::stdin().read_line(&mut input) {
@@ -16,8 +15,6 @@ fn main() {
         }
 
         print!("{output}");
-        input.clear();
-        output.clear();
     }
 }
 
