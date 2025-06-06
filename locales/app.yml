@@ -12,6 +12,8 @@ username:
   ja: ユーザー名
   ru: имя пользователя
   de: Benutzername
+  is-IS: notandanafn
+  is-RU: ᚿᚮᛐᛆᚿᛑᛆᚿᛆᚠᚿ
 
 password:
   en-US: password
@@ -25,6 +27,8 @@ password:
   ja: パスワード
   ru: пароль
   de: Passwort
+  is-IS: lykilorð
+  is-RU: ᛚᛣᚴᛁᛚᚮᚱᚧ
 
 game id:
   en-US: game id
@@ -38,6 +42,8 @@ game id:
   ja: ゲームID
   ru: идентификатор игры
   de: Spiel-ID
+  is-IS: leikjaauðkenni
+  is-RU: ᛚᛂᛁᚴᛃᛆᛆᚢᚧᚴᛂᚿᚿᛁ
 
 attacker:
   en-US: attacker
@@ -51,6 +57,8 @@ attacker:
   ja: アタッカー
   ru: нападающий
   de: Angreifer
+  is-IS: árásarmaður
+  is-RU: ᚨᚱᚨᛋᛆᚱᛘᛆᚧᚢᚱ
 
 defender:
   en-US: defender
@@ -64,6 +72,8 @@ defender:
   ja: ディフェンダー
   ru: защитник
   de: Verteidiger
+  is-IS: varnarmaður
+  is-RU: ᚡᛆᚱᚿᛆᚱᛘᛆᚧᚢᚱ
 
 rated:
  en-US: rated
@@ -77,6 +87,8 @@ rated:
  ja: 評価
  ru: оцененный
  de: bewertet
+ is-IS: metið
+ is-RU: ᛘᛂᛐᛁᚧ
 
 timed:
  en-US: timed
@@ -90,6 +102,8 @@ timed:
  ja: 時間制限付き
  ru: рассчитанный по времени
  de: zeitgesteuert
+ is-IS: tímasett
+ is-RU: ᛐᛇᛘᛆᛋᛂᛐᛐ
 
 rating:
   en-US: rating
@@ -103,6 +117,8 @@ rating:
   ja: 評価
   ru: рейтинг
   de: Bewertung
+  is-IS: einkunn
+  is-RU: ᛂᛁᚿᚴᚢᚿᚿ
 
 wins:
   en-US: wins
@@ -116,6 +132,8 @@ wins:
   ja: 勝利
   ru: победы
   de: Siege
+  is-IS: sigrar
+  is-RU: ᛋᛁᚵᚱᛆᚱ
 
 losses:
   en-US: losses
@@ -129,6 +147,8 @@ losses:
   ja: 損失
   ru: потери
   de: Verluste
+  is-IS: tap
+  is-RU: ᛐᛆᛔ
 
 draws:
   en-US: draws
@@ -142,6 +162,8 @@ draws:
   ja: 引き分け
   ru: рисует
   de: zieht
+  is-IS: teiknar
+  is-RU: ᛐᛂᛁᚴᚿᛆᚱ
 
 show password:
   en-US: show password
@@ -155,6 +177,8 @@ show password:
   ja: パスワードを表示
   ru: показать пароль
   de: Passwort anzeigen
+  is-IS: sýna lykilorð
+  is-RU: ᛋᛨᚿᛆ ᛚᛣᚴᛁᛚᚮᚱᚧ
 
 Login:
   en-US: Login
@@ -168,6 +192,8 @@ Login:
   ja: ログイン
   ru: Авторизоваться
   de: Login
+  is-IS: Innskráning
+  is-RU: ᛁᚿᚿᛋᚴᚱᚨᚿᛁᚿᚵ
 
 Create Account:
   en-US: Create Account
@@ -181,6 +207,8 @@ Create Account:
   ja: アカウントを作成する
   ru: Зарегистрироваться
   de: Benutzerkonto erstellen
+  is-IS: Stofna aðgang
+  is-RU: ᛋᛐᚮᚠᚿᛆ ᛆᚧᚵᛆᚿᚵ
 
 Reset Password:
   en-uS: Reset Password
@@ -194,6 +222,8 @@ Reset Password:
   ja: パスワードをリセットする
   ru: Сбросить пароль
   de: Passwort zurücksetzen
+  is-IS: Endurstilla lykilorð
+  is-RU: ᛂᚿᛑᚢᚱᛋᛐᛁᛚᛚᛆ ᛚᛣᚴᛁᛚᚮᚱᚧ
 
 Quit:
   en-US: Quit
@@ -207,6 +237,8 @@ Quit:
   ja: やめる
   ru: Покидать
   de: Aufhören
+  is-IS: Hætta
+  is-RU: ᚼᛅᛐᛐᛆ
 
 locale:
   en-US: locale
@@ -220,6 +252,8 @@ locale:
   ja: ロケール
   ru: локаль
   de: Gebietsschema
+  is-IS: staðsetning
+  is-RU: ᛋᛐᛆᚧᛋᛂᛐᚿᛁᚿᚵ
 
 logged in:
   en-US: logged in
@@ -233,6 +267,8 @@ logged in:
   ja: ログイン
   ru: вошел в систему
   de: eingeloggt
+  is-IS: innskráð(ur)
+  is-RU: ᛁᚿᚿᛋᚴᚱᚨᚧ(ᚢᚱ)
 
 logged out:
   en-US: logged out
@@ -246,6 +282,8 @@ logged out:
   ja: ログアウト
   ru: вышел из системы
   de: abgemeldet
+  is-IS: útskráð(ur)
+  is-RU: ᚤᛐᛋᚴᚱᚨᚧ(ᚢᚱ)
 
 Leave:
   en-US: Leave
@@ -259,6 +297,8 @@ Leave:
   ja: 離れる
   ru: Оставлять
   de: Verlassen
+  is-IS: Fara
+  is-RU: ᚠᛆᚱᛆ
 
 Dark:
   en-US: Dark
@@ -272,6 +312,8 @@ Dark:
   ja: 暗い
   ru: Темный
   de: Dunkel
+  is-IS: Dökkt
+  is-RU: ᛑᚯᚴᚴᛐ
 
 Light:
   en-US: Light
@@ -285,6 +327,8 @@ Light:
   ja: ライト
   ru: Свет
   de: Licht
+  is-IS: Ljós
+  is-RU: ᛚᛃᛟᛋ
 
 Create Game:
   en: Create Game
@@ -298,6 +342,8 @@ Create Game:
   ja: ゲームを作成する
   ru: Создать игру
   de: Spiel erstellen
+  is-IS: Búa til leik
+  is-RU: ᛒᚤᛆ ᛐᛁᛚ ᛚᛂᛁᚴ
 
 Users:
   en-US: Users
@@ -311,6 +357,8 @@ Users:
   ja: ユーザー
   ru: Пользователи
   de: Benutzer
+  is-IS: Notendur
+  is-RU: ᚿᚮᛐᛂᚿᛑᚢᚱ
 
 Account Settings:
   en-US: Account Settings
@@ -324,6 +372,8 @@ Account Settings:
   ja: アカウント設定
   ru: Настройки учетной записи
   de: Kontoeinstellungen
+  is-IS: Reikningsstillingar
+  is-RU: ᚱᛂᛁᚴᚿᛁᚿᚵᛋᛋᛐᛁᛚᛚᛁᚿᚵᛆᚱ
 
 Rules:
   en-US: Rules
@@ -337,6 +387,8 @@ Rules:
   ja: ルール
   ru: Правила
   de: Regeln
+  is-IS: Reglur
+  is-RU: ᚱᛂᚵᛚᚢᚱ
 
 connected to:
   en-US: connected to
@@ -350,6 +402,8 @@ connected to:
   ja: 接続されている
   ru: подключен к
   de: verbunden mit
+  is-IS: tengdur við
+  is-RU: ᛐᛂᚿᚵᛑᚢᚱ ᚡᛁᚧ
 
 via:
   en-US: via
@@ -363,6 +417,8 @@ via:
   ja: 経由
   ru: с помощью
   de: über
+  is-IS: í gegnum
+  is-RU: ᛇ ᚵᛂᚵᚿᚢᛘ
 
 email address:
   en-US: email address
@@ -376,6 +432,8 @@ email address:
   ja: 電子メールアドレス
   ru: Адрес электронной почты
   de: E-Mail-Adresse
+  is-IS: netfang
+  is-RU: ᚿᛂᛐᚠᛆᚿᚵ
 
 email code:
   en-US: email code
@@ -389,6 +447,8 @@ email code:
   ja: メールコード
   ru: код электронной почты
   de: E-Mail-Code
+  is-IS: netfangskóði
+  is-RU: ᚿᛂᛐᚠᛆᚿᚵᛋᚴᛟᚧᛁ
 
 verified:
   en-US: verified
@@ -402,6 +462,8 @@ verified:
   ja: 検証済み
   ru: проверено
   de: verifiziert
+  is-IS: staðfest
+  is-RU: ᛋᛐᛆᚧᚠᛂᛋᛐ
 
 unverified:
   en-US: unverified
@@ -415,6 +477,8 @@ unverified:
   ja: 未確認
   ru: непроверенный
   de: nicht verifiziert
+  is-IS: óstaðfest
+  is-RU: ᛟᛋᛐᛆᚧᚠᛂᛋᛐ
 
 Reset Email:
   en-US: Reset Email
@@ -428,6 +492,8 @@ Reset Email:
   ja: メールをリセット
   ru: Сбросить адрес электронной почты
   de: E-Mail zurücksetzen
+  is-IS: Endurstilla tölvupóst
+  is-RU: ᛂᚿᛑᚢᚱᛋᛐᛁᛚᛚᛆ ᛐᚯᛚᚡᚢᛔᛟᛋᛐ
 
 Change Password:
   en-US: Change Password
@@ -441,6 +507,8 @@ Change Password:
   ja: パスワードを変更する
   ru: Изменить пароль
   de: Kennwort ändern
+  is-IS: Breyta lykilorði
+  is-RU: ᛒᚱᛂᛣᛐᛆ ᛚᛣᚴᛁᛚᚮᚱᚧᛁ
 
 Delete Account:
   en-US: Delete Account
@@ -454,6 +522,8 @@ Delete Account:
   ja: アカウントを削除
   ru: Удалить аккаунт
   de: Konto löschen
+  is-IS: Eyða reikningi
+  is-RU: ᛂᛣᚧᛆ ᚱᛂᛁᚴᚿᛁᚿᚵᛁ
 
 REALLY DELETE ACCOUNT:
   en-US: REALLY DELETE ACCOUNT
@@ -467,6 +537,8 @@ REALLY DELETE ACCOUNT:
   ja: 本当にアカウントを削除する
   ru: Действительно удалить аккаунт
   de: Konto wirklich löschen
+  is-IS: Eyða virkilega reikningi
+  is-RU: ᛂᛣᚧᛆ ᚡᛁᚱᚴᛁᛚᛂᚵᛆ ᚱᛂᛁᚴᚿᛁᚿᚵᛁ
 
 minutes:
   en-US: minutes
@@ -480,6 +552,8 @@ minutes:
   ja: 分
   ru: минут
   de: Minuten
+  is-IS: mínútur
+  is-RU: ᛘᛇᚿᚤᛐᚢᚱ
 
 add seconds:
   en-US: add seconds
@@ -493,6 +567,8 @@ add seconds:
   ja: 秒を追加
   ru: добавить секунды
   de: Sekunden hinzufügen
+  is-IS: bæta við sekúndum
+  is-RU: ᛒᛅᛐᛆ ᚡᛁᚧ ᛋᛂᚴᚤᚿᛑᚢᛘ
 
 role:
   en-US: role
@@ -506,6 +582,8 @@ role:
   ja: 役割
   ru: роль
   de: Rolle
+  is-IS: hlutverk
+  is-RU: ᚼᛚᚢᛐᚡᛂᚱᚴ
 
 New Game:
   en-US: New Game
@@ -519,6 +597,8 @@ New Game:
   ja: 新しいゲーム
   ru: Новая Игра
   de: Neues Spiel
+  is-IS: Nýr leikur
+  is-RU: ᚿᛨᚱ ᛚᛂᛁᚴᚢᚱ
 
 Accept:
   en-US: Accept
@@ -532,6 +612,8 @@ Accept:
   ja: 受け入れる
   ru: Принимать
   de: Akzeptieren
+  is-IS: Samþykkja
+  is-RU: ᛋᛆᛘᚦᛣᚴᚴᛃᛆ
 
 Decline:
   en-US: Decline
@@ -545,6 +627,8 @@ Decline:
   ja: 衰退
   ru: Отклонить
   de: Abfall
+  is-IS: Hafna
+  is-RU: 
 
 Watch:
   en-US: Watch
@@ -558,6 +642,8 @@ Watch:
   ja: 時計
   ru: Смотреть
   de: Betrachten
+  is-IS: Horfa
+  is-RU: ᚼᛆᚠᚿᛆ
 
 Join:
   en-US: Join
@@ -571,6 +657,8 @@ Join:
   ja: 参加する
   ru: Присоединиться
   de: Verbinden
+  is-IS: Vertu með
+  is-RU: ᚡᛂᚱᛐᚢ ᛘᛂᚧ
 
 Resume:
   en-US: Resume
@@ -584,6 +672,8 @@ Resume:
   ja: 再開する
   ru: Резюме
   de: Wieder aufnehmen
+  is-IS: Ferilskrá
+  is-RU: ᚠᛂᚱᛁᛚᛋᚴᚱᚨ
 
 message:
   en-US: message
@@ -597,6 +687,8 @@ message:
   ja: メッセージ
   ru: сообщение
   de: Nachricht
+  is-IS: skilaboð
+  is-RU: ᛋᚴᛁᛚᛆᛒᚮᚧ
 
 move:
   en-US: move
@@ -610,6 +702,8 @@ move:
   ja: 動く
   ru: двигаться
   de: bewegen
+  is-IS: færa
+  is-RU: ᚠᛅᚱᛆ
 
 yes:
   en-US: yes
@@ -623,6 +717,8 @@ yes:
   ja: はい
   ru: да
   de: ja
+  is-IS: já
+  is-RU: ᛃᚨ
 
 no:
   en-US: no
@@ -636,6 +732,8 @@ no:
   ja: いいえ
   ru: нет
   de: nein
+  is-IS: nei
+  is-RU: ᚿᛂᛁ
 
 Muted:
   en-US: Muted
@@ -649,6 +747,8 @@ Muted:
   ja: ミュート
   ru: Приглушенный
   de: Stummgeschaltet
+  is-IS: Þaggað
+  is-RU: ᚦᛆᚵᚵᛆᚧ
 
 I rejoined.:
   en-US: I rejoined.
@@ -662,6 +762,8 @@ I rejoined.:
   ja: 再参加しました。
   ru: Я присоединился снова.
   de: Ich bin wieder beigetreten.
+  is-IS: Ég gekk aftur til liðs við mig.
+  is-RU: ᛖᚵ ᚵᛂᚴᚴ ᛆᚠᛐᚢᚱ ᛐᛁᛚ ᛚᛁᚧᛋ ᚡᛁᚧ ᛘᛁᚵ.
 
 I'm leaving.:
   en-US: I'm leaving.
@@ -675,6 +777,8 @@ I'm leaving.:
   ja: 私は行きます。
   ru: Я ухожу.
   de: Ich gehe.
+  is-IS: Ég er að fara.
+  is-RU: ᛖᚵ ᛂᚱ ᛆᚧ ᚠᛆᚱᛆ.
 
 Resign:
   en-US: Resign
@@ -688,6 +792,8 @@ Resign:
   ja: 辞任する
   ru: Подать в отставку
   de: Zurücktreten
+  is-IS: Segja upp
+  is-RU: ᛋᛂᚵᛃᛆ ᚢᛔᛔ
 
 Request Draw:
   en-US: Request Draw
@@ -701,6 +807,8 @@ Request Draw:
   ja: 抽選をリクエスト
   ru: Запросить розыгрыш
   de: Anfrage ziehen
+  is-IS: Beiðni um drátt
+  is-RU: ᛒᛂᛁᚧᚿᛁ ᚢᛘ ᛑᚱᚨᛐᛐ
 
 Accept Draw:
   en-US: Accept Draw
@@ -714,6 +822,8 @@ Accept Draw:
   ja: 引き分けを受け入れる
   ru: Принять ничью
   de: Unentschieden akzeptieren
+  is-IS: amþykkja jafntefli
+  is-RU: ᛆᛘᚦᛣᚴᚴᛃᛆ ᛃᛆᚠᚿᛐᛂᚠᛚᛁ
 
 Attacker wins!:
   en-US: Attacker wins!
@@ -727,6 +837,8 @@ Attacker wins!:
   ja: 攻撃者が勝利！
   ru: Атакующий побеждает!
   de: Angreifer gewinnt!
+  is-IS: Sóknarmaðurinn vinnur!
+  is-RU: ᛋᛟᚴᚿᛆᚱᛘᛆᚧᚢᚱᛁᚿᚿ ᚡᛁᚿᚿᚢᚱ!
 
 It's a draw.:
   en-US: It's a draw.
@@ -740,6 +852,8 @@ It's a draw.:
   ja: 引き分けです。
   ru: Ничья.
   de: Es ist unentschieden.
+  is-IS: Það er jafntefli.
+  is-RU: ᚦᛆᚧ ᛂᚱ ᛃᛆᚠᚿᛐᛂᚠᛚᛁ.
 
 Defender wins!:
   en-US: Defender wins!
@@ -753,3 +867,5 @@ Defender wins!:
   ja: ディフェンダーが勝利！
   ru: Победа защитника!
   de: Verteidiger gewinnt!
+  is-IS: Varnarmaðurinn vinnur!
+  is-RU: ᚡᛆᚱᚿᛆᚱᛘᛆᚧᚢᚱᛁᚿᚿ ᚡᛁᚿᚿᚢᚱ!

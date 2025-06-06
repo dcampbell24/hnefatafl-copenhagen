@@ -2158,6 +2158,8 @@ impl Client {
                     Locale::Japanese,
                     Locale::Russian,
                     Locale::German,
+                    Locale::Icelandic,
+                    Locale::IcelandicRunic,
                 ];
 
                 let locale = row![
@@ -2234,6 +2236,8 @@ enum Locale {
     Japanese,
     Russian,
     German,
+    Icelandic,
+    IcelandicRunic,
     Swedish,
 }
 
@@ -2251,6 +2255,8 @@ impl Locale {
             Self::Japanese => "ja".to_string(),
             Self::Russian => "ru".to_string(),
             Self::German => "de".to_string(),
+            Self::Icelandic => "is-IS".to_string(),
+            Self::IcelandicRunic => "is-RU".to_string(),
             Self::Swedish => "sv".to_string(),
         }
     }
@@ -2270,6 +2276,8 @@ impl fmt::Display for Locale {
             Self::Japanese => write!(f, "日本人"),
             Self::Russian => write!(f, "Русский"),
             Self::German => write!(f, "Deutsch"),
+            Self::Icelandic => write!(f, "Íslenska"),
+            Self::IcelandicRunic => write!(f, "ᛇᛋᛚᛂᚿᛋᚴᛁ ᚱᚤᛐᚢᚱᛁᚿᚿ (Íslenska Rúturinn)"),
             Self::Swedish => write!(f, "Svenska"),
         }
     }
