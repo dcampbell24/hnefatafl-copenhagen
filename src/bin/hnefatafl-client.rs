@@ -2158,6 +2158,7 @@ impl Client {
                     Locale::Japanese,
                     Locale::Russian,
                     Locale::German,
+                    Locale::Icelandic,
                 ];
 
                 let locale = row![
@@ -2220,6 +2221,40 @@ impl Client {
     }
 }
 
+// Icelandic Runic created by Alexander R. (https://www.omniglot.com/conscripts/icelandicrunic.htm)
+// A ᛆ
+// Á ᚨ
+// B ᛒ
+// D ᛑ
+// Ð ᚧ
+// E ᛂ
+// É ᛖ
+// F ᚠ
+// G ᚵ
+// H ᚼ
+// I ᛁ
+// Í ᛇ
+// J ᛃ
+// K ᚴ
+// L ᛚ
+// M ᛘ
+// N ᚿ
+// O ᚮ
+// Ó ᛟ
+// P ᛔ
+// R ᚱ
+// S ᛋ
+// T ᛐ
+// U ᚢ
+// Ú ᚤ
+// V ᚡ
+// X ᛪ
+// Y ᛣ
+// Ý ᛨ
+// Þ ᚦ
+// Æ ᛅ
+// Ö ᚯ
+
 #[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 enum Locale {
     #[default]
@@ -2234,6 +2269,8 @@ enum Locale {
     Japanese,
     Russian,
     German,
+    Icelandic,
+    IcelandicRunic,
     Swedish,
 }
 
@@ -2251,6 +2288,8 @@ impl Locale {
             Self::Japanese => "ja".to_string(),
             Self::Russian => "ru".to_string(),
             Self::German => "de".to_string(),
+            Self::Icelandic => "is-IS".to_string(),
+            Self::IcelandicRunic => "is-RU".to_string(),
             Self::Swedish => "sv".to_string(),
         }
     }
@@ -2270,6 +2309,8 @@ impl fmt::Display for Locale {
             Self::Japanese => write!(f, "日本人"),
             Self::Russian => write!(f, "Русский"),
             Self::German => write!(f, "Deutsch"),
+            Self::Icelandic => write!(f, "Íslenska"),
+            Self::IcelandicRunic => write!(f, "ᛇᛋᛚᛂᚿᛋᚴᛁ ᚱᚤᛐᚢᚱᛁᚿᚿ (Íslenska Rúturinn)"),
             Self::Swedish => write!(f, "Svenska"),
         }
     }
