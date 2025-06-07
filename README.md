@@ -16,9 +16,9 @@ An [engine] similar to the [Go Text Protocol], a [client], and a [server].
 [client]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-client.rs
 [server]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-server.rs
 
-## The Engine Messages [Format]
+## The Engine [Message Format]
 
-[Format]: https://docs.rs/hnefatafl-copenhagen/latest/hnefatafl_copenhagen/message/enum.Message.html
+[Message Format]: https://docs.rs/hnefatafl-copenhagen/latest/hnefatafl_copenhagen/message/enum.Message.html
 
 ## Website
 
