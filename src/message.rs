@@ -8,22 +8,95 @@ use crate::{
     time,
 };
 
+/// hnefatafl-text-protocol binary and javascript pkg
+///
+/// The engine is line orientated and takes UTF-8 encoded text. The engine takes the below commands
+/// and returns `= response` on success and `? error_message` on failure. If only comments and
+/// whitespace or the empty string are passed the engine ignores the input and requests another
+/// string. Comments are any text following `#` on a line.
+///
+/// Valid **COLOR** strings are `black` and `white`.
+///
+/// Valid **TO** and **FROM** coordinates are a letter, uppercase or lowercase, `A` though `K`
+/// followed by a number `1` through `11`. For example, `A1`.
+///
+/// **MILLISECONDS** and **ADD_SECONDS** are numbers.
+#[allow(clippy::doc_markdown)]
 #[derive(Debug, Clone)]
 pub enum Message {
+    /// The empty string or only comments and whitespace was passed.
     Empty,
+
+    /// `final_status`
+    ///
+    /// Returns `black_wins` or `draw` or `ongoing` or `white_wins`.
     FinalStatus,
+
+    /// `generate_move`
+    ///
+    /// Returns `play COLOR FROM TO`.
     GenerateMove,
+
+    /// `known_command STRING`
+    ///
+    /// Returns a boolean signifying whether the engine knows the command.
     KnownCommand(String),
+
+    /// `list_commands`
+    ///
+    /// Lists all of the known commands, each separated by a newline.
     ListCommands,
+
+    /// `name`
+    ///
+    /// Prints the name of the package.
     Name,
+
+    /// `play COLOR FROM TO` | `play COLOR resign`
+    ///
+    /// Plays a move and returns **CAPTURES**, where **CAPTURES** has the format `A2 C2 ...`.
     Play(Plae),
+
+    /// `play_from`
+    ///
+    /// Returns a **COLOR** followed by all the valid **FROM** squares.
     PlayFrom,
+
+    /// `play_to COLOR FROM`
+    ///
+    /// Returns all the valid **TO** squares.
     PlayTo((Color, Vertex)),
+
+    /// `protocol_version`
+    ///
+    /// Prints the version of the Hnefatafl Text Protocol.
     ProtocolVersion,
+
+    /// `quit`
+    ///
+    /// quits the engine.
     Quit,
+
+    /// `reset_board`
+    ///
+    /// Sets the board to the starting position.
     ResetBoard,
+
+    /// `show_board`
+    ///
+    /// Displays the board
     ShowBoard,
+
+    /// `time_settings un-timed` | `time_settings fischer MILLISECONDS ADD_SECONDS`
+    ///
+    /// Choose the time settings. For fischer time **MILLISECONDS** is the starting time and
+    /// **ADD_SECONDS** is how much time to add after each move. **ADD_SECONDS** may be zero, in
+    /// which case the time settings are really absolute time.
     TimeSettings(time::TimeSettings),
+
+    /// `version`
+    ///
+    /// Displays the package version.
     Version,
 }
 

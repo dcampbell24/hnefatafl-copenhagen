@@ -16,19 +16,9 @@ An [engine] similar to the [Go Text Protocol], a [client], and a [server].
 [client]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-client.rs
 [server]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-server.rs
 
-## Differences from the Go Text Protocol
+## The Engine Messages [Format]
 
-* The character set is UTF-8.
-* `clear_board` -> `reset_board`
-* `genmove` -> `generate_move`
-* `generate_move` returns `COLOR VERTEX_FROM VERTEX_TO`
-* We keep track of whose turn it is.
-* play takes `play COLOR VERTEX_FROM VERTEX_TO` or `play COLOR resigns` and
-  returns `= CAPTURES`, where `CAPTURES` has the format `a2 c2 ...`. The color
-  is whose turn it is.
-* `showboard` -> `show_board`
-* `time_settings none` | `time_settings fischer MINUTES ADD_SECONDS_AFTER_EACH_MOVE`
-* `final_status_list` -> `final_status` = `black_wins` | `draw` | `ongoing` | `white_wins`
+[Format]: https://docs.rs/hnefatafl-copenhagen/latest/hnefatafl_copenhagen/message/enum.Message.html
 
 ## Website
 
