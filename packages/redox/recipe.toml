@@ -1,0 +1,25 @@
+[source]
+git = "https://github.com/dcampbell24/hnefatafl-copenhagen"
+
+[build]
+template = "custom"
+script = """
+package=hnefatafl-copenhagen
+"${COOKBOOK_CARGO}" build \
+            --manifest-path "${COOKBOOK_SOURCE}/Cargo.toml" \
+            --package "${package}" \
+            --release \
+            --no-default-features \
+            --client
+        mkdir -pv "${COOKBOOK_STAGE}/usr/bin"
+        cp -v \
+            "target/${TARGET}/release/${package}" \
+            "${COOKBOOK_STAGE}/usr/bin/${package}"
+
+mkdir -pv "${COOKBOOK_STAGE}"/usr/games
+mkdir -pv "${COOKBOOK_STAGE}"/ui/apps
+mkdir -pv "${COOKBOOK_STAGE}"/ui/icons/apps
+cp -rv "${COOKBOOK_SOURCE}"/icons/king_256x256.png "${COOKBOOK_STAGE}"/ui/icons/apps/hnefatafl-king_256x256.png
+cp -rv "${COOKBOOK_SOURCE}"/packages/redox/manifest "${COOKBOOK_STAGE}"/ui/apps/hnefatafl-client
+mv "${COOKBOOK_STAGE}/usr/bin/hnefatafl-client" "${COOKBOOK_STAGE}/usr/games/hnefatafl-client"
+"""
