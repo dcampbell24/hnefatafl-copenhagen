@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.2.2 - 2025-06-06
+
+- document `Message`.
 - hnefatafl-client: add Icelandic and Icelandic Runic.
 
 ## [1.2.1] - 2025-06-03
