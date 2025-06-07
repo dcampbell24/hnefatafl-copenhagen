@@ -21,6 +21,45 @@ use crate::{
 /// followed by a number `1` through `11`. For example, `A1`.
 ///
 /// **MILLISECONDS** and **ADD_SECONDS** are numbers.
+///
+/// In order to run the javascript pkg:
+///
+/// ```sh
+/// cargo install wasm-pack
+/// make js
+/// ```
+///
+/// Then copy the pkg folder to your web browser's site folder. For example with Apache on Debian:
+///
+/// ```sh
+/// sudo mkdir --parent /var/www/html/pkg
+/// sudo cp -r pkg /var/www/html
+/// ```
+///
+/// Then load the javascript on a webpage:
+///
+/// ```sh
+/// cat << EOF > /var/www/html/index.html
+/// <!DOCTYPE html>
+/// <html>
+/// <head>
+///     <title>Copenhagen Hnefatafl</title>
+/// </head>
+/// <body>
+///     <h1>Copenhagen Hnefatafl</h1>
+///     <script type="module">
+///         import init, { Game } from '../pkg/hnefatafl_copenhagen.js';
+///
+///         init().then(() => {
+///             const game = new Game();
+///             const output = game.read_line_js("show_board");
+///             console.log(output);
+///         });
+///     </script>
+/// </body>
+/// </html>
+/// EOF
+/// ```
 #[allow(clippy::doc_markdown)]
 #[derive(Debug, Clone)]
 pub enum Message {
