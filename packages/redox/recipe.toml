@@ -10,11 +10,11 @@ package=hnefatafl-copenhagen
             --package "${package}" \
             --release \
             --no-default-features \
-            --client
+            --features client
         mkdir -pv "${COOKBOOK_STAGE}/usr/bin"
         cp -v \
-            "target/${TARGET}/release/${package}" \
-            "${COOKBOOK_STAGE}/usr/bin/${package}"
+            "target/${TARGET}/release/hnefatafl-client" \
+            "${COOKBOOK_STAGE}/usr/bin/hnefatafl-client"
 
 mkdir -pv "${COOKBOOK_STAGE}"/usr/games
 mkdir -pv "${COOKBOOK_STAGE}"/ui/apps
