@@ -59,13 +59,13 @@ In your terminal run the following to run the client with [Rust's][2] cargo:
 ```sh
 git clone https://github.com/dcampbell24/hnefatafl-copenhagen.git
 cd hnefatafl-copenhagen
-cargo run --release --bin hnefatafl-client
+cargo run --release --example hnefatafl-client
 ```
 
 Optionally set this to make it less noisy and get debugging statements:
 
 ```sh
-RUST_LOG=hnefatafl_client=debug cargo run --release --bin hnefatafl-client
+RUST_LOG=hnefatafl_client=debug cargo run --release --example hnefatafl-client
 ```
 
 [2]: https://www.rust-lang.org/learn/get-started
