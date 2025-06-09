@@ -14,11 +14,15 @@ keywords = ["board-game", "copenhagen", "hnefatafl", "tafl"]
 categories = ["game-engines", "games"]
 default-run = "hnefatafl-server-full"
 
-[dependencies.iced]
+[dev-dependencies.iced]
 git = "https://github.com/iced-rs/iced"
 default-features = false
 features = ["wgpu", "tiny-skia", "web-colors", "thread-pool"]
-optional = true
+
+[dev-dependencies]
+criterion = { version = "0.6", features = ["html_reports"] }
+futures = "0.3"
+rust-i18n = "3"
 
 [dependencies]
 anyhow = "1"
@@ -40,9 +44,7 @@ serde = { version = "1", features = ["derive"] }
 serde_with = "3"
 
 # client only
-futures = { version = "0.3", optional = true }
 rodio = { version = "0.20", optional = true }
-rust-i18n = { version = "3", optional = true }
 webbrowser = { version = "1", features = ["hardened"], optional = true }
 
 # js engine only
@@ -57,29 +59,26 @@ lettre = { version = "0.11", optional = true }
 password-hash = { version = "0.5", optional = true }
 
 [features]
-default = ["client", "server", "sound", "timer", "www"]
-client = ["dep:futures", "dep:iced", "dep:rust-i18n"]
-icon_2 = []
+default = ["server", "sound", "timer", "www"]
 js = ["dep:wasm-bindgen", "getrandom/js"]
 server = ["dep:argon2", "dep:lettre", "dep:password-hash"]
+urls = ["dep:reqwest"]
+
+# client only
+icon_2 = []
 sound = ["dep:rodio"]
 timer = ["iced/smol"]
-urls = ["dep:reqwest"]
 www = ["dep:webbrowser"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
-[[bin]]
+[[example]]
 name = "hnefatafl-client"
-required-features = ["client"]
 
 [[bin]]
 name = "hnefatafl-server-full"
 required-features = ["server"]
-
-[dev-dependencies]
-criterion = { version = "0.6", features = ["html_reports"] }
 
 [[bench]]
 name = "hnefatafl_rs"
@@ -114,7 +113,7 @@ panic = "abort"
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
 extended-description = "The engine is similar to the Go Text Protocol."
-features = ["client", "server", "sound", "timer", "www"]
+features = ["server", "sound", "timer", "www"]
 assets = [
     ["icons/king_16x16.png", "usr/share/icons/hicolor/16x16/apps/org.hnefatafl.hnefatafl_client.png", "644"],
     ["icons/king_22x22.png", "usr/share/icons/hicolor/22x22/apps/org.hnefatafl.hnefatafl_client.png", "644"],
@@ -132,8 +131,8 @@ assets = [
     ["packages/hnefatafl-ai-00-attacker.service", "lib/systemd/system/", "644"],
     ["packages/hnefatafl-ai-01-defender.service", "lib/systemd/system/", "644"],
     ["packages/hnefatafl.service", "lib/systemd/system/", "644"],
+    ["target/release/examples/hnefatafl-client", "usr/games/", "755"],
     ["target/release/hnefatafl-ai", "usr/games/", "755"],
-    ["target/release/hnefatafl-client", "usr/games/", "755"],
     ["target/release/hnefatafl-server-full", "usr/games/", "755"],
 ]
 changelog = "packages/changelog"

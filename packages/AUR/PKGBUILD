@@ -31,7 +31,7 @@ sha256sums=("224f05477fe1c44423bf250f49cbfd0481b72fa91b6e3e36bb1ebc065c78d0ec")
 build() {
     tar -xvzf v1.2.1.tar.gz
     cd "$pkgname-$pkgver"
-    cargo build --release --bin hnefatafl-client --no-default-features --features client,sound,timer,www
+    cargo build --release --example hnefatafl-client --no-default-features --features sound,timer,www
 
     pandoc\
         --variable=title:hnefatafl-client\
@@ -45,7 +45,7 @@ build() {
 
 package() {
     cd "$pkgname-$pkgver"
-    install -Dm755 "target/release/hnefatafl-client" -t "$pkgdir/usr/bin"
+    install -Dm755 "target/release/examples/hnefatafl-client" -t "$pkgdir/usr/bin"
     install -Dm644 LICENSE-APACHE "$pkgdir/usr/share/licenses/$pkgname/LICENSE-MIT"
     install -Dm644 LICENSE-MIT "$pkgdir/usr/share/licenses/$pkgname/LICENSE-MIT"
     install -Dm644 "icons/king_16x16.png" "$pkgdir/usr/share/icons/hicolor/16x16/apps/org.hnefatafl.hnefatafl_client.png"

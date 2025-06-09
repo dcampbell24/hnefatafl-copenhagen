@@ -51,7 +51,7 @@ Section "Hnefatafl" SecHnefatafl
 
   SetOutPath "$INSTDIR"
 
-  File "..\..\..\target\release\hnefatafl-client.exe"
+  File "..\..\..\target\release\examples\hnefatafl-client.exe"
   File "king_256x256.ico"
 
   ;Store installation folder
