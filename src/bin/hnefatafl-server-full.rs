@@ -89,6 +89,22 @@ fn main() -> anyhow::Result<()> {
                 _ => return Err(anyhow::Error::msg(err.to_string())),
             },
         }
+
+        match fs::read_to_string(archived_games_file()) {
+            Ok(archived_games_string) => {
+                let mut archived_games = Vec::new();
+
+                for line in archived_games_string.lines() {
+                    let archived_game: ArchivedGame = ron::from_str(line)?;
+                    archived_games.push(archived_game);
+                }
+
+                server.archived_games = archived_games;
+            }
+            Err(err) => {
+                error!("archived games file not found: {err}");
+            }
+        }
     }
 
     if args.skip_the_data_file {
@@ -130,6 +146,17 @@ fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+fn archived_games_file() -> PathBuf {
+    let mut archived_games_file = if let Some(data_file) = dirs::data_dir() {
+        data_file
+    } else {
+        PathBuf::new()
+    };
+
+    archived_games_file.push("hnefatafl-archived-games.ron");
+    archived_games_file
 }
 
 fn data_file() -> PathBuf {
@@ -303,7 +330,7 @@ impl Default for UnixTimestamp {
     }
 }
 
-#[derive(Clone, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 struct Server {
     #[serde(default)]
     game_id: usize,
@@ -335,21 +362,16 @@ impl Server {
         let Some(defender) = self.accounts.0.get(&game.defender) else {
             return Err(anyhow::Error::msg("failed to get rating!"));
         };
-
         let game = ArchivedGame::new(game, attacker.rating.clone(), defender.rating.clone());
 
-        let mut archived_games_file = if let Some(data_file) = dirs::data_dir() {
-            data_file
-        } else {
-            PathBuf::new()
-        };
-        archived_games_file.push("hnefatafl-archived-games.ron");
-
+        let archived_games_file = archived_games_file();
         let game_string = ron::ser::to_string(&game)?;
+
         let mut file = OpenOptions::new()
             .create(true)
             .append(true)
             .open(archived_games_file)?;
+
         file.write_all(game_string.as_bytes())?;
         file.write_all("\n".as_bytes())?;
 
