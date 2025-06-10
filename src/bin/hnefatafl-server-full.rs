@@ -3,7 +3,7 @@
 use std::{
     collections::HashMap,
     env,
-    fs::{self, File},
+    fs::{self, File, OpenOptions},
     io::{BufRead, BufReader, ErrorKind, Write},
     net::{TcpListener, TcpStream},
     path::PathBuf,
@@ -328,6 +328,36 @@ struct Server {
 }
 
 impl Server {
+    fn append_archived_game(&mut self, game: ServerGame) -> anyhow::Result<()> {
+        let Some(attacker) = self.accounts.0.get(&game.attacker) else {
+            return Err(anyhow::Error::msg("failed to get rating!"));
+        };
+        let Some(defender) = self.accounts.0.get(&game.defender) else {
+            return Err(anyhow::Error::msg("failed to get rating!"));
+        };
+
+        let game = ArchivedGame::new(game, attacker.rating.clone(), defender.rating.clone());
+
+        let mut archived_games_file = if let Some(data_file) = dirs::data_dir() {
+            data_file
+        } else {
+            PathBuf::new()
+        };
+        archived_games_file.push("hnefatafl-archived-games.ron");
+
+        let game_string = ron::ser::to_string(&game)?;
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(archived_games_file)?;
+        file.write_all(game_string.as_bytes())?;
+        file.write_all("\n".as_bytes())?;
+
+        self.archived_games.push(game);
+
+        Ok(())
+    }
+
     fn bcc_mailboxes(&self, username: &str) -> Vec<Mailbox> {
         let mut emails = Vec::new();
 
@@ -684,7 +714,13 @@ impl Server {
             }
 
             self.games_light.0.remove(&id);
-            self.archived_games.push(ArchivedGame::new(game));
+
+            self.append_archived_game(game)
+                .map_err(|err| {
+                    error!("{err}");
+                })
+                .ok()?;
+
             self.save_server();
         }
 
@@ -840,7 +876,13 @@ impl Server {
                     panic!("the game should exist")
                 };
                 self.games_light.0.remove(&index);
-                self.archived_games.push(ArchivedGame::new(game));
+
+                self.append_archived_game(game)
+                    .map_err(|err| {
+                        error!("{err}");
+                    })
+                    .ok()?;
+
                 self.save_server();
 
                 return None;
@@ -902,7 +944,13 @@ impl Server {
                     panic!("the game should exist")
                 };
                 self.games_light.0.remove(&index);
-                self.archived_games.push(ArchivedGame::new(game));
+
+                self.append_archived_game(game)
+                    .map_err(|err| {
+                        error!("{err}");
+                    })
+                    .ok()?;
+
                 self.save_server();
 
                 return None;

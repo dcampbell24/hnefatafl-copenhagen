@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-server-full: archive games to file.
+
 ## 1.2.3 - 2025-06-07
 
 - Update the `Message` documentation.

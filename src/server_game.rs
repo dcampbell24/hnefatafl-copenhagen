@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     game::Game,
+    glicko::Rating,
     play::Play,
     rating::Rated,
     role::Role,
@@ -21,7 +22,9 @@ use crate::{
 pub struct ArchivedGame {
     pub id: usize,
     pub attacker: String,
+    pub attacker_rating: Rating,
     pub defender: String,
+    pub defender_rating: Rating,
     pub rated: Rated,
     pub plays: Vec<Play>,
     pub status: Status,
@@ -30,11 +33,13 @@ pub struct ArchivedGame {
 
 impl ArchivedGame {
     #[must_use]
-    pub fn new(game: ServerGame) -> Self {
+    pub fn new(game: ServerGame, attacker_rating: Rating, defender_rating: Rating) -> Self {
         Self {
             id: game.id,
             attacker: game.attacker,
+            attacker_rating,
             defender: game.defender,
+            defender_rating,
             rated: game.rated,
             plays: game.game.plays,
             status: game.game.status,
