@@ -483,7 +483,7 @@ impl Server {
 
     /// ```sh
     /// # PASSWORD can be the empty string.
-    /// <- VERSION_ID create_account david PASSWORD
+    /// <- VERSION_ID create_account player-1 PASSWORD
     /// -> = login
     /// ```
     fn create_account(
@@ -1563,7 +1563,7 @@ impl Server {
 
     /// ```sh
     /// <- new_game attacker rated fischer 900000 10
-    /// -> = new_game game 6 david _ rated fischer 900000 10 _ false {}
+    /// -> = new_game game 6 player-1 _ rated fischer 900000 10 _ false {}
     /// ```
     fn new_game(
         &mut self,
@@ -2019,7 +2019,7 @@ mod tests {
         let mut tcp_1 = TcpStream::connect(ADDRESS)?;
         let mut reader_1 = BufReader::new(tcp_1.try_clone()?);
 
-        tcp_1.write_all(format!("{VERSION_ID} create_account david\n").as_bytes())?;
+        tcp_1.write_all(format!("{VERSION_ID} create_account player-1\n").as_bytes())?;
         reader_1.read_line(&mut buf)?;
         assert_eq!(buf, "= login\n");
         buf.clear();
@@ -2033,14 +2033,14 @@ mod tests {
         reader_1.read_line(&mut buf)?;
         assert_eq!(
             buf,
-            "= new_game game 0 david _ rated fischer 900000 10 _ false {}\n"
+            "= new_game game 0 player-1 _ rated fischer 900000 10 _ false {}\n"
         );
         buf.clear();
 
         let mut tcp_2 = TcpStream::connect(ADDRESS)?;
         let mut reader_2 = BufReader::new(tcp_2.try_clone()?);
 
-        tcp_2.write_all(format!("{VERSION_ID} create_account abby\n").as_bytes())?;
+        tcp_2.write_all(format!("{VERSION_ID} create_account player-2\n").as_bytes())?;
         reader_2.read_line(&mut buf)?;
         assert_eq!(buf, "= login\n");
         buf.clear();
@@ -2057,11 +2057,17 @@ mod tests {
         // Todo: "join_game_pending 0\n" should not be allowed!
         tcp_1.write_all(b"join_game 0\n")?;
         reader_1.read_line(&mut buf)?;
-        assert_eq!(buf, "= join_game david abby rated fischer 900000 10\n");
+        assert_eq!(
+            buf,
+            "= join_game player-1 player-2 rated fischer 900000 10\n"
+        );
         buf.clear();
 
         reader_2.read_line(&mut buf)?;
-        assert_eq!(buf, "= join_game david abby rated fischer 900000 10\n");
+        assert_eq!(
+            buf,
+            "= join_game player-1 player-2 rated fischer 900000 10\n"
+        );
         buf.clear();
 
         reader_1.read_line(&mut buf)?;
