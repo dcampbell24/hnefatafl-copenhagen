@@ -20,6 +20,15 @@ impl Time {
     }
 }
 
+impl Default for Time {
+    fn default() -> Self {
+        Self {
+            add_seconds: 10,
+            milliseconds_left: 15 * 60_000,
+        }
+    }
+}
+
 impl fmt::Display for Time {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let minutes = self.milliseconds_left / 60_000;
@@ -30,43 +39,56 @@ impl fmt::Display for Time {
     }
 }
 
-#[derive(Clone, Default, Deserialize, Eq, PartialEq, Serialize)]
-pub struct TimeSettings(pub Option<Time>);
+#[derive(Clone, Deserialize, Eq, PartialEq, Serialize)]
+pub enum TimeSettings {
+    Timed(Time),
+    UnTimed,
+}
+
+impl Default for TimeSettings {
+    fn default() -> Self {
+        Self::Timed(Time {
+            ..Default::default()
+        })
+    }
+}
 
 impl TimeSettings {
     #[must_use]
     pub fn fmt_shorthand(&self) -> String {
-        if let Some(time) = &self.0 {
-            time.fmt_shorthand()
-        } else {
-            "-".to_string()
+        match self {
+            Self::Timed(time) => time.fmt_shorthand(),
+            Self::UnTimed => "-".to_string(),
         }
     }
 }
 
 impl fmt::Debug for TimeSettings {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(time) = &self.0 {
-            write!(f, "fischer {} {}", time.milliseconds_left, time.add_seconds)
-        } else {
-            write!(f, "un-timed _ _")
+        match self {
+            Self::Timed(time) => {
+                write!(f, "fischer {} {}", time.milliseconds_left, time.add_seconds)
+            }
+            Self::UnTimed => write!(f, "un-timed _ _"),
         }
     }
 }
 
 impl fmt::Display for TimeSettings {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(time) = &self.0 {
-            write!(f, "{time}")
-        } else {
-            write!(f, "-")
+        match self {
+            Self::Timed(time) => write!(f, "{time}"),
+            Self::UnTimed => write!(f, "-"),
         }
     }
 }
 
 impl From<TimeSettings> for bool {
     fn from(time_settings: TimeSettings) -> Self {
-        time_settings.0.is_some()
+        match time_settings {
+            TimeSettings::Timed(_) => true,
+            TimeSettings::UnTimed => false,
+        }
     }
 }
 
@@ -77,7 +99,7 @@ impl TryFrom<Vec<&str>> for TimeSettings {
         let err_msg = "expected: time_settings ('un-timed' | 'fischer') MILLISECONDS ADD_SECONDS";
 
         if Some("un-timed").as_ref() == args.get(1) {
-            return Ok(Self(None));
+            return Ok(Self::UnTimed);
         }
 
         if args.len() < 4 {
@@ -93,10 +115,10 @@ impl TryFrom<Vec<&str>> for TimeSettings {
                 .parse::<i64>()
                 .context("time_settings: arg 3 is not an integer")?;
 
-            Ok(Self(Some(Time {
+            Ok(Self::Timed(Time {
                 add_seconds: arg_3,
                 milliseconds_left: arg_2,
-            })))
+            }))
         } else {
             Err(anyhow::Error::msg(err_msg))
         }

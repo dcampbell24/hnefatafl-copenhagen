@@ -83,16 +83,14 @@ impl fmt::Display for Game {
 
         writeln!(f, "status: {}", self.status)?;
 
-        if let Some(time) = &self.black_time.0 {
-            writeln!(f, "black_time: {time}")?;
-        } else {
-            writeln!(f, "black_time: infinite")?;
+        match &self.black_time {
+            TimeSettings::Timed(time) => writeln!(f, "black_time: {time}")?,
+            TimeSettings::UnTimed => writeln!(f, "black_time: infinite")?,
         }
 
-        if let Some(time) = &self.white_time.0 {
-            writeln!(f, "white_time: {time}")?;
-        } else {
-            writeln!(f, "white_time: infinite")?;
+        match &self.white_time {
+            TimeSettings::Timed(time) => writeln!(f, "white_time: {time}")?,
+            TimeSettings::UnTimed => writeln!(f, "white_time: infinite")?,
         }
 
         write!(f, "turn: {}", self.turn)
@@ -246,20 +244,12 @@ impl Game {
     /// If the game is already over or the move is illegal.
     pub fn play(&mut self, play: &Plae) -> anyhow::Result<Captures> {
         if self.status == Status::Ongoing {
-            if let (status, Some(timer), Some(time)) = match self.turn {
-                Color::Black => (
-                    Status::WhiteWins,
-                    self.black_time.0.as_mut(),
-                    self.time.as_mut(),
-                ),
+            if let (status, TimeSettings::Timed(timer), Some(time)) = match self.turn {
+                Color::Black => (Status::WhiteWins, &mut self.black_time, self.time.as_mut()),
                 Color::Colorless => {
                     unreachable!("It can't be no one's turn when the game is ongoing!")
                 }
-                Color::White => (
-                    Status::BlackWins,
-                    self.white_time.0.as_mut(),
-                    self.time.as_mut(),
-                ),
+                Color::White => (Status::BlackWins, &mut self.white_time, self.time.as_mut()),
             } {
                 let now = Local::now().to_utc().timestamp_millis();
                 timer.milliseconds_left -= now - *time;
@@ -415,15 +405,18 @@ impl Game {
                 Ok(Some(String::new()))
             }
             Message::ShowBoard => Ok(Some(self.board.to_string())),
-            Message::TimeSettings(mut time_settings) => {
-                if let Some(time) = time_settings.0.take() {
-                    self.black_time.0 = Some(time.clone());
-                    self.white_time.0 = Some(time);
-                    self.time = Some(Local::now().to_utc().timestamp_millis());
-                } else {
-                    self.black_time.0 = None;
-                    self.white_time.0 = None;
-                    self.time = None;
+            Message::TimeSettings(time_settings) => {
+                match time_settings {
+                    TimeSettings::Timed(time) => {
+                        self.black_time = TimeSettings::Timed(time.clone());
+                        self.white_time = TimeSettings::Timed(time);
+                        self.time = Some(Local::now().to_utc().timestamp_millis());
+                    }
+                    TimeSettings::UnTimed => {
+                        self.black_time = TimeSettings::UnTimed;
+                        self.white_time = TimeSettings::UnTimed;
+                        self.time = None;
+                    }
                 }
 
                 Ok(Some(String::new()))

@@ -612,34 +612,31 @@ impl Client {
             }
             Message::GameSubmit => {
                 if let Some(role) = self.role_selected {
-                    if self.timed.0.is_some() {
+                    if let TimeSettings::Timed(_) = self.timed {
                         match (
                             self.time_minutes.parse::<i64>(),
                             self.time_add_seconds.parse::<i64>(),
                         ) {
                             (Ok(minutes), Ok(add_seconds)) => {
-                                self.timed.0 = Some(Time {
+                                self.timed = TimeSettings::Timed(Time {
                                     add_seconds,
                                     milliseconds_left: minutes * 60_000,
                                 });
                             }
                             (Ok(minutes), Err(_)) => {
-                                self.timed.0 = Some(Time {
-                                    add_seconds: 10,
+                                self.timed = TimeSettings::Timed(Time {
                                     milliseconds_left: minutes * 60_000,
+                                    ..Time::default()
                                 });
                             }
                             (Err(_), Ok(add_seconds)) => {
-                                self.timed.0 = Some(Time {
+                                self.timed = TimeSettings::Timed(Time {
                                     add_seconds,
-                                    milliseconds_left: 15 * 60_000,
+                                    ..Time::default()
                                 });
                             }
                             (Err(_), Err(_)) => {
-                                self.timed.0 = Some(Time {
-                                    add_seconds: 10,
-                                    milliseconds_left: 15 * 60_000,
-                                });
+                                self.timed = TimeSettings::default();
                             }
                         }
                     }
@@ -690,13 +687,13 @@ impl Client {
                 if game.status == Status::Ongoing {
                     match game.turn {
                         Color::Black => {
-                            if let Some(time) = &mut self.time_defender.0 {
+                            if let TimeSettings::Timed(time) = &mut self.time_defender {
                                 time.milliseconds_left += time.add_seconds * 1_000;
                             }
                         }
                         Color::Colorless => {}
                         Color::White => {
-                            if let Some(time) = &mut self.time_attacker.0 {
+                            if let TimeSettings::Timed(time) = &mut self.time_attacker {
                                 time.milliseconds_left += time.add_seconds * 1_000;
                             }
                         }
@@ -933,8 +930,8 @@ impl Client {
 
                                     match game.turn {
                                         Color::Black => {
-                                            if let (Some(time), Some(time_ago)) =
-                                                (&mut self.time_attacker.0, game.time)
+                                            if let (TimeSettings::Timed(time), Some(time_ago)) =
+                                                (&mut self.time_attacker, game.time)
                                             {
                                                 let now = Local::now().to_utc().timestamp_millis();
                                                 time.milliseconds_left -= now - time_ago;
@@ -945,8 +942,8 @@ impl Client {
                                         }
                                         Color::Colorless => {}
                                         Color::White => {
-                                            if let (Some(time), Some(time_ago)) =
-                                                (&mut self.time_defender.0, game.time)
+                                            if let (TimeSettings::Timed(time), Some(time_ago)) =
+                                                (&mut self.time_defender, game.time)
                                             {
                                                 let now = Local::now().to_utc().timestamp_millis();
                                                 time.milliseconds_left -= now - time_ago;
@@ -1067,13 +1064,13 @@ impl Client {
                             if game.status == Status::Ongoing {
                                 match game.turn {
                                     Color::Black => {
-                                        if let Some(time) = &mut self.time_defender.0 {
+                                        if let TimeSettings::Timed(time) = &mut self.time_defender {
                                             time.milliseconds_left += time.add_seconds * 1_000;
                                         }
                                     }
                                     Color::Colorless => {}
                                     Color::White => {
-                                        if let Some(time) = &mut self.time_attacker.0 {
+                                        if let TimeSettings::Timed(time) = &mut self.time_attacker {
                                             time.milliseconds_left += time.add_seconds * 1_000;
                                         }
                                     }
@@ -1174,7 +1171,7 @@ impl Client {
                 if let Some(game) = &mut self.game {
                     match game.turn {
                         Color::Black => {
-                            if let Some(time) = &mut self.time_attacker.0 {
+                            if let TimeSettings::Timed(time) = &mut self.time_attacker {
                                 time.milliseconds_left -= 100;
                                 if time.milliseconds_left < 0 {
                                     time.milliseconds_left = 0;
@@ -1183,7 +1180,7 @@ impl Client {
                         }
                         Color::Colorless => {}
                         Color::White => {
-                            if let Some(time) = &mut self.time_defender.0 {
+                            if let TimeSettings::Timed(time) = &mut self.time_defender {
                                 time.milliseconds_left -= 100;
                                 if time.milliseconds_left < 0 {
                                     time.milliseconds_left = 0;
@@ -1200,12 +1197,9 @@ impl Client {
             }
             Message::TimeCheckbox(time_selected) => {
                 if time_selected {
-                    self.timed.0 = Some(Time {
-                        add_seconds: 10,
-                        milliseconds_left: 15 * 60_000,
-                    });
+                    self.timed = TimeSettings::default();
                 } else {
-                    self.timed.0 = None;
+                    self.timed = TimeSettings::UnTimed;
                 }
             }
             Message::TimeMinutes(string) => {
@@ -1905,7 +1899,7 @@ impl Client {
                         .on_toggle(Message::TimeCheckbox)
                 ];
 
-                if self.timed.0.is_some() {
+                if let TimeSettings::Timed(_) = self.timed {
                     time = time.push(text(t!("minutes")).shaping(text::Shaping::Advanced));
                     time = time.push(
                         text_input("15", &self.time_minutes)

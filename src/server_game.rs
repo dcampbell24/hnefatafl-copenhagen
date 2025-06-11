@@ -271,12 +271,12 @@ impl TryFrom<&[&str]> for ServerGameLight {
         };
 
         let timed = match timed {
-            "fischer" => TimeSettings(Some(Time {
+            "fischer" => TimeSettings::Timed(Time {
                 add_seconds: add_seconds.parse::<i64>()?,
                 milliseconds_left: minutes.parse::<i64>()?,
-            })),
+            }),
             // "un-timed"
-            _ => TimeSettings(None),
+            _ => TimeSettings::UnTimed,
         };
 
         let Ok(challenge_accepted) = <bool as FromStr>::from_str(challenge_accepted) else {

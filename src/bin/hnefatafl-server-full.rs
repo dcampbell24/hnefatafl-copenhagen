@@ -596,8 +596,8 @@ impl Server {
             match game.game.turn {
                 Color::Black => {
                     if game.game.status == Status::Ongoing {
-                        if let (Some(game_time), Some(black_time)) =
-                            (&mut game.game.time, &mut game.game.black_time.0)
+                        if let (Some(game_time), TimeSettings::Timed(black_time)) =
+                            (&mut game.game.time, &mut game.game.black_time)
                         {
                             if black_time.milliseconds_left > 0 {
                                 let now = Local::now().to_utc().timestamp_millis();
@@ -618,8 +618,8 @@ impl Server {
                 Color::Colorless => {}
                 Color::White => {
                     if game.game.status == Status::Ongoing {
-                        if let (Some(game_time), Some(white_time)) =
-                            (&mut game.game.time, &mut game.game.white_time.0)
+                        if let (Some(game_time), TimeSettings::Timed(white_time)) =
+                            (&mut game.game.time, &mut game.game.white_time)
                         {
                             if white_time.milliseconds_left > 0 {
                                 let now = Local::now().to_utc().timestamp_millis();
