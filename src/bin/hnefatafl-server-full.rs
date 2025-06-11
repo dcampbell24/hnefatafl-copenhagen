@@ -737,11 +737,13 @@ impl Server {
 
             self.games_light.0.remove(&id);
 
-            self.append_archived_game(game)
-                .map_err(|err| {
-                    error!("{err}");
-                })
-                .ok()?;
+            if !self.skip_the_data_file {
+                self.append_archived_game(game)
+                    .map_err(|err| {
+                        error!("{err}");
+                    })
+                    .ok()?;
+            }
 
             self.save_server();
         }
@@ -900,11 +902,13 @@ impl Server {
 
                 self.games_light.0.remove(&index);
 
-                self.append_archived_game(game)
-                    .map_err(|err| {
-                        error!("{err}");
-                    })
-                    .ok()?;
+                if !self.skip_the_data_file {
+                    self.append_archived_game(game)
+                        .map_err(|err| {
+                            error!("{err}");
+                        })
+                        .ok()?;
+                }
 
                 self.save_server();
 
@@ -969,11 +973,13 @@ impl Server {
 
                 self.games_light.0.remove(&index);
 
-                self.append_archived_game(game)
-                    .map_err(|err| {
-                        error!("{err}");
-                    })
-                    .ok()?;
+                if !self.skip_the_data_file {
+                    self.append_archived_game(game)
+                        .map_err(|err| {
+                            error!("{err}");
+                        })
+                        .ok()?;
+                }
 
                 self.save_server();
 
