@@ -897,6 +897,7 @@ impl Server {
                 let Some(game) = self.games.0.remove(&index) else {
                     panic!("the game should exist")
                 };
+
                 self.games_light.0.remove(&index);
 
                 self.append_archived_game(game)
@@ -965,6 +966,7 @@ impl Server {
                 let Some(game) = self.games.0.remove(&index) else {
                     panic!("the game should exist")
                 };
+
                 self.games_light.0.remove(&index);
 
                 self.append_archived_game(game)
@@ -1807,12 +1809,23 @@ impl Server {
 
         if let Some(game) = self.games.0.get_mut(&id) {
             game.texts.push_front(text.clone());
-            text = format!("= text_game {text}");
-            let _ok = game.attacker_tx.send(text.clone());
-            let _ok = game.defender_tx.send(text.clone());
         }
 
+        text = format!("= text_game {text}");
+
         if let Some(game) = self.games_light.0.get(&id) {
+            if let Some(attacker_channel) = game.attacker_channel {
+                if let Some(sender) = self.clients.get(&attacker_channel) {
+                    let _ok = sender.send(text.clone());
+                }
+            }
+
+            if let Some(defender_channel) = game.defender_channel {
+                if let Some(sender) = self.clients.get(&defender_channel) {
+                    let _ok = sender.send(text.clone());
+                }
+            }
+
             for spectator in game.spectators.values() {
                 if let Some(sender) = self.clients.get(spectator) {
                     let _ok = sender.send(text.clone());
