@@ -22,6 +22,7 @@ features = ["wgpu", "tiny-skia", "web-colors", "thread-pool", "smol"]
 [dev-dependencies]
 criterion = { version = "0.6", features = ["html_reports"] }
 futures = "0.3"
+rodio = "0.20"
 rust-i18n = "3"
 
 [dependencies]
@@ -44,7 +45,6 @@ serde = { version = "1", features = ["derive"] }
 serde_with = "3"
 
 # client only
-rodio = { version = "0.20", optional = true }
 webbrowser = { version = "1", features = ["hardened"], optional = true }
 
 # js engine only
@@ -59,14 +59,13 @@ lettre = { version = "0.11", optional = true }
 password-hash = { version = "0.5", optional = true }
 
 [features]
-default = ["server", "sound", "www"]
+default = ["server", "www"]
 js = ["dep:wasm-bindgen", "getrandom/js"]
 server = ["dep:argon2", "dep:lettre", "dep:password-hash"]
 urls = ["dep:reqwest"]
 
 # client only
 icon_2 = []
-sound = ["dep:rodio"]
 www = ["dep:webbrowser"]
 
 [lib]
@@ -112,7 +111,7 @@ panic = "abort"
 copyright = "2025 David Lawrence Campbell"
 maintainer = "David Campbell <dcampbell24@gmail.com>"
 extended-description = "The engine is similar to the Go Text Protocol."
-features = ["server", "sound", "www"]
+features = ["server", "www"]
 assets = [
     ["icons/king_16x16.png", "usr/share/icons/hicolor/16x16/apps/org.hnefatafl.hnefatafl_client.png", "644"],
     ["icons/king_22x22.png", "usr/share/icons/hicolor/22x22/apps/org.hnefatafl.hnefatafl_client.png", "644"],

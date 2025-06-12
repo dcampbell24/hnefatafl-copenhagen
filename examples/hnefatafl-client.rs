@@ -4,7 +4,6 @@
 #[macro_use]
 extern crate rust_i18n;
 
-#[cfg(feature = "sound")]
 use std::{io::Cursor, time::Duration};
 
 use std::{
@@ -861,7 +860,6 @@ impl Client {
                                     _ => {}
                                 }
 
-                                #[cfg(feature = "sound")]
                                 if !self.sound_muted {
                                     thread::spawn(move || {
                                         let (_stream, stream_handle) =
@@ -1391,15 +1389,12 @@ impl Client {
             },
         }
 
-        #[cfg(feature = "sound")]
         if self.sound_muted {
             return;
         }
 
-        #[cfg(feature = "sound")]
         let capture = !self.captures.is_empty();
 
-        #[cfg(feature = "sound")]
         thread::spawn(move || {
             let (_stream, stream_handle) = rodio::OutputStream::try_default()?;
             let cursor = if capture {
