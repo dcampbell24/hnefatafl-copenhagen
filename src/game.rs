@@ -50,7 +50,7 @@ pub struct Game {
     #[wasm_bindgen(skip)]
     pub status: Status,
     #[wasm_bindgen(skip)]
-    pub time: Option<i64>,
+    pub time: TimeUnix,
     #[wasm_bindgen(skip)]
     pub black_time: TimeSettings,
     #[wasm_bindgen(skip)]
