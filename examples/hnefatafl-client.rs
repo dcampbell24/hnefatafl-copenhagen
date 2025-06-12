@@ -251,6 +251,8 @@ struct Client {
     game_id: usize,
     #[serde(skip)]
     games_light: ServerGamesLight,
+    #[serde(skip)]
+    game_settings: NewGameSettings,
     #[serde(default)]
     locale_selected: Locale,
     #[serde(skip)]
@@ -268,11 +270,7 @@ struct Client {
     #[serde(skip)]
     play_to_previous: Option<Vertex>,
     #[serde(skip)]
-    rated: Rated,
-    #[serde(skip)]
     request_draw: bool,
-    #[serde(skip)]
-    role_selected: Option<Role>,
     #[serde(skip)]
     screen: Screen,
     #[serde(skip)]
@@ -292,12 +290,6 @@ struct Client {
     #[serde(default)]
     theme: Theme,
     #[serde(skip)]
-    timed: TimeSettings,
-    #[serde(skip)]
-    time_minutes: String,
-    #[serde(skip)]
-    time_add_seconds: String,
-    #[serde(skip)]
     time_attacker: TimeSettings,
     #[serde(skip)]
     time_defender: TimeSettings,
@@ -309,6 +301,20 @@ struct Client {
     users: HashMap<String, User>,
     #[serde(skip)]
     strings: HashMap<String, String>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize)]
+struct NewGameSettings {
+    #[serde(skip)]
+    rated: Rated,
+    #[serde(skip)]
+    role_selected: Option<Role>,
+    #[serde(skip)]
+    timed: TimeSettings,
+    #[serde(skip)]
+    time_minutes: String,
+    #[serde(skip)]
+    time_add_seconds: String,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -546,7 +552,7 @@ impl Client {
                     panic!("the game must exist");
                 };
 
-                self.role_selected = if game.attacker.is_some() {
+                self.game_settings.role_selected = if game.attacker.is_some() {
                     Some(Role::Defender)
                 } else {
                     Some(Role::Attacker)
@@ -604,39 +610,42 @@ impl Client {
                 self.save_client();
             }
             Message::OpenUrl(string) => open_url(&string),
-            Message::GameNew => self.screen = Screen::GameNew,
+            Message::GameNew => {
+                self.game_settings = NewGameSettings::default();
+                self.screen = Screen::GameNew;
+            }
             Message::GameResume(id) => {
                 self.game_id = id;
                 self.send(format!("resume_game {id}\n"));
                 self.send(format!("text_game {id} {}\n", t!("I rejoined.")));
             }
             Message::GameSubmit => {
-                if let Some(role) = self.role_selected {
-                    if let TimeSettings::Timed(_) = self.timed {
+                if let Some(role) = self.game_settings.role_selected {
+                    if let TimeSettings::Timed(_) = self.game_settings.timed {
                         match (
-                            self.time_minutes.parse::<i64>(),
-                            self.time_add_seconds.parse::<i64>(),
+                            self.game_settings.time_minutes.parse::<i64>(),
+                            self.game_settings.time_add_seconds.parse::<i64>(),
                         ) {
                             (Ok(minutes), Ok(add_seconds)) => {
-                                self.timed = TimeSettings::Timed(Time {
+                                self.game_settings.timed = TimeSettings::Timed(Time {
                                     add_seconds,
                                     milliseconds_left: minutes * 60_000,
                                 });
                             }
                             (Ok(minutes), Err(_)) => {
-                                self.timed = TimeSettings::Timed(Time {
+                                self.game_settings.timed = TimeSettings::Timed(Time {
                                     milliseconds_left: minutes * 60_000,
                                     ..Time::default()
                                 });
                             }
                             (Err(_), Ok(add_seconds)) => {
-                                self.timed = TimeSettings::Timed(Time {
+                                self.game_settings.timed = TimeSettings::Timed(Time {
                                     add_seconds,
                                     ..Time::default()
                                 });
                             }
                             (Err(_), Err(_)) => {
-                                self.timed = TimeSettings::default();
+                                self.game_settings.timed = TimeSettings::default();
                             }
                         }
                     }
@@ -644,7 +653,10 @@ impl Client {
                     self.screen = Screen::GameNewFrozen;
 
                     // new_game (attacker | defender) (rated | unrated) [TIME_MINUTES] [ADD_SECONDS_AFTER_EACH_MOVE]
-                    self.send(format!("new_game {role} {} {:?}\n", self.rated, self.timed));
+                    self.send(format!(
+                        "new_game {role} {} {:?}\n",
+                        self.game_settings.rated, self.game_settings.timed
+                    ));
                 }
             }
             Message::PasswordChanged(password) => {
@@ -718,14 +730,14 @@ impl Client {
             Message::SoundMuted(muted) => self.sound_muted = muted,
             Message::TcpConnected(tx) => self.tx = Some(tx),
             Message::RatedSelected(rated) => {
-                self.rated = if rated { Rated::Yes } else { Rated::No };
+                self.game_settings.rated = if rated { Rated::Yes } else { Rated::No };
             }
             Message::ResetPassword(account) => {
                 let tx = get_tx(&mut self.tx);
                 handle_error(tx.send(format!("{VERSION_ID} reset_password {account}\n")));
             }
             Message::RoleSelected(role) => {
-                self.role_selected = Some(role);
+                self.game_settings.role_selected = Some(role);
             }
             Message::TextChanged(string) => {
                 if self.screen == Screen::Login {
@@ -889,7 +901,7 @@ impl Client {
                                 let Ok(rated) = Rated::from_str(rated) else {
                                     panic!("rated should be valid");
                                 };
-                                self.rated = rated;
+                                self.game_settings.rated = rated;
 
                                 let Some(timed) = text.next() else {
                                     panic!("there should be a time setting supplied");
@@ -1195,19 +1207,19 @@ impl Client {
             }
             Message::TimeAddSeconds(string) => {
                 if string.parse::<u64>().is_ok() {
-                    self.time_add_seconds = string;
+                    self.game_settings.time_add_seconds = string;
                 }
             }
             Message::TimeCheckbox(time_selected) => {
                 if time_selected {
-                    self.timed = TimeSettings::default();
+                    self.game_settings.timed = TimeSettings::default();
                 } else {
-                    self.timed = TimeSettings::UnTimed;
+                    self.game_settings.timed = TimeSettings::UnTimed;
                 }
             }
             Message::TimeMinutes(string) => {
                 if string.parse::<u64>().is_ok() {
-                    self.time_minutes = string;
+                    self.game_settings.time_minutes = string;
                 }
             }
             Message::Users => self.screen = Screen::Users,
@@ -1732,7 +1744,7 @@ impl Client {
                 ]
                 .spacing(SPACING);
 
-                let is_rated = match self.rated {
+                let is_rated = match self.game_settings.rated {
                     Rated::No => t!("no"),
                     Rated::Yes => t!("yes"),
                 };
@@ -1868,7 +1880,7 @@ impl Client {
                 let attacker = radio(
                     t!("attacker"),
                     Role::Attacker,
-                    self.role_selected,
+                    self.game_settings.role_selected,
                     Message::RoleSelected,
                 )
                 .text_shaping(text::Shaping::Advanced);
@@ -1876,19 +1888,19 @@ impl Client {
                 let defender = radio(
                     t!("defender"),
                     Role::Defender,
-                    self.role_selected,
+                    self.game_settings.role_selected,
                     Message::RoleSelected,
                 )
                 .text_shaping(text::Shaping::Advanced);
 
-                let rated = checkbox(t!("rated"), self.rated.into())
+                let rated = checkbox(t!("rated"), self.game_settings.rated.into())
                     .on_toggle(Message::RatedSelected)
                     .text_shaping(text::Shaping::Advanced);
 
                 let mut new_game = button(
                     text(self.strings["New Game"].as_str()).shaping(text::Shaping::Advanced),
                 );
-                if self.role_selected.is_some() {
+                if self.game_settings.role_selected.is_some() {
                     new_game = new_game.on_press(Message::GameSubmit);
                 }
 
@@ -1897,21 +1909,21 @@ impl Client {
                         .on_press(Message::Leave);
 
                 let mut time = row![
-                    checkbox(t!("timed"), self.timed.clone().into())
+                    checkbox(t!("timed"), self.game_settings.timed.clone().into())
                         .text_shaping(text::Shaping::Advanced)
                         .on_toggle(Message::TimeCheckbox)
                 ];
 
-                if let TimeSettings::Timed(_) = self.timed {
+                if let TimeSettings::Timed(_) = self.game_settings.timed {
                     time = time.push(text(t!("minutes")).shaping(text::Shaping::Advanced));
                     time = time.push(
-                        text_input("15", &self.time_minutes)
+                        text_input("15", &self.game_settings.time_minutes)
                             .on_input(Message::TimeMinutes)
                             .on_paste(Message::TimeMinutes),
                     );
                     time = time.push(text(t!("add seconds")).shaping(text::Shaping::Advanced));
                     time = time.push(
-                        text_input("10", &self.time_add_seconds)
+                        text_input("10", &self.game_settings.time_add_seconds)
                             .on_input(Message::TimeAddSeconds)
                             .on_paste(Message::TimeAddSeconds),
                     );
@@ -1932,7 +1944,7 @@ impl Client {
                 column![row_1, row_2].into()
             }
             Screen::GameNewFrozen => {
-                let Some(role) = self.role_selected else {
+                let Some(role) = self.game_settings.role_selected else {
                     panic!("You can't get to GameNewFrozen unless you have selected a role!");
                 };
 

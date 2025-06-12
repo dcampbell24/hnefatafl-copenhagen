@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: reset the new game settings every time you enter them.
 - hnefatafl-client: default to timed and rated.
 - hnefatafl-server-full: archive games to file and load from file.
 
