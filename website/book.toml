@@ -1,6 +1,8 @@
 [book]
 title = "Copenhagen Hnefatafl"
-description = "Join a friendly community and play Copenhagen Hnefatafl"
+description = """
+Join a friendly community and play Copenhagen Hnefatafl. Figure out how to \
+install the software, play by the rules, chat on Discord, find Help, and Donate."""
 authors = [
     "David Lawrence Campbell",
 ]
