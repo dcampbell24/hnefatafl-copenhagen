@@ -96,7 +96,7 @@ impl TryFrom<Vec<&str>> for TimeSettings {
     type Error = anyhow::Error;
 
     fn try_from(args: Vec<&str>) -> anyhow::Result<Self> {
-        let err_msg = "expected: time_settings ('un-timed' | 'fischer') MILLISECONDS ADD_SECONDS";
+        let err_msg = "expected: 'time_settings un-timed' or 'time_settings fischer MILLISECONDS ADD_SECONDS'";
 
         if Some("un-timed").as_ref() == args.get(1) {
             return Ok(Self::UnTimed);

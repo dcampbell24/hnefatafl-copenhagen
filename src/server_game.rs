@@ -5,7 +5,6 @@ use std::{
     sync::mpsc::Sender,
 };
 
-use chrono::Local;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -90,7 +89,6 @@ impl ServerGame {
             game: Game {
                 black_time: game.timed.clone(),
                 white_time: game.timed,
-                time: Some(Local::now().to_utc().timestamp_millis()),
                 ..Game::default()
             },
             texts: VecDeque::new(),

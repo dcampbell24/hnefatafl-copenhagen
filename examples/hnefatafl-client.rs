@@ -30,7 +30,7 @@ use hnefatafl_copenhagen::{
     accounts::Email,
     color::Color,
     draw::Draw,
-    game::Game,
+    game::{Game, TimeUnix},
     glicko::{CONFIDENCE_INTERVAL_95, Rating},
     handle_error,
     play::{BOARD_LETTERS, Vertex},
@@ -454,7 +454,7 @@ impl Client {
 
     fn subscriptions(&self) -> Subscription<Message> {
         let subscription_1 = if let Some(game) = &self.game {
-            if game.time.is_some() {
+            if let TimeUnix::Time(_) = game.time {
                 iced::time::every(iced::time::Duration::from_millis(100))
                     .map(|_instant| Message::Tick)
             } else {
@@ -912,7 +912,6 @@ impl Client {
                                 let mut game = Game {
                                     black_time: timed.clone(),
                                     white_time: timed.clone(),
-                                    time: Some(Local::now().to_utc().timestamp_millis()),
                                     ..Game::default()
                                 };
 
@@ -930,8 +929,10 @@ impl Client {
 
                                     match game.turn {
                                         Color::Black => {
-                                            if let (TimeSettings::Timed(time), Some(time_ago)) =
-                                                (&mut self.time_attacker, game.time)
+                                            if let (
+                                                TimeSettings::Timed(time),
+                                                TimeUnix::Time(time_ago),
+                                            ) = (&mut self.time_attacker, &game.time)
                                             {
                                                 let now = Local::now().to_utc().timestamp_millis();
                                                 time.milliseconds_left -= now - time_ago;
@@ -942,8 +943,10 @@ impl Client {
                                         }
                                         Color::Colorless => {}
                                         Color::White => {
-                                            if let (TimeSettings::Timed(time), Some(time_ago)) =
-                                                (&mut self.time_defender, game.time)
+                                            if let (
+                                                TimeSettings::Timed(time),
+                                                TimeUnix::Time(time_ago),
+                                            ) = (&mut self.time_defender, &game.time)
                                             {
                                                 let now = Local::now().to_utc().timestamp_millis();
                                                 time.milliseconds_left -= now - time_ago;

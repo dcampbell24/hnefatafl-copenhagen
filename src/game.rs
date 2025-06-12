@@ -27,7 +27,7 @@ pub struct Game {
     pub plays: Vec<Play>,
     pub previous_boards: PreviousBoards,
     pub status: Status,
-    pub time: Option<i64>,
+    pub time: TimeUnix,
     pub black_time: TimeSettings,
     pub white_time: TimeSettings,
     pub turn: Color,
@@ -244,12 +244,12 @@ impl Game {
     /// If the game is already over or the move is illegal.
     pub fn play(&mut self, play: &Plae) -> anyhow::Result<Captures> {
         if self.status == Status::Ongoing {
-            if let (status, TimeSettings::Timed(timer), Some(time)) = match self.turn {
-                Color::Black => (Status::WhiteWins, &mut self.black_time, self.time.as_mut()),
+            if let (status, TimeSettings::Timed(timer), TimeUnix::Time(time)) = match self.turn {
+                Color::Black => (Status::WhiteWins, &mut self.black_time, &mut self.time),
                 Color::Colorless => {
                     unreachable!("It can't be no one's turn when the game is ongoing!")
                 }
-                Color::White => (Status::BlackWins, &mut self.white_time, self.time.as_mut()),
+                Color::White => (Status::BlackWins, &mut self.white_time, &mut self.time),
             } {
                 let now = Local::now().to_utc().timestamp_millis();
                 timer.milliseconds_left -= now - *time;
@@ -410,12 +410,12 @@ impl Game {
                     TimeSettings::Timed(time) => {
                         self.black_time = TimeSettings::Timed(time.clone());
                         self.white_time = TimeSettings::Timed(time);
-                        self.time = Some(Local::now().to_utc().timestamp_millis());
+                        self.time = TimeUnix::default();
                     }
                     TimeSettings::UnTimed => {
                         self.black_time = TimeSettings::UnTimed;
                         self.white_time = TimeSettings::UnTimed;
-                        self.time = None;
+                        self.time = TimeUnix::UnTimed;
                     }
                 }
 
@@ -464,4 +464,16 @@ impl Game {
 pub struct LegalMoves {
     pub color: Color,
     pub moves: HashMap<Vertex, Vec<Vertex>>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub enum TimeUnix {
+    Time(i64),
+    UnTimed,
+}
+
+impl Default for TimeUnix {
+    fn default() -> Self {
+        Self::Time(Local::now().to_utc().timestamp_millis())
+    }
 }

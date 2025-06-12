@@ -22,6 +22,7 @@ use hnefatafl_copenhagen::{
     accounts::{Account, Accounts, Email},
     color::Color,
     draw::Draw,
+    game::TimeUnix,
     glicko::Outcome,
     handle_error,
     rating::Rated,
@@ -596,7 +597,7 @@ impl Server {
             match game.game.turn {
                 Color::Black => {
                     if game.game.status == Status::Ongoing {
-                        if let (Some(game_time), TimeSettings::Timed(black_time)) =
+                        if let (TimeUnix::Time(game_time), TimeSettings::Timed(black_time)) =
                             (&mut game.game.time, &mut game.game.black_time)
                         {
                             if black_time.milliseconds_left > 0 {
@@ -618,7 +619,7 @@ impl Server {
                 Color::Colorless => {}
                 Color::White => {
                     if game.game.status == Status::Ongoing {
-                        if let (Some(game_time), TimeSettings::Timed(white_time)) =
+                        if let (TimeUnix::Time(game_time), TimeSettings::Timed(white_time)) =
                             (&mut game.game.time, &mut game.game.white_time)
                         {
                             if white_time.milliseconds_left > 0 {
