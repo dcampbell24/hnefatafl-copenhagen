@@ -882,6 +882,7 @@ impl Client {
                                 self.screen = Screen::Game;
                                 self.status = Status::Ongoing;
                                 self.captures = HashSet::new();
+                                self.play_from = None;
                                 self.play_from_previous = None;
                                 self.play_to_previous = None;
                                 self.texts_game = VecDeque::new();
