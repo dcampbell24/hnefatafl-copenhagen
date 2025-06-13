@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: don't connect via TCP till you have to.
 - hnefatafl-client: fix a bug where the player ends a game with PlayFrom set.
 - hnefatafl-client: reset the new game settings every time you enter them.
 - hnefatafl-client: default to timed and rated.
