@@ -231,6 +231,8 @@ struct Client {
     #[serde(skip)]
     challenger: bool,
     #[serde(skip)]
+    connected_tcp: bool,
+    #[serde(skip)]
     connected_to: String,
     #[serde(skip)]
     content: text_editor::Content,
@@ -280,8 +282,6 @@ struct Client {
     spectators: Vec<String>,
     #[serde(skip)]
     status: Status,
-    #[serde(skip)]
-    tcp_connected: bool,
     #[serde(skip)]
     texts: VecDeque<String>,
     #[serde(skip)]
@@ -727,9 +727,9 @@ impl Client {
                 self.game_settings.rated = if rated { Rated::Yes } else { Rated::No };
             }
             Message::ResetPassword(account) => {
-                if !self.tcp_connected {
+                if !self.connected_tcp {
                     self.send("tcp_connect\n".to_string());
-                    self.tcp_connected = true;
+                    self.connected_tcp = true;
                 }
                 self.send(format!("{VERSION_ID} reset_password {account}\n"));
             }
@@ -1145,7 +1145,10 @@ impl Client {
                 self.send(format!("email_code {}\n", self.text_input));
             }
             Message::TextSendCreateAccount => {
-                self.send("tcp_connect\n".to_string());
+                if !self.connected_tcp {
+                    self.send("tcp_connect\n".to_string());
+                    self.connected_tcp = true;
+                }
 
                 if !self.text_input.trim().is_empty() {
                     let username = self.text_input.to_string();
@@ -1160,7 +1163,10 @@ impl Client {
                 self.save_client();
             }
             Message::TextSendLogin => {
-                self.send("tcp_connect\n".to_string());
+                if !self.connected_tcp {
+                    self.send("tcp_connect\n".to_string());
+                    self.connected_tcp = true;
+                }
 
                 if self.text_input.trim().is_empty() {
                     let username = format!("user-{:x}", rand::random::<u16>());
@@ -2396,37 +2402,35 @@ fn pass_messages() -> impl Stream<Item = Message> {
                     }
                 });
 
-                thread::spawn(move || {
-                    let mut buffer = String::new();
-                    handle_error(executor::block_on(
-                        sender.send(Message::ConnectedTo(address.to_string())),
-                    ));
+                let mut buffer = String::new();
+                handle_error(executor::block_on(
+                    sender.send(Message::ConnectedTo(address.to_string())),
+                ));
 
-                    loop {
-                        let bytes = handle_error(reader.read_line(&mut buffer));
-                        if bytes > 0 {
-                            let buffer_trim = buffer.trim();
-                            let buffer_trim_vec: Vec<_> =
-                                buffer_trim.split_ascii_whitespace().collect();
+                loop {
+                    let bytes = handle_error(reader.read_line(&mut buffer));
+                    if bytes > 0 {
+                        let buffer_trim = buffer.trim();
+                        let buffer_trim_vec: Vec<_> =
+                            buffer_trim.split_ascii_whitespace().collect();
 
-                            if buffer_trim_vec[1] == "display_users"
-                                || buffer_trim_vec[1] == "display_games"
-                            {
-                                trace!("-> {buffer_trim}");
-                            } else {
-                                debug!("-> {buffer_trim}");
-                            }
-
-                            handle_error(executor::block_on(
-                                sender.send(Message::TextReceived(buffer.clone())),
-                            ));
-                            buffer.clear();
+                        if buffer_trim_vec[1] == "display_users"
+                            || buffer_trim_vec[1] == "display_games"
+                        {
+                            trace!("-> {buffer_trim}");
                         } else {
-                            info!("the TCP stream has closed");
-                            break;
+                            debug!("-> {buffer_trim}");
                         }
+
+                        handle_error(executor::block_on(
+                            sender.send(Message::TextReceived(buffer.clone())),
+                        ));
+                        buffer.clear();
+                    } else {
+                        info!("the TCP stream has closed");
+                        break;
                     }
-                });
+                }
             });
         },
     )
