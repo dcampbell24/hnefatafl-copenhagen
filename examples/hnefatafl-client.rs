@@ -727,7 +727,7 @@ impl Client {
                 )));
             }
             Message::SoundMuted(muted) => self.sound_muted = muted,
-            Message::TcpConnected(tx) => self.tx = Some(tx),
+            Message::StreamConnected(tx) => self.tx = Some(tx),
             Message::RatedSelected(rated) => {
                 self.game_settings.rated = if rated { Rated::Yes } else { Rated::No };
             }
@@ -2314,7 +2314,7 @@ enum Message {
     RatedSelected(bool),
     ResetPassword(String),
     RoleSelected(Role),
-    TcpConnected(mpsc::Sender<String>),
+    StreamConnected(mpsc::Sender<String>),
     TextChanged(String),
     TextEdit(text_editor::Action),
     TextReceived(String),
@@ -2360,15 +2360,15 @@ fn pass_messages() -> impl Stream<Item = Message> {
     stream::channel(
         100,
         move |mut sender: iced::futures::channel::mpsc::Sender<Message>| async move {
+            let (tx, rx) = mpsc::channel();
+            let _ = sender.send(Message::StreamConnected(tx)).await;
+
             let mut args = Args::parse();
             args.host.push_str(PORT);
             let address = args.host;
-
             let mut tcp_stream = handle_error(TcpStream::connect(&address));
-            let reader = handle_error(tcp_stream.try_clone());
-            let mut reader = BufReader::new(reader);
-            let (tx, rx) = mpsc::channel();
-            let _ = sender.send(Message::TcpConnected(tx)).await;
+            let mut reader = BufReader::new(handle_error(tcp_stream.try_clone()));
+
             info!("connected to {address} ...");
 
             thread::spawn(move || {
