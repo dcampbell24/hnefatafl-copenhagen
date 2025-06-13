@@ -45,7 +45,7 @@ serde = { version = "1", features = ["derive"] }
 serde_with = "3"
 
 # client only
-webbrowser = { git = "https://github.com/amodm/webbrowser-rs.git", features = ["hardened"], optional = true }
+webbrowser = { git = "https://github.com/amodm/webbrowser-rs.git", branch = "fix/redox-home", features = ["hardened"], optional = true }
 
 # js engine only
 wasm-bindgen = { version = "0.2", optional = true }

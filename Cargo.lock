@@ -1869,15 +1869,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "home"
-version = "0.5.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "589533453244b0995c858700322199b2becb13b627df2851f64a2775d024abcf"
-dependencies = [
- "windows-sys 0.59.0",
-]
-
-[[package]]
 name = "hostname"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5198,10 +5189,9 @@ dependencies = [
 [[package]]
 name = "webbrowser"
 version = "1.0.4"
-source = "git+https://github.com/amodm/webbrowser-rs.git#23e6dc7681d2b0f6ece874f84f7f8a66f9e48b12"
+source = "git+https://github.com/amodm/webbrowser-rs.git?branch=fix%2Fredox-home#e467175d0428922481e1e3e6a245693b3e6c4cd6"
 dependencies = [
  "core-foundation 0.10.1",
- "home",
  "jni",
  "log",
  "ndk-context",
