@@ -2461,12 +2461,9 @@ fn init_logger() {
 }
 
 fn open_url(url: &str) {
-    #[cfg(feature = "www")]
     if let Err(error) = webbrowser::open(url) {
         error!("{error}");
     }
-    #[cfg(not(feature = "www"))]
-    info!("You are trying to visit: {url}");
 }
 
 fn split_whitespace(string: &str) -> (String, bool) {
