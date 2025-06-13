@@ -16,7 +16,7 @@ use std::{
     path::PathBuf,
     process::exit,
     str::{FromStr, SplitAsciiWhitespace},
-    sync::mpsc::{self, Sender},
+    sync::mpsc,
     thread,
 };
 
@@ -592,9 +592,7 @@ impl Client {
                     self.send(format!("leave_game {}\n", self.game_id));
                     self.screen = Screen::Games;
                 }
-                Screen::Games => {
-                    self.send("logout\n".to_string());
-                }
+                Screen::Games => self.send("logout\n".to_string()),
                 Screen::Login => self.send("quit\n".to_string()),
             },
             Message::LocaleSelected(locale) => {
@@ -669,14 +667,11 @@ impl Client {
                 self.password_show = show_password;
             }
             Message::PlayDraw => {
-                let game = get_game(&mut self.game);
-                let tx = get_tx(&mut self.tx);
-
-                handle_error(tx.send(format!("request_draw {} {}\n", self.game_id, game.turn,)));
+                let game = self.game.as_ref().expect("you should have a game by now");
+                self.send(format!("request_draw {} {}\n", self.game_id, game.turn));
             }
             Message::PlayDrawDecision(draw) => {
-                let tx = get_tx(&mut self.tx);
-                handle_error(tx.send(format!("draw {} {draw}\n", self.game_id)));
+                self.send(format!("draw {} {draw}\n", self.game_id));
             }
             Message::PlayMoveFrom(vertex) => self.play_from = Some(vertex),
             Message::PlayMoveTo(to) => {
@@ -690,11 +685,10 @@ impl Client {
                 }
 
                 self.handle_play(None, &from.to_string(), &to.to_string());
-                let game = get_game(&mut self.game);
-                let tx = get_tx(&mut self.tx);
 
-                handle_error(tx.send(format!("game {} play {} {from} {to}\n", self.game_id, turn)));
+                self.send(format!("game {} play {} {from} {to}\n", self.game_id, turn));
 
+                let game = self.game.as_ref().expect("you should have a game by now");
                 if game.status == Status::Ongoing {
                     match game.turn {
                         Color::Black => {
@@ -718,13 +712,12 @@ impl Client {
             }
             Message::PlayMoveRevert => self.play_from = None,
             Message::PlayResign => {
-                let game = get_game(&mut self.game);
-                let tx = get_tx(&mut self.tx);
+                let game = self.game.as_ref().expect("you should have a game by now");
 
-                handle_error(tx.send(format!(
+                self.send(format!(
                     "game {} play {} resigns _\n",
                     self.game_id, game.turn
-                )));
+                ));
             }
             Message::SoundMuted(muted) => self.sound_muted = muted,
             Message::StreamConnected(tx) => self.tx = Some(tx),
@@ -732,8 +725,8 @@ impl Client {
                 self.game_settings.rated = if rated { Rated::Yes } else { Rated::No };
             }
             Message::ResetPassword(account) => {
-                let tx = get_tx(&mut self.tx);
-                handle_error(tx.send(format!("{VERSION_ID} reset_password {account}\n")));
+                self.send("tcp_connect\n".to_string());
+                self.send(format!("{VERSION_ID} reset_password {account}\n"));
             }
             Message::RoleSelected(role) => {
                 self.game_settings.role_selected = Some(role);
@@ -1073,7 +1066,7 @@ impl Client {
                             }
 
                             self.handle_play(Some(&color.to_string()), from, to);
-                            let game = get_game(&mut self.game);
+                            let game = self.game.as_ref().expect("you should have a game by now");
 
                             if game.status == Status::Ongoing {
                                 match game.turn {
@@ -1138,17 +1131,17 @@ impl Client {
             Message::TextSendEmail => {
                 self.error_email = None;
 
-                let tx = get_tx(&mut self.tx);
-                handle_error(tx.send(format!("email {}\n", self.text_input)));
+                self.send(format!("email {}\n", self.text_input));
                 self.text_input.clear();
             }
             Message::TextSendEmailCode => {
                 self.error_email = None;
 
-                let tx = get_tx(&mut self.tx);
-                handle_error(tx.send(format!("email_code {}\n", self.text_input)));
+                self.send(format!("email_code {}\n", self.text_input));
             }
             Message::TextSendCreateAccount => {
+                self.send("tcp_connect\n".to_string());
+
                 if !self.text_input.trim().is_empty() {
                     let username = self.text_input.to_string();
                     self.send(format!(
@@ -1162,6 +1155,8 @@ impl Client {
                 self.save_client();
             }
             Message::TextSendLogin => {
+                self.send("tcp_connect\n".to_string());
+
                 if self.text_input.trim().is_empty() {
                     let username = format!("user-{:x}", rand::random::<u16>());
 
@@ -1352,7 +1347,7 @@ impl Client {
     fn handle_play(&mut self, color: Option<&str>, from: &str, to: &str) {
         self.captures = HashSet::new();
 
-        let game = get_game(&mut self.game);
+        let game = self.game.as_mut().expect("you should have a game by now");
 
         match color {
             Some(color) => match game.read_line(&format!("play {color} {from} {to}\n")) {
@@ -2215,11 +2210,12 @@ impl Client {
     }
 
     fn send(&mut self, string: String) {
-        self.tx
-            .as_mut()
-            .expect("you should have a tx available by now")
-            .send(string)
-            .unwrap();
+        handle_error(
+            self.tx
+                .as_mut()
+                .expect("you should have a tx available by now")
+                .send(string),
+        );
     }
 }
 
@@ -2342,20 +2338,6 @@ fn data_file() -> PathBuf {
     data_file
 }
 
-fn get_game(game: &mut Option<Game>) -> &mut Game {
-    let Some(game) = game else {
-        panic!("you have to be in a game to play a move")
-    };
-    game
-}
-
-fn get_tx(tx: &mut Option<Sender<String>>) -> &mut Sender<String> {
-    let Some(tx) = tx.as_mut() else {
-        panic!("you have to have a sender at this point")
-    };
-    tx
-}
-
 fn pass_messages() -> impl Stream<Item = Message> {
     stream::channel(
         100,
@@ -2366,65 +2348,80 @@ fn pass_messages() -> impl Stream<Item = Message> {
             let mut args = Args::parse();
             args.host.push_str(PORT);
             let address = args.host;
-            let mut tcp_stream = handle_error(TcpStream::connect(&address));
-            let mut reader = BufReader::new(handle_error(tcp_stream.try_clone()));
-
-            info!("connected to {address} ...");
 
             thread::spawn(move || {
                 loop {
                     let message = handle_error(rx.recv());
                     let message_trim = message.trim();
-                    debug!("<- {message_trim}");
 
-                    if message_trim != "quit" {
-                        handle_error(tcp_stream.write_all(message.as_bytes()));
+                    if message_trim == "quit" {
+                        exit(0)
                     }
 
-                    if message_trim == "delete_account"
-                        || message_trim == "logout"
-                        || message_trim == "quit"
-                    {
-                        #[cfg(not(target_os = "redox"))]
-                        tcp_stream
-                            .shutdown(Shutdown::Both)
-                            .expect("shutdown call failed");
-
-                        exit(0);
-                    }
-                }
-            });
-
-            thread::spawn(move || {
-                let mut buffer = String::new();
-                handle_error(executor::block_on(
-                    sender.send(Message::ConnectedTo(address.to_string())),
-                ));
-
-                loop {
-                    let bytes = handle_error(reader.read_line(&mut buffer));
-                    if bytes > 0 {
-                        let buffer_trim = buffer.trim();
-                        let buffer_trim_vec: Vec<_> =
-                            buffer_trim.split_ascii_whitespace().collect();
-
-                        if buffer_trim_vec[1] == "display_users"
-                            || buffer_trim_vec[1] == "display_games"
-                        {
-                            trace!("-> {buffer_trim}");
-                        } else {
-                            debug!("-> {buffer_trim}");
-                        }
-
-                        handle_error(executor::block_on(
-                            sender.send(Message::TextReceived(buffer.clone())),
-                        ));
-                        buffer.clear();
-                    } else {
-                        info!("the TCP stream has closed");
+                    if message_trim == "tcp_connect" {
                         break;
                     }
                 }
+
+                let mut tcp_stream = handle_error(TcpStream::connect(&address));
+                let mut reader = BufReader::new(handle_error(tcp_stream.try_clone()));
+                info!("connected to {address} ...");
+
+                thread::spawn(move || {
+                    loop {
+                        let message = handle_error(rx.recv());
+                        let message_trim = message.trim();
+                        debug!("<- {message_trim}");
+
+                        if message_trim != "quit" {
+                            handle_error(tcp_stream.write_all(message.as_bytes()));
+                        }
+
+                        if message_trim == "delete_account"
+                            || message_trim == "logout"
+                            || message_trim == "quit"
+                        {
+                            #[cfg(not(target_os = "redox"))]
+                            tcp_stream
+                                .shutdown(Shutdown::Both)
+                                .expect("shutdown call failed");
+
+                            exit(0);
+                        }
+                    }
+                });
+
+                thread::spawn(move || {
+                    let mut buffer = String::new();
+                    handle_error(executor::block_on(
+                        sender.send(Message::ConnectedTo(address.to_string())),
+                    ));
+
+                    loop {
+                        let bytes = handle_error(reader.read_line(&mut buffer));
+                        if bytes > 0 {
+                            let buffer_trim = buffer.trim();
+                            let buffer_trim_vec: Vec<_> =
+                                buffer_trim.split_ascii_whitespace().collect();
+
+                            if buffer_trim_vec[1] == "display_users"
+                                || buffer_trim_vec[1] == "display_games"
+                            {
+                                trace!("-> {buffer_trim}");
+                            } else {
+                                debug!("-> {buffer_trim}");
+                            }
+
+                            handle_error(executor::block_on(
+                                sender.send(Message::TextReceived(buffer.clone())),
+                            ));
+                            buffer.clear();
+                        } else {
+                            info!("the TCP stream has closed");
+                            break;
+                        }
+                    }
+                });
             });
         },
     )
