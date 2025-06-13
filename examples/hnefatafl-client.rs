@@ -281,6 +281,8 @@ struct Client {
     #[serde(skip)]
     status: Status,
     #[serde(skip)]
+    tcp_connected: bool,
+    #[serde(skip)]
     texts: VecDeque<String>,
     #[serde(skip)]
     texts_game: VecDeque<String>,
@@ -725,7 +727,10 @@ impl Client {
                 self.game_settings.rated = if rated { Rated::Yes } else { Rated::No };
             }
             Message::ResetPassword(account) => {
-                self.send("tcp_connect\n".to_string());
+                if !self.tcp_connected {
+                    self.send("tcp_connect\n".to_string());
+                    self.tcp_connected = true;
+                }
                 self.send(format!("{VERSION_ID} reset_password {account}\n"));
             }
             Message::RoleSelected(role) => {
