@@ -2392,7 +2392,7 @@ fn pass_messages() -> impl Stream<Item = Message> {
                             || message_trim == "logout"
                             || message_trim == "quit"
                         {
-                            // #[cfg(not(target_os = "redox"))]
+                            #[cfg(not(target_os = "redox"))]
                             tcp_stream
                                 .shutdown(Shutdown::Both)
                                 .expect("shutdown call failed");
