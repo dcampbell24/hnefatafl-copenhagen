@@ -40,7 +40,7 @@ use crate::{
 ///
 /// ```sh
 /// sudo mkdir --parent /var/www/html/pkg
-/// sudo cp ~/node_modules/hnefatafl-copenhagen/* /var/www/pkg
+/// sudo cp ~/node_modules/hnefatafl-copenhagen/* /var/www/html/pkg
 /// ```
 ///
 /// Then load the javascript on a webpage:
