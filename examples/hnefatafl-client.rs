@@ -2163,6 +2163,7 @@ impl Client {
                     Locale::German,
                     Locale::Icelandic,
                     Locale::IcelandicRunic,
+                    Locale::Swedish,
                 ];
 
                 let locale = row![
@@ -2261,7 +2262,7 @@ impl Locale {
             Self::German => "de".to_string(),
             Self::Icelandic => "is-IS".to_string(),
             Self::IcelandicRunic => "is-RU".to_string(),
-            Self::Swedish => "sv".to_string(),
+            Self::Swedish => "sv-SE".to_string(),
         }
     }
 }

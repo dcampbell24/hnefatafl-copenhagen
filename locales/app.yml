@@ -14,6 +14,7 @@ username:
   de: Benutzername
   is-IS: notandanafn
   is-RU: ᚿᚮᛐᛆᚿᛑᛆᚿᛆᚠᚿ
+  sv-SE: användarnamn
 
 password:
   en-US: password
@@ -29,6 +30,7 @@ password:
   de: Passwort
   is-IS: lykilorð
   is-RU: ᛚᛣᚴᛁᛚᚮᚱᚧ
+  sv-SE: lösenord
 
 game id:
   en-US: game id
@@ -44,6 +46,7 @@ game id:
   de: Spiel-ID
   is-IS: leikjaauðkenni
   is-RU: ᛚᛂᛁᚴᛃᛆᛆᚢᚧᚴᛂᚿᚿᛁ
+  sv-SE: spel-ID
 
 attacker:
   en-US: attacker
@@ -59,6 +62,7 @@ attacker:
   de: Angreifer
   is-IS: árásarmaður
   is-RU: ᚨᚱᚨᛋᛆᚱᛘᛆᚧᚢᚱ
+  sv-SE: angripare
 
 defender:
   en-US: defender
@@ -74,6 +78,7 @@ defender:
   de: Verteidiger
   is-IS: varnarmaður
   is-RU: ᚡᛆᚱᚿᛆᚱᛘᛆᚧᚢᚱ
+  sv-SE: försvarare
 
 rated:
  en-US: rated
@@ -89,6 +94,7 @@ rated:
  de: bewertet
  is-IS: metið
  is-RU: ᛘᛂᛐᛁᚧ
+ sv-SE: betygsatt
 
 timed:
  en-US: timed
@@ -104,6 +110,7 @@ timed:
  de: zeitgesteuert
  is-IS: tímasett
  is-RU: ᛐᛇᛘᛆᛋᛂᛐᛐ
+ sv-SE: tidsbestämd
 
 rating:
   en-US: rating
@@ -119,6 +126,7 @@ rating:
   de: Bewertung
   is-IS: einkunn
   is-RU: ᛂᛁᚿᚴᚢᚿᚿ
+  sv-SE: gradering
 
 wins:
   en-US: wins
@@ -134,6 +142,7 @@ wins:
   de: Siege
   is-IS: sigrar
   is-RU: ᛋᛁᚵᚱᛆᚱ
+  sv-SE: vinner
 
 losses:
   en-US: losses
@@ -149,6 +158,7 @@ losses:
   de: Verluste
   is-IS: tap
   is-RU: ᛐᛆᛔ
+  sv-SE: förluster
 
 draws:
   en-US: draws
@@ -164,6 +174,7 @@ draws:
   de: zieht
   is-IS: teiknar
   is-RU: ᛐᛂᛁᚴᚿᛆᚱ
+  sv-SE: dragningar
 
 show password:
   en-US: show password
@@ -179,6 +190,7 @@ show password:
   de: Passwort anzeigen
   is-IS: sýna lykilorð
   is-RU: ᛋᛨᚿᛆ ᛚᛣᚴᛁᛚᚮᚱᚧ
+  sv-SE: dragningar
 
 Login:
   en-US: Login
@@ -194,6 +206,7 @@ Login:
   de: Login
   is-IS: Innskráning
   is-RU: ᛁᚿᚿᛋᚴᚱᚨᚿᛁᚿᚵ
+  sv-SE: Inloggning
 
 Create Account:
   en-US: Create Account
@@ -209,6 +222,7 @@ Create Account:
   de: Benutzerkonto erstellen
   is-IS: Stofna aðgang
   is-RU: ᛋᛐᚮᚠᚿᛆ ᛆᚧᚵᛆᚿᚵ
+  sv-SE: Skapa konto
 
 Reset Password:
   en-uS: Reset Password
@@ -224,6 +238,7 @@ Reset Password:
   de: Passwort zurücksetzen
   is-IS: Endurstilla lykilorð
   is-RU: ᛂᚿᛑᚢᚱᛋᛐᛁᛚᛚᛆ ᛚᛣᚴᛁᛚᚮᚱᚧ
+  sv-SE: Återställ lösenord
 
 Quit:
   en-US: Quit
@@ -239,6 +254,7 @@ Quit:
   de: Aufhören
   is-IS: Hætta
   is-RU: ᚼᛅᛐᛐᛆ
+  sv-SE: Sluta
 
 locale:
   en-US: locale
@@ -254,6 +270,7 @@ locale:
   de: Gebietsschema
   is-IS: staðsetning
   is-RU: ᛋᛐᛆᚧᛋᛂᛐᚿᛁᚿᚵ
+  sv-SE: språk
 
 logged in:
   en-US: logged in
@@ -269,6 +286,7 @@ logged in:
   de: eingeloggt
   is-IS: innskráð(ur)
   is-RU: ᛁᚿᚿᛋᚴᚱᚨᚧ(ᚢᚱ)
+  sv-SE: inloggad
 
 logged out:
   en-US: logged out
@@ -284,6 +302,7 @@ logged out:
   de: abgemeldet
   is-IS: útskráð(ur)
   is-RU: ᚤᛐᛋᚴᚱᚨᚧ(ᚢᚱ)
+  sv-SE: utloggad
 
 Leave:
   en-US: Leave
@@ -299,6 +318,7 @@ Leave:
   de: Verlassen
   is-IS: Fara
   is-RU: ᚠᛆᚱᛆ
+  sv-SE: Lämna
 
 Dark:
   en-US: Dark
@@ -314,6 +334,7 @@ Dark:
   de: Dunkel
   is-IS: Dökkt
   is-RU: ᛑᚯᚴᚴᛐ
+  sv-SE: Mörk
 
 Light:
   en-US: Light
@@ -329,6 +350,7 @@ Light:
   de: Licht
   is-IS: Ljós
   is-RU: ᛚᛃᛟᛋ
+  sv-SE: Ljus
 
 Create Game:
   en: Create Game
@@ -344,6 +366,7 @@ Create Game:
   de: Spiel erstellen
   is-IS: Búa til leik
   is-RU: ᛒᚤᛆ ᛐᛁᛚ ᛚᛂᛁᚴ
+  sv-SE: Skapa spel
 
 Users:
   en-US: Users
@@ -359,6 +382,7 @@ Users:
   de: Benutzer
   is-IS: Notendur
   is-RU: ᚿᚮᛐᛂᚿᛑᚢᚱ
+  sv-SE: Användare
 
 Account Settings:
   en-US: Account Settings
@@ -374,6 +398,7 @@ Account Settings:
   de: Kontoeinstellungen
   is-IS: Reikningsstillingar
   is-RU: ᚱᛂᛁᚴᚿᛁᚿᚵᛋᛋᛐᛁᛚᛚᛁᚿᚵᛆᚱ
+  sv-SE: Kontoinställningar
 
 Rules:
   en-US: Rules
@@ -389,6 +414,7 @@ Rules:
   de: Regeln
   is-IS: Reglur
   is-RU: ᚱᛂᚵᛚᚢᚱ
+  sv-SE: Regler
 
 connected to:
   en-US: connected to
@@ -404,6 +430,7 @@ connected to:
   de: verbunden mit
   is-IS: tengdur við
   is-RU: ᛐᛂᚿᚵᛑᚢᚱ ᚡᛁᚧ
+  sv-SE: ansluten till
 
 via:
   en-US: via
@@ -419,6 +446,7 @@ via:
   de: über
   is-IS: í gegnum
   is-RU: ᛇ ᚵᛂᚵᚿᚢᛘ
+  sv-SE: via
 
 email address:
   en-US: email address
@@ -434,6 +462,7 @@ email address:
   de: E-Mail-Adresse
   is-IS: netfang
   is-RU: ᚿᛂᛐᚠᛆᚿᚵ
+  sv-SE: e-postadress
 
 email code:
   en-US: email code
@@ -449,6 +478,7 @@ email code:
   de: E-Mail-Code
   is-IS: netfangskóði
   is-RU: ᚿᛂᛐᚠᛆᚿᚵᛋᚴᛟᚧᛁ
+  sv-SE: e-post koda
 
 verified:
   en-US: verified
@@ -464,6 +494,7 @@ verified:
   de: verifiziert
   is-IS: staðfest
   is-RU: ᛋᛐᛆᚧᚠᛂᛋᛐ
+  sv-SE: verifierad
 
 unverified:
   en-US: unverified
@@ -479,6 +510,7 @@ unverified:
   de: nicht verifiziert
   is-IS: óstaðfest
   is-RU: ᛟᛋᛐᛆᚧᚠᛂᛋᛐ
+  sv-SE: obekräftad
 
 Reset Email:
   en-US: Reset Email
@@ -494,6 +526,7 @@ Reset Email:
   de: E-Mail zurücksetzen
   is-IS: Endurstilla tölvupóst
   is-RU: ᛂᚿᛑᚢᚱᛋᛐᛁᛚᛚᛆ ᛐᚯᛚᚡᚢᛔᛟᛋᛐ
+  sv-SE: Återställ e-post
 
 Change Password:
   en-US: Change Password
@@ -509,6 +542,7 @@ Change Password:
   de: Kennwort ändern
   is-IS: Breyta lykilorði
   is-RU: ᛒᚱᛂᛣᛐᛆ ᛚᛣᚴᛁᛚᚮᚱᚧᛁ
+  sv-SE: Ändra lösenord
 
 Delete Account:
   en-US: Delete Account
@@ -524,6 +558,7 @@ Delete Account:
   de: Konto löschen
   is-IS: Eyða reikningi
   is-RU: ᛂᛣᚧᛆ ᚱᛂᛁᚴᚿᛁᚿᚵᛁ
+  sv-SE: Ta bort konto
 
 REALLY DELETE ACCOUNT:
   en-US: REALLY DELETE ACCOUNT
@@ -539,6 +574,7 @@ REALLY DELETE ACCOUNT:
   de: Konto wirklich löschen
   is-IS: Eyða virkilega reikningi
   is-RU: ᛂᛣᚧᛆ ᚡᛁᚱᚴᛁᛚᛂᚵᛆ ᚱᛂᛁᚴᚿᛁᚿᚵᛁ
+  sv-SE: Ta bort kontot på riktigt
 
 minutes:
   en-US: minutes
@@ -554,6 +590,7 @@ minutes:
   de: Minuten
   is-IS: mínútur
   is-RU: ᛘᛇᚿᚤᛐᚢᚱ
+  sv-SE: minuter
 
 add seconds:
   en-US: add seconds
@@ -569,6 +606,7 @@ add seconds:
   de: Sekunden hinzufügen
   is-IS: bæta við sekúndum
   is-RU: ᛒᛅᛐᛆ ᚡᛁᚧ ᛋᛂᚴᚤᚿᛑᚢᛘ
+  sv-SE: lägg till sekunder
 
 role:
   en-US: role
@@ -584,6 +622,7 @@ role:
   de: Rolle
   is-IS: hlutverk
   is-RU: ᚼᛚᚢᛐᚡᛂᚱᚴ
+  sv-SE: roll
 
 New Game:
   en-US: New Game
@@ -599,6 +638,7 @@ New Game:
   de: Neues Spiel
   is-IS: Nýr leikur
   is-RU: ᚿᛨᚱ ᛚᛂᛁᚴᚢᚱ
+  sv-SE: Nytt spel
 
 Accept:
   en-US: Accept
@@ -614,6 +654,7 @@ Accept:
   de: Akzeptieren
   is-IS: Samþykkja
   is-RU: ᛋᛆᛘᚦᛣᚴᚴᛃᛆ
+  sv-SE: Acceptera
 
 Decline:
   en-US: Decline
@@ -628,7 +669,8 @@ Decline:
   ru: Отклонить
   de: Abfall
   is-IS: Hafna
-  is-RU: 
+  is-RU: ᚼᛆᚠᚿᛆ
+  sv-SE: Nedgång
 
 Watch:
   en-US: Watch
@@ -644,6 +686,7 @@ Watch:
   de: Betrachten
   is-IS: Horfa
   is-RU: ᚼᛆᚠᚿᛆ
+  sv-SE: Titta
 
 Join:
   en-US: Join
@@ -659,6 +702,7 @@ Join:
   de: Verbinden
   is-IS: Vertu með
   is-RU: ᚡᛂᚱᛐᚢ ᛘᛂᚧ
+  sv-SE: Ansluta sig till
 
 Resume:
   en-US: Resume
@@ -674,6 +718,7 @@ Resume:
   de: Wieder aufnehmen
   is-IS: Ferilskrá
   is-RU: ᚠᛂᚱᛁᛚᛋᚴᚱᚨ
+  sv-SE: Resume
 
 message:
   en-US: message
@@ -689,6 +734,7 @@ message:
   de: Nachricht
   is-IS: skilaboð
   is-RU: ᛋᚴᛁᛚᛆᛒᚮᚧ
+  sv-SE: meddelande
 
 move:
   en-US: move
@@ -704,6 +750,7 @@ move:
   de: bewegen
   is-IS: færa
   is-RU: ᚠᛅᚱᛆ
+  sv-SE: flytta
 
 yes:
   en-US: yes
@@ -719,6 +766,7 @@ yes:
   de: ja
   is-IS: já
   is-RU: ᛃᚨ
+  sv-SE: ja
 
 no:
   en-US: no
@@ -734,6 +782,7 @@ no:
   de: nein
   is-IS: nei
   is-RU: ᚿᛂᛁ
+  sv-SE: inga
 
 Muted:
   en-US: Muted
@@ -749,6 +798,7 @@ Muted:
   de: Stummgeschaltet
   is-IS: Þaggað
   is-RU: ᚦᛆᚵᚵᛆᚧ
+  sv-SE: Ljudlös
 
 I rejoined.:
   en-US: I rejoined.
@@ -764,6 +814,7 @@ I rejoined.:
   de: Ich bin wieder beigetreten.
   is-IS: Ég gekk aftur til liðs við mig.
   is-RU: ᛖᚵ ᚵᛂᚴᚴ ᛆᚠᛐᚢᚱ ᛐᛁᛚ ᛚᛁᚧᛋ ᚡᛁᚧ ᛘᛁᚵ.
+  sv-SE: Jag återförenades.
 
 I'm leaving.:
   en-US: I'm leaving.
@@ -779,6 +830,7 @@ I'm leaving.:
   de: Ich gehe.
   is-IS: Ég er að fara.
   is-RU: ᛖᚵ ᛂᚱ ᛆᚧ ᚠᛆᚱᛆ.
+  sv-SE: Jag går.
 
 Resign:
   en-US: Resign
@@ -794,6 +846,7 @@ Resign:
   de: Zurücktreten
   is-IS: Segja upp
   is-RU: ᛋᛂᚵᛃᛆ ᚢᛔᛔ
+  sv-SE: Avgå
 
 Request Draw:
   en-US: Request Draw
@@ -809,6 +862,7 @@ Request Draw:
   de: Anfrage ziehen
   is-IS: Beiðni um drátt
   is-RU: ᛒᛂᛁᚧᚿᛁ ᚢᛘ ᛑᚱᚨᛐᛐ
+  sv-SE: Begär lottning
 
 Accept Draw:
   en-US: Accept Draw
@@ -824,6 +878,7 @@ Accept Draw:
   de: Unentschieden akzeptieren
   is-IS: amþykkja jafntefli
   is-RU: ᛆᛘᚦᛣᚴᚴᛃᛆ ᛃᛆᚠᚿᛐᛂᚠᛚᛁ
+  sv-SE: Acceptera oavgjort
 
 Attacker wins!:
   en-US: Attacker wins!
@@ -839,6 +894,7 @@ Attacker wins!:
   de: Angreifer gewinnt!
   is-IS: Sóknarmaðurinn vinnur!
   is-RU: ᛋᛟᚴᚿᛆᚱᛘᛆᚧᚢᚱᛁᚿᚿ ᚡᛁᚿᚿᚢᚱ!
+  sv-SE: Anfallaren vinner!
 
 It's a draw.:
   en-US: It's a draw.
@@ -854,6 +910,7 @@ It's a draw.:
   de: Es ist unentschieden.
   is-IS: Það er jafntefli.
   is-RU: ᚦᛆᚧ ᛂᚱ ᛃᛆᚠᚿᛐᛂᚠᛚᛁ.
+  sv-SE: Det är oavgjort.
 
 Defender wins!:
   en-US: Defender wins!
@@ -869,3 +926,4 @@ Defender wins!:
   de: Verteidiger gewinnt!
   is-IS: Varnarmaðurinn vinnur!
   is-RU: ᚡᛆᚱᚿᛆᚱᛘᛆᚧᚢᚱᛁᚿᚿ ᚡᛁᚿᚿᚢᚱ!
+  sv-SE: Försvararen vinner!
