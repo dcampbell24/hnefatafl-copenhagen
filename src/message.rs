@@ -36,6 +36,13 @@ use crate::{
 /// sudo cp -r pkg /var/www/html
 /// ```
 ///
+/// Or if you installed the package via npm:
+///
+/// ```sh
+/// sudo mkdir --parent /var/www/html/pkg
+/// sudo cp ~/node_modules/hnefatafl-copenhagen/* /var/www/pkg
+/// ```
+///
 /// Then load the javascript on a webpage:
 ///
 /// ```sh
