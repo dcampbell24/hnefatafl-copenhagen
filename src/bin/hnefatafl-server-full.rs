@@ -156,7 +156,7 @@ fn archived_games_file() -> PathBuf {
         PathBuf::new()
     };
 
-    archived_games_file.push("hnefatafl-copenhagen-games.ron");
+    archived_games_file.push("hnefatafl-games.ron");
     archived_games_file
 }
 
