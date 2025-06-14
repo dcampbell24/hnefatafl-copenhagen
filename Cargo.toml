@@ -19,16 +19,12 @@ git = "https://github.com/iced-rs/iced"
 default-features = false
 features = ["wgpu", "tiny-skia", "web-colors", "thread-pool", "smol"]
 
-[dev-dependencies.webbrowser]
-git = "https://github.com/amodm/webbrowser-rs.git"
-branch = "fix/redox-home"
-features = ["hardened"]
-
 [dev-dependencies]
 criterion = { version = "0.6", features = ["html_reports"] }
 futures = "0.3"
 rodio = "0.20"
 rust-i18n = "3"
+webbrowser = { git = "https://github.com/amodm/webbrowser-rs.git", features = ["hardened"] }
 
 [dependencies]
 anyhow = "1"
