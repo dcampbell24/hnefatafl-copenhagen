@@ -1049,18 +1049,15 @@ impl Client {
                             self.my_turn = true;
                         // game 0 play black a3 a4
                         } else if text_word == Some("play") {
-                            let Some(color) = text.next() else {
+                            let color = text.next().expect("this should be a color string");
+                            let color = Color::from_str(color).expect("this should be a color");
+                            let from = text.next().expect("this should be from");
+
+                            if from == "resigns" {
                                 return;
-                            };
-                            let Ok(color) = Color::from_str(color) else {
-                                return;
-                            };
-                            let Some(from) = text.next() else {
-                                return;
-                            };
-                            let Some(to) = text.next() else {
-                                return;
-                            };
+                            }
+
+                            let to = text.next().expect("this should be to");
 
                             if let (Ok(from), Ok(to)) =
                                 (Vertex::from_str(from), Vertex::from_str(to))
