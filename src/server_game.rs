@@ -149,6 +149,7 @@ pub struct ServerGameLight {
     pub defender_channel: Option<usize>,
     pub spectators: HashMap<String, usize>,
     pub challenge_accepted: bool,
+    pub game_over: bool,
 }
 
 impl ServerGameLight {
@@ -173,6 +174,7 @@ impl ServerGameLight {
                 defender_channel: None,
                 spectators: HashMap::new(),
                 challenge_accepted: false,
+                game_over: false,
             }
         } else {
             ServerGameLight {
@@ -186,6 +188,7 @@ impl ServerGameLight {
                 defender_channel: Some(index_supplied),
                 spectators: HashMap::new(),
                 challenge_accepted: false,
+                game_over: false,
             }
         }
     }
@@ -295,6 +298,7 @@ impl TryFrom<&[&str]> for ServerGameLight {
             defender_channel: None,
             spectators,
             challenge_accepted,
+            game_over: false,
         };
 
         if challenger != "_" {
@@ -310,7 +314,7 @@ pub struct ServerGamesLight(pub HashMap<usize, ServerGameLight>);
 
 impl fmt::Debug for ServerGamesLight {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for game in self.0.values() {
+        for game in self.0.values().filter(|game| !game.game_over) {
             write!(f, "{game:?} ")?;
         }
 

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-server-full: don't delete server_game_light when a game ends so you
+  can still send messages.
 - hnefatafl-client: don't connect via TCP till you have to.
 - hnefatafl-client: fix a bug where the player ends a game with PlayFrom set.
 - hnefatafl-client: reset the new game settings every time you enter them.

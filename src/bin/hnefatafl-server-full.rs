@@ -156,7 +156,7 @@ fn archived_games_file() -> PathBuf {
         PathBuf::new()
     };
 
-    archived_games_file.push("hnefatafl-archived-games.ron");
+    archived_games_file.push("hnefatafl-copenhagen-games.ron");
     archived_games_file
 }
 
@@ -567,6 +567,7 @@ impl Server {
                 defender_channel,
                 spectators: game_old.spectators,
                 challenge_accepted: false,
+                game_over: false,
             };
 
             command = format!("{command} {game:?}");
@@ -736,7 +737,9 @@ impl Server {
                 }
             }
 
-            self.games_light.0.remove(&id);
+            if let Some(game) = self.games_light.0.get_mut(&id) {
+                game.game_over = true;
+            }
 
             if !self.skip_the_data_file {
                 self.append_archived_game(game)
@@ -901,7 +904,9 @@ impl Server {
                     panic!("the game should exist")
                 };
 
-                self.games_light.0.remove(&index);
+                if let Some(game) = self.games_light.0.get_mut(&index) {
+                    game.game_over = true;
+                }
 
                 if !self.skip_the_data_file {
                     self.append_archived_game(game)
@@ -972,7 +977,9 @@ impl Server {
                     panic!("the game should exist")
                 };
 
-                self.games_light.0.remove(&index);
+                if let Some(game) = self.games_light.0.get_mut(&index) {
+                    game.game_over = true;
+                }
 
                 if !self.skip_the_data_file {
                     self.append_archived_game(game)
