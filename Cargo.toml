@@ -24,7 +24,7 @@ criterion = { version = "0.6", features = ["html_reports"] }
 futures = "0.3"
 rodio = "0.20"
 rust-i18n = "3"
-webbrowser = { git = "https://github.com/amodm/webbrowser-rs.git", features = ["hardened"] }
+webbrowser = { version = "1", features = ["hardened"] }
 
 [dependencies]
 anyhow = "1"
