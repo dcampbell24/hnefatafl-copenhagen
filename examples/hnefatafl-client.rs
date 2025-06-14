@@ -770,8 +770,7 @@ impl Client {
                                 }
 
                                 if let Some(game) = self.games_light.0.get(&self.game_id) {
-                                    self.spectators =
-                                        game.spectators.keys().map(ToString::to_string).collect();
+                                    self.spectators = game.spectators.keys().cloned().collect();
                                     self.spectators.sort();
                                 }
                             }
