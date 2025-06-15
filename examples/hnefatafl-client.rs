@@ -24,6 +24,7 @@ use chrono::{Local, Utc};
 use clap::{Parser, command};
 use env_logger::Builder;
 use futures::{SinkExt, executor};
+use hnefatafl_copenhagen::server_game::ArchivedGame;
 use hnefatafl_copenhagen::{
     VERSION_ID,
     accounts::Email,
@@ -110,6 +111,25 @@ fn init_client() -> Client {
 
     if error.is_some() {
         client.error_persistent = error;
+    }
+
+    match fs::read_to_string(archived_games_file()) {
+        Ok(archived_games_string) => {
+            let mut archived_games = Vec::new();
+
+            for line in archived_games_string.lines() {
+                match ron::from_str(line) {
+                    Ok(archived_game) => archived_games.push(archived_game),
+                    Err(err) => error!("error loading archived game: {err}"),
+                }
+            }
+
+            client.archived_games = archived_games;
+            info!("loaded archived games");
+        }
+        Err(err) => {
+            error!("archived games file not found: {err}");
+        }
     }
 
     rust_i18n::set_locale(&client.locale_selected.txt());
@@ -221,6 +241,10 @@ struct Client {
     #[serde(skip)]
     attacker: String,
     #[serde(skip)]
+    archived_games: Vec<ArchivedGame>,
+    #[serde(skip)]
+    archived_game_selected: Option<ArchivedGame>,
+    #[serde(skip)]
     defender: String,
     #[serde(skip)]
     delete_account: bool,
@@ -328,6 +352,8 @@ enum Screen {
     GameNew,
     GameNewFrozen,
     Games,
+    ReviewGame,
+    ReviewGames,
     Users,
 }
 
@@ -518,6 +544,7 @@ impl Client {
 
         match message {
             Message::AccountSettings => self.screen = Screen::AccountSettings,
+            Message::ArchivedGameSelected(game) => self.archived_game_selected = Some(game),
             Message::ChangeTheme(theme) => {
                 self.theme = theme;
                 self.save_client();
@@ -596,6 +623,8 @@ impl Client {
                 }
                 Screen::Games => self.send("logout\n".to_string()),
                 Screen::Login => self.send("quit\n".to_string()),
+                Screen::ReviewGame => self.screen = Screen::ReviewGames,
+                Screen::ReviewGames => self.screen = Screen::Login,
             },
             Message::LocaleSelected(locale) => {
                 rust_i18n::set_locale(&locale.txt());
@@ -733,6 +762,8 @@ impl Client {
                 }
                 self.send(format!("{VERSION_ID} reset_password {account}\n"));
             }
+            Message::ReviewGame => self.screen = Screen::ReviewGame,
+            Message::ReviewGames => self.screen = Screen::ReviewGames,
             Message::RoleSelected(role) => {
                 self.game_settings.role_selected = Some(role);
             }
@@ -1124,7 +1155,12 @@ impl Client {
                             self.send(format!("text {}", self.text_input));
                         }
                     }
-                    Screen::GameNew | Screen::GameNewFrozen | Screen::Login | Screen::Users => {}
+                    Screen::GameNew
+                    | Screen::GameNewFrozen
+                    | Screen::Login
+                    | Screen::ReviewGame
+                    | Screen::ReviewGames
+                    | Screen::Users => {}
                 }
 
                 self.text_input.clear();
@@ -2132,6 +2168,8 @@ impl Client {
                 let website = button("https://hnefatafl.org")
                     .on_press(Message::OpenUrl("https://hnefatafl.org".to_string()));
 
+                let review_games = button("Review Games").on_press(Message::ReviewGames);
+
                 let quit =
                     button(text(self.strings["Quit"].as_str()).shaping(text::Shaping::Advanced))
                         .on_press(Message::Leave);
@@ -2179,6 +2217,7 @@ impl Client {
                     password,
                     show_password,
                     buttons,
+                    review_games,
                     locale,
                     error,
                     error_persistent
@@ -2186,6 +2225,40 @@ impl Client {
                 .padding(PADDING)
                 .spacing(SPACING)
                 .into()
+            }
+            Screen::ReviewGame => {
+                let mut columns = Column::new().padding(PADDING).spacing(SPACING);
+
+                let leave =
+                    button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::Leave);
+
+                columns = columns.push(leave);
+
+                columns.into()
+            }
+            Screen::ReviewGames => {
+                let mut columns = Column::new().padding(PADDING).spacing(SPACING);
+
+                columns = columns.push(
+                    pick_list(
+                        self.archived_games.clone(),
+                        self.archived_game_selected.clone(),
+                        Message::ArchivedGameSelected,
+                    )
+                    .text_shaping(text::Shaping::Advanced),
+                );
+
+                let review_game = button(text("Review Game").shaping(text::Shaping::Advanced))
+                    .on_press(Message::ReviewGame);
+
+                let leave =
+                    button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
+                        .on_press(Message::Leave);
+
+                columns = columns.push(row![review_game, leave].spacing(SPACING));
+
+                columns.into()
             }
             Screen::Users => scrollable(column![
                 text(t!("logged in")).shaping(text::Shaping::Advanced),
@@ -2291,6 +2364,7 @@ impl fmt::Display for Locale {
 #[derive(Clone, Debug)]
 enum Message {
     AccountSettings,
+    ArchivedGameSelected(ArchivedGame),
     ChangeTheme(Theme),
     ConnectedTo(String),
     DeleteAccount,
@@ -2317,6 +2391,8 @@ enum Message {
     SoundMuted(bool),
     RatedSelected(bool),
     ResetPassword(String),
+    ReviewGames,
+    ReviewGame,
     RoleSelected(Role),
     StreamConnected(mpsc::Sender<String>),
     TextChanged(String),
@@ -2333,6 +2409,17 @@ enum Message {
     TimeMinutes(String),
     Users,
     WindowResized((f32, f32)),
+}
+
+fn archived_games_file() -> PathBuf {
+    let mut archived_games_file = if let Some(data_file) = dirs::data_dir() {
+        data_file
+    } else {
+        PathBuf::new()
+    };
+
+    archived_games_file.push("hnefatafl-games.ron");
+    archived_games_file
 }
 
 fn data_file() -> PathBuf {

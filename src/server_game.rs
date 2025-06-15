@@ -47,6 +47,28 @@ impl ArchivedGame {
     }
 }
 
+impl fmt::Display for ArchivedGame {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(
+            f,
+            "Game ID: {}, Attacker: {} {}, Defender: {} {}",
+            self.id,
+            self.attacker,
+            self.attacker_rating.to_string_rounded(),
+            self.defender,
+            self.defender_rating.to_string_rounded(),
+        )
+    }
+}
+
+impl PartialEq for ArchivedGame {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl Eq for ArchivedGame {}
+
 #[derive(Clone, Debug)]
 pub struct ServerGame {
     pub id: usize,
