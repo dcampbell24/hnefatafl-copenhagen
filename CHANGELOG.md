@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - hnefatafl-client: add Swedish translation.
-- Update the message.rs documentation.
+- Update the `Message` documentation.
 - hnefatafl-server-full: don't delete server_game_light when a game ends so you
   can still send messages.
 - hnefatafl-client: don't connect via TCP till you have to.
