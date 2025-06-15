@@ -352,8 +352,6 @@ enum Screen {
     GameNew,
     GameNewFrozen,
     Games,
-    ReviewGame,
-    ReviewGames,
     Users,
 }
 
@@ -623,8 +621,6 @@ impl Client {
                 }
                 Screen::Games => self.send("logout\n".to_string()),
                 Screen::Login => self.send("quit\n".to_string()),
-                Screen::ReviewGame => self.screen = Screen::ReviewGames,
-                Screen::ReviewGames => self.screen = Screen::Login,
             },
             Message::LocaleSelected(locale) => {
                 rust_i18n::set_locale(&locale.txt());
@@ -762,8 +758,9 @@ impl Client {
                 }
                 self.send(format!("{VERSION_ID} reset_password {account}\n"));
             }
-            Message::ReviewGame => self.screen = Screen::ReviewGame,
-            Message::ReviewGames => self.screen = Screen::ReviewGames,
+            Message::ReviewGame => {
+                // Fixme!
+            }
             Message::RoleSelected(role) => {
                 self.game_settings.role_selected = Some(role);
             }
@@ -1155,12 +1152,7 @@ impl Client {
                             self.send(format!("text {}", self.text_input));
                         }
                     }
-                    Screen::GameNew
-                    | Screen::GameNewFrozen
-                    | Screen::Login
-                    | Screen::ReviewGame
-                    | Screen::ReviewGames
-                    | Screen::Users => {}
+                    Screen::GameNew | Screen::GameNewFrozen | Screen::Login | Screen::Users => {}
                 }
 
                 self.text_input.clear();
@@ -2168,8 +2160,6 @@ impl Client {
                 let website = button("https://hnefatafl.org")
                     .on_press(Message::OpenUrl("https://hnefatafl.org".to_string()));
 
-                let review_games = button("Review Games").on_press(Message::ReviewGames);
-
                 let quit =
                     button(text(self.strings["Quit"].as_str()).shaping(text::Shaping::Advanced))
                         .on_press(Message::Leave);
@@ -2212,53 +2202,29 @@ impl Client {
                         .text_shaping(text::Shaping::Advanced),
                 ];
 
+                let review_game = button("Review Game").on_press(Message::ReviewGame);
+                let review_game_pick = pick_list(
+                    self.archived_games.clone(),
+                    self.archived_game_selected.clone(),
+                    Message::ArchivedGameSelected,
+                )
+                .text_shaping(text::Shaping::Advanced);
+
+                let review_game = row![review_game, review_game_pick].spacing(SPACING);
+
                 column![
                     username,
                     password,
                     show_password,
                     buttons,
-                    review_games,
                     locale,
+                    review_game,
                     error,
                     error_persistent
                 ]
                 .padding(PADDING)
                 .spacing(SPACING)
                 .into()
-            }
-            Screen::ReviewGame => {
-                let mut columns = Column::new().padding(PADDING).spacing(SPACING);
-
-                let leave =
-                    button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
-                        .on_press(Message::Leave);
-
-                columns = columns.push(leave);
-
-                columns.into()
-            }
-            Screen::ReviewGames => {
-                let mut columns = Column::new().padding(PADDING).spacing(SPACING);
-
-                columns = columns.push(
-                    pick_list(
-                        self.archived_games.clone(),
-                        self.archived_game_selected.clone(),
-                        Message::ArchivedGameSelected,
-                    )
-                    .text_shaping(text::Shaping::Advanced),
-                );
-
-                let review_game = button(text("Review Game").shaping(text::Shaping::Advanced))
-                    .on_press(Message::ReviewGame);
-
-                let leave =
-                    button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
-                        .on_press(Message::Leave);
-
-                columns = columns.push(row![review_game, leave].spacing(SPACING));
-
-                columns.into()
             }
             Screen::Users => scrollable(column![
                 text(t!("logged in")).shaping(text::Shaping::Advanced),
@@ -2391,7 +2357,6 @@ enum Message {
     SoundMuted(bool),
     RatedSelected(bool),
     ResetPassword(String),
-    ReviewGames,
     ReviewGame,
     RoleSelected(Role),
     StreamConnected(mpsc::Sender<String>),
