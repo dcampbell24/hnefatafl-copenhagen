@@ -1808,9 +1808,9 @@ impl Client {
 
                     let mut spectator = spectator.to_string();
                     if let Some(user) = self.users.get(&spectator) {
-                        let _ok = write!(spectator, " ({})", user.rating);
+                        let _ok = write!(spectator, " ({})", user.rating.to_string_rounded());
                     }
-                    spectators = spectators.push(text(spectator.to_string()));
+                    spectators = spectators.push(text(spectator));
                 }
 
                 let resign =
