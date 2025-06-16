@@ -351,6 +351,7 @@ enum Screen {
     Game,
     GameNew,
     GameNewFrozen,
+    GameReview,
     Games,
     Users,
 }
@@ -619,6 +620,7 @@ impl Client {
                     self.send(format!("leave_game {}\n", self.game_id));
                     self.screen = Screen::Games;
                 }
+                Screen::GameReview => self.screen = Screen::Login,
                 Screen::Games => self.send("logout\n".to_string()),
                 Screen::Login => self.send("quit\n".to_string()),
             },
@@ -759,7 +761,7 @@ impl Client {
                 self.send(format!("{VERSION_ID} reset_password {account}\n"));
             }
             Message::ReviewGame => {
-                // Fixme!
+                self.screen = Screen::GameReview;
             }
             Message::RoleSelected(role) => {
                 self.game_settings.role_selected = Some(role);
@@ -1152,7 +1154,11 @@ impl Client {
                             self.send(format!("text {}", self.text_input));
                         }
                     }
-                    Screen::GameNew | Screen::GameNewFrozen | Screen::Login | Screen::Users => {}
+                    Screen::GameNew
+                    | Screen::GameNewFrozen
+                    | Screen::GameReview
+                    | Screen::Login
+                    | Screen::Users => {}
                 }
 
                 self.text_input.clear();
@@ -2029,6 +2035,13 @@ impl Client {
 
                 game_display.push(buttons).into()
             }
+            Screen::GameReview => row![
+                button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
+                    .on_press(Message::Leave)
+            ]
+            .padding(PADDING)
+            .spacing(SPACING)
+            .into(),
             Screen::Games => {
                 let mut theme = if self.theme == Theme::Light {
                     row![
