@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: round the rating when displayed.
 - hnefatafl-client: add Swedish translation.
 - Update the `Message` documentation.
 - hnefatafl-server-full: don't delete server_game_light when a game ends so you
