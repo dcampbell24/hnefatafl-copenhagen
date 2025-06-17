@@ -83,7 +83,7 @@ impl ArchivedGameHandle {
     #[allow(clippy::missing_panics_doc)]
     pub fn new(game: &ArchivedGame) -> ArchivedGameHandle {
         let mut boards = vec![Board::default()];
-        let mut turn = Color::Black;
+        let mut turn = Color::default();
         let mut board = Board::default();
 
         for play in &game.plays {
