@@ -24,7 +24,8 @@ use chrono::{Local, Utc};
 use clap::{Parser, command};
 use env_logger::Builder;
 use futures::{SinkExt, executor};
-use hnefatafl_copenhagen::server_game::ArchivedGame;
+use hnefatafl_copenhagen::board::Board;
+use hnefatafl_copenhagen::server_game::{ArchivedGame, ArchivedGameHandle};
 use hnefatafl_copenhagen::{
     VERSION_ID,
     accounts::Email,
@@ -245,6 +246,8 @@ struct Client {
     #[serde(skip)]
     archived_game_selected: Option<ArchivedGame>,
     #[serde(skip)]
+    archived_game_handle: Option<ArchivedGameHandle>,
+    #[serde(skip)]
     defender: String,
     #[serde(skip)]
     delete_account: bool,
@@ -357,6 +360,11 @@ enum Screen {
 }
 
 impl Client {
+    fn archived_game_reset(&mut self) {
+        self.archived_game_handle = None;
+        self.archived_game_selected = None;
+    }
+
     #[allow(clippy::too_many_lines)]
     #[must_use]
     fn board(&self) -> Row<Message> {
@@ -368,8 +376,13 @@ impl Client {
             Size::Tiny => (40, 20, 25, 16),
         };
 
-        let Some(game) = &self.game else {
-            return row![];
+        let board = if let Some(game_handle) = &self.archived_game_handle {
+            &game_handle.board
+        } else {
+            let Some(game) = &self.game else {
+                panic!("we should be in a game");
+            };
+            &game.board
         };
 
         let mut game_display = Row::new().spacing(2);
@@ -396,7 +409,7 @@ impl Client {
             for y in 0..11 {
                 let vertex = Vertex { x, y };
 
-                let mut text_ = match game.board.get(&vertex) {
+                let mut text_ = match board.get(&vertex) {
                     Space::Empty => {
                         if (y, x) == (0, 0)
                             || (y, x) == (10, 0)
@@ -482,6 +495,230 @@ impl Client {
 
         game_display = game_display.push(column);
         game_display
+    }
+
+    #[allow(clippy::too_many_lines)]
+    fn display_game(&self) -> Element<Message> {
+        let mut attacker_rating = String::new();
+        let mut defender_rating = String::new();
+
+        let (attacker, defender, board, play) =
+            if let Some(game_handle) = &self.archived_game_handle {
+                attacker_rating = game_handle.game.attacker_rating.to_string_rounded();
+                defender_rating = game_handle.game.defender_rating.to_string_rounded();
+
+                (
+                    &game_handle.game.attacker,
+                    &game_handle.game.defender,
+                    &game_handle.board,
+                    0,
+                )
+            } else {
+                for user in self.users.values() {
+                    if self.attacker == user.name {
+                        attacker_rating = user.rating.to_string_rounded();
+                    }
+                    if self.defender == user.name {
+                        defender_rating = user.rating.to_string_rounded();
+                    }
+                }
+
+                let Some(game) = &self.game else {
+                    panic!("we should be in a game");
+                };
+                (
+                    &self.attacker,
+                    &self.defender,
+                    &game.board,
+                    game.previous_boards.0.len(),
+                )
+            };
+
+        for user in self.users.values() {
+            if self.attacker == user.name {
+                attacker_rating = user.rating.to_string_rounded();
+            }
+            if self.defender == user.name {
+                defender_rating = user.rating.to_string_rounded();
+            }
+        }
+
+        let captured = board.captured();
+        let attacker = container(
+            column![
+                row![
+                    text(attacker).shaping(text::Shaping::Advanced),
+                    text(attacker_rating).center(),
+                ]
+                .spacing(SPACING),
+                row![
+                    text(self.time_attacker.fmt_shorthand()).size(35).center(),
+                    text("🗡").shaping(text::Shaping::Advanced).size(35).center(),
+                    text(captured.white().to_string())
+                        .shaping(text::Shaping::Advanced)
+                        .size(35),
+                ]
+                .spacing(SPACING),
+            ]
+            .spacing(SPACING),
+        )
+        .padding(PADDING)
+        .style(container::bordered_box);
+
+        let defender = container(
+            column![
+                row![
+                    text(defender).shaping(text::Shaping::Advanced),
+                    text(defender_rating).center(),
+                ]
+                .spacing(SPACING),
+                row![
+                    text(self.time_defender.fmt_shorthand()).size(35).center(),
+                    text("⛨")
+                        .shaping(text::Shaping::Advanced)
+                        .size(35.0)
+                        .center(),
+                    text(captured.black().to_string())
+                        .shaping(text::Shaping::Advanced)
+                        .size(35),
+                ]
+                .spacing(SPACING),
+            ]
+            .spacing(SPACING),
+        )
+        .padding(PADDING)
+        .style(container::bordered_box);
+
+        let mut watching = false;
+
+        let mut user_area =
+            column![text!("#{} {}", self.game_id, &self.username).shaping(text::Shaping::Advanced)]
+                .spacing(SPACING);
+
+        let is_rated = match self.game_settings.rated {
+            Rated::No => t!("no"),
+            Rated::Yes => t!("yes"),
+        };
+
+        user_area = user_area.push(
+            text!("{}: {play} {}: {is_rated}", t!("move"), t!("rated"),)
+                .shaping(text::Shaping::Advanced),
+        );
+
+        match self.screen_size {
+            Size::Tiny | Size::Small | Size::Medium | Size::Large => {
+                user_area = user_area.push(column![attacker, defender].spacing(SPACING));
+            }
+            Size::Giant => {
+                user_area = user_area.push(row![attacker, defender].spacing(SPACING));
+            }
+        }
+
+        let mut spectators = Column::new();
+        for spectator in &self.spectators {
+            if self.username.as_str() == spectator.as_str() {
+                watching = true;
+            }
+
+            let mut spectator = spectator.to_string();
+            if let Some(user) = self.users.get(&spectator) {
+                let _ok = write!(spectator, " ({})", user.rating.to_string_rounded());
+            }
+            spectators = spectators.push(text(spectator));
+        }
+
+        let resign = button(text(self.strings["Resign"].as_str()).shaping(text::Shaping::Advanced))
+            .on_press(Message::PlayResign);
+
+        let request_draw =
+            button(text(self.strings["Request Draw"].as_str()).shaping(text::Shaping::Advanced))
+                .on_press(Message::PlayDraw);
+
+        if !watching {
+            if self.my_turn {
+                match self.screen_size {
+                    Size::Tiny | Size::Small => {
+                        user_area = user_area.push(
+                            column![
+                                row![resign].spacing(SPACING),
+                                row![request_draw].spacing(SPACING),
+                            ]
+                            .spacing(SPACING),
+                        );
+                    }
+                    Size::Medium | Size::Large | Size::Giant => {
+                        user_area = user_area.push(row![resign, request_draw].spacing(SPACING));
+                    }
+                }
+            } else {
+                let row = if self.request_draw {
+                    column![
+                        row![
+                            button(
+                                text(self.strings["Accept Draw"].as_str())
+                                    .shaping(text::Shaping::Advanced)
+                            )
+                            .on_press(Message::PlayDrawDecision(Draw::Accept)),
+                        ]
+                        .spacing(SPACING)
+                    ]
+                } else {
+                    Column::new()
+                };
+                user_area = user_area.push(row.spacing(SPACING));
+            }
+        }
+
+        let muted = checkbox(t!("Muted"), self.sound_muted)
+            .text_shaping(text::Shaping::Advanced)
+            .on_toggle(Message::SoundMuted)
+            .size(32);
+
+        let leave = button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
+            .on_press(Message::Leave);
+
+        user_area = user_area.push(row![muted, leave].spacing(SPACING));
+
+        match self.status {
+            Status::BlackWins => {
+                user_area =
+                    user_area.push(text(t!("Attacker wins!")).shaping(text::Shaping::Advanced));
+            }
+            Status::Draw => {
+                user_area =
+                    user_area.push(text(t!("It's a draw.")).shaping(text::Shaping::Advanced));
+            }
+            Status::Ongoing => {}
+            Status::WhiteWins => {
+                user_area =
+                    user_area.push(text(t!("Defender wins!")).shaping(text::Shaping::Advanced));
+            }
+        }
+
+        let spectator =
+            column![text!("👥 ({})", self.spectators.len()).shaping(text::Shaping::Advanced)];
+
+        if self.spectators.is_empty() {
+            user_area = user_area.push(spectator);
+        } else {
+            user_area = user_area.push(tooltip(
+                spectator,
+                container(spectators)
+                    .style(container::bordered_box)
+                    .padding(PADDING),
+                tooltip::Position::Bottom,
+            ));
+        }
+
+        if self.archived_game_handle.is_none() {
+            user_area = user_area.push(self.texting(true));
+        }
+
+        let user_area = container(user_area)
+            .padding(PADDING)
+            .style(container::bordered_box);
+
+        row![self.board(), user_area].spacing(SPACING).into()
     }
 
     fn subscriptions(&self) -> Subscription<Message> {
@@ -761,7 +998,14 @@ impl Client {
                 self.send(format!("{VERSION_ID} reset_password {account}\n"));
             }
             Message::ReviewGame => {
-                self.screen = Screen::GameReview;
+                if let Some(archived_game) = &self.archived_game_selected {
+                    self.archived_game_handle = Some(ArchivedGameHandle {
+                        play: 0,
+                        board: Board::default(),
+                        game: archived_game.clone(),
+                    });
+                    self.screen = Screen::GameReview;
+                }
             }
             Message::RoleSelected(role) => {
                 self.game_settings.role_selected = Some(role);
@@ -1190,6 +1434,7 @@ impl Client {
                     self.password.clear();
                 }
                 self.text_input.clear();
+                self.archived_game_reset();
                 self.save_client();
             }
             Message::TextSendLogin => {
@@ -1215,6 +1460,7 @@ impl Client {
 
                 self.password.clear();
                 self.text_input.clear();
+                self.archived_game_reset();
                 self.save_client();
             }
             Message::Tick => {
@@ -1706,208 +1952,7 @@ impl Client {
 
                 scrollable(column).into()
             }
-            Screen::Game => {
-                let Some(game) = &self.game else {
-                    panic!("we are in a game");
-                };
-
-                let mut attacker_rating = "-".to_string();
-                let mut defender_rating = "-".to_string();
-                for user in self.users.values() {
-                    if self.attacker == user.name {
-                        attacker_rating = user.rating.to_string_rounded();
-                    }
-                    if self.defender == user.name {
-                        defender_rating = user.rating.to_string_rounded();
-                    }
-                }
-
-                let captured = game.board.captured();
-                let attacker = container(
-                    column![
-                        row![
-                            text(self.attacker.to_string()).shaping(text::Shaping::Advanced),
-                            text(attacker_rating.to_string()).center(),
-                        ]
-                        .spacing(SPACING),
-                        row![
-                            text(self.time_attacker.fmt_shorthand()).size(35).center(),
-                            text("🗡").shaping(text::Shaping::Advanced).size(35).center(),
-                            text(captured.white().to_string())
-                                .shaping(text::Shaping::Advanced)
-                                .size(35),
-                        ]
-                        .spacing(SPACING),
-                    ]
-                    .spacing(SPACING),
-                )
-                .padding(PADDING)
-                .style(container::bordered_box);
-
-                let defender = container(
-                    column![
-                        row![
-                            text(self.defender.to_string()).shaping(text::Shaping::Advanced),
-                            text(defender_rating.to_string()).center(),
-                        ]
-                        .spacing(SPACING),
-                        row![
-                            text(self.time_defender.fmt_shorthand()).size(35).center(),
-                            text("⛨")
-                                .shaping(text::Shaping::Advanced)
-                                .size(35.0)
-                                .center(),
-                            text(captured.black().to_string())
-                                .shaping(text::Shaping::Advanced)
-                                .size(35),
-                        ]
-                        .spacing(SPACING),
-                    ]
-                    .spacing(SPACING),
-                )
-                .padding(PADDING)
-                .style(container::bordered_box);
-
-                let mut watching = false;
-                let texting = self.texting(true);
-
-                let mut user_area = column![
-                    text!("#{} {}", self.game_id, &self.username).shaping(text::Shaping::Advanced)
-                ]
-                .spacing(SPACING);
-
-                let is_rated = match self.game_settings.rated {
-                    Rated::No => t!("no"),
-                    Rated::Yes => t!("yes"),
-                };
-
-                user_area = user_area.push(
-                    text!(
-                        "{}: {} {}: {is_rated}",
-                        t!("move"),
-                        game.previous_boards.0.len(),
-                        t!("rated"),
-                    )
-                    .shaping(text::Shaping::Advanced),
-                );
-
-                match self.screen_size {
-                    Size::Tiny | Size::Small | Size::Medium | Size::Large => {
-                        user_area = user_area.push(column![attacker, defender].spacing(SPACING));
-                    }
-                    Size::Giant => {
-                        user_area = user_area.push(row![attacker, defender].spacing(SPACING));
-                    }
-                }
-
-                let mut spectators = Column::new();
-                for spectator in &self.spectators {
-                    if self.username.as_str() == spectator.as_str() {
-                        watching = true;
-                    }
-
-                    let mut spectator = spectator.to_string();
-                    if let Some(user) = self.users.get(&spectator) {
-                        let _ok = write!(spectator, " ({})", user.rating.to_string_rounded());
-                    }
-                    spectators = spectators.push(text(spectator));
-                }
-
-                let resign =
-                    button(text(self.strings["Resign"].as_str()).shaping(text::Shaping::Advanced))
-                        .on_press(Message::PlayResign);
-
-                let request_draw = button(
-                    text(self.strings["Request Draw"].as_str()).shaping(text::Shaping::Advanced),
-                )
-                .on_press(Message::PlayDraw);
-
-                if !watching {
-                    if self.my_turn {
-                        match self.screen_size {
-                            Size::Tiny | Size::Small => {
-                                user_area = user_area.push(
-                                    column![
-                                        row![resign].spacing(SPACING),
-                                        row![request_draw].spacing(SPACING),
-                                    ]
-                                    .spacing(SPACING),
-                                );
-                            }
-                            Size::Medium | Size::Large | Size::Giant => {
-                                user_area =
-                                    user_area.push(row![resign, request_draw].spacing(SPACING));
-                            }
-                        }
-                    } else {
-                        let row = if self.request_draw {
-                            column![
-                                row![
-                                    button(
-                                        text(self.strings["Accept Draw"].as_str())
-                                            .shaping(text::Shaping::Advanced)
-                                    )
-                                    .on_press(Message::PlayDrawDecision(Draw::Accept)),
-                                ]
-                                .spacing(SPACING)
-                            ]
-                        } else {
-                            Column::new()
-                        };
-                        user_area = user_area.push(row.spacing(SPACING));
-                    }
-                }
-
-                let muted = checkbox(t!("Muted"), self.sound_muted)
-                    .text_shaping(text::Shaping::Advanced)
-                    .on_toggle(Message::SoundMuted)
-                    .size(32);
-
-                let leave =
-                    button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
-                        .on_press(Message::Leave);
-
-                user_area = user_area.push(row![muted, leave].spacing(SPACING));
-
-                match self.status {
-                    Status::BlackWins => {
-                        user_area = user_area
-                            .push(text(t!("Attacker wins!")).shaping(text::Shaping::Advanced));
-                    }
-                    Status::Draw => {
-                        user_area = user_area
-                            .push(text(t!("It's a draw.")).shaping(text::Shaping::Advanced));
-                    }
-                    Status::Ongoing => {}
-                    Status::WhiteWins => {
-                        user_area = user_area
-                            .push(text(t!("Defender wins!")).shaping(text::Shaping::Advanced));
-                    }
-                }
-
-                let spectator = column![
-                    text!("👥 ({})", self.spectators.len()).shaping(text::Shaping::Advanced)
-                ];
-
-                if self.spectators.is_empty() {
-                    user_area = user_area.push(spectator);
-                } else {
-                    user_area = user_area.push(tooltip(
-                        spectator,
-                        container(spectators)
-                            .style(container::bordered_box)
-                            .padding(PADDING),
-                        tooltip::Position::Bottom,
-                    ));
-                }
-
-                user_area = user_area.push(texting);
-                let user_area = container(user_area)
-                    .padding(PADDING)
-                    .style(container::bordered_box);
-
-                row![self.board(), user_area].spacing(SPACING).into()
-            }
+            Screen::Game | Screen::GameReview => self.display_game(),
             Screen::GameNew => {
                 let attacker = radio(
                     t!("attacker"),
@@ -2035,13 +2080,6 @@ impl Client {
 
                 game_display.push(buttons).into()
             }
-            Screen::GameReview => row![
-                button(text(self.strings["Leave"].as_str()).shaping(text::Shaping::Advanced))
-                    .on_press(Message::Leave)
-            ]
-            .padding(PADDING)
-            .spacing(SPACING)
-            .into(),
             Screen::Games => {
                 let mut theme = if self.theme == Theme::Light {
                     row![
@@ -2215,7 +2253,11 @@ impl Client {
                         .text_shaping(text::Shaping::Advanced),
                 ];
 
-                let review_game = button("Review Game").on_press(Message::ReviewGame);
+                let mut review_game = button("Review Game");
+                if self.archived_game_selected.is_some() {
+                    review_game = review_game.on_press(Message::ReviewGame);
+                }
+
                 let review_game_pick = pick_list(
                     self.archived_games.clone(),
                     self.archived_game_selected.clone(),

@@ -8,6 +8,7 @@ use std::{
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    board::Board,
     game::Game,
     glicko::Rating,
     play::Play,
@@ -68,6 +69,24 @@ impl PartialEq for ArchivedGame {
 }
 
 impl Eq for ArchivedGame {}
+
+#[derive(Clone, Debug)]
+pub struct ArchivedGameHandle {
+    pub play: u32,
+    pub board: Board,
+    pub game: ArchivedGame,
+}
+
+impl ArchivedGameHandle {
+    #[must_use]
+    pub fn new(game: &ArchivedGame) -> ArchivedGameHandle {
+        ArchivedGameHandle {
+            play: 0,
+            board: Board::default(),
+            game: game.clone(),
+        }
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct ServerGame {
