@@ -7,7 +7,7 @@ use crate::color::Color;
 
 pub const BOARD_LETTERS: &str = "ABCDEFGHIJK";
 
-#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Plae {
     Play(Play),
     BlackResigns,

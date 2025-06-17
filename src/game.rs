@@ -24,7 +24,7 @@ pub struct Game {
     #[serde(skip)]
     pub ai: AiBanal,
     pub board: Board,
-    pub plays: Vec<Play>,
+    pub plays: Vec<Plae>,
     pub previous_boards: PreviousBoards,
     pub status: Status,
     pub time: TimeUnix,
@@ -44,7 +44,7 @@ pub struct Game {
     #[wasm_bindgen(skip)]
     pub board: Board,
     #[wasm_bindgen(skip)]
-    pub plays: Vec<Play>,
+    pub plays: Vec<Plae>,
     #[wasm_bindgen(skip)]
     pub previous_boards: PreviousBoards,
     #[wasm_bindgen(skip)]
@@ -297,7 +297,7 @@ impl Game {
                     )?;
 
                     self.status = status;
-                    self.plays.push(play.clone());
+                    self.plays.push(Plae::Play(play.clone()));
 
                     if self.status == Status::Ongoing {
                         self.turn = self.turn.opposite();

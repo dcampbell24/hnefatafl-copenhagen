@@ -24,7 +24,6 @@ use chrono::{Local, Utc};
 use clap::{Parser, command};
 use env_logger::Builder;
 use futures::{SinkExt, executor};
-use hnefatafl_copenhagen::board::Board;
 use hnefatafl_copenhagen::server_game::{ArchivedGame, ArchivedGameHandle};
 use hnefatafl_copenhagen::{
     VERSION_ID,
@@ -377,7 +376,7 @@ impl Client {
         };
 
         let board = if let Some(game_handle) = &self.archived_game_handle {
-            &game_handle.board
+            &game_handle.boards[game_handle.play]
         } else {
             let Some(game) = &self.game else {
                 panic!("we should be in a game");
@@ -511,8 +510,8 @@ impl Client {
                     &game_handle.game.id,
                     &game_handle.game.attacker,
                     &game_handle.game.defender,
-                    &game_handle.board,
-                    0,
+                    &game_handle.boards[game_handle.play],
+                    game_handle.play,
                 )
             } else {
                 for user in self.users.values() {
@@ -712,7 +711,19 @@ impl Client {
             ));
         }
 
-        if self.archived_game_handle.is_none() {
+        if let Some(handle) = &self.archived_game_handle {
+            let mut left = button("<");
+            if handle.play > 0 {
+                left = left.on_press(Message::ReviewGameBackward);
+            }
+
+            let mut right = button(">");
+            if handle.play < handle.game.plays.len() {
+                right = right.on_press(Message::ReviewGameForward);
+            }
+
+            user_area = user_area.push(row![left, right].spacing(SPACING));
+        } else {
             user_area = user_area.push(self.texting(true));
         }
 
@@ -1002,12 +1013,18 @@ impl Client {
             Message::ReviewGame => {
                 if let Some(archived_game) = &self.archived_game_selected {
                     self.username = self.text_input.to_string();
-                    self.archived_game_handle = Some(ArchivedGameHandle {
-                        play: 0,
-                        board: Board::default(),
-                        game: archived_game.clone(),
-                    });
+                    self.archived_game_handle = Some(ArchivedGameHandle::new(archived_game));
                     self.screen = Screen::GameReview;
+                }
+            }
+            Message::ReviewGameBackward => {
+                if let Some(handle) = &mut self.archived_game_handle {
+                    handle.play -= 1;
+                }
+            }
+            Message::ReviewGameForward => {
+                if let Some(handle) = &mut self.archived_game_handle {
+                    handle.play += 1;
                 }
             }
             Message::RoleSelected(role) => {
@@ -2416,6 +2433,8 @@ enum Message {
     RatedSelected(bool),
     ResetPassword(String),
     ReviewGame,
+    ReviewGameBackward,
+    ReviewGameForward,
     RoleSelected(Role),
     StreamConnected(mpsc::Sender<String>),
     TextChanged(String),

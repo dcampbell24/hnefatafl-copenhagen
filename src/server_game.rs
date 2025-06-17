@@ -9,9 +9,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     board::Board,
-    game::Game,
+    color::Color,
+    game::{Game, PreviousBoards},
     glicko::Rating,
-    play::Play,
+    play::Plae,
     rating::Rated,
     role::Role,
     status::Status,
@@ -26,7 +27,7 @@ pub struct ArchivedGame {
     pub defender: String,
     pub defender_rating: Rating,
     pub rated: Rated,
-    pub plays: Vec<Play>,
+    pub plays: Vec<Plae>,
     pub status: Status,
     pub texts: VecDeque<String>,
 }
@@ -72,17 +73,40 @@ impl Eq for ArchivedGame {}
 
 #[derive(Clone, Debug)]
 pub struct ArchivedGameHandle {
-    pub play: u32,
-    pub board: Board,
+    pub play: usize,
+    pub boards: Vec<Board>,
     pub game: ArchivedGame,
 }
 
 impl ArchivedGameHandle {
     #[must_use]
+    #[allow(clippy::missing_panics_doc)]
     pub fn new(game: &ArchivedGame) -> ArchivedGameHandle {
+        let mut boards = vec![Board::default()];
+        let mut turn = Color::Black;
+        let mut board = Board::default();
+
+        for play in &game.plays {
+            board
+                .play(
+                    play,
+                    &Status::Ongoing,
+                    &turn,
+                    &mut PreviousBoards::default(),
+                )
+                .unwrap();
+            boards.push(board.clone());
+
+            turn = match turn {
+                Color::Black => Color::White,
+                Color::Colorless => Color::Colorless,
+                Color::White => Color::Black,
+            };
+        }
+
         ArchivedGameHandle {
             play: 0,
-            board: Board::default(),
+            boards,
             game: game.clone(),
         }
     }
