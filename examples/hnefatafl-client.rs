@@ -712,17 +712,21 @@ impl Client {
         }
 
         if let Some(handle) = &self.archived_game_handle {
-            let mut left = button("<");
+            let mut left_all = button(text("⏮").shaping(text::Shaping::Advanced));
+            let mut left = button(text("⏪").shaping(text::Shaping::Advanced));
             if handle.play > 0 {
+                left_all = left_all.on_press(Message::ReviewGameBackwardAll);
                 left = left.on_press(Message::ReviewGameBackward);
             }
 
-            let mut right = button(">");
+            let mut right = button(text("⏩").center().shaping(text::Shaping::Advanced));
+            let mut right_all = button(text("⏭").center().shaping(text::Shaping::Advanced));
             if handle.play < handle.game.plays.len() {
                 right = right.on_press(Message::ReviewGameForward);
+                right_all = right_all.on_press(Message::ReviewGameForwardAll);
             }
 
-            user_area = user_area.push(row![left, right].spacing(SPACING));
+            user_area = user_area.push(row![left_all, left, right, right_all].spacing(SPACING));
         } else {
             user_area = user_area.push(self.texting(true));
         }
@@ -1022,9 +1026,19 @@ impl Client {
                     handle.play -= 1;
                 }
             }
+            Message::ReviewGameBackwardAll => {
+                if let Some(handle) = &mut self.archived_game_handle {
+                    handle.play = 0;
+                }
+            }
             Message::ReviewGameForward => {
                 if let Some(handle) = &mut self.archived_game_handle {
                     handle.play += 1;
+                }
+            }
+            Message::ReviewGameForwardAll => {
+                if let Some(handle) = &mut self.archived_game_handle {
+                    handle.play = handle.game.plays.len();
                 }
             }
             Message::RoleSelected(role) => {
@@ -2434,7 +2448,9 @@ enum Message {
     ResetPassword(String),
     ReviewGame,
     ReviewGameBackward,
+    ReviewGameBackwardAll,
     ReviewGameForward,
+    ReviewGameForwardAll,
     RoleSelected(Role),
     StreamConnected(mpsc::Sender<String>),
     TextChanged(String),
