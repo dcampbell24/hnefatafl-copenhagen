@@ -502,12 +502,13 @@ impl Client {
         let mut attacker_rating = String::new();
         let mut defender_rating = String::new();
 
-        let (attacker, defender, board, play) =
+        let (game_id, attacker, defender, board, play) =
             if let Some(game_handle) = &self.archived_game_handle {
                 attacker_rating = game_handle.game.attacker_rating.to_string_rounded();
                 defender_rating = game_handle.game.defender_rating.to_string_rounded();
 
                 (
+                    &game_handle.game.id,
                     &game_handle.game.attacker,
                     &game_handle.game.defender,
                     &game_handle.board,
@@ -527,6 +528,7 @@ impl Client {
                     panic!("we should be in a game");
                 };
                 (
+                    &self.game_id,
                     &self.attacker,
                     &self.defender,
                     &game.board,
@@ -592,7 +594,7 @@ impl Client {
         let mut watching = false;
 
         let mut user_area =
-            column![text!("#{} {}", self.game_id, &self.username).shaping(text::Shaping::Advanced)]
+            column![text!("#{game_id} {}", &self.username).shaping(text::Shaping::Advanced)]
                 .spacing(SPACING);
 
         let is_rated = match self.game_settings.rated {
@@ -999,6 +1001,7 @@ impl Client {
             }
             Message::ReviewGame => {
                 if let Some(archived_game) = &self.archived_game_selected {
+                    self.username = self.text_input.to_string();
                     self.archived_game_handle = Some(ArchivedGameHandle {
                         play: 0,
                         board: Board::default(),
