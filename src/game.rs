@@ -28,8 +28,8 @@ pub struct Game {
     pub previous_boards: PreviousBoards,
     pub status: Status,
     pub time: TimeUnix,
-    pub black_time: TimeSettings,
-    pub white_time: TimeSettings,
+    pub attacker_time: TimeSettings,
+    pub defender_time: TimeSettings,
     pub turn: Color,
 }
 
@@ -52,9 +52,9 @@ pub struct Game {
     #[wasm_bindgen(skip)]
     pub time: TimeUnix,
     #[wasm_bindgen(skip)]
-    pub black_time: TimeSettings,
+    pub attacker_time: TimeSettings,
     #[wasm_bindgen(skip)]
-    pub white_time: TimeSettings,
+    pub defender_time: TimeSettings,
     #[wasm_bindgen(skip)]
     pub turn: Color,
 }
@@ -83,14 +83,14 @@ impl fmt::Display for Game {
 
         writeln!(f, "status: {}", self.status)?;
 
-        match &self.black_time {
-            TimeSettings::Timed(time) => writeln!(f, "black_time: {time}")?,
-            TimeSettings::UnTimed => writeln!(f, "black_time: infinite")?,
+        match &self.attacker_time {
+            TimeSettings::Timed(time) => writeln!(f, "attacker_time: {time}")?,
+            TimeSettings::UnTimed => writeln!(f, "attacker_time: infinite")?,
         }
 
-        match &self.white_time {
-            TimeSettings::Timed(time) => writeln!(f, "white_time: {time}")?,
-            TimeSettings::UnTimed => writeln!(f, "white_time: infinite")?,
+        match &self.defender_time {
+            TimeSettings::Timed(time) => writeln!(f, "defender_time: {time}")?,
+            TimeSettings::UnTimed => writeln!(f, "defender_time: infinite")?,
         }
 
         write!(f, "turn: {}", self.turn)
@@ -245,11 +245,11 @@ impl Game {
     pub fn play(&mut self, play: &Plae) -> anyhow::Result<Captures> {
         if self.status == Status::Ongoing {
             if let (status, TimeSettings::Timed(timer), TimeUnix::Time(time)) = match self.turn {
-                Color::Black => (Status::WhiteWins, &mut self.black_time, &mut self.time),
+                Color::Black => (Status::WhiteWins, &mut self.attacker_time, &mut self.time),
                 Color::Colorless => {
                     unreachable!("It can't be no one's turn when the game is ongoing!")
                 }
-                Color::White => (Status::BlackWins, &mut self.white_time, &mut self.time),
+                Color::White => (Status::BlackWins, &mut self.defender_time, &mut self.time),
             } {
                 let now = Local::now().to_utc().timestamp_millis();
                 timer.milliseconds_left -= now - *time;
@@ -408,13 +408,13 @@ impl Game {
             Message::TimeSettings(time_settings) => {
                 match time_settings {
                     TimeSettings::Timed(time) => {
-                        self.black_time = TimeSettings::Timed(time.clone());
-                        self.white_time = TimeSettings::Timed(time);
+                        self.attacker_time = TimeSettings::Timed(time.clone());
+                        self.defender_time = TimeSettings::Timed(time);
                         self.time = TimeUnix::default();
                     }
                     TimeSettings::UnTimed => {
-                        self.black_time = TimeSettings::UnTimed;
-                        self.white_time = TimeSettings::UnTimed;
+                        self.attacker_time = TimeSettings::UnTimed;
+                        self.defender_time = TimeSettings::UnTimed;
                         self.time = TimeUnix::UnTimed;
                     }
                 }
@@ -439,18 +439,18 @@ impl Game {
 
         let mut utility = 0;
 
-        let mut white_left = 0;
-        let mut black_left = 0;
+        let mut defender_left = 0;
+        let mut attacker_left = 0;
         for space in self.board.spaces {
             match space {
-                Space::Black => black_left += 1,
+                Space::Black => attacker_left += 1,
                 Space::Empty | Space::King => {}
-                Space::White => white_left += 1,
+                Space::White => defender_left += 1,
             }
         }
 
-        utility += white_left * 2;
-        utility -= black_left;
+        utility += defender_left * 2;
+        utility -= attacker_left;
 
         if self.exit_one() {
             utility += 100;

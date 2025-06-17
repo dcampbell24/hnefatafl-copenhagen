@@ -195,7 +195,7 @@ fn login(
 
         if buf.trim().is_empty() {
             return Err(anyhow::Error::msg(
-                "the user tried to login with white space alone",
+                "the user tried to login with defender space alone",
             ));
         }
 
@@ -598,17 +598,17 @@ impl Server {
             match game.game.turn {
                 Color::Black => {
                     if game.game.status == Status::Ongoing {
-                        if let (TimeUnix::Time(game_time), TimeSettings::Timed(black_time)) =
-                            (&mut game.game.time, &mut game.game.black_time)
+                        if let (TimeUnix::Time(game_time), TimeSettings::Timed(attacker_time)) =
+                            (&mut game.game.time, &mut game.game.attacker_time)
                         {
-                            if black_time.milliseconds_left > 0 {
+                            if attacker_time.milliseconds_left > 0 {
                                 let now = Local::now().to_utc().timestamp_millis();
-                                black_time.milliseconds_left -= now - *game_time;
+                                attacker_time.milliseconds_left -= now - *game_time;
                                 *game_time = now;
                             } else if let Some(tx) = &mut self.tx {
                                 let _ok = tx.send((
                                     format!(
-                                        "0 {} game {} play black resigns _",
+                                        "0 {} game {} play attacker resigns _",
                                         game.attacker, game.id
                                     ),
                                     None,
@@ -620,17 +620,17 @@ impl Server {
                 Color::Colorless => {}
                 Color::White => {
                     if game.game.status == Status::Ongoing {
-                        if let (TimeUnix::Time(game_time), TimeSettings::Timed(white_time)) =
-                            (&mut game.game.time, &mut game.game.white_time)
+                        if let (TimeUnix::Time(game_time), TimeSettings::Timed(defender_time)) =
+                            (&mut game.game.time, &mut game.game.defender_time)
                         {
-                            if white_time.milliseconds_left > 0 {
+                            if defender_time.milliseconds_left > 0 {
                                 let now = Local::now().to_utc().timestamp_millis();
-                                white_time.milliseconds_left -= now - *game_time;
+                                defender_time.milliseconds_left -= now - *game_time;
                                 *game_time = now;
                             } else if let Some(tx) = &mut self.tx {
                                 let _ok = tx.send((
                                     format!(
-                                        "0 {} game {} play white resigns _",
+                                        "0 {} game {} play defender resigns _",
                                         game.defender, game.id
                                     ),
                                     None,
@@ -810,19 +810,19 @@ impl Server {
             ));
         };
 
-        let mut blacks_turn_next = true;
+        let mut attackers_turn_next = true;
         if color == Color::Black {
             if *username == game.attacker {
                 game.game
-                    .read_line(&format!("play black {from} {to}"))
+                    .read_line(&format!("play attacker {from} {to}"))
                     .map_err(|error| {
                         error!("{error}");
                         error
                     })
                     .ok()?;
-                blacks_turn_next = false;
+                attackers_turn_next = false;
 
-                let message = format!("game {index} play black {from} {to}");
+                let message = format!("game {index} play attacker {from} {to}");
                 for spectator in game_light.spectators.values() {
                     if let Some(client) = self.clients.get(spectator) {
                         let _ok = client.send(message.clone());
@@ -838,14 +838,14 @@ impl Server {
             }
         } else if *username == game.defender {
             game.game
-                .read_line(&format!("play white {from} {to}"))
+                .read_line(&format!("play defender {from} {to}"))
                 .map_err(|error| {
                     error!("{error}");
                     error
                 })
                 .ok()?;
 
-            let message = format!("game {index} play white {from} {to}");
+            let message = format!("game {index} play defender {from} {to}");
             for spectator in game_light.spectators.values() {
                 if let Some(client) = self.clients.get(spectator) {
                     let _ok = client.send(message.clone());
@@ -924,14 +924,14 @@ impl Server {
                 // Handled in the draw fn.
             }
             Status::Ongoing => {
-                if blacks_turn_next {
+                if attackers_turn_next {
                     let _ok = game
                         .attacker_tx
-                        .send(format!("game {index} generate_move black"));
+                        .send(format!("game {index} generate_move attacker"));
                 } else {
                     let _ok = game
                         .defender_tx
-                        .send(format!("game {index} generate_move white"));
+                        .send(format!("game {index} generate_move defender"));
                 }
             }
             Status::WhiteWins => {
@@ -1400,7 +1400,7 @@ impl Server {
         self.games.0.insert(id, new_game);
         self.clients
             .get(&attacker_tx)?
-            .send(format!("game {id} generate_move black"))
+            .send(format!("game {id} generate_move attacker"))
             .ok()?;
 
         None
@@ -2085,16 +2085,16 @@ mod tests {
         buf.clear();
 
         reader_1.read_line(&mut buf)?;
-        assert_eq!(buf, "game 0 generate_move black\n");
+        assert_eq!(buf, "game 0 generate_move attacker\n");
         buf.clear();
 
-        tcp_1.write_all(b"game 0 play black resigns _\n")?;
+        tcp_1.write_all(b"game 0 play attacker resigns _\n")?;
         reader_1.read_line(&mut buf)?;
         assert_eq!(buf, "= game_over 0 defender_wins\n");
         buf.clear();
 
         reader_2.read_line(&mut buf)?;
-        assert_eq!(buf, "game 0 play black resigns \n");
+        assert_eq!(buf, "game 0 play attacker resigns \n");
         buf.clear();
 
         reader_2.read_line(&mut buf)?;

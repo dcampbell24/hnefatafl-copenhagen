@@ -15,7 +15,7 @@ use crate::{
 /// whitespace or the empty string are passed the engine ignores the input and requests another
 /// string. Comments are any text following `#` on a line.
 ///
-/// Valid **COLOR** strings are `black` and `white`.
+/// Valid **COLOR** strings are `attacker` and `defender`.
 ///
 /// Valid **TO** and **FROM** coordinates are a letter, uppercase or lowercase, `A` though `K`
 /// followed by a number `1` through `11`. For example, `A1`.
@@ -75,7 +75,7 @@ pub enum Message {
 
     /// `final_status`
     ///
-    /// Returns `black_wins` or `draw` or `ongoing` or `white_wins`.
+    /// Returns `attacker_wins` or `draw` or `ongoing` or `defender_wins`.
     FinalStatus,
 
     /// `generate_move`

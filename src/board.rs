@@ -218,22 +218,22 @@ impl Board {
 
     #[must_use]
     pub fn captured(&self) -> Captured {
-        let mut black = 0;
-        let mut white = 0;
+        let mut attacker = 0;
+        let mut defender = 0;
         let mut king = true;
 
         for space in self.spaces {
             match space {
-                Space::Black => black += 1,
+                Space::Black => attacker += 1,
                 Space::Empty => {}
                 Space::King => king = false,
-                Space::White => white += 1,
+                Space::White => defender += 1,
             }
         }
 
         Captured {
-            black: 24 - black,
-            white: 12 - white,
+            attacker: 24 - attacker,
+            defender: 12 - defender,
             king,
         }
     }
@@ -579,7 +579,7 @@ impl Board {
             Some(kings_vertex) => {
                 if !kings_vertex.touches_wall()
                     || !self.able_to_move(&kings_vertex)
-                    || !self.flood_fill_white_wins(&kings_vertex)?
+                    || !self.flood_fill_defender_wins(&kings_vertex)?
                 {
                     return Ok(false);
                 }
@@ -593,7 +593,7 @@ impl Board {
     /// # Errors
     ///
     /// If the vertex is out of bounds.
-    fn flood_fill_black_wins(&self) -> anyhow::Result<bool> {
+    fn flood_fill_attacker_wins(&self) -> anyhow::Result<bool> {
         match self.find_the_king()? {
             Some(kings_vertex) => {
                 let hasher = FxBuildHasher;
@@ -645,8 +645,8 @@ impl Board {
     ///
     /// If the vertex is out of bounds.
     #[allow(clippy::too_many_lines)]
-    pub fn flood_fill_white_wins(&self, vertex: &Vertex) -> anyhow::Result<bool> {
-        let mut black_has_enough_pieces = false;
+    pub fn flood_fill_defender_wins(&self, vertex: &Vertex) -> anyhow::Result<bool> {
+        let mut attacker_has_enough_pieces = false;
         let mut count = 0;
         'outer: for y in 0..11 {
             for x in 0..11 {
@@ -656,7 +656,7 @@ impl Board {
                 }
 
                 if count > 1 {
-                    black_has_enough_pieces = true;
+                    attacker_has_enough_pieces = true;
                     break 'outer;
                 }
             }
@@ -727,7 +727,7 @@ impl Board {
                         vertex_2 = true;
                     }
 
-                    if !vertex_1 && !vertex_2 && black_has_enough_pieces {
+                    if !vertex_1 && !vertex_2 && attacker_has_enough_pieces {
                         return Ok(false);
                     }
                 } else {
@@ -749,7 +749,7 @@ impl Board {
                         vertex_2 = true;
                     }
 
-                    if !vertex_1 && !vertex_2 && black_has_enough_pieces {
+                    if !vertex_1 && !vertex_2 && attacker_has_enough_pieces {
                         return Ok(false);
                     }
                 }
@@ -765,7 +765,7 @@ impl Board {
     }
 
     #[must_use]
-    fn no_black_pieces_left(&self) -> bool {
+    fn no_attacker_pieces_left(&self) -> bool {
         for y in 0..11 {
             for x in 0..11 {
                 let v = Vertex { x, y };
@@ -904,11 +904,11 @@ impl Board {
         if board.exit_forts()? {
             return Ok((board, captures, Status::WhiteWins));
         }
-        if board.flood_fill_black_wins()? {
+        if board.flood_fill_attacker_wins()? {
             return Ok((board, captures, Status::BlackWins));
         }
 
-        if board.no_black_pieces_left() {
+        if board.no_attacker_pieces_left() {
             return Ok((board, captures, Status::WhiteWins));
         }
 
@@ -933,20 +933,20 @@ impl Board {
 }
 
 pub struct Captured {
-    black: u8,
-    white: u8,
+    attacker: u8,
+    defender: u8,
     king: bool,
 }
 
 impl Captured {
     #[must_use]
-    pub fn black(&self) -> String {
-        format!("♟ {}", self.black)
+    pub fn attacker(&self) -> String {
+        format!("♟ {}", self.attacker)
     }
 
     #[must_use]
-    pub fn white(&self) -> String {
-        let mut string = format!("♙ {}", self.white);
+    pub fn defender(&self) -> String {
+        let mut string = format!("♙ {}", self.defender);
         if self.king {
             string.push_str(" ♔");
         }

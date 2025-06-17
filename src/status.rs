@@ -14,10 +14,10 @@ pub enum Status {
 impl fmt::Display for Status {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::BlackWins => write!(f, "black_wins"),
+            Self::BlackWins => write!(f, "attacker_wins"),
             Self::Draw => write!(f, "draw"),
             Self::Ongoing => write!(f, "ongoing"),
-            Self::WhiteWins => write!(f, "white_wins"),
+            Self::WhiteWins => write!(f, "defender_wins"),
         }
     }
 }

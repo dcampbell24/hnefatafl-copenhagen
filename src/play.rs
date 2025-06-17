@@ -18,8 +18,8 @@ impl fmt::Display for Plae {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Play(play) => writeln!(f, "play {} {} {}", play.color, play.from, play.to),
-            Self::BlackResigns => writeln!(f, "play black resigns _"),
-            Self::WhiteResigns => writeln!(f, "play white resigns _"),
+            Self::BlackResigns => writeln!(f, "play attacker resigns _"),
+            Self::WhiteResigns => writeln!(f, "play defender resigns _"),
         }
     }
 }

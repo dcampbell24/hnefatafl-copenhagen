@@ -24,7 +24,7 @@ impl TryFrom<&Color> for Role {
     fn try_from(color: &Color) -> anyhow::Result<Self> {
         match color {
             Color::Black => Ok(Self::Attacker),
-            Color::Colorless => Err(anyhow::Error::msg("the piece must be black or white")),
+            Color::Colorless => Err(anyhow::Error::msg("the piece must be attacker or defender")),
             Color::White => Ok(Self::Defender),
         }
     }

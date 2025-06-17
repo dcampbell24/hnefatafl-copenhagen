@@ -152,8 +152,8 @@ impl ServerGame {
             defender_tx,
             rated: game.rated,
             game: Game {
-                black_time: game.timed.clone(),
-                white_time: game.timed,
+                attacker_time: game.timed.clone(),
+                defender_time: game.timed,
                 ..Game::default()
             },
             texts: VecDeque::new(),

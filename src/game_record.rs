@@ -9,8 +9,8 @@ use crate::{
 #[derive(Debug, serde::Deserialize)]
 struct Record {
     moves: String,
-    _black_captures: u64,
-    _white_captures: u64,
+    _attacker_captures: u64,
+    _defender_captures: u64,
     status: String,
 }
 

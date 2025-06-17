@@ -27,41 +27,41 @@ fn main() -> anyhow::Result<()> {
 }
 
 struct Htp {
-    black_connection: TcpStream,
-    white_connection: TcpStream,
+    attacker_connection: TcpStream,
+    defender_connection: TcpStream,
 }
 
 impl Htp {
     fn start(&mut self) -> anyhow::Result<()> {
-        let mut black_reader = BufReader::new(self.black_connection.try_clone()?);
-        let mut white_reader = BufReader::new(self.white_connection.try_clone()?);
+        let mut attacker_reader = BufReader::new(self.attacker_connection.try_clone()?);
+        let mut defender_reader = BufReader::new(self.defender_connection.try_clone()?);
 
         let mut game = Game::default();
 
         for i in 1..10_000 {
             println!("\n*** turn {} ***", 2 * i - 1);
-            write_command("generate_move black\n", &mut self.black_connection)?;
-            let black_move = read_response(&mut black_reader)?;
+            write_command("generate_move attacker\n", &mut self.attacker_connection)?;
+            let attacker_move = read_response(&mut attacker_reader)?;
 
-            game.read_line(&black_move)?;
-            write_command(&black_move, &mut self.white_connection)?;
+            game.read_line(&attacker_move)?;
+            write_command(&attacker_move, &mut self.defender_connection)?;
             if game.status != Status::Ongoing {
                 break;
             }
 
             println!("\n*** turn {} ***", 2 * i);
-            write_command("generate_move white\n", &mut self.white_connection)?;
-            let white_move = read_response(&mut white_reader)?;
+            write_command("generate_move defender\n", &mut self.defender_connection)?;
+            let defender_move = read_response(&mut defender_reader)?;
 
-            game.read_line(&white_move)?;
-            write_command(&white_move, &mut self.black_connection)?;
+            game.read_line(&defender_move)?;
+            write_command(&defender_move, &mut self.attacker_connection)?;
             if game.status != Status::Ongoing {
                 break;
             }
         }
 
-        self.black_connection.shutdown(Shutdown::Both)?;
-        self.white_connection.shutdown(Shutdown::Both)?;
+        self.attacker_connection.shutdown(Shutdown::Both)?;
+        self.defender_connection.shutdown(Shutdown::Both)?;
 
         Ok(())
     }
@@ -80,8 +80,8 @@ fn start(address: &str) -> anyhow::Result<()> {
             players.push(stream);
         } else {
             let mut game = Htp {
-                black_connection: players.pop().unwrap(),
-                white_connection: stream,
+                attacker_connection: players.pop().unwrap(),
+                defender_connection: stream,
             };
 
             thread::spawn(move || game.start());

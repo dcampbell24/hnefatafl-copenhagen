@@ -28,9 +28,9 @@ impl Color {
 impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Black => write!(f, "black"),
+            Self::Black => write!(f, "attacker"),
             Self::Colorless => write!(f, "colorless"),
-            Self::White => write!(f, "white"),
+            Self::White => write!(f, "defender"),
         }
     }
 }
@@ -49,8 +49,8 @@ impl FromStr for Color {
 
     fn from_str(color: &str) -> anyhow::Result<Self> {
         match color {
-            "black" => Ok(Self::Black),
-            "white" => Ok(Self::White),
+            "attacker" => Ok(Self::Black),
+            "defender" => Ok(Self::White),
             _ => Err(anyhow::Error::msg("a color is expected")),
         }
     }

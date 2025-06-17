@@ -555,7 +555,7 @@ impl Client {
                 row![
                     text(self.time_attacker.fmt_shorthand()).size(35).center(),
                     text("🗡").shaping(text::Shaping::Advanced).size(35).center(),
-                    text(captured.white().to_string())
+                    text(captured.defender().to_string())
                         .shaping(text::Shaping::Advanced)
                         .size(35),
                 ]
@@ -579,7 +579,7 @@ impl Client {
                         .shaping(text::Shaping::Advanced)
                         .size(35.0)
                         .center(),
-                    text(captured.black().to_string())
+                    text(captured.attacker().to_string())
                         .shaping(text::Shaping::Advanced)
                         .size(35),
                 ]
@@ -1226,8 +1226,8 @@ impl Client {
                                 };
 
                                 let mut game = Game {
-                                    black_time: timed.clone(),
-                                    white_time: timed.clone(),
+                                    attacker_time: timed.clone(),
+                                    defender_time: timed.clone(),
                                     ..Game::default()
                                 };
 
@@ -1240,8 +1240,8 @@ impl Client {
 
                                     game = game_deserialized;
 
-                                    self.time_attacker = game.black_time.clone();
-                                    self.time_defender = game.white_time.clone();
+                                    self.time_attacker = game.attacker_time.clone();
+                                    self.time_defender = game.defender_time.clone();
 
                                     match game.turn {
                                         Color::Black => {
@@ -1350,12 +1350,12 @@ impl Client {
                         };
                         self.game_id = id;
 
-                        // game 0 generate_move black
+                        // game 0 generate_move attacker
                         let text_word = text.next();
                         if text_word == Some("generate_move") {
                             self.request_draw = false;
                             self.my_turn = true;
-                        // game 0 play black a3 a4
+                        // game 0 play attacker a3 a4
                         } else if text_word == Some("play") {
                             let color = text.next().expect("this should be a color string");
                             let color = Color::from_str(color).expect("this should be a color");

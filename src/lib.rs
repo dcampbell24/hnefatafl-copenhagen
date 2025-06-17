@@ -190,7 +190,7 @@ mod tests {
         };
 
         let vertex = Vertex::from_str("f1")?;
-        assert!(game.board.flood_fill_white_wins(&vertex)?);
+        assert!(game.board.flood_fill_defender_wins(&vertex)?);
 
         Ok(())
     }
@@ -218,7 +218,7 @@ mod tests {
         };
 
         let vertex = Vertex::from_str("f1")?;
-        assert!(!game.board.flood_fill_white_wins(&vertex)?);
+        assert!(!game.board.flood_fill_defender_wins(&vertex)?);
 
         Ok(())
     }
@@ -265,19 +265,19 @@ mod tests {
             ..Default::default()
         };
 
-        let mut result = game.read_line("play white d4 d1");
+        let mut result = game.read_line("play defender d4 d1");
         assert!(result.is_err());
         assert_error_str(result, "play: you have to play through empty locations");
 
-        result = game.read_line("play white d4 d11");
+        result = game.read_line("play defender d4 d11");
         assert!(result.is_err());
         assert_error_str(result, "play: you have to play through empty locations");
 
-        result = game.read_line("play white d4 a4");
+        result = game.read_line("play defender d4 a4");
         assert!(result.is_err());
         assert_error_str(result, "play: you have to play through empty locations");
 
-        result = game.read_line("play white d4 k4");
+        result = game.read_line("play defender d4 k4");
         assert!(result.is_err());
         assert_error_str(result, "play: you have to play through empty locations");
 
@@ -307,49 +307,49 @@ mod tests {
         };
 
         // Play a junk move:
-        let mut result = game.read_line("play white junk d1");
+        let mut result = game.read_line("play defender junk d1");
         assert!(result.is_err());
         assert_error_str(result, "invalid digit found in string");
 
-        result = game.read_line("play white d4 junk");
+        result = game.read_line("play defender d4 junk");
         assert!(result.is_err());
         assert_error_str(result, "invalid digit found in string");
 
         // Diagonal play:
-        result = game.read_line("play white d4 a3");
+        result = game.read_line("play defender d4 a3");
         assert!(result.is_err());
         assert_error_str(result, "play: you can only play in a straight line");
 
         // Play out of bounds:
-        result = game.read_line("play white d4 m4");
+        result = game.read_line("play defender d4 m4");
         assert!(result.is_err());
         assert_error_str(result, "play: the first letter is not a legal char");
 
-        result = game.read_line("play white d4 d12");
+        result = game.read_line("play defender d4 d12");
         assert!(result.is_err());
         assert_error_str(result, "play: invalid coordinate");
 
-        result = game.read_line("play white d4 d0");
+        result = game.read_line("play defender d4 d0");
         assert!(result.is_err());
         assert_error_str(result, "play: invalid coordinate");
 
         // Don't move:
-        result = game.read_line("play white d4 d4");
+        result = game.read_line("play defender d4 d4");
         assert!(result.is_err());
         assert_error_str(result, "play: you have to change location");
 
         // Move all the way to the right:
         let mut game_1 = game.clone();
-        game_1.read_line("play white d4 a4")?;
+        game_1.read_line("play defender d4 a4")?;
         // Move all the way to the left:
         let mut game_2 = game.clone();
-        game_2.read_line("play white d4 k4")?;
+        game_2.read_line("play defender d4 k4")?;
         // Move all the way up:
         let mut game_3 = game.clone();
-        game_3.read_line("play white d4 d11")?;
+        game_3.read_line("play defender d4 d11")?;
         // Move all the way down:
         let mut game_4 = game.clone();
-        game_4.read_line("play white d4 d1")?;
+        game_4.read_line("play defender d4 d1")?;
 
         Ok(())
     }
@@ -391,7 +391,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black d2 d4")?;
+        game.read_line("play attacker d2 d4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
         Ok(())
@@ -432,7 +432,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black d2 d4")?;
+        game.read_line("play attacker d2 d4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
         Ok(())
@@ -473,7 +473,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black b4 f4")?;
+        game.read_line("play attacker b4 f4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
         Ok(())
@@ -515,7 +515,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play white c6 c4")?;
+        game.read_line("play defender c6 c4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
         Ok(())
@@ -557,7 +557,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play white b4 f4")?;
+        game.read_line("play defender b4 f4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
         Ok(())
@@ -598,7 +598,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black c9 c11")?;
+        game.read_line("play attacker c9 c11")?;
         assert_eq!(game.board, board_2.try_into()?);
 
         Ok(())
@@ -639,7 +639,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black b4 f4")?;
+        game.read_line("play attacker b4 f4")?;
         assert_eq!(game.board, board_2.try_into()?);
 
         Ok(())
@@ -680,7 +680,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black c3 c5")?;
+        game.read_line("play attacker c3 c5")?;
         assert_eq!(game.board, board_2.try_into()?);
 
         Ok(())
@@ -722,7 +722,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_1.read_line("play white c3 c1")?;
+        game_1.read_line("play defender c3 c1")?;
         assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
@@ -759,7 +759,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_2.read_line("play white c9 c11")?;
+        game_2.read_line("play defender c9 c11")?;
         assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
@@ -801,7 +801,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_1.read_line("play white c7 a7")?;
+        game_1.read_line("play defender c7 a7")?;
         assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
@@ -838,7 +838,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_2.read_line("play white i7 k7")?;
+        game_2.read_line("play defender i7 k7")?;
         assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
@@ -879,7 +879,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_1.read_line("play black f1 h1")?;
+        game_1.read_line("play attacker f1 h1")?;
         assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
@@ -915,7 +915,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_2.read_line("play black f1 d1")?;
+        game_2.read_line("play attacker f1 d1")?;
         assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
@@ -956,7 +956,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_1.read_line("play black f11 h11")?;
+        game_1.read_line("play attacker f11 h11")?;
         assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
@@ -992,7 +992,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_2.read_line("play black f11 d11")?;
+        game_2.read_line("play attacker f11 d11")?;
         assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
@@ -1033,7 +1033,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_1.read_line("play black a6 a4")?;
+        game_1.read_line("play attacker a6 a4")?;
         assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
@@ -1069,7 +1069,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_2.read_line("play black a6 a8")?;
+        game_2.read_line("play attacker a6 a8")?;
         assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
@@ -1110,7 +1110,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_1.read_line("play black k6 k4")?;
+        game_1.read_line("play attacker k6 k4")?;
         assert_eq!(game_1.board, board_2.try_into()?);
 
         let board_3 = [
@@ -1146,7 +1146,7 @@ mod tests {
             ..Default::default()
         };
 
-        game_2.read_line("play black k6 k8")?;
+        game_2.read_line("play attacker k6 k8")?;
         assert_eq!(game_2.board, board_4.try_into()?);
 
         Ok(())
@@ -1187,7 +1187,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black i10 j10")?;
+        game.read_line("play attacker i10 j10")?;
         assert_eq!(game.board, board_2.try_into()?);
 
         let board_3 = [
@@ -1223,7 +1223,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black i9 j9")?;
+        game.read_line("play attacker i9 j9")?;
         assert_eq!(game.board, board_4.try_into()?);
 
         Ok(())
@@ -1264,7 +1264,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black i10 j10")?;
+        game.read_line("play attacker i10 j10")?;
         assert_eq!(game.board, board_2.try_into()?);
 
         Ok(())
@@ -1314,7 +1314,7 @@ mod tests {
             ..Default::default()
         };
 
-        let result = game.read_line("play black b11 a11");
+        let result = game.read_line("play attacker b11 a11");
         assert!(result.is_err());
         assert_error_str(
             result,
@@ -1517,7 +1517,7 @@ mod tests {
     // Six
 
     #[test]
-    fn white_wins_exit() -> anyhow::Result<()> {
+    fn defender_wins_exit() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1539,9 +1539,9 @@ mod tests {
         };
         let mut game_2 = game_1.clone();
 
-        game_1.read_line("play white f1 k1")?;
+        game_1.read_line("play defender f1 k1")?;
         assert_eq!(game_1.status, Status::WhiteWins);
-        game_2.read_line("play white f1 a1")?;
+        game_2.read_line("play defender f1 a1")?;
         assert_eq!(game_2.status, Status::WhiteWins);
 
         let board = [
@@ -1565,16 +1565,16 @@ mod tests {
         };
         let mut game_2 = game_1.clone();
 
-        game_1.read_line("play white f11 k11")?;
+        game_1.read_line("play defender f11 k11")?;
         assert_eq!(game_1.status, Status::WhiteWins);
-        game_2.read_line("play white f11 a11")?;
+        game_2.read_line("play defender f11 a11")?;
         assert_eq!(game_2.status, Status::WhiteWins);
 
         Ok(())
     }
 
     #[test]
-    fn white_wins_escape_fort_1() -> anyhow::Result<()> {
+    fn defender_wins_escape_fort_1() -> anyhow::Result<()> {
         let board = [
             "....O.O....",
             "....OKO....",
@@ -1595,7 +1595,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play white f10 f11")?;
+        game.read_line("play defender f10 f11")?;
         assert_eq!(game.status, Status::WhiteWins);
 
         let board = [
@@ -1617,7 +1617,7 @@ mod tests {
             turn: Color::White,
             ..Default::default()
         };
-        game.read_line("play white f2 f1")?;
+        game.read_line("play defender f2 f1")?;
         assert_eq!(game.status, Status::WhiteWins);
 
         let board = [
@@ -1639,7 +1639,7 @@ mod tests {
             turn: Color::White,
             ..Default::default()
         };
-        game.read_line("play white b6 a6")?;
+        game.read_line("play defender b6 a6")?;
         assert_eq!(game.status, Status::WhiteWins);
 
         let board = [
@@ -1662,14 +1662,14 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play white j6 k6")?;
+        game.read_line("play defender j6 k6")?;
         assert_eq!(game.status, Status::WhiteWins);
 
         Ok(())
     }
 
     #[test]
-    fn white_wins_escape_fort_2() -> anyhow::Result<()> {
+    fn defender_wins_escape_fort_2() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1690,7 +1690,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play white j6 k6")?;
+        game.read_line("play defender j6 k6")?;
         assert_eq!(game.status, Status::Ongoing);
 
         let board = [
@@ -1713,14 +1713,14 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play white j6 k6")?;
+        game.read_line("play defender j6 k6")?;
         assert_eq!(game.status, Status::WhiteWins);
 
         Ok(())
     }
 
     #[test]
-    fn white_wins_escape_fort_3() -> anyhow::Result<()> {
+    fn defender_wins_escape_fort_3() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1741,7 +1741,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play white k5 k6")?;
+        game.read_line("play defender k5 k6")?;
         assert_eq!(game.status, Status::WhiteWins);
 
         Ok(())
@@ -1770,7 +1770,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black f8 f7")?;
+        game.read_line("play attacker f8 f7")?;
         assert_eq!(game.status, Status::BlackWins);
 
         Ok(())
@@ -1797,7 +1797,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black f3 f4")?;
+        game.read_line("play attacker f3 f4")?;
         assert_eq!(game.status, Status::BlackWins);
 
         Ok(())
@@ -1824,7 +1824,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black e1 e2")?;
+        game.read_line("play attacker e1 e2")?;
         assert_eq!(game.status, Status::BlackWins);
 
         Ok(())
@@ -1851,11 +1851,11 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black b7 c7")?;
+        game.read_line("play attacker b7 c7")?;
         assert_eq!(game.status, Status::Ongoing);
-        game.read_line("play white f7 g7")?;
+        game.read_line("play defender f7 g7")?;
         assert_eq!(game.status, Status::Ongoing);
-        game.read_line("play black c7 d7")?;
+        game.read_line("play attacker c7 d7")?;
         assert_eq!(game.status, Status::BlackWins);
 
         Ok(())
@@ -1882,7 +1882,7 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black c7 d7")?;
+        game.read_line("play attacker c7 d7")?;
         assert_eq!(game.status, Status::Ongoing);
 
         Ok(())
@@ -1894,11 +1894,11 @@ mod tests {
     fn can_not_repeat_moves() -> anyhow::Result<()> {
         let mut game = Game::default();
 
-        game.read_line("play black f2 f3")?;
-        game.read_line("play white f4 g4")?;
-        game.read_line("play black f3 f2")?;
+        game.read_line("play attacker f2 f3")?;
+        game.read_line("play defender f4 g4")?;
+        game.read_line("play attacker f3 f2")?;
 
-        let result = game.read_line("play white g4 f4");
+        let result = game.read_line("play defender g4 f4");
         assert!(result.is_err());
         assert_error_str(result, "play: you already reached that position");
 
@@ -1908,7 +1908,7 @@ mod tests {
     // Nine
 
     #[test]
-    fn black_automatically_loses() -> anyhow::Result<()> {
+    fn attacker_automatically_loses() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1929,14 +1929,14 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play white f1 f2")?;
+        game.read_line("play defender f1 f2")?;
         assert_eq!(game.status, Status::WhiteWins);
 
         Ok(())
     }
 
     #[test]
-    fn white_automatically_loses_1() -> anyhow::Result<()> {
+    fn defender_automatically_loses_1() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1956,14 +1956,14 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black b1 b2")?;
+        game.read_line("play attacker b1 b2")?;
         assert_eq!(game.status, Status::BlackWins);
 
         Ok(())
     }
 
     #[test]
-    fn white_automatically_loses_2() -> anyhow::Result<()> {
+    fn defender_automatically_loses_2() -> anyhow::Result<()> {
         let board = [
             "...........",
             "...........",
@@ -1983,11 +1983,11 @@ mod tests {
             ..Default::default()
         };
 
-        game.read_line("play black b2 b1")?;
-        game.read_line("play white f1 f2")?;
-        game.read_line("play black b1 b2")?;
-        game.read_line("play white f2 f1")?;
-        game.read_line("play black b2 b1")?;
+        game.read_line("play attacker b2 b1")?;
+        game.read_line("play defender f1 f2")?;
+        game.read_line("play attacker b1 b2")?;
+        game.read_line("play defender f2 f1")?;
+        game.read_line("play attacker b2 b1")?;
 
         assert_eq!(game.status, Status::BlackWins);
 
