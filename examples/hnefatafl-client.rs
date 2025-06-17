@@ -2470,7 +2470,7 @@ enum Message {
 }
 
 fn archived_games_file() -> PathBuf {
-    let mut archived_games_file = if let Some(data_file) = dirs::data_dir() {
+    let mut archived_games_file = if let Some(data_file) = dirs::document_dir() {
         data_file
     } else {
         PathBuf::new()
