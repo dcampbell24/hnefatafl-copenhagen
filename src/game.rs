@@ -275,6 +275,7 @@ impl Game {
                 Plae::AttackerResigns => {
                     if self.turn == Role::Attacker {
                         self.status = Status::DefenderWins;
+                        self.plays.0.push(play.clone());
                         Ok(Captures::default())
                     } else {
                         Err(anyhow::Error::msg("You can't resign for the other player."))
@@ -283,6 +284,7 @@ impl Game {
                 Plae::DefenderResigns => {
                     if self.turn == Role::Defender {
                         self.status = Status::AttackerWins;
+                        self.plays.0.push(play.clone());
                         Ok(Captures::default())
                     } else {
                         Err(anyhow::Error::msg("You can't resign for the other player."))
