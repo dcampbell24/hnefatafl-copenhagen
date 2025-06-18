@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: add `Review Game`.
 - hnefatafl-client: round the rating when displayed.
 - hnefatafl-client: add Swedish translation.
 - Update the `Message` documentation.
