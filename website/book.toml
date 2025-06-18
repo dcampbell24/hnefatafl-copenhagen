@@ -12,7 +12,7 @@ language = "en"
 edition = "2021"
 
 [output.html]
-git-repository-url = "https://github.com/dcampbell24/hnefatafl-copenhagen"
+git-repository-url = "https://github.com/dcampbell24/hnefatafl"
 mathjax-support = true
 input-404 = "404.md"
 
