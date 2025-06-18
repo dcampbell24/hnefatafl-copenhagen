@@ -210,7 +210,9 @@ fn login(
         {
             username_proper = username.to_string();
             if version_id != VERSION_ID {
-                stream.write_all(b"? login wrong version, try running 'cargo install hnefatafl-copenhagen --features client'\n")?;
+                stream.write_all(
+                    b"? login wrong version, update your hnefatafl-copenhagen package\n",
+                )?;
                 buf.clear();
                 continue;
             }
