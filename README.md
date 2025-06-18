@@ -18,7 +18,7 @@ An [engine] similar to the [Go Text Protocol], a [client], and a [server].
 
 ## [Use the Engine]
 
-[Use the Engine]: https://docs.rs/hnefatafl-copenhagen/latest/hnefatafl_copenhagen/message/enum.Message.html
+[Use the Engine]: https://docs.rs/hnefatafl/latest/hnefatafl_copenhagen/message/enum.Message.html
 
 ## Website
 
@@ -34,7 +34,7 @@ See the [Rules](https://hnefatafl.org/rules.html) for how to play.
 The [icon] used for the flathub version of the hnefatafl-client was created by
 Marvin T. [@marvintubat123].
 
-[icon]: https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/icons/king.svg
+[icon]: https://raw.githubusercontent.com/dcampbell24/hnefatafl/refs/heads/main/icons/king.svg
 [@marvintubat123]: https://www.freelancer.com/u/marvintubat123
 
 ## Packaging Status
@@ -57,7 +57,7 @@ Marvin T. [@marvintubat123].
 
 [![rocks]][rocks-link]
 
-[rocks]: https://contrib.rocks/image?repo=dcampbell24/hnefatafl-copenhagen
-[rocks-link]: https://github.com/dcampbell24/hnefatafl-copenhagen/graphs/contributors
+[rocks]: https://contrib.rocks/image?repo=dcampbell24/hnefatafl
+[rocks-link]: https://github.com/dcampbell24/hnefatafl/graphs/contributors
 
 Made with [contrib.rocks](https://contrib.rocks).
