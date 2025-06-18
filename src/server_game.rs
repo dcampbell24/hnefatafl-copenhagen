@@ -11,7 +11,7 @@ use crate::{
     board::Board,
     game::{Game, PreviousBoards},
     glicko::Rating,
-    play::Plae,
+    play::{PlayRecord, Plays},
     rating::Rated,
     role::Role,
     status::Status,
@@ -26,7 +26,7 @@ pub struct ArchivedGame {
     pub defender: String,
     pub defender_rating: Rating,
     pub rated: Rated,
-    pub plays: Vec<Plae>,
+    pub plays: Vec<PlayRecord>,
     pub status: Status,
     pub texts: VecDeque<String>,
 }
@@ -81,26 +81,30 @@ impl ArchivedGameHandle {
     #[must_use]
     #[allow(clippy::missing_panics_doc)]
     pub fn new(game: &ArchivedGame) -> ArchivedGameHandle {
-        let mut boards = vec![Board::default()];
+        let mut boards = Vec::new();
         let mut turn = Role::default();
         let mut board = Board::default();
 
         for play in &game.plays {
-            board
-                .play(
-                    play,
-                    &Status::Ongoing,
-                    &turn,
-                    &mut PreviousBoards::default(),
-                )
-                .unwrap();
-            boards.push(board.clone());
+            if let Some(play) = &play.play {
+                board
+                    .play(
+                        play,
+                        &Status::Ongoing,
+                        &turn,
+                        &mut PreviousBoards::default(),
+                    )
+                    .unwrap();
+                boards.push(board.clone());
 
-            turn = match turn {
-                Role::Attacker => Role::Defender,
-                Role::Roleless => Role::Roleless,
-                Role::Defender => Role::Attacker,
-            };
+                turn = match turn {
+                    Role::Attacker => Role::Defender,
+                    Role::Roleless => Role::Roleless,
+                    Role::Defender => Role::Attacker,
+                };
+            } else {
+                boards.push(Board::default());
+            }
         }
 
         ArchivedGameHandle {
@@ -143,6 +147,13 @@ impl ServerGame {
             panic!("attacker and defender should be set");
         };
 
+        let play_record = PlayRecord {
+            play: None,
+            attacker_time: game.timed.clone(),
+            defender_time: game.timed.clone(),
+        };
+        let plays = Plays(vec![play_record]);
+
         Self {
             id: game.id,
             attacker,
@@ -153,6 +164,7 @@ impl ServerGame {
             game: Game {
                 attacker_time: game.timed.clone(),
                 defender_time: game.timed,
+                plays,
                 ..Game::default()
             },
             texts: VecDeque::new(),

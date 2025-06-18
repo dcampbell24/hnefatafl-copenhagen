@@ -275,7 +275,11 @@ impl Game {
                 Plae::AttackerResigns => {
                     if self.turn == Role::Attacker {
                         self.status = Status::DefenderWins;
-                        self.plays.0.push(play.clone());
+                        self.plays.0.push(crate::play::PlayRecord {
+                            play: Some(play.clone()),
+                            attacker_time: self.attacker_time.clone(),
+                            defender_time: self.defender_time.clone(),
+                        });
                         Ok(Captures::default())
                     } else {
                         Err(anyhow::Error::msg("You can't resign for the other player."))
@@ -284,7 +288,11 @@ impl Game {
                 Plae::DefenderResigns => {
                     if self.turn == Role::Defender {
                         self.status = Status::AttackerWins;
-                        self.plays.0.push(play.clone());
+                        self.plays.0.push(crate::play::PlayRecord {
+                            play: Some(play.clone()),
+                            attacker_time: self.attacker_time.clone(),
+                            defender_time: self.defender_time.clone(),
+                        });
                         Ok(Captures::default())
                     } else {
                         Err(anyhow::Error::msg("You can't resign for the other player."))
@@ -307,7 +315,11 @@ impl Game {
                     )?;
 
                     self.status = status;
-                    self.plays.0.push(Plae::Play(play.clone()));
+                    self.plays.0.push(crate::play::PlayRecord {
+                        play: Some(Plae::Play(play.clone())),
+                        attacker_time: self.attacker_time.clone(),
+                        defender_time: self.defender_time.clone(),
+                    });
 
                     if self.status == Status::Ongoing {
                         self.turn = self.turn.opposite();

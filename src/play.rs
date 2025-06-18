@@ -3,9 +3,16 @@ use std::{fmt, str::FromStr};
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
-use crate::role::Role;
+use crate::{role::Role, time::TimeSettings};
 
 pub const BOARD_LETTERS: &str = "ABCDEFGHIJK";
+
+#[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+pub struct PlayRecord {
+    pub play: Option<Plae>,
+    pub attacker_time: TimeSettings,
+    pub defender_time: TimeSettings,
+}
 
 #[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Plae {
@@ -74,7 +81,7 @@ impl TryFrom<Vec<&str>> for Plae {
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
-pub struct Plays(pub Vec<Plae>);
+pub struct Plays(pub Vec<PlayRecord>);
 
 impl fmt::Display for Plays {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -83,7 +90,9 @@ impl fmt::Display for Plays {
         }
 
         for play in &self.0 {
-            write!(f, "    {play}")?;
+            if let Some(play) = &play.play {
+                write!(f, "    {play}")?;
+            }
         }
 
         Ok(())

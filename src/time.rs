@@ -3,7 +3,7 @@ use std::fmt;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct Time {
     pub add_seconds: i64,
     pub milliseconds_left: i64,
@@ -39,7 +39,7 @@ impl fmt::Display for Time {
     }
 }
 
-#[derive(Clone, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum TimeSettings {
     Timed(Time),
     UnTimed,

@@ -189,6 +189,7 @@ fn init_client() -> Client {
     strings.insert("Resign".to_string(), t!("Resign").to_string());
     strings.insert("Request Draw".to_string(), t!("Request Draw").to_string());
     strings.insert("Accept Draw".to_string(), t!("Accept Draw").to_string());
+    strings.insert("Review Game".to_string(), t!("Review Game").to_string());
 
     client.strings = strings;
     client
@@ -500,17 +501,30 @@ impl Client {
         let mut attacker_rating = String::new();
         let mut defender_rating = String::new();
 
-        let (game_id, attacker, defender, board, play) =
+        let (game_id, attacker, attacker_time, defender, defender_time, board, play, status) =
             if let Some(game_handle) = &self.archived_game_handle {
                 attacker_rating = game_handle.game.attacker_rating.to_string_rounded();
                 defender_rating = game_handle.game.defender_rating.to_string_rounded();
 
+                let status = if game_handle.play < game_handle.game.plays.len() - 1 {
+                    &Status::Ongoing
+                } else {
+                    &game_handle.game.status
+                };
+
                 (
                     &game_handle.game.id,
                     &game_handle.game.attacker,
+                    game_handle.game.plays[game_handle.play]
+                        .attacker_time
+                        .fmt_shorthand(),
                     &game_handle.game.defender,
+                    game_handle.game.plays[game_handle.play]
+                        .defender_time
+                        .fmt_shorthand(),
                     &game_handle.boards[game_handle.play],
                     game_handle.play,
+                    status,
                 )
             } else {
                 for user in self.users.values() {
@@ -528,9 +542,12 @@ impl Client {
                 (
                     &self.game_id,
                     &self.attacker,
+                    self.time_attacker.fmt_shorthand(),
                     &self.defender,
+                    self.time_defender.fmt_shorthand(),
                     &game.board,
                     game.previous_boards.0.len(),
+                    &self.status,
                 )
             };
 
@@ -552,7 +569,7 @@ impl Client {
                 ]
                 .spacing(SPACING),
                 row![
-                    text(self.time_attacker.fmt_shorthand()).size(35).center(),
+                    text(attacker_time).size(35).center(),
                     text("🗡").shaping(text::Shaping::Advanced).size(35).center(),
                     text(captured.defender().to_string())
                         .shaping(text::Shaping::Advanced)
@@ -573,7 +590,7 @@ impl Client {
                 ]
                 .spacing(SPACING),
                 row![
-                    text(self.time_defender.fmt_shorthand()).size(35).center(),
+                    text(defender_time).size(35).center(),
                     text("⛨")
                         .shaping(text::Shaping::Advanced)
                         .size(35.0)
@@ -679,7 +696,7 @@ impl Client {
 
         user_area = user_area.push(row![muted, leave].spacing(SPACING));
 
-        match self.status {
+        match status {
             Status::AttackerWins => {
                 user_area =
                     user_area.push(text(t!("Attacker wins!")).shaping(text::Shaping::Advanced));
@@ -720,7 +737,7 @@ impl Client {
 
             let mut right = button(text("⏩").center().shaping(text::Shaping::Advanced));
             let mut right_all = button(text("⏭").center().shaping(text::Shaping::Advanced));
-            if handle.play < handle.game.plays.len() {
+            if handle.play < handle.game.plays.len() - 1 {
                 right = right.on_press(Message::ReviewGameForward);
                 right_all = right_all.on_press(Message::ReviewGameForwardAll);
             }
@@ -1037,7 +1054,7 @@ impl Client {
             }
             Message::ReviewGameForwardAll => {
                 if let Some(handle) = &mut self.archived_game_handle {
-                    handle.play = handle.game.plays.len();
+                    handle.play = handle.game.plays.len() - 1;
                 }
             }
             Message::RoleSelected(role) => {
@@ -2286,7 +2303,9 @@ impl Client {
                         .text_shaping(text::Shaping::Advanced),
                 ];
 
-                let mut review_game = button("Review Game");
+                let mut review_game = button(
+                    text(self.strings["Review Game"].as_str()).shaping(text::Shaping::Advanced),
+                );
                 if self.archived_game_selected.is_some() {
                     review_game = review_game.on_press(Message::ReviewGame);
                 }
