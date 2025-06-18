@@ -20,7 +20,6 @@ use env_logger::Builder;
 use hnefatafl_copenhagen::{
     VERSION_ID,
     accounts::{Account, Accounts, Email},
-    color::Color,
     draw::Draw,
     game::TimeUnix,
     glicko::Outcome,
@@ -596,7 +595,7 @@ impl Server {
 
         for game in self.games.0.values_mut() {
             match game.game.turn {
-                Color::Black => {
+                Role::Attacker => {
                     if game.game.status == Status::Ongoing {
                         if let (TimeUnix::Time(game_time), TimeSettings::Timed(attacker_time)) =
                             (&mut game.game.time, &mut game.game.attacker_time)
@@ -617,8 +616,8 @@ impl Server {
                         }
                     }
                 }
-                Color::Colorless => {}
-                Color::White => {
+                Role::Roleless => {}
+                Role::Defender => {
                     if game.game.status == Status::Ongoing {
                         if let (TimeUnix::Time(game_time), TimeSettings::Timed(defender_time)) =
                             (&mut game.game.time, &mut game.game.defender_time)
@@ -779,8 +778,8 @@ impl Server {
                 (*command).to_string(),
             ));
         };
-        let color = the_rest.get(2)?;
-        let Ok(color) = Color::from_str(color) else {
+        let role = the_rest.get(2)?;
+        let Ok(role) = Role::from_str(role) else {
             return Some((
                 self.clients.get(&index_supplied)?.clone(),
                 false,
@@ -811,7 +810,7 @@ impl Server {
         };
 
         let mut attackers_turn_next = true;
-        if color == Color::Black {
+        if role == Role::Attacker {
             if *username == game.attacker {
                 game.game
                     .read_line(&format!("play attacker {from} {to}"))
@@ -861,7 +860,7 @@ impl Server {
         }
 
         match game.game.status {
-            Status::BlackWins => {
+            Status::AttackerWins => {
                 let accounts = &mut self.accounts.0;
                 let (attacker_rating, defender_rating) = if let (Some(attacker), Some(defender)) =
                     (accounts.get(&game.attacker), accounts.get(&game.defender))
@@ -934,7 +933,7 @@ impl Server {
                         .send(format!("game {index} generate_move defender"));
                 }
             }
-            Status::WhiteWins => {
+            Status::DefenderWins => {
                 let accounts = &mut self.accounts.0;
                 let (attacker_rating, defender_rating) = if let (Some(attacker), Some(defender)) =
                     (accounts.get(&game.attacker), accounts.get(&game.defender))
@@ -1733,14 +1732,14 @@ impl Server {
             ));
         };
 
-        let Some(color) = the_rest.get(1) else {
+        let Some(role) = the_rest.get(1) else {
             return Some((
                 self.clients.get(&index_supplied)?.clone(),
                 false,
                 (*command).to_string(),
             ));
         };
-        let Ok(color) = Color::from_str(color) else {
+        let Ok(role) = Role::from_str(role) else {
             return Some((
                 self.clients.get(&index_supplied)?.clone(),
                 false,
@@ -1748,16 +1747,16 @@ impl Server {
             ));
         };
 
-        info!("{index_supplied} {username} request_draw {id} {color}");
+        info!("{index_supplied} {username} request_draw {id} {role}");
 
-        let message = format!("request_draw {id} {color}");
+        let message = format!("request_draw {id} {role}");
         if let Some(game) = self.games.0.get(&id) {
-            match color {
-                Color::Black => {
+            match role {
+                Role::Attacker => {
                     let _ok = game.defender_tx.send(message);
                 }
-                Color::Colorless => {}
-                Color::White => {
+                Role::Roleless => {}
+                Role::Defender => {
                     let _ok = game.attacker_tx.send(message);
                 }
             }

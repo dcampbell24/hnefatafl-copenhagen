@@ -5,7 +5,6 @@ use rand::{RngCore, rngs::OsRng};
 
 use crate::{
     board::Board,
-    color::Color,
     game::Game,
     play::{Plae, Play, Vertex},
     role::Role,
@@ -32,7 +31,7 @@ impl AI for AiBanal {
                 for x_to in 0..11 {
                     for y_to in 0..11 {
                         let play = Plae::Play(Play {
-                            color: game.turn.clone(),
+                            role: game.turn,
                             from: Vertex {
                                 x: x_from,
                                 y: y_from,
@@ -49,9 +48,9 @@ impl AI for AiBanal {
         }
 
         match game.turn {
-            Color::Black => Some(Plae::BlackResigns),
-            Color::Colorless => None,
-            Color::White => Some(Plae::WhiteResigns),
+            Role::Attacker => Some(Plae::AttackerResigns),
+            Role::Roleless => None,
+            Role::Defender => Some(Plae::DefenderResigns),
         }
     }
 }
@@ -88,9 +87,10 @@ impl AiBasic {
         let alpha = i32::MIN;
         let beta = i32::MAX;
 
-        let (value, play) = match Role::try_from(&game.turn).ok()? {
+        let (value, play) = match game.turn {
             Role::Attacker => self.min_value(game, alpha, beta, cutoff_time, 0),
             Role::Defender => self.max_value(game, alpha, beta, cutoff_time, 0),
+            Role::Roleless => panic!("It is no ones turn!"),
         };
 
         println!("value: {value}");

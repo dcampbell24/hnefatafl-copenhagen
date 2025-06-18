@@ -17,7 +17,6 @@ use status::Status;
 pub mod accounts;
 pub mod ai;
 pub mod board;
-pub mod color;
 pub mod draw;
 pub mod game;
 pub mod game_record;
@@ -156,9 +155,9 @@ mod tests {
 
     use super::*;
     use board::{Board, STARTING_POSITION};
-    use color::Color;
     use game::Game;
     use play::Vertex;
+    use role::Role;
     use status::Status;
 
     fn assert_error_str<T: fmt::Debug>(result: anyhow::Result<T>, string: &str) {
@@ -185,7 +184,7 @@ mod tests {
 
         let game = game::Game {
             board: board_1.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -213,7 +212,7 @@ mod tests {
 
         let game = game::Game {
             board: board_1.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -238,7 +237,7 @@ mod tests {
     #[test]
     fn first_turn() {
         let game = Game::default();
-        assert_eq!(game.turn, Color::Black);
+        assert_eq!(game.turn, Role::Attacker);
     }
 
     // Three
@@ -261,7 +260,7 @@ mod tests {
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -302,7 +301,7 @@ mod tests {
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -511,7 +510,7 @@ mod tests {
 
         let mut game = game::Game {
             board: board_1.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -553,7 +552,7 @@ mod tests {
 
         let mut game = game::Game {
             board: board_1.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -718,7 +717,7 @@ mod tests {
 
         let mut game_1 = game::Game {
             board: board_1.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -755,7 +754,7 @@ mod tests {
 
         let mut game_2 = game::Game {
             board: board_3.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -797,7 +796,7 @@ mod tests {
 
         let mut game_1 = game::Game {
             board: board_1.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -834,7 +833,7 @@ mod tests {
 
         let mut game_2 = game::Game {
             board: board_3.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -1534,15 +1533,15 @@ mod tests {
 
         let mut game_1 = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
         let mut game_2 = game_1.clone();
 
         game_1.read_line("play defender f1 k1")?;
-        assert_eq!(game_1.status, Status::WhiteWins);
+        assert_eq!(game_1.status, Status::DefenderWins);
         game_2.read_line("play defender f1 a1")?;
-        assert_eq!(game_2.status, Status::WhiteWins);
+        assert_eq!(game_2.status, Status::DefenderWins);
 
         let board = [
             ".....K.....",
@@ -1560,15 +1559,15 @@ mod tests {
 
         let mut game_1 = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
         let mut game_2 = game_1.clone();
 
         game_1.read_line("play defender f11 k11")?;
-        assert_eq!(game_1.status, Status::WhiteWins);
+        assert_eq!(game_1.status, Status::DefenderWins);
         game_2.read_line("play defender f11 a11")?;
-        assert_eq!(game_2.status, Status::WhiteWins);
+        assert_eq!(game_2.status, Status::DefenderWins);
 
         Ok(())
     }
@@ -1591,12 +1590,12 @@ mod tests {
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
         game.read_line("play defender f10 f11")?;
-        assert_eq!(game.status, Status::WhiteWins);
+        assert_eq!(game.status, Status::DefenderWins);
 
         let board = [
             "...........",
@@ -1614,11 +1613,11 @@ mod tests {
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
         game.read_line("play defender f2 f1")?;
-        assert_eq!(game.status, Status::WhiteWins);
+        assert_eq!(game.status, Status::DefenderWins);
 
         let board = [
             "...........",
@@ -1636,11 +1635,11 @@ mod tests {
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
         game.read_line("play defender b6 a6")?;
-        assert_eq!(game.status, Status::WhiteWins);
+        assert_eq!(game.status, Status::DefenderWins);
 
         let board = [
             "...........",
@@ -1658,12 +1657,12 @@ mod tests {
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
         game.read_line("play defender j6 k6")?;
-        assert_eq!(game.status, Status::WhiteWins);
+        assert_eq!(game.status, Status::DefenderWins);
 
         Ok(())
     }
@@ -1686,7 +1685,7 @@ mod tests {
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -1709,12 +1708,12 @@ mod tests {
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
         game.read_line("play defender j6 k6")?;
-        assert_eq!(game.status, Status::WhiteWins);
+        assert_eq!(game.status, Status::DefenderWins);
 
         Ok(())
     }
@@ -1737,12 +1736,12 @@ mod tests {
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
         game.read_line("play defender k5 k6")?;
-        assert_eq!(game.status, Status::WhiteWins);
+        assert_eq!(game.status, Status::DefenderWins);
 
         Ok(())
     }
@@ -1771,7 +1770,7 @@ mod tests {
         };
 
         game.read_line("play attacker f8 f7")?;
-        assert_eq!(game.status, Status::BlackWins);
+        assert_eq!(game.status, Status::AttackerWins);
 
         Ok(())
     }
@@ -1798,7 +1797,7 @@ mod tests {
         };
 
         game.read_line("play attacker f3 f4")?;
-        assert_eq!(game.status, Status::BlackWins);
+        assert_eq!(game.status, Status::AttackerWins);
 
         Ok(())
     }
@@ -1825,7 +1824,7 @@ mod tests {
         };
 
         game.read_line("play attacker e1 e2")?;
-        assert_eq!(game.status, Status::BlackWins);
+        assert_eq!(game.status, Status::AttackerWins);
 
         Ok(())
     }
@@ -1856,7 +1855,7 @@ mod tests {
         game.read_line("play defender f7 g7")?;
         assert_eq!(game.status, Status::Ongoing);
         game.read_line("play attacker c7 d7")?;
-        assert_eq!(game.status, Status::BlackWins);
+        assert_eq!(game.status, Status::AttackerWins);
 
         Ok(())
     }
@@ -1925,12 +1924,12 @@ mod tests {
 
         let mut game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
         game.read_line("play defender f1 f2")?;
-        assert_eq!(game.status, Status::WhiteWins);
+        assert_eq!(game.status, Status::DefenderWins);
 
         Ok(())
     }
@@ -1957,7 +1956,7 @@ mod tests {
         };
 
         game.read_line("play attacker b1 b2")?;
-        assert_eq!(game.status, Status::BlackWins);
+        assert_eq!(game.status, Status::AttackerWins);
 
         Ok(())
     }
@@ -1989,7 +1988,7 @@ mod tests {
         game.read_line("play defender f2 f1")?;
         game.read_line("play attacker b2 b1")?;
 
-        assert_eq!(game.status, Status::BlackWins);
+        assert_eq!(game.status, Status::AttackerWins);
 
         Ok(())
     }
@@ -2012,7 +2011,7 @@ mod tests {
 
         let game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -2039,7 +2038,7 @@ mod tests {
 
         let game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 
@@ -2066,7 +2065,7 @@ mod tests {
 
         let game = game::Game {
             board: board.try_into()?,
-            turn: Color::White,
+            turn: Role::Defender,
             ..Default::default()
         };
 

@@ -28,7 +28,6 @@ use hnefatafl_copenhagen::server_game::{ArchivedGame, ArchivedGameHandle};
 use hnefatafl_copenhagen::{
     VERSION_ID,
     accounts::Email,
-    color::Color,
     draw::Draw,
     game::{Game, TimeUnix},
     glicko::{CONFIDENCE_INTERVAL_95, Rating},
@@ -421,9 +420,9 @@ impl Client {
                             text(" ")
                         }
                     }
-                    Space::Black => text("♟"),
+                    Space::Attacker => text("♟"),
                     Space::King => text("♔"),
-                    Space::White => text("♙"),
+                    Space::Defender => text("♙"),
                 };
 
                 text_ = text_
@@ -681,7 +680,7 @@ impl Client {
         user_area = user_area.push(row![muted, leave].spacing(SPACING));
 
         match self.status {
-            Status::BlackWins => {
+            Status::AttackerWins => {
                 user_area =
                     user_area.push(text(t!("Attacker wins!")).shaping(text::Shaping::Advanced));
             }
@@ -690,7 +689,7 @@ impl Client {
                     user_area.push(text(t!("It's a draw.")).shaping(text::Shaping::Advanced));
             }
             Status::Ongoing => {}
-            Status::WhiteWins => {
+            Status::DefenderWins => {
                 user_area =
                     user_area.push(text(t!("Defender wins!")).shaping(text::Shaping::Advanced));
             }
@@ -962,9 +961,9 @@ impl Client {
                     panic!("you have to have a from to get to to");
                 };
 
-                let mut turn = Color::Colorless;
+                let mut turn = Role::Roleless;
                 if let Some(game) = &self.game {
-                    turn = game.turn.clone();
+                    turn = game.turn;
                 }
 
                 self.handle_play(None, &from.to_string(), &to.to_string());
@@ -974,13 +973,13 @@ impl Client {
                 let game = self.game.as_ref().expect("you should have a game by now");
                 if game.status == Status::Ongoing {
                     match game.turn {
-                        Color::Black => {
+                        Role::Attacker => {
                             if let TimeSettings::Timed(time) = &mut self.time_defender {
                                 time.milliseconds_left += time.add_seconds * 1_000;
                             }
                         }
-                        Color::Colorless => {}
-                        Color::White => {
+                        Role::Roleless => {}
+                        Role::Defender => {
                             if let TimeSettings::Timed(time) = &mut self.time_attacker {
                                 time.milliseconds_left += time.add_seconds * 1_000;
                             }
@@ -1128,7 +1127,7 @@ impl Client {
                                     self.status = Status::Draw;
 
                                     if let Some(game) = &mut self.game {
-                                        game.turn = Color::Colorless;
+                                        game.turn = Role::Roleless;
                                     }
                                 }
                             }
@@ -1155,13 +1154,13 @@ impl Client {
                             Some("game_over") => {
                                 self.my_turn = false;
                                 if let Some(game) = &mut self.game {
-                                    game.turn = Color::Colorless;
+                                    game.turn = Role::Roleless;
                                 }
 
                                 text.next();
                                 match text.next() {
-                                    Some("attacker_wins") => self.status = Status::BlackWins,
-                                    Some("defender_wins") => self.status = Status::WhiteWins,
+                                    Some("attacker_wins") => self.status = Status::AttackerWins,
+                                    Some("defender_wins") => self.status = Status::DefenderWins,
                                     _ => {}
                                 }
 
@@ -1244,7 +1243,7 @@ impl Client {
                                     self.time_defender = game.defender_time.clone();
 
                                     match game.turn {
-                                        Color::Black => {
+                                        Role::Attacker => {
                                             if let (
                                                 TimeSettings::Timed(time),
                                                 TimeUnix::Time(time_ago),
@@ -1257,8 +1256,8 @@ impl Client {
                                                 }
                                             }
                                         }
-                                        Color::Colorless => {}
-                                        Color::White => {
+                                        Role::Roleless => {}
+                                        Role::Defender => {
                                             if let (
                                                 TimeSettings::Timed(time),
                                                 TimeUnix::Time(time_ago),
@@ -1283,8 +1282,8 @@ impl Client {
                                     self.texts_game = texts;
                                 }
 
-                                if (self.username == attacker && game.turn == Color::Black)
-                                    || (self.username == defender && game.turn == Color::White)
+                                if (self.username == attacker && game.turn == Role::Attacker)
+                                    || (self.username == defender && game.turn == Role::Defender)
                                 {
                                     self.my_turn = true;
                                 }
@@ -1357,8 +1356,8 @@ impl Client {
                             self.my_turn = true;
                         // game 0 play attacker a3 a4
                         } else if text_word == Some("play") {
-                            let color = text.next().expect("this should be a color string");
-                            let color = Color::from_str(color).expect("this should be a color");
+                            let role = text.next().expect("this should be a role string");
+                            let role = Role::from_str(role).expect("this should be a role");
                             let from = text.next().expect("this should be from");
 
                             if from == "resigns" {
@@ -1374,18 +1373,18 @@ impl Client {
                                 self.play_to_previous = Some(to);
                             }
 
-                            self.handle_play(Some(&color.to_string()), from, to);
+                            self.handle_play(Some(&role.to_string()), from, to);
                             let game = self.game.as_ref().expect("you should have a game by now");
 
                             if game.status == Status::Ongoing {
                                 match game.turn {
-                                    Color::Black => {
+                                    Role::Attacker => {
                                         if let TimeSettings::Timed(time) = &mut self.time_defender {
                                             time.milliseconds_left += time.add_seconds * 1_000;
                                         }
                                     }
-                                    Color::Colorless => {}
-                                    Color::White => {
+                                    Role::Roleless => {}
+                                    Role::Defender => {
                                         if let TimeSettings::Timed(time) = &mut self.time_attacker {
                                             time.milliseconds_left += time.add_seconds * 1_000;
                                         }
@@ -1500,7 +1499,7 @@ impl Client {
             Message::Tick => {
                 if let Some(game) = &mut self.game {
                     match game.turn {
-                        Color::Black => {
+                        Role::Attacker => {
                             if let TimeSettings::Timed(time) = &mut self.time_attacker {
                                 time.milliseconds_left -= 100;
                                 if time.milliseconds_left < 0 {
@@ -1508,8 +1507,8 @@ impl Client {
                                 }
                             }
                         }
-                        Color::Colorless => {}
-                        Color::White => {
+                        Role::Roleless => {}
+                        Role::Defender => {
                             if let TimeSettings::Timed(time) = &mut self.time_defender {
                                 time.milliseconds_left -= 100;
                                 if time.milliseconds_left < 0 {
@@ -1665,13 +1664,13 @@ impl Client {
         ])
     }
 
-    fn handle_play(&mut self, color: Option<&str>, from: &str, to: &str) {
+    fn handle_play(&mut self, role: Option<&str>, from: &str, to: &str) {
         self.captures = HashSet::new();
 
         let game = self.game.as_mut().expect("you should have a game by now");
 
-        match color {
-            Some(color) => match game.read_line(&format!("play {color} {from} {to}\n")) {
+        match role {
+            Some(role) => match game.read_line(&format!("play {role} {from} {to}\n")) {
                 Ok(vertexes) => {
                     if let Some(vertexes) = vertexes {
                         for vertex in vertexes.split_ascii_whitespace() {

@@ -1,8 +1,8 @@
 use std::{fmt, path::Path, str::FromStr};
 
 use crate::{
-    color::Color,
     play::{Play, Vertex},
+    role::Role,
     status::Status,
 };
 
@@ -44,11 +44,11 @@ pub fn game_records_from_path(path: &Path) -> anyhow::Result<Vec<GameRecord>> {
 
     for result in rdr.deserialize() {
         let record: Record = result?;
-        let mut color = Color::White;
+        let mut role = Role::Defender;
         let mut plays = Vec::new();
 
         for play in record.moves.split_ascii_whitespace() {
-            color = color.opposite();
+            role = role.opposite();
 
             if play.contains('-') {
                 let vertexes: Vec<_> = play.split('-').collect();
@@ -58,11 +58,7 @@ pub fn game_records_from_path(path: &Path) -> anyhow::Result<Vec<GameRecord>> {
                     Vertex::from_str(vertexes[0]),
                     Vertex::from_str(vertex_1_captures[0]),
                 ) {
-                    let play = Play {
-                        color: color.clone(),
-                        from,
-                        to,
-                    };
+                    let play = Play { role, from, to };
 
                     if vertex_1_captures.get(1).is_some() {
                         let mut captures = Vec::new();

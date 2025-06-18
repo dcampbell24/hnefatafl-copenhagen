@@ -5,9 +5,9 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 use crate::{
-    color::Color,
     game::PreviousBoards,
     play::{BOARD_LETTERS, Plae, Play, Vertex},
+    role::Role,
     space::Space,
     status::Status,
 };
@@ -64,10 +64,10 @@ impl fmt::Debug for Board {
 
             for x in 0..11 {
                 match self.spaces[(y * 10) + x] {
-                    Space::Black => write!(f, "X")?,
+                    Space::Attacker => write!(f, "X")?,
                     Space::Empty => write!(f, ".")?,
                     Space::King => write!(f, "K")?,
-                    Space::White => write!(f, "O")?,
+                    Space::Defender => write!(f, "O")?,
                 }
             }
             writeln!(f, r#"""#)?;
@@ -118,7 +118,7 @@ impl TryFrom<[&str; 11]> for Board {
             for (x, ch) in row.chars().enumerate() {
                 let space = ch.try_into()?;
                 match space {
-                    Space::Black | Space::White => {
+                    Space::Attacker | Space::Defender => {
                         let vertex = Vertex { x, y };
                         if RESTRICTED_SQUARES.contains(&vertex) {
                             return Err(anyhow::Error::msg(
@@ -176,7 +176,7 @@ impl Board {
     pub fn a_legal_move_exists(
         &self,
         status: &Status,
-        turn: &Color,
+        turn: &Role,
         previous_boards: &PreviousBoards,
     ) -> bool {
         let mut possible_vertexes = Vec::new();
@@ -184,7 +184,7 @@ impl Board {
         for y in 0..11 {
             for x in 0..11 {
                 let vertex = Vertex { x, y };
-                if self.get(&vertex).color() == *turn {
+                if self.get(&vertex).role() == *turn {
                     possible_vertexes.push(vertex);
                 }
             }
@@ -199,7 +199,7 @@ impl Board {
                 for x in 0..11 {
                     let vertex_to = Vertex { x, y };
                     let play = Play {
-                        color: turn.clone(),
+                        role: *turn,
                         from: vertex_from.clone(),
                         to: vertex_to,
                     };
@@ -224,10 +224,10 @@ impl Board {
 
         for space in self.spaces {
             match space {
-                Space::Black => attacker += 1,
+                Space::Attacker => attacker += 1,
                 Space::Empty => {}
                 Space::King => king = false,
-                Space::White => defender += 1,
+                Space::Defender => defender += 1,
             }
         }
 
@@ -239,13 +239,13 @@ impl Board {
     }
 
     #[allow(clippy::collapsible_if)]
-    fn captures(&mut self, play_to: &Vertex, color_from: &Color, captures: &mut Vec<Vertex>) {
+    fn captures(&mut self, play_to: &Vertex, role_from: Role, captures: &mut Vec<Vertex>) {
         if let Some(up_1) = play_to.up() {
             let space = self.get(&up_1);
-            if space != Space::King && space.color() == color_from.opposite() {
+            if space != Space::King && space.role() == role_from.opposite() {
                 if let Some(up_2) = up_1.up() {
                     if (RESTRICTED_SQUARES.contains(&up_2) && self.get(&up_2) != Space::King)
-                        || self.get(&up_2).color() == *color_from
+                        || self.get(&up_2).role() == role_from
                     {
                         if self.set_if_not_king(&up_1, Space::Empty) {
                             captures.push(up_1);
@@ -257,10 +257,10 @@ impl Board {
 
         if let Some(left_1) = play_to.left() {
             let space = self.get(&left_1);
-            if space != Space::King && space.color() == color_from.opposite() {
+            if space != Space::King && space.role() == role_from.opposite() {
                 if let Some(left_2) = left_1.left() {
                     if (RESTRICTED_SQUARES.contains(&left_2) && self.get(&left_2) != Space::King)
-                        || self.get(&left_2).color() == *color_from
+                        || self.get(&left_2).role() == role_from
                     {
                         if self.set_if_not_king(&left_1, Space::Empty) {
                             captures.push(left_1);
@@ -272,10 +272,10 @@ impl Board {
 
         if let Some(down_1) = play_to.down() {
             let space = self.get(&down_1);
-            if space != Space::King && space.color() == color_from.opposite() {
+            if space != Space::King && space.role() == role_from.opposite() {
                 if let Some(down_2) = down_1.down() {
                     if (RESTRICTED_SQUARES.contains(&down_2) && self.get(&down_2) != Space::King)
-                        || self.get(&down_2).color() == *color_from
+                        || self.get(&down_2).role() == role_from
                     {
                         if self.set_if_not_king(&down_1, Space::Empty) {
                             captures.push(down_1);
@@ -287,10 +287,10 @@ impl Board {
 
         if let Some(right_1) = play_to.right() {
             let space = self.get(&right_1);
-            if space != Space::King && space.color() == color_from.opposite() {
+            if space != Space::King && space.role() == role_from.opposite() {
                 if let Some(right_2) = right_1.right() {
                     if (RESTRICTED_SQUARES.contains(&right_2) && self.get(&right_2) != Space::King)
-                        || self.get(&right_2).color() == *color_from
+                        || self.get(&right_2).role() == role_from
                     {
                         if self.set_if_not_king(&right_1, Space::Empty) {
                             captures.push(right_1);
@@ -306,15 +306,14 @@ impl Board {
     #[allow(clippy::collapsible_if)]
     fn captures_shield_wall(
         &mut self,
-        color_from: &Color,
+        role_from: Role,
         vertex_to: &Vertex,
         captures: &mut Vec<Vertex>,
     ) {
         // bottom row
         for x_1 in 0..11 {
             let vertex_1 = Vertex { x: x_1, y: 10 };
-            if self.get(&vertex_1).color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
-            {
+            if self.get(&vertex_1).role() == role_from || RESTRICTED_SQUARES.contains(&vertex_1) {
                 let mut count = 0;
 
                 if x_1 == 10 {
@@ -325,9 +324,9 @@ impl Board {
                 for x_2 in start..11 {
                     let vertex_2 = Vertex { x: x_2, y: 10 };
                     let vertex_3 = Vertex { x: x_2, y: 9 };
-                    let color_2 = self.get(&vertex_2).color();
-                    let color_3 = self.get(&vertex_3).color();
-                    if color_2 == color_from.opposite() && color_3 == *color_from {
+                    let role_2 = self.get(&vertex_2).role();
+                    let role_3 = self.get(&vertex_3).role();
+                    if role_2 == role_from.opposite() && role_3 == role_from {
                         count += 1;
                     } else {
                         break;
@@ -336,8 +335,8 @@ impl Board {
 
                 let finish = start + count;
                 let vertex = Vertex { x: finish, y: 10 };
-                let color = self.get(&vertex).color();
-                if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
+                let role = self.get(&vertex).role();
+                if count > 1 && (role == role_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     if vertex_to
                         == &(Vertex {
                             x: start - 1,
@@ -359,8 +358,7 @@ impl Board {
         // top row
         for x_1 in 0..11 {
             let vertex_1 = Vertex { x: x_1, y: 0 };
-            if self.get(&vertex_1).color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
-            {
+            if self.get(&vertex_1).role() == role_from || RESTRICTED_SQUARES.contains(&vertex_1) {
                 let mut count = 0;
 
                 if x_1 == 10 {
@@ -371,9 +369,9 @@ impl Board {
                 for x_2 in start..11 {
                     let vertex_2 = Vertex { x: x_2, y: 0 };
                     let vertex_3 = Vertex { x: x_2, y: 1 };
-                    let color_2 = self.get(&vertex_2).color();
-                    let color_3 = self.get(&vertex_3).color();
-                    if color_2 == color_from.opposite() && color_3 == *color_from {
+                    let role_2 = self.get(&vertex_2).role();
+                    let role_3 = self.get(&vertex_3).role();
+                    if role_2 == role_from.opposite() && role_3 == role_from {
                         count += 1;
                     } else {
                         break;
@@ -382,8 +380,8 @@ impl Board {
 
                 let finish = start + count;
                 let vertex = Vertex { x: finish, y: 0 };
-                let color = self.get(&vertex).color();
-                if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
+                let role = self.get(&vertex).role();
+                if count > 1 && (role == role_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     if vertex_to == &(Vertex { x: start - 1, y: 0 })
                         || vertex_to == &(Vertex { x: finish, y: 0 })
                     {
@@ -401,8 +399,7 @@ impl Board {
         // left row
         for y_1 in 0..11 {
             let vertex_1 = Vertex { x: 0, y: y_1 };
-            if self.get(&vertex_1).color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
-            {
+            if self.get(&vertex_1).role() == role_from || RESTRICTED_SQUARES.contains(&vertex_1) {
                 let mut count = 0;
 
                 if y_1 == 10 {
@@ -413,9 +410,9 @@ impl Board {
                 for y_2 in start..11 {
                     let vertex_2 = Vertex { x: 0, y: y_2 };
                     let vertex_3 = Vertex { x: 1, y: y_2 };
-                    let color_2 = self.get(&vertex_2).color();
-                    let color_3 = self.get(&vertex_3).color();
-                    if color_2 == color_from.opposite() && color_3 == *color_from {
+                    let role_2 = self.get(&vertex_2).role();
+                    let role_3 = self.get(&vertex_3).role();
+                    if role_2 == role_from.opposite() && role_3 == role_from {
                         count += 1;
                     } else {
                         break;
@@ -424,8 +421,8 @@ impl Board {
 
                 let finish = start + count;
                 let vertex = Vertex { x: 0, y: finish };
-                let color = self.get(&vertex).color();
-                if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
+                let role = self.get(&vertex).role();
+                if count > 1 && (role == role_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     if vertex_to == &(Vertex { x: 0, y: start - 1 })
                         || vertex_to == &(Vertex { x: 0, y: finish })
                     {
@@ -443,8 +440,7 @@ impl Board {
         // right row
         for y_1 in 0..11 {
             let vertex_1 = Vertex { x: 10, y: y_1 };
-            if self.get(&vertex_1).color() == *color_from || RESTRICTED_SQUARES.contains(&vertex_1)
-            {
+            if self.get(&vertex_1).role() == role_from || RESTRICTED_SQUARES.contains(&vertex_1) {
                 let mut count = 0;
 
                 if y_1 == 10 {
@@ -455,9 +451,9 @@ impl Board {
                 for y_2 in start..11 {
                     let vertex_2 = Vertex { x: 10, y: y_2 };
                     let vertex_3 = Vertex { x: 9, y: y_2 };
-                    let color_2 = self.get(&vertex_2).color();
-                    let color_3 = self.get(&vertex_3).color();
-                    if color_2 == color_from.opposite() && color_3 == *color_from {
+                    let role_2 = self.get(&vertex_2).role();
+                    let role_3 = self.get(&vertex_3).role();
+                    if role_2 == role_from.opposite() && role_3 == role_from {
                         count += 1;
                     } else {
                         break;
@@ -466,8 +462,8 @@ impl Board {
 
                 let finish = start + count;
                 let vertex = Vertex { x: 10, y: finish };
-                let color = self.get(&vertex).color();
-                if count > 1 && (color == *color_from || RESTRICTED_SQUARES.contains(&vertex)) {
+                let role = self.get(&vertex).role();
+                if count > 1 && (role == role_from || RESTRICTED_SQUARES.contains(&vertex)) {
                     if vertex_to
                         == &(Vertex {
                             x: 10,
@@ -517,7 +513,7 @@ impl Board {
                         played_to_capture = true;
                     }
 
-                    if vertex != THRONE && self.get(&vertex) != Space::Black {
+                    if vertex != THRONE && self.get(&vertex) != Space::Attacker {
                         return Ok(false);
                     }
                 } else {
@@ -529,7 +525,7 @@ impl Board {
                         played_to_capture = true;
                     }
 
-                    if vertex != THRONE && self.get(&vertex) != Space::Black {
+                    if vertex != THRONE && self.get(&vertex) != Space::Attacker {
                         return Ok(false);
                     }
                 } else {
@@ -541,7 +537,7 @@ impl Board {
                         played_to_capture = true;
                     }
 
-                    if vertex != THRONE && self.get(&vertex) != Space::Black {
+                    if vertex != THRONE && self.get(&vertex) != Space::Attacker {
                         return Ok(false);
                     }
                 } else {
@@ -553,7 +549,7 @@ impl Board {
                         played_to_capture = true;
                     }
 
-                    if vertex != THRONE && self.get(&vertex) != Space::Black {
+                    if vertex != THRONE && self.get(&vertex) != Space::Attacker {
                         return Ok(false);
                     }
                 } else {
@@ -606,7 +602,7 @@ impl Board {
                 while !stack.is_empty() {
                     if let Some(vertex) = stack.pop() {
                         let space = self.get(&vertex);
-                        if space == Space::Empty || space.color() == Color::White {
+                        if space == Space::Empty || space.role() == Role::Defender {
                             if !expand_flood_fill(vertex.up(), &mut already_checked, &mut stack) {
                                 return Ok(false);
                             }
@@ -627,7 +623,7 @@ impl Board {
                 for y in 0..11 {
                     for x in 0..11 {
                         let vertex = Vertex { x, y };
-                        if self.get(&vertex).color() == Color::White
+                        if self.get(&vertex).role() == Role::Defender
                             && !already_checked.contains(&vertex)
                         {
                             return Ok(false);
@@ -651,7 +647,7 @@ impl Board {
         'outer: for y in 0..11 {
             for x in 0..11 {
                 let vertex = Vertex { x, y };
-                if self.get(&vertex).color() == Color::Black {
+                if self.get(&vertex).role() == Role::Attacker {
                     count += 1;
                 }
 
@@ -706,21 +702,21 @@ impl Board {
                             already_checked.insert(vertex);
                         }
                     }
-                } else if space.color() == Color::Black {
+                } else if space.role() == Role::Attacker {
                     return Ok(false);
                 } else if direction == Direction::UpDown {
                     let mut vertex_1 = false;
                     let mut vertex_2 = false;
 
                     if let Some(vertex) = vertex.up() {
-                        if self.get(&vertex).color() == Color::White {
+                        if self.get(&vertex).role() == Role::Defender {
                             vertex_1 = true;
                         }
                     } else {
                         vertex_1 = true;
                     }
                     if let Some(vertex) = vertex.down() {
-                        if self.get(&vertex).color() == Color::White {
+                        if self.get(&vertex).role() == Role::Defender {
                             vertex_2 = true;
                         }
                     } else {
@@ -735,14 +731,14 @@ impl Board {
                     let mut vertex_2 = false;
 
                     if let Some(vertex) = vertex.right() {
-                        if self.get(&vertex).color() == Color::White {
+                        if self.get(&vertex).role() == Role::Defender {
                             vertex_1 = true;
                         }
                     } else {
                         vertex_1 = true;
                     }
                     if let Some(vertex) = vertex.left() {
-                        if self.get(&vertex).color() == Color::White {
+                        if self.get(&vertex).role() == Role::Defender {
                             vertex_2 = true;
                         }
                     } else {
@@ -769,7 +765,7 @@ impl Board {
         for y in 0..11 {
             for x in 0..11 {
                 let v = Vertex { x, y };
-                if self.get(&v).color() == Color::Black {
+                if self.get(&v).role() == Role::Attacker {
                     return false;
                 }
             }
@@ -785,7 +781,7 @@ impl Board {
         &mut self,
         play: &Plae,
         status: &Status,
-        turn: &Color,
+        turn: &Role,
         previous_boards: &mut PreviousBoards,
     ) -> anyhow::Result<(Vec<Vertex>, Status)> {
         let (board, captures, status) = self.play_internal(play, status, turn, previous_boards)?;
@@ -805,7 +801,7 @@ impl Board {
         &self,
         play: &Plae,
         status: &Status,
-        turn: &Color,
+        turn: &Role,
         previous_boards: &PreviousBoards,
     ) -> anyhow::Result<(Board, Vec<Vertex>, Status)> {
         if *status != Status::Ongoing {
@@ -815,17 +811,17 @@ impl Board {
         }
 
         let play = match play {
-            Plae::BlackResigns => return Ok((self.clone(), Vec::new(), Status::WhiteWins)),
-            Plae::WhiteResigns => return Ok((self.clone(), Vec::new(), Status::BlackWins)),
+            Plae::AttackerResigns => return Ok((self.clone(), Vec::new(), Status::DefenderWins)),
+            Plae::DefenderResigns => return Ok((self.clone(), Vec::new(), Status::AttackerWins)),
             Plae::Play(play) => play,
         };
 
         let space_from = self.get(&play.from);
-        let color_from = space_from.color();
+        let role_from = space_from.role();
 
-        if color_from == Color::Colorless {
-            return Err(anyhow::Error::msg("play: you didn't select a color"));
-        } else if *turn != color_from {
+        if role_from == Role::Roleless {
+            return Err(anyhow::Error::msg("play: you didn't select a role"));
+        } else if *turn != role_from {
             return Err(anyhow::Error::msg("play: it isn't your turn"));
         }
 
@@ -883,33 +879,33 @@ impl Board {
         board.set(&play.from, Space::Empty);
         board.set(&play.to, space_from);
 
-        if previous_boards.0.contains(&board) && turn != &Color::Black {
+        if previous_boards.0.contains(&board) && turn != &Role::Attacker {
             return Err(anyhow::Error::msg(
                 "play: you already reached that position",
             ));
         }
 
         let mut captures = Vec::new();
-        board.captures(&play.to, &color_from, &mut captures);
-        board.captures_shield_wall(&color_from, &play.to, &mut captures);
+        board.captures(&play.to, role_from, &mut captures);
+        board.captures_shield_wall(role_from, &play.to, &mut captures);
 
         if EXIT_SQUARES.contains(&play.to) {
-            return Ok((board, captures, Status::WhiteWins));
+            return Ok((board, captures, Status::DefenderWins));
         }
 
         if board.capture_the_king(&play.to, &mut captures)? {
-            return Ok((board, captures, Status::BlackWins));
+            return Ok((board, captures, Status::AttackerWins));
         }
 
         if board.exit_forts()? {
-            return Ok((board, captures, Status::WhiteWins));
+            return Ok((board, captures, Status::DefenderWins));
         }
         if board.flood_fill_attacker_wins()? {
-            return Ok((board, captures, Status::BlackWins));
+            return Ok((board, captures, Status::AttackerWins));
         }
 
         if board.no_attacker_pieces_left() {
-            return Ok((board, captures, Status::WhiteWins));
+            return Ok((board, captures, Status::DefenderWins));
         }
 
         // Todo: Is a draw possible, how?
@@ -962,7 +958,7 @@ enum Direction {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct LegalMoves {
-    pub color: Color,
+    pub role: Role,
     pub moves: HashMap<Vertex, Vec<Vertex>>,
 }
 

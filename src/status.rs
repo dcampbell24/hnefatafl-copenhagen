@@ -4,20 +4,20 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub enum Status {
-    BlackWins,
+    AttackerWins,
     Draw,
     #[default]
     Ongoing,
-    WhiteWins,
+    DefenderWins,
 }
 
 impl fmt::Display for Status {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::BlackWins => write!(f, "attacker_wins"),
+            Self::AttackerWins => write!(f, "attacker_wins"),
             Self::Draw => write!(f, "draw"),
             Self::Ongoing => write!(f, "ongoing"),
-            Self::WhiteWins => write!(f, "defender_wins"),
+            Self::DefenderWins => write!(f, "defender_wins"),
         }
     }
 }
@@ -27,11 +27,11 @@ impl FromStr for Status {
 
     fn from_str(value: &str) -> anyhow::Result<Self> {
         match value {
-            "Black" => Ok(Self::BlackWins),
+            "Attacker" | "Black" => Ok(Self::AttackerWins),
             "Draw" => Ok(Self::Draw),
             "Ongoing" => Ok(Self::Ongoing),
-            "White" => Ok(Self::WhiteWins),
-            _ => Err(anyhow::Error::msg("invalid status")),
+            "Defender" | "White" => Ok(Self::DefenderWins),
+            _ => Err(anyhow::Error::msg(format!("invalid status: {value}"))),
         }
     }
 }

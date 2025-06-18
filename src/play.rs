@@ -3,23 +3,23 @@ use std::{fmt, str::FromStr};
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
-use crate::color::Color;
+use crate::role::Role;
 
 pub const BOARD_LETTERS: &str = "ABCDEFGHIJK";
 
 #[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub enum Plae {
     Play(Play),
-    BlackResigns,
-    WhiteResigns,
+    AttackerResigns,
+    DefenderResigns,
 }
 
 impl fmt::Display for Plae {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Play(play) => writeln!(f, "play {} {} {}", play.color, play.from, play.to),
-            Self::BlackResigns => writeln!(f, "play attacker resigns _"),
-            Self::WhiteResigns => writeln!(f, "play defender resigns _"),
+            Self::Play(play) => writeln!(f, "play {} {} {}", play.role, play.from, play.to),
+            Self::AttackerResigns => writeln!(f, "play attacker resigns _"),
+            Self::DefenderResigns => writeln!(f, "play defender resigns _"),
         }
     }
 }
@@ -29,13 +29,13 @@ impl Plae {
     /// # Errors
     ///
     /// If you try to convert an illegal character or you don't get vertex-vertex.
-    pub fn from_str_(play: &str, color: &Color) -> anyhow::Result<Self> {
+    pub fn from_str_(play: &str, role: &Role) -> anyhow::Result<Self> {
         let Some((from, to)) = play.split_once('-') else {
             return Err(anyhow::Error::msg("expected: vertex-vertex"));
         };
 
         Ok(Self::Play(Play {
-            color: color.clone(),
+            role: *role,
             from: Vertex::from_str(from)?,
             to: Vertex::from_str(to)?,
         }))
@@ -46,19 +46,19 @@ impl TryFrom<Vec<&str>> for Plae {
     type Error = anyhow::Error;
 
     fn try_from(args: Vec<&str>) -> Result<Self, Self::Error> {
-        let error_str = "expected: 'play COLOR FROM TO' or 'play COLOR resign'";
+        let error_str = "expected: 'play ROLE FROM TO' or 'play ROLE resign'";
 
         if args.len() < 3 {
             return Err(anyhow::Error::msg(error_str));
         }
 
-        let color = Color::from_str(args[1])?;
+        let role = Role::from_str(args[1])?;
         if args[2] == "resigns" {
-            if color == Color::White {
-                return Ok(Self::WhiteResigns);
+            if role == Role::Defender {
+                return Ok(Self::DefenderResigns);
             }
 
-            return Ok(Self::BlackResigns);
+            return Ok(Self::AttackerResigns);
         }
 
         if args.len() < 4 {
@@ -66,23 +66,36 @@ impl TryFrom<Vec<&str>> for Plae {
         }
 
         Ok(Self::Play(Play {
-            color: Color::from_str(args[1])?,
+            role: Role::from_str(args[1])?,
             from: Vertex::from_str(args[2])?,
             to: Vertex::from_str(args[3])?,
         }))
     }
 }
 
+#[derive(Clone, Debug, Default, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+pub struct Plays(pub Vec<Plae>);
+
+impl fmt::Display for Plays {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for play in &self.0 {
+            write!(f, "{play}, ")?;
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct Play {
-    pub color: Color,
+    pub role: Role,
     pub from: Vertex,
     pub to: Vertex,
 }
 
 impl fmt::Display for Play {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?} from {} to {}", self.color, self.from, self.to)
+        write!(f, "{:?} from {} to {}", self.role, self.from, self.to)
     }
 }
 

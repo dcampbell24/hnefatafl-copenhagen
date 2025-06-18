@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     board::Board,
-    color::Color,
     game::{Game, PreviousBoards},
     glicko::Rating,
     play::Plae,
@@ -42,7 +41,7 @@ impl ArchivedGame {
             defender: game.defender,
             defender_rating,
             rated: game.rated,
-            plays: game.game.plays,
+            plays: game.game.plays.0,
             status: game.game.status,
             texts: game.texts,
         }
@@ -83,7 +82,7 @@ impl ArchivedGameHandle {
     #[allow(clippy::missing_panics_doc)]
     pub fn new(game: &ArchivedGame) -> ArchivedGameHandle {
         let mut boards = vec![Board::default()];
-        let mut turn = Color::default();
+        let mut turn = Role::default();
         let mut board = Board::default();
 
         for play in &game.plays {
@@ -98,9 +97,9 @@ impl ArchivedGameHandle {
             boards.push(board.clone());
 
             turn = match turn {
-                Color::Black => Color::White,
-                Color::Colorless => Color::Colorless,
-                Color::White => Color::Black,
+                Role::Attacker => Role::Defender,
+                Role::Roleless => Role::Roleless,
+                Role::Defender => Role::Attacker,
             };
         }
 

@@ -9,9 +9,8 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use crate::{
     ai::{AI, AiBanal},
     board::Board,
-    color::Color,
     message::{COMMANDS, Message},
-    play::{Captures, Plae, Play, Vertex},
+    play::{Captures, Plae, Play, Plays, Vertex},
     role::Role,
     space::Space,
     status::Status,
@@ -24,13 +23,13 @@ pub struct Game {
     #[serde(skip)]
     pub ai: AiBanal,
     pub board: Board,
-    pub plays: Vec<Plae>,
+    pub plays: Plays,
     pub previous_boards: PreviousBoards,
     pub status: Status,
     pub time: TimeUnix,
     pub attacker_time: TimeSettings,
     pub defender_time: TimeSettings,
-    pub turn: Color,
+    pub turn: Role,
 }
 
 #[cfg(feature = "js")]
@@ -44,7 +43,7 @@ pub struct Game {
     #[wasm_bindgen(skip)]
     pub board: Board,
     #[wasm_bindgen(skip)]
-    pub plays: Vec<Plae>,
+    pub plays: Plays,
     #[wasm_bindgen(skip)]
     pub previous_boards: PreviousBoards,
     #[wasm_bindgen(skip)]
@@ -56,7 +55,7 @@ pub struct Game {
     #[wasm_bindgen(skip)]
     pub defender_time: TimeSettings,
     #[wasm_bindgen(skip)]
-    pub turn: Color,
+    pub turn: Role,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -74,13 +73,7 @@ impl Default for PreviousBoards {
 impl fmt::Display for Game {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "{}\n", self.board)?;
-
-        write!(f, "plays: ")?;
-        for play in &self.plays {
-            write!(f, "{play}, ")?;
-        }
-        writeln!(f)?;
-
+        writeln!(f, "plays: {}", self.plays)?;
         writeln!(f, "status: {}", self.status)?;
 
         match &self.attacker_time {
@@ -137,14 +130,14 @@ impl Game {
     pub fn all_legal_moves(&self) -> LegalMoves {
         let mut possible_vertexes = Vec::new();
         let mut legal_moves = LegalMoves {
-            color: self.turn.clone(),
+            role: self.turn,
             moves: HashMap::new(),
         };
 
         for y in 0..11 {
             for x in 0..11 {
                 let vertex = Vertex { x, y };
-                if self.board.get(&vertex).color() == self.turn {
+                if self.board.get(&vertex).role() == self.turn {
                     possible_vertexes.push(vertex);
                 }
             }
@@ -157,7 +150,7 @@ impl Game {
                 for x in 0..11 {
                     let vertex_to = Vertex { x, y };
                     let play = Play {
-                        color: self.turn.clone(),
+                        role: self.turn,
                         from: vertex_from.clone(),
                         to: vertex_to.clone(),
                     };
@@ -187,9 +180,10 @@ impl Game {
         let moves = self.all_legal_moves();
 
         if moves.moves.is_empty() {
-            match Role::try_from(&moves.color).unwrap() {
-                Role::Attacker => return vec![Plae::BlackResigns],
-                Role::Defender => return vec![Plae::WhiteResigns],
+            match &moves.role {
+                Role::Attacker => return vec![Plae::AttackerResigns],
+                Role::Defender => return vec![Plae::DefenderResigns],
+                Role::Roleless => return Vec::new(),
             }
         }
 
@@ -197,7 +191,7 @@ impl Game {
         for (from, tos) in moves.moves {
             for to in tos {
                 plays.push(Plae::Play(Play {
-                    color: moves.color.clone(),
+                    role: moves.role,
                     from: from.clone(),
                     to,
                 }));
@@ -220,7 +214,7 @@ impl Game {
             for exit in [exit_1, exit_2, exit_3, exit_4] {
                 if game
                     .play(&Plae::Play(Play {
-                        color: self.turn.clone(),
+                        role: self.turn,
                         from: king.clone(),
                         to: exit,
                     }))
@@ -245,11 +239,19 @@ impl Game {
     pub fn play(&mut self, play: &Plae) -> anyhow::Result<Captures> {
         if self.status == Status::Ongoing {
             if let (status, TimeSettings::Timed(timer), TimeUnix::Time(time)) = match self.turn {
-                Color::Black => (Status::WhiteWins, &mut self.attacker_time, &mut self.time),
-                Color::Colorless => {
+                Role::Attacker => (
+                    Status::DefenderWins,
+                    &mut self.attacker_time,
+                    &mut self.time,
+                ),
+                Role::Roleless => {
                     unreachable!("It can't be no one's turn when the game is ongoing!")
                 }
-                Color::White => (Status::BlackWins, &mut self.defender_time, &mut self.time),
+                Role::Defender => (
+                    Status::AttackerWins,
+                    &mut self.defender_time,
+                    &mut self.time,
+                ),
             } {
                 let now = Local::now().to_utc().timestamp_millis();
                 timer.milliseconds_left -= now - *time;
@@ -264,28 +266,28 @@ impl Game {
             }
 
             match play {
-                Plae::BlackResigns => {
-                    if self.turn == Color::Black {
-                        self.status = Status::WhiteWins;
+                Plae::AttackerResigns => {
+                    if self.turn == Role::Attacker {
+                        self.status = Status::DefenderWins;
                         Ok(Captures::default())
                     } else {
                         Err(anyhow::Error::msg("You can't resign for the other player."))
                     }
                 }
-                Plae::WhiteResigns => {
-                    if self.turn == Color::White {
-                        self.status = Status::BlackWins;
+                Plae::DefenderResigns => {
+                    if self.turn == Role::Defender {
+                        self.status = Status::AttackerWins;
                         Ok(Captures::default())
                     } else {
                         Err(anyhow::Error::msg("You can't resign for the other player."))
                     }
                 }
                 Plae::Play(play) => {
-                    let piece_color = self.board.get(&play.from).color();
-                    if piece_color != play.color {
+                    let piece_role = self.board.get(&play.from).role();
+                    if piece_role != play.role {
                         return Err(anyhow::Error::msg(format!(
-                            "play: you are trying to move {piece_color}, but it's {}'s turn",
-                            play.color
+                            "play: you are trying to move {piece_role}, but it's {}'s turn",
+                            play.role
                         )));
                     }
 
@@ -297,7 +299,7 @@ impl Game {
                     )?;
 
                     self.status = status;
-                    self.plays.push(Plae::Play(play.clone()));
+                    self.plays.0.push(Plae::Play(play.clone()));
 
                     if self.status == Status::Ongoing {
                         self.turn = self.turn.opposite();
@@ -308,9 +310,9 @@ impl Game {
                             &self.previous_boards,
                         ) {
                             match self.turn {
-                                Color::Black => self.status = Status::WhiteWins,
-                                Color::Colorless => {}
-                                Color::White => self.status = Status::BlackWins,
+                                Role::Attacker => self.status = Status::DefenderWins,
+                                Role::Roleless => {}
+                                Role::Defender => self.status = Status::AttackerWins,
                             }
                         }
                     }
@@ -367,7 +369,7 @@ impl Game {
                 let moves = self.all_legal_moves();
                 Ok(Some(format!(
                     "{} {}",
-                    moves.color,
+                    moves.role,
                     moves
                         .moves
                         .keys()
@@ -377,12 +379,12 @@ impl Game {
                 )))
             }
             Message::PlayTo(from) => {
-                let (color, vertex) = from;
+                let (role, vertex) = from;
                 let moves = self.all_legal_moves();
-                if color != moves.color {
+                if role != moves.role {
                     return Err(anyhow::Error::msg(format!(
-                        "tried play_to {color}, but it's {} turn",
-                        moves.color
+                        "tried play_to {role}, but it's {} turn",
+                        moves.role
                     )));
                 }
 
@@ -432,9 +434,9 @@ impl Game {
     pub fn utility(&self) -> i32 {
         match self.status {
             Status::Ongoing => {}
-            Status::BlackWins => return i32::MIN,
+            Status::AttackerWins => return i32::MIN,
             Status::Draw => return 0,
-            Status::WhiteWins => return i32::MAX,
+            Status::DefenderWins => return i32::MAX,
         }
 
         let mut utility = 0;
@@ -443,9 +445,9 @@ impl Game {
         let mut attacker_left = 0;
         for space in self.board.spaces {
             match space {
-                Space::Black => attacker_left += 1,
+                Space::Attacker => attacker_left += 1,
                 Space::Empty | Space::King => {}
-                Space::White => defender_left += 1,
+                Space::Defender => defender_left += 1,
             }
         }
 
@@ -462,7 +464,7 @@ impl Game {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct LegalMoves {
-    pub color: Color,
+    pub role: Role,
     pub moves: HashMap<Vertex, Vec<Vertex>>,
 }
 

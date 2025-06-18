@@ -3,8 +3,8 @@ use std::str::FromStr;
 use anyhow::Context;
 
 use crate::{
-    color::Color,
     play::{Plae, Vertex},
+    role::Role,
     time,
 };
 
@@ -15,7 +15,7 @@ use crate::{
 /// whitespace or the empty string are passed the engine ignores the input and requests another
 /// string. Comments are any text following `#` on a line.
 ///
-/// Valid **COLOR** strings are `attacker` and `defender`.
+/// Valid **ROLE** strings are `attacker` and `defender`.
 ///
 /// Valid **TO** and **FROM** coordinates are a letter, uppercase or lowercase, `A` though `K`
 /// followed by a number `1` through `11`. For example, `A1`.
@@ -80,7 +80,7 @@ pub enum Message {
 
     /// `generate_move`
     ///
-    /// Returns `play COLOR FROM TO`.
+    /// Returns `play ROLE FROM TO`.
     GenerateMove,
 
     /// `known_command STRING`
@@ -98,20 +98,20 @@ pub enum Message {
     /// Prints the name of the package.
     Name,
 
-    /// `play COLOR FROM TO` | `play COLOR resign`
+    /// `play ROLE FROM TO` | `play ROLE resign`
     ///
     /// Plays a move and returns **CAPTURES**, where **CAPTURES** has the format `A2 C2 ...`.
     Play(Plae),
 
     /// `play_from`
     ///
-    /// Returns a **COLOR** followed by all the valid **FROM** squares.
+    /// Returns a **ROLE** followed by all the valid **FROM** squares.
     PlayFrom,
 
-    /// `play_to COLOR FROM`
+    /// `play_to ROLE FROM`
     ///
     /// Returns all the valid **TO** squares.
-    PlayTo((Color, Vertex)),
+    PlayTo((Role, Vertex)),
 
     /// `protocol_version`
     ///
@@ -187,12 +187,12 @@ impl FromStr for Message {
             }
             "play_from" => Ok(Self::PlayFrom),
             "play_to" => {
-                if let (Some(color), Some(vertex)) = (args.get(1), args.get(2)) {
-                    let color = Color::from_str(color)?;
+                if let (Some(role), Some(vertex)) = (args.get(1), args.get(2)) {
+                    let role = Role::from_str(role)?;
                     let vertex = Vertex::from_str(vertex)?;
-                    Ok(Self::PlayTo((color, vertex)))
+                    Ok(Self::PlayTo((role, vertex)))
                 } else {
-                    Err(anyhow::Error::msg("expected: play_to color vertex"))
+                    Err(anyhow::Error::msg("expected: play_to role vertex"))
                 }
             }
             "protocol_version" => Ok(Self::ProtocolVersion),

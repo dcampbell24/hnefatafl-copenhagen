@@ -10,7 +10,6 @@ use clap::{Parser, command};
 use hnefatafl_copenhagen::{
     VERSION_ID,
     ai::{AI, AiBanal, AiBasic},
-    color::Color,
     game::Game,
     play::Vertex,
     role::Role,
@@ -224,11 +223,11 @@ fn handle_messages(
                 return Ok(());
             }
         } else if Some("play") == message.get(2).copied() {
-            let Some(color) = message.get(3).copied() else {
-                panic!("expected color");
+            let Some(role) = message.get(3).copied() else {
+                panic!("expected role");
             };
-            let Ok(color) = Color::from_str(color) else {
-                panic!("expected color to be a color");
+            let Ok(role) = Role::from_str(role) else {
+                panic!("expected role to be a role");
             };
 
             let Some(from) = message.get(4).copied() else {
@@ -248,7 +247,7 @@ fn handle_messages(
                 panic!("expected to to be a vertex");
             };
 
-            let play = format!("play {color} {from} {to}\n");
+            let play = format!("play {role} {from} {to}\n");
             game.read_line(&play)?;
 
             if io_on {
