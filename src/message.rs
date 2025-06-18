@@ -15,7 +15,7 @@ use crate::{
 /// whitespace or the empty string are passed the engine ignores the input and requests another
 /// string. Comments are any text following `#` on a line.
 ///
-/// Valid **ROLE** strings are `attacker` and `defender`.
+/// Valid **ROLE** strings are `a`, `attacker`, `d`, and `defender`. Case does not matter.
 ///
 /// Valid **TO** and **FROM** coordinates are a letter, uppercase or lowercase, `A` though `K`
 /// followed by a number `1` through `11`. For example, `A1`.

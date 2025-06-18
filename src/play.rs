@@ -78,8 +78,12 @@ pub struct Plays(pub Vec<Plae>);
 
 impl fmt::Display for Plays {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if !self.0.is_empty() {
+            writeln!(f)?;
+        }
+
         for play in &self.0 {
-            write!(f, "{play}, ")?;
+            write!(f, "    {play}")?;
         }
 
         Ok(())

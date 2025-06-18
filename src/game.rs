@@ -73,7 +73,13 @@ impl Default for PreviousBoards {
 impl fmt::Display for Game {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "{}\n", self.board)?;
-        writeln!(f, "plays: {}", self.plays)?;
+
+        if self.plays.0.is_empty() {
+            writeln!(f, "plays: {}", self.plays)?;
+        } else {
+            write!(f, "plays: {}", self.plays)?;
+        }
+
         writeln!(f, "status: {}", self.status)?;
 
         match &self.attacker_time {

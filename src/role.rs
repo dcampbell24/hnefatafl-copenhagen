@@ -49,9 +49,11 @@ impl FromStr for Role {
     type Err = anyhow::Error;
 
     fn from_str(string: &str) -> anyhow::Result<Self> {
-        match string {
-            "attacker" => Ok(Self::Attacker),
-            "defender" => Ok(Self::Defender),
+        let string = string.to_lowercase();
+
+        match string.as_str() {
+            "a" | "attacker" => Ok(Self::Attacker),
+            "d" | "defender" => Ok(Self::Defender),
             _ => Err(anyhow::Error::msg(format!(
                 "Error trying to convert '{string}' to a Role!"
             ))),
