@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.0.1] - 2025-06-18
+## [2.0.2] - 2025-06-18
 
 - hnefatafl-client: add `Review Game`.
 - hnefatafl-client: round the rating when displayed.
@@ -309,8 +309,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl/compare/v2.0.1...main
-[2.0.1]: https://github.com/dcampbell24/hnefatafl/compare/v1.2.1...v2.0.1
+[unreleased]: https://github.com/dcampbell24/hnefatafl/compare/v2.0.2...main
+[2.0.2]: https://github.com/dcampbell24/hnefatafl/compare/v1.2.1...v2.0.2
 [1.2.1]:  https://github.com/dcampbell24/hnefatafl/compare/v1.2.0...v1.2.1
 [1.2.0]:  https://github.com/dcampbell24/hnefatafl/compare/v1.1.4...v1.2.0
 [1.1.4]:  https://github.com/dcampbell24/hnefatafl/compare/v1.1.3...v1.1.4

@@ -18,7 +18,7 @@ An [engine] similar to the [Go Text Protocol], a [client], and a [server].
 
 ## [Use the Engine]
 
-[Use the Engine]: https://docs.rs/hnefatafl/latest/hnefatafl_copenhagen/message/enum.Message.html
+[Use the Engine]: https://docs.rs/hnefatafl-copenhagen/latest/hnefatafl_copenhagen/message/enum.Message.html
 
 ## Website
 
