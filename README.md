@@ -3,7 +3,7 @@
 [![github]][github-link]&ensp;[![crates-io]][crates-io-link]&ensp;[![docs-rs]][docs-rs-link]
 
 [github]: https://img.shields.io/badge/github-8da0cb?logo=github
-[github-link]: https://github.com/dcampbell24/hnefatafl-copenhagen
+[github-link]: https://github.com/dcampbell24/hnefatafl
 [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?logo=rust
 [crates-io-link]: https://crates.io/crates/hnefatafl-copenhagen
 [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?logo=docs.rs
@@ -11,10 +11,10 @@
 
 An [engine] similar to the [Go Text Protocol], a [client], and a [server].
 
-[engine]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-text-protocol.rs
+[engine]: https://github.com/dcampbell24/hnefatafl/blob/main/src/bin/hnefatafl-text-protocol.rs
 [Go Text Protocol]: https://www.lysator.liu.se/~gunnar/gtp/gtp2-spec-draft2/gtp2-spec.html
-[client]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-client.rs
-[server]: https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/src/bin/hnefatafl-server-full.rs
+[client]: https://github.com/dcampbell24/hnefatafl/blob/main/src/bin/hnefatafl-client.rs
+[server]: https://github.com/dcampbell24/hnefatafl/blob/main/src/bin/hnefatafl-server-full.rs
 
 ## [Use the Engine]
 
