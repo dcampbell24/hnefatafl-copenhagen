@@ -4,8 +4,8 @@
   <metadata>
     <!-- == PACKAGE SPECIFIC SECTION == -->
     <id>hnefatafl-copenhagen</id>
-    <version>1.2.1</version>
-    <packageSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/tree/main/packages/chocolatey</packageSourceUrl>
+    <version>2.0.3</version>
+    <packageSourceUrl>https://github.com/dcampbell24/hnefatafl/tree/main/packages/chocolatey</packageSourceUrl>
     <owners>David Lawrence Campbell</owners>
     <!-- ============================== -->
 
@@ -13,12 +13,12 @@
     <title>Hnefatafl Copenhagen</title>
     <authors>David Lawrence Campbell</authors>
     <projectUrl>https://hnefatafl.org</projectUrl>
-    <iconUrl>https://rawcdn.githack.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/icons/king_256x256.png</iconUrl>
+    <iconUrl>https://rawcdn.githack.com/dcampbell24/hnefatafl/refs/heads/main/icons/king_256x256.png</iconUrl>
     <copyright>2025 David Lawrence Campbell</copyright>
-    <licenseUrl>https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/LICENSE-MIT</licenseUrl>
+    <licenseUrl>https://raw.githubusercontent.com/dcampbell24/hnefatafl/refs/heads/main/LICENSE-MIT</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <projectSourceUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/</projectSourceUrl>
-    <docsUrl>https://docs.rs/hnefatafl-copenhagen/0.13.4/hnefatafl_copenhagen/</docsUrl>
+    <projectSourceUrl>https://github.com/dcampbell24/hnefatafl/</projectSourceUrl>
+    <docsUrl>https://docs.rs/hnefatafl-copenhagen/2.0.3/hnefatafl_copenhagen/</docsUrl>
     <!--<mailingListUrl></mailingListUrl>-->
     <bugTrackerUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/issues</bugTrackerUrl>
     <tags>board-game copenhagen hnefatafl tafl</tags>

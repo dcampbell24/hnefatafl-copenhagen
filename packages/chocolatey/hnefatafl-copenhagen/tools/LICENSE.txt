@@ -1,4 +1,4 @@
-﻿From: https://raw.githubusercontent.com/dcampbell24/hnefatafl-copenhagen/refs/heads/main/LICENSE-MIT
+﻿From: https://raw.githubusercontent.com/dcampbell24/hnefatafl/refs/heads/main/LICENSE-MIT
 
 LICENSE
 
