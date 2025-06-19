@@ -18,11 +18,11 @@
     <licenseUrl>https://raw.githubusercontent.com/dcampbell24/hnefatafl/refs/heads/main/LICENSE-MIT</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/dcampbell24/hnefatafl/</projectSourceUrl>
-    <docsUrl>https://docs.rs/hnefatafl-copenhagen/2.0.3/hnefatafl_copenhagen/</docsUrl>
+    <docsUrl>https://docs.rs/hnefatafl-copenhagen/latest/hnefatafl_copenhagen/</docsUrl>
     <!--<mailingListUrl></mailingListUrl>-->
-    <bugTrackerUrl>https://github.com/dcampbell24/hnefatafl-copenhagen/issues</bugTrackerUrl>
+    <bugTrackerUrl>https://github.com/dcampbell24/hnefatafl/issues</bugTrackerUrl>
     <tags>board-game copenhagen hnefatafl tafl</tags>
-    <releaseNotes>https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CHANGELOG.md#121---2025-06-03</releaseNotes>
+    <releaseNotes>https://github.com/dcampbell24/hnefatafl/blob/main/CHANGELOG.md</releaseNotes>
     <summary>Copenhagen Hnefatafl</summary>
     <description>Copenhagen Hnefatafl client that connects to a server.</description>
     <!-- =============================== -->
