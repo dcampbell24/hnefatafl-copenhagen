@@ -71,50 +71,57 @@
   </screenshots>
 
   <releases>
+    <release version="2.0.3" date="2025-06-18">
+      <url type="details">https://github.com/dcampbell24/hnefatafl/blob/v2.0.3/CHANGELOG.md#203---2025-06-18</url>
+      <description>
+        <p>See the CHANGELOG.md file.</p>
+      </description>
+    </release>
+
     <release version="1.2.1" date="2025-06-03">
-      <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/v1.2.1/CHANGELOG.md#121---2025-06-03</url>
+      <url type="details">https://github.com/dcampbell24/hnefatafl/blob/v1.2.1/CHANGELOG.md#121---2025-06-03</url>
       <description>
         <p>See the CHANGELOG.md file.</p>
       </description>
     </release>
 
     <release version="1.2.0" date="2025-06-02">
-      <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/v1.2.0/CHANGELOG.md#120---2025-06-02</url>
+      <url type="details">https://github.com/dcampbell24/hnefatafl/blob/v1.2.0/CHANGELOG.md#120---2025-06-02</url>
       <description>
         <p>See the CHANGELOG.md file.</p>
       </description>
     </release>
 
     <release version="1.1.4" date="2025-05-23">
-      <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/v1.1.4/CHANGELOG.md#113---2025-05-23</url>
+      <url type="details">https://github.com/dcampbell24/hnefatafl/blob/v1.1.4/CHANGELOG.md#113---2025-05-23</url>
       <description>
         <p>See the CHANGELOG.md file.</p>
       </description>
     </release>
 
     <release version="1.1.3" date="2025-05-21">
-      <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/v1.1.3/CHANGELOG.md#113---2025-05-21</url>
+      <url type="details">https://github.com/dcampbell24/hnefatafl/blob/v1.1.3/CHANGELOG.md#113---2025-05-21</url>
       <description>
         <p>See the CHANGELOG.md file.</p>
       </description>
     </release>
 
     <release version="1.0.0" date="2025-05-05">
-      <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/v1.0.0/CHANGELOG.md#100---2025-05-05</url>
+      <url type="details">https://github.com/dcampbell24/hnefatafl/blob/v1.0.0/CHANGELOG.md#100---2025-05-05</url>
       <description>
         <p>See the CHANGELOG.md file.</p>
       </description>
     </release>
 
     <release version="0.13.4" date="2025-04-21">
-      <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/v0.13.4/CHANGELOG.md#0134---2025-04-21</url>
+      <url type="details">https://github.com/dcampbell24/hnefatafl/blob/v0.13.4/CHANGELOG.md#0134---2025-04-21</url>
       <description>
         <p>See the CHANGELOG.md file.</p>
       </description>
     </release>
 
     <release version="0.13.2" date="2025-04-15">
-      <url type="details">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CHANGELOG.md#0132---2025-04-15</url>
+      <url type="details">https://github.com/dcampbell24/hnefatafl/blob/main/CHANGELOG.md#0132---2025-04-15</url>
       <description>
         <p>See the CHANGELOG.md file.</p>
       </description>
