@@ -4,6 +4,7 @@
 #[macro_use]
 extern crate rust_i18n;
 
+use std::io::Read;
 use std::{io::Cursor, time::Duration};
 
 use std::{
@@ -31,7 +32,6 @@ use hnefatafl_copenhagen::{
     draw::Draw,
     game::{Game, TimeUnix},
     glicko::{CONFIDENCE_INTERVAL_95, Rating},
-    handle_error,
     play::{BOARD_LETTERS, Vertex},
     rating::Rated,
     role::Role,
@@ -110,25 +110,6 @@ fn init_client() -> Client {
 
     if error.is_some() {
         client.error_persistent = error;
-    }
-
-    match fs::read_to_string(archived_games_file()) {
-        Ok(archived_games_string) => {
-            let mut archived_games = Vec::new();
-
-            for line in archived_games_string.lines() {
-                match ron::from_str(line) {
-                    Ok(archived_game) => archived_games.push(archived_game),
-                    Err(err) => error!("error loading archived game: {err}"),
-                }
-            }
-
-            client.archived_games = archived_games;
-            info!("loaded archived games");
-        }
-        Err(err) => {
-            error!("archived games file not found: {err}");
-        }
     }
 
     rust_i18n::set_locale(&client.locale_selected.txt());
@@ -744,6 +725,7 @@ impl Client {
 
             user_area = user_area.push(row![left_all, left, right, right_all].spacing(SPACING));
         } else {
+            // Todo: add texting to review game.
             user_area = user_area.push(self.texting(true));
         }
 
@@ -813,6 +795,11 @@ impl Client {
 
         match message {
             Message::AccountSettings => self.screen = Screen::AccountSettings,
+            Message::ArchivedGames(mut archived_games) => {
+                archived_games.reverse();
+                self.archived_games = archived_games;
+            }
+            Message::ArchivedGamesGet => self.send("archived_games\n".to_string()),
             Message::ArchivedGameSelected(game) => self.archived_game_selected = Some(game),
             Message::ChangeTheme(theme) => {
                 self.theme = theme;
@@ -865,6 +852,7 @@ impl Client {
                 Screen::AccountSettings
                 | Screen::EmailEveryone
                 | Screen::GameNew
+                | Screen::GameReview
                 | Screen::Users => {
                     self.screen = Screen::Games;
                     self.text_input = String::new();
@@ -890,7 +878,6 @@ impl Client {
                     self.send(format!("leave_game {}\n", self.game_id));
                     self.screen = Screen::Games;
                 }
-                Screen::GameReview => self.screen = Screen::Login,
                 Screen::Games => self.send("logout\n".to_string()),
                 Screen::Login => self.send("quit\n".to_string()),
             },
@@ -1032,7 +1019,6 @@ impl Client {
             }
             Message::ReviewGame => {
                 if let Some(archived_game) = &self.archived_game_selected {
-                    self.username = self.text_input.to_string();
                     self.archived_game_handle = Some(ArchivedGameHandle::new(archived_game));
                     self.screen = Screen::GameReview;
                 }
@@ -1155,7 +1141,7 @@ impl Client {
                                         username: String::new(),
                                         address: address.to_string(),
                                         code: None,
-                                        verified: verified.parse().unwrap(),
+                                        verified: handle_error(verified.parse()),
                                     });
                                 }
                             }
@@ -2153,6 +2139,12 @@ impl Client {
                     ]
                 };
 
+                // Todo: make a translation.
+                let get_archived_games =
+                    button("Get Archived Games").on_press(Message::ArchivedGamesGet);
+
+                theme = theme.push(get_archived_games);
+
                 if self.email_everyone {
                     let email_everyone = button("Email Everyone").on_press(Message::EmailEveryone);
                     theme = theme.push(email_everyone);
@@ -2198,7 +2190,23 @@ impl Client {
                 let top = row![create_game, users, account_setting, website, quit].spacing(SPACING);
                 let user_area = self.user_area(false);
 
-                column![theme, username, top, user_area]
+                let mut review_game = button(
+                    text(self.strings["Review Game"].as_str()).shaping(text::Shaping::Advanced),
+                );
+                if self.archived_game_selected.is_some() {
+                    review_game = review_game.on_press(Message::ReviewGame);
+                }
+
+                let review_game_pick = pick_list(
+                    self.archived_games.clone(),
+                    self.archived_game_selected.clone(),
+                    Message::ArchivedGameSelected,
+                )
+                .text_shaping(text::Shaping::Advanced);
+
+                let review_game = row![review_game, review_game_pick].spacing(SPACING);
+
+                column![theme, username, top, review_game, user_area]
                     .padding(PADDING)
                     .spacing(SPACING)
                     .into()
@@ -2303,29 +2311,12 @@ impl Client {
                         .text_shaping(text::Shaping::Advanced),
                 ];
 
-                let mut review_game = button(
-                    text(self.strings["Review Game"].as_str()).shaping(text::Shaping::Advanced),
-                );
-                if self.archived_game_selected.is_some() {
-                    review_game = review_game.on_press(Message::ReviewGame);
-                }
-
-                let review_game_pick = pick_list(
-                    self.archived_games.clone(),
-                    self.archived_game_selected.clone(),
-                    Message::ArchivedGameSelected,
-                )
-                .text_shaping(text::Shaping::Advanced);
-
-                let review_game = row![review_game, review_game_pick].spacing(SPACING);
-
                 column![
                     username,
                     password,
                     show_password,
                     buttons,
                     locale,
-                    review_game,
                     error,
                     error_persistent
                 ]
@@ -2437,6 +2428,8 @@ impl fmt::Display for Locale {
 #[derive(Clone, Debug)]
 enum Message {
     AccountSettings,
+    ArchivedGames(Vec<ArchivedGame>),
+    ArchivedGamesGet,
     ArchivedGameSelected(ArchivedGame),
     ChangeTheme(Theme),
     ConnectedTo(String),
@@ -2485,17 +2478,6 @@ enum Message {
     TimeMinutes(String),
     Users,
     WindowResized((f32, f32)),
-}
-
-fn archived_games_file() -> PathBuf {
-    let mut archived_games_file = if let Some(data_file) = dirs::document_dir() {
-        data_file
-    } else {
-        PathBuf::new()
-    };
-
-    archived_games_file.push("hnefatafl-games.ron");
-    archived_games_file
 }
 
 fn data_file() -> PathBuf {
@@ -2585,6 +2567,18 @@ fn pass_messages() -> impl Stream<Item = Message> {
                         handle_error(executor::block_on(
                             sender.send(Message::TextReceived(buffer.clone())),
                         ));
+
+                        if buffer_trim_vec[1] == "archived_games" {
+                            let length = handle_error(buffer_trim_vec[2].parse::<usize>());
+                            let mut buf = vec![0; length];
+                            handle_error(reader.read_exact(&mut buf));
+                            let archived_games: Vec<ArchivedGame> =
+                                handle_error(postcard::from_bytes(&buf));
+                            handle_error(executor::block_on(
+                                sender.send(Message::ArchivedGames(archived_games)),
+                            ));
+                        }
+
                         buffer.clear();
                     } else {
                         info!("the TCP stream has closed");
@@ -2594,6 +2588,16 @@ fn pass_messages() -> impl Stream<Item = Message> {
             });
         },
     )
+}
+
+fn handle_error<T, E: fmt::Display>(result: Result<T, E>) -> T {
+    match result {
+        Ok(value) => value,
+        Err(error) => {
+            error!("{error}");
+            exit(1)
+        }
+    }
 }
 
 fn init_logger() {

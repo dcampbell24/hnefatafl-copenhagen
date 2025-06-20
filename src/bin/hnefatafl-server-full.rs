@@ -13,6 +13,8 @@ use std::{
     time::Duration,
 };
 
+use std::fmt::Write as _;
+
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use chrono::{Local, Utc};
 use clap::{Parser, command};
@@ -242,6 +244,7 @@ fn login(
                 stream.write_all(
                     b"? login sent a password reset email if a verified email exists for this account\n",
                 )?;
+
                 buf.clear();
                 continue;
             }
@@ -317,8 +320,20 @@ fn receiving_and_writing(
     client_rx: &Receiver<String>,
 ) -> anyhow::Result<()> {
     loop {
-        let message = client_rx.recv()?;
-        stream.write_all(format!("{message}\n").as_bytes())?;
+        let mut message = client_rx.recv()?;
+
+        if message == "= archived_games" {
+            let ron_archived_games = client_rx.recv()?;
+            let archived_games: Vec<ArchivedGame> = ron::from_str(&ron_archived_games)?;
+            let postcard_archived_games = &postcard::to_allocvec(&archived_games)?;
+
+            writeln!(message, " {}", postcard_archived_games.len())?;
+            stream.write_all(message.as_bytes())?;
+            stream.write_all(postcard_archived_games)?;
+        } else {
+            message.push('\n');
+            stream.write_all(message.as_bytes())?;
+        }
     }
 }
 
@@ -1104,6 +1119,19 @@ impl Server {
             let the_rest: Vec<_> = index_username_command.clone().into_iter().skip(3).collect();
 
             match *command {
+                "archived_games" => {
+                    self.clients
+                        .get(&index_supplied)?
+                        .send("= archived_games".to_string())
+                        .ok()?;
+
+                    self.clients
+                        .get(&index_supplied)?
+                        .send(ron::ser::to_string(&self.archived_games).ok()?)
+                        .ok()?;
+
+                    None
+                }
                 "change_password" => {
                     self.change_password(username, index_supplied, command, the_rest.as_slice())
                 }
