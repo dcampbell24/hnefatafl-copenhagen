@@ -11,7 +11,7 @@ EOF
 
 
 mkdir --parents /var/www/html/binaries/debian/
-cp ../../hnefatafl-copenhagen_2.0.3-1_amd64.deb /var/www/html/binaries/debian/
+cp ../../hnefatafl-copenhagen_2.1.0-1_amd64.deb /var/www/html/binaries/debian/
 
 mkdir --parents /var/www/html/binaries/nsis/
 cp ../../hnefatafl-client-installer.exe /var/www/html/binaries/nsis/

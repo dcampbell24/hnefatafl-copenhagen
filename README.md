@@ -49,7 +49,7 @@ Marvin T. [@marvintubat123].
 [AUR]: https://aur.archlinux.org/packages/hnefatafl-copenhagen
 [crates.io]: https://crates.io/crates/hnefatafl-copenhagen
 [chocolatey.org]: https://community.chocolatey.org/packages/hnefatafl-copenhagen/
-[deb]: https://hnefatafl.org/binaries/debian/hnefatafl-copenhagen_2.0.3-1_amd64.deb
+[deb]: https://hnefatafl.org/binaries/debian/hnefatafl-copenhagen_2.1.0-1_amd64.deb
 [flathub.org]: https://flathub.org/apps/org.hnefatafl.hnefatafl_client
 [npm]: https://www.npmjs.com/package/hnefatafl-copenhagen
 
