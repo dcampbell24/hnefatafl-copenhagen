@@ -21,6 +21,7 @@ cp ../../hnefatafl-client-installer-1.1.3.exe /var/www/html/binaries/nsis/
 cp ../../hnefatafl-client-installer-1.1.4.exe /var/www/html/binaries/nsis/
 cp ../../hnefatafl-client-installer-1.2.1.exe /var/www/html/binaries/nsis/
 cp ../../hnefatafl-client-installer-2.0.3.exe /var/www/html/binaries/nsis/
+cp ../../hnefatafl-client-installer-2.1.0.exe /var/www/html/binaries/nsis/
 
 sscli -b https://hnefatafl.org -r /var/www/html/
 
