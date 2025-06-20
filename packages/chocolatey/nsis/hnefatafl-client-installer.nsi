@@ -11,7 +11,7 @@
 
   ;Name and file
   Name "Hnefatafl"
-  OutFile "..\hnefatafl-copenhagen\tools\hnefatafl-client-installer-2.0.3.exe"
+  OutFile "..\hnefatafl-copenhagen\tools\hnefatafl-client-installer-2.1.0.exe"
   Unicode True
 
   ;Default installation folder
