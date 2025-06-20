@@ -39,14 +39,14 @@
     <content_attribute id="social-chat">intense</content_attribute>
   </content_rating>
 
-  <url type="bugtracker">https://github.com/dcampbell24/hnefatafl-copenhagen/issues</url>
+  <url type="bugtracker">https://github.com/dcampbell24/hnefatafl/issues</url>
   <url type="homepage">https://hnefatafl.org/</url>
   <url type="donation">https://www.paypal.com/donate/?business=KKYGHNASN25TY&amp;no_recurring=0&amp;item_name=To+make+Hnefatafl+Copenhagen&amp;currency_code=USD</url>
   <url type="contact">https://dlc.name</url>
   <!-- <url type="faq">https://example.org/faq</url> -->
   <!-- <url type="translate">https://example.org/translate</url> -->
-  <url type="contribute">https://github.com/dcampbell24/hnefatafl-copenhagen/blob/main/CONTRIBUTE.md</url>
-  <url type="vcs-browser">https://github.com/dcampbell24/hnefatafl-copenhagen</url>
+  <url type="contribute">https://github.com/dcampbell24/hnefatafl/blob/main/CONTRIBUTE.md</url>
+  <url type="vcs-browser">https://github.com/dcampbell24/hnefatafl</url>
 
   <screenshots>
     <screenshot type="default">
@@ -71,6 +71,13 @@
   </screenshots>
 
   <releases>
+    <release version="2.1.0" date="2025-06-20">
+      <url type="details">https://github.com/dcampbell24/hnefatafl/blob/v2.0.3/CHANGELOG.md#210---2025-06-20</url>
+      <description>
+        <p>See the CHANGELOG.md file.</p>
+      </description>
+    </release>
+
     <release version="2.0.3" date="2025-06-18">
       <url type="details">https://github.com/dcampbell24/hnefatafl/blob/v2.0.3/CHANGELOG.md#203---2025-06-18</url>
       <description>

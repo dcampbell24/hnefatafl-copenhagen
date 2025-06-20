@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2025-06-20
+
+- Make it so you can get the archived games from the client.
+
 ## [2.0.3] - 2025-06-18
 
 - hnefatafl-client: add `Review Game`.
@@ -309,7 +313,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - hnefatafl-client: Make users and games scrollable.
 - Make all the features dependencies.
 
-[unreleased]: https://github.com/dcampbell24/hnefatafl/compare/v2.0.3...main
+[unreleased]: https://github.com/dcampbell24/hnefatafl/compare/v2.1.0...main
+[2.1.0]: https://github.com/dcampbell24/hnefatafl/compare/v2.0.3...v2.1.0
 [2.0.3]: https://github.com/dcampbell24/hnefatafl/compare/v1.2.1...v2.0.3
 [1.2.1]:  https://github.com/dcampbell24/hnefatafl/compare/v1.2.0...v1.2.1
 [1.2.0]:  https://github.com/dcampbell24/hnefatafl/compare/v1.1.4...v1.2.0
