@@ -171,6 +171,10 @@ fn init_client() -> Client {
     strings.insert("Request Draw".to_string(), t!("Request Draw").to_string());
     strings.insert("Accept Draw".to_string(), t!("Accept Draw").to_string());
     strings.insert("Review Game".to_string(), t!("Review Game").to_string());
+    strings.insert(
+        "Get Archived Games".to_string(),
+        t!("Get Archived Games").to_string(),
+    );
 
     client.strings = strings;
     client
@@ -339,7 +343,7 @@ enum Screen {
     Users,
 }
 
-impl Client {
+impl<'a> Client {
     fn archived_game_reset(&mut self) {
         self.archived_game_handle = None;
         self.archived_game_selected = None;
@@ -482,7 +486,7 @@ impl Client {
         let mut attacker_rating = String::new();
         let mut defender_rating = String::new();
 
-        let (game_id, attacker, attacker_time, defender, defender_time, board, play, status) =
+        let (game_id, attacker, attacker_time, defender, defender_time, board, play, status, texts) =
             if let Some(game_handle) = &self.archived_game_handle {
                 attacker_rating = game_handle.game.attacker_rating.to_string_rounded();
                 defender_rating = game_handle.game.defender_rating.to_string_rounded();
@@ -506,6 +510,7 @@ impl Client {
                     &game_handle.boards[game_handle.play],
                     game_handle.play,
                     status,
+                    &game_handle.game.texts,
                 )
             } else {
                 for user in self.users.values() {
@@ -520,6 +525,7 @@ impl Client {
                 let Some(game) = &self.game else {
                     panic!("we should be in a game");
                 };
+
                 (
                     &self.game_id,
                     &self.attacker,
@@ -529,6 +535,7 @@ impl Client {
                     &game.board,
                     game.previous_boards.0.len(),
                     &self.status,
+                    &self.texts_game,
                 )
             };
 
@@ -724,10 +731,9 @@ impl Client {
             }
 
             user_area = user_area.push(row![left_all, left, right, right_all].spacing(SPACING));
-        } else {
-            // Todo: add texting to review game.
-            user_area = user_area.push(self.texting(true));
         }
+
+        user_area = user_area.push(self.texting(texts));
 
         let user_area = container(user_area)
             .padding(PADDING)
@@ -760,21 +766,16 @@ impl Client {
         Subscription::batch(vec![subscription_1, subscription_2, subscription_3])
     }
 
-    fn texting(&self, in_game: bool) -> Container<Message> {
+    fn texting(&'a self, messages: &'a VecDeque<String>) -> Container<'a, Message> {
         let text_input = text_input(&format!("{}…", t!("message")), &self.text_input)
             .on_input(Message::TextChanged)
             .on_paste(Message::TextChanged)
             .on_submit(Message::TextSend);
 
         let mut texting = Column::new();
-        if in_game {
-            for message in &self.texts_game {
-                texting = texting.push(text(message).shaping(text::Shaping::Advanced));
-            }
-        } else {
-            for message in &self.texts {
-                texting = texting.push(text(message).shaping(text::Shaping::Advanced));
-            }
+
+        for message in messages {
+            texting = texting.push(text(message).shaping(text::Shaping::Advanced));
         }
 
         container(column![text_input, scrollable(texting)].spacing(SPACING))
@@ -1191,6 +1192,7 @@ impl Client {
                                 self.play_from_previous = None;
                                 self.play_to_previous = None;
                                 self.texts_game = VecDeque::new();
+                                self.archived_game_handle = None;
 
                                 let Some(attacker) = text.next() else {
                                     panic!("the attacker should be supplied");
@@ -1789,8 +1791,14 @@ impl Client {
 
     #[must_use]
     fn user_area(&self, in_game: bool) -> Container<Message> {
+        let texts = if in_game {
+            &self.texts_game
+        } else {
+            &self.texts
+        };
+
         let games = self.games();
-        let texting = self.texting(in_game).padding(PADDING);
+        let texting = self.texting(texts).padding(PADDING);
         let users = self.users(true);
 
         let user_area = column![games, users];
@@ -2140,8 +2148,11 @@ impl Client {
                 };
 
                 // Todo: make a translation.
-                let get_archived_games =
-                    button("Get Archived Games").on_press(Message::ArchivedGamesGet);
+                let get_archived_games = button(
+                    text(self.strings["Get Archived Games"].as_str())
+                        .shaping(text::Shaping::Advanced),
+                )
+                .on_press(Message::ArchivedGamesGet);
 
                 theme = theme.push(get_archived_games);
 
