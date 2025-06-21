@@ -1365,11 +1365,11 @@ impl<'a> Client {
                     }
                     Some("game") => {
                         // Plays the move then sends the result back.
-                        let Some(index) = text.next() else {
-                            return Task::none();
+                        let Some(id) = text.next() else {
+                            panic!("there should be a game id");
                         };
-                        let Ok(id) = index.parse::<usize>() else {
-                            panic!("the game_id should be a valid u64");
+                        let Ok(id) = id.parse::<usize>() else {
+                            panic!("the game_id should be a valid usize");
                         };
                         self.game_id = id;
 
@@ -1419,10 +1419,10 @@ impl<'a> Client {
                     }
                     Some("request_draw") => {
                         let Some(id) = text.next() else {
-                            return Task::none();
+                            panic!("there should be a game id");
                         };
                         let Ok(id) = id.parse::<usize>() else {
-                            panic!("the game_id should be a valid u64");
+                            panic!("the game_id should be a valid usize");
                         };
 
                         if id == self.game_id {
