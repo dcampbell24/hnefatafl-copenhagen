@@ -40,6 +40,9 @@ use hnefatafl_copenhagen::{
     status::Status,
     time::{Time, TimeSettings},
 };
+use iced::keyboard::Key;
+use iced::keyboard::key::Named;
+use iced::widget::{focus_next, focus_previous};
 #[cfg(target_os = "linux")]
 use iced::window::settings::PlatformSpecific;
 use iced::{
@@ -55,6 +58,7 @@ use iced::{
     },
     window::{self, icon},
 };
+use iced::{Task, keyboard};
 use log::{LevelFilter, debug, error, info, trace};
 use rust_i18n::t;
 use serde::{Deserialize, Serialize};
@@ -742,6 +746,7 @@ impl<'a> Client {
         row![self.board(), user_area].spacing(SPACING).into()
     }
 
+    #[allow(clippy::collapsible_match)]
     fn subscriptions(&self) -> Subscription<Message> {
         let subscription_1 = if let Some(game) = &self.game {
             if let TimeUnix::Time(_) = game.time {
@@ -760,6 +765,18 @@ impl<'a> Client {
             Event::Window(iced::window::Event::Resized(size)) => {
                 Some(Message::WindowResized((size.width, size.height)))
             }
+            Event::Keyboard(event) => match event {
+                keyboard::Event::KeyPressed {
+                    key: Key::Named(Named::Tab),
+                    modifiers,
+                    ..
+                } => Some(if modifiers.shift() {
+                    Message::FocusPrevious
+                } else {
+                    Message::FocusNext
+                }),
+                _ => None,
+            },
             _ => None,
         });
 
@@ -791,7 +808,7 @@ impl<'a> Client {
     }
 
     #[allow(clippy::too_many_lines)]
-    pub fn update(&mut self, message: Message) {
+    pub fn update(&mut self, message: Message) -> Task<Message> {
         self.error = None;
 
         match message {
@@ -822,6 +839,8 @@ impl<'a> Client {
                 self.email = None;
                 self.send("email_reset\n".to_string());
             }
+            Message::FocusNext => return focus_next(),
+            Message::FocusPrevious => return focus_previous(),
             Message::GameAccept(id) => {
                 self.send(format!("join_game {id}\n"));
                 self.game_id = id;
@@ -1347,7 +1366,7 @@ impl<'a> Client {
                     Some("game") => {
                         // Plays the move then sends the result back.
                         let Some(index) = text.next() else {
-                            return;
+                            return Task::none();
                         };
                         let Ok(id) = index.parse::<usize>() else {
                             panic!("the game_id should be a valid u64");
@@ -1366,7 +1385,7 @@ impl<'a> Client {
                             let from = text.next().expect("this should be from");
 
                             if from == "resigns" {
-                                return;
+                                return Task::none();
                             }
 
                             let to = text.next().expect("this should be to");
@@ -1400,7 +1419,7 @@ impl<'a> Client {
                     }
                     Some("request_draw") => {
                         let Some(id) = text.next() else {
-                            return;
+                            return Task::none();
                         };
                         let Ok(id) = id.parse::<usize>() else {
                             panic!("the game_id should be a valid u64");
@@ -1556,6 +1575,8 @@ impl<'a> Client {
                 }
             }
         }
+
+        Task::none()
     }
 
     #[must_use]
@@ -2447,6 +2468,8 @@ enum Message {
     DeleteAccount,
     EmailEveryone,
     EmailReset,
+    FocusPrevious,
+    FocusNext,
     GameAccept(usize),
     GameDecline(usize),
     GameJoin(usize),

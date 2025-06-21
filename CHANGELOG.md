@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- hnefatafl-client: focus the text boxes with `Tab` and `Shift` + `Tab`.
+
 ## [2.1.0] - 2025-06-20
 
 - Make it so you can get the archived games from the client.
