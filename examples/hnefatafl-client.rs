@@ -22,7 +22,7 @@ use std::{
 };
 
 use chrono::{Local, Utc};
-use clap::{Parser, command};
+use clap::{CommandFactory, Parser, command};
 use env_logger::Builder;
 use futures::{SinkExt, executor};
 use hnefatafl_copenhagen::server_game::{ArchivedGame, ArchivedGameHandle};
@@ -70,19 +70,23 @@ const SPACING_B: Pixels = Pixels(20.0);
 
 i18n!();
 
-/// A Hnefatafl Copenhagen Client
+/// Hnefatafl Copenhagen Client
 ///
 /// This is a TCP client that connects to a server.
 #[derive(Parser, Debug)]
-#[command(version, about)]
+#[command(author, version, about = "Copenhagen Hnefatafl Client")]
 struct Args {
-    /// Connect to the HTP server at host
+    /// Connect to the server at host
     #[arg(default_value = "hnefatafl.org", long)]
     host: String,
 
     /// Make the window size tiny
-    #[arg(default_value = "false", long)]
+    #[arg(long)]
     tiny_window: bool,
+
+    /// Build the manpage
+    #[arg(long)]
+    man: bool,
 }
 
 fn init_client() -> Client {
@@ -186,6 +190,20 @@ fn init_client() -> Client {
 
 fn main() -> anyhow::Result<()> {
     init_logger();
+    let args = Args::parse();
+
+    if args.man {
+        let cmd = Args::command().name("hnefatafl-client");
+        // .copyright("2025 David Lawrence Campbell")
+        // .license_files_or(["LICENSE-APACHE", "LICENSE-MIT"])
+
+        let man = clap_mangen::Man::new(cmd).date("2025-06-22");
+        let mut buffer: Vec<u8> = Vec::default();
+        man.render(&mut buffer)?;
+
+        std::fs::write("hnefatafl-client.1", buffer)?;
+        return Ok(());
+    }
 
     #[cfg(not(feature = "icon_2"))]
     let king = include_bytes!("king_1_256x256.rgba").to_vec();
@@ -212,7 +230,6 @@ fn main() -> anyhow::Result<()> {
         .default_font(Font::MONOSPACE);
 
     // For screenshots.
-    let args = Args::parse();
     if args.tiny_window {
         application = application.window_size(iced::Size {
             width: 870.0,

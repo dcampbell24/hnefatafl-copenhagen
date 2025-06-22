@@ -6,7 +6,7 @@ use std::{
 };
 
 use anyhow::Error;
-use clap::{Parser, command};
+use clap::{CommandFactory, Parser, command};
 use hnefatafl_copenhagen::{
     VERSION_ID,
     ai::{AI, AiBanal, AiBasic},
@@ -20,16 +20,16 @@ use hnefatafl_copenhagen::{
 
 const PORT: &str = ":49152";
 
-/// A Hnefatafl Copenhagen AI
+/// Copenhagen Hnefatafl AI
 ///
 /// This is an AI client that connects to a server.
 #[derive(Parser, Debug)]
-#[command(version, about)]
+#[command(author, version, about = "Copenhagen Hnefatafl AI")]
 struct Args {
     #[arg(long)]
     username: String,
 
-    #[arg(default_value = "", long)]
+    #[arg(long)]
     password: String,
 
     /// attacker or defender
@@ -47,10 +47,27 @@ struct Args {
     /// Challenge the AI with AI CHALLENGER
     #[arg(long)]
     challenger: Option<String>,
+
+    /// Build the manpage
+    #[arg(long)]
+    man: bool,
 }
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
+
+    if args.man {
+        let cmd = Args::command().name("hnefatafl-ai");
+        // .copyright("2025 David Lawrence Campbell")
+        // .license_files_or(["LICENSE-APACHE", "LICENSE-MIT"])
+
+        let man = clap_mangen::Man::new(cmd).date("2025-06-22");
+        let mut buffer: Vec<u8> = Vec::default();
+        man.render(&mut buffer)?;
+
+        std::fs::write("hnefatafl-ai.1", buffer)?;
+        return Ok(());
+    }
 
     let mut username = "ai-".to_string();
     username.push_str(&args.username);

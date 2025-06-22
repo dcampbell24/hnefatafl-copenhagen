@@ -47,30 +47,30 @@ use serde::{Deserialize, Serialize};
 
 const PORT: &str = ":49152";
 
-/// Copenhagen Hnefatafl server
+/// Copenhagen Hnefatafl Server
 ///
 /// This is a TCP server that listens for client connections.
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Parser, Debug)]
-#[command(author, version, about = "Copenhagen Hnefatafl server")]
+#[command(author, version, about = "Copenhagen Hnefatafl Server")]
 struct Args {
-    /// Whether to skip advertising updates.
+    /// Whether to skip advertising updates
     #[arg(long)]
     skip_advertising_updates: bool,
 
-    /// Whether to use the data file.
+    /// Whether to use the data file
     #[arg(long)]
     skip_the_data_file: bool,
 
-    /// Listen for client connections on host.
+    /// Listen for client connections on host
     #[arg(default_value = "0.0.0.0", long)]
     host: String,
 
-    /// Whether the application is being run by systemd.
+    /// Whether the application is being run by systemd
     #[arg(long)]
     systemd: bool,
 
-    /// Build the manpage.
+    /// Build the manpage
     #[arg(long)]
     man: bool,
 }
