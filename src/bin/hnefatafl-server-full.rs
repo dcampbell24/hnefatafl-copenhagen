@@ -83,9 +83,7 @@ fn main() -> anyhow::Result<()> {
     init_logger(args.systemd);
 
     if args.man {
-        let cmd = Args::command()
-            .name("hnefatafl-server-full")
-            .about("Copenhagen Hnefatafl server");
+        let cmd = Args::command().name("hnefatafl-server-full");
         // .copyright("2025 David Lawrence Campbell")
         // .date("2025-06-22")
         // .license_files_or(["LICENSE-APACHE", "LICENSE-MIT"])
