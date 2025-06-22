@@ -52,7 +52,7 @@ const PORT: &str = ":49152";
 /// This is a TCP server that listens for client connections.
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Parser, Debug)]
-#[command(author, version, about)]
+#[command(author, version, about, about = None)]
 struct Args {
     /// Whether to skip advertising updates.
     #[arg(long)]
