@@ -33,6 +33,7 @@ anyhow = "1"
 # burn = { version = "0.16", features = ["train", "wgpu", "vision"] }
 chrono = "0.4"
 clap = { version ="4", features = ["derive"] }
+clap_mangen = "0.2"
 csv = "1"
 dirs = "6"
 env_logger = "0.11"

@@ -17,7 +17,7 @@ use std::fmt::Write as _;
 
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use chrono::{Local, Utc};
-use clap::{Parser, command};
+use clap::{CommandFactory, Parser, command};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
     VERSION_ID,
@@ -47,11 +47,12 @@ use serde::{Deserialize, Serialize};
 
 const PORT: &str = ":49152";
 
-/// A Hnefatafl Copenhagen Server
+/// A Copenhagen Hnefatafl server.
 ///
-/// This is a TCP server that listens client connections.
+/// This is a TCP server that listens for client connections.
+#[allow(clippy::struct_excessive_bools)]
 #[derive(Parser, Debug)]
-#[command(version, about)]
+#[command(author, version, about)]
 struct Args {
     /// Whether to skip advertising updates.
     #[arg(long)]
@@ -68,6 +69,10 @@ struct Args {
     /// Whether the application is being run by systemd.
     #[arg(long)]
     systemd: bool,
+
+    /// Build the manpage.
+    #[arg(long)]
+    man: bool,
 }
 
 fn main() -> anyhow::Result<()> {
@@ -76,6 +81,19 @@ fn main() -> anyhow::Result<()> {
 
     let mut args = Args::parse();
     init_logger(args.systemd);
+
+    if args.man {
+        let mut cmd = Args::command();
+        cmd = cmd.name("hnefatafl-server-full");
+        cmd = cmd.about("Copenhagen Hnefatafl server");
+
+        let man = clap_mangen::Man::new(cmd);
+        let mut buffer: Vec<u8> = Vec::default();
+        man.render(&mut buffer)?;
+
+        std::fs::write("hnefatafl-server-full.1", buffer)?;
+        return Ok(());
+    }
 
     let mut server = Server::default();
 
