@@ -22,7 +22,7 @@ This is a TCP server that listens for client connections.
 
 : *\-\-host _HOST_*
 
-    listen for HTP drivers on host
+    listen for client connections on host
     [default: 0.0.0.0]
 
 : *\-\-systemd*

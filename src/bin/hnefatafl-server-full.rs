@@ -62,7 +62,7 @@ struct Args {
     #[arg(long)]
     skip_the_data_file: bool,
 
-    /// Listen for HTP drivers on host.
+    /// Listen for client connections on host.
     #[arg(default_value = "0.0.0.0", long)]
     host: String,
 
