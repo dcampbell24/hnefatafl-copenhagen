@@ -83,9 +83,12 @@ fn main() -> anyhow::Result<()> {
     init_logger(args.systemd);
 
     if args.man {
-        let mut cmd = Args::command();
-        cmd = cmd.name("hnefatafl-server-full");
-        cmd = cmd.about("Copenhagen Hnefatafl server");
+        let cmd = Args::command()
+            .name("hnefatafl-server-full")
+            .about("Copenhagen Hnefatafl server");
+        // .copyright("2025 David Lawrence Campbell")
+        // .date("2025-06-22")
+        // .license_files_or(["LICENSE-APACHE", "LICENSE-MIT"])
 
         let man = clap_mangen::Man::new(cmd);
         let mut buffer: Vec<u8> = Vec::default();
