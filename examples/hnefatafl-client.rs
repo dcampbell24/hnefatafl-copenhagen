@@ -89,41 +89,7 @@ struct Args {
     man: bool,
 }
 
-fn init_client() -> Client {
-    let data_file = data_file();
-    let mut error = None;
-    let mut client: Client = match &fs::read_to_string(&data_file) {
-        Ok(string) => match ron::from_str(string.as_str()) {
-            Ok(client) => client,
-            Err(err) => {
-                error = Some(format!(
-                    "error parsing the ron file {}: {err}",
-                    data_file.display()
-                ));
-                Client::default()
-            }
-        },
-        Err(err) => {
-            if err.kind() == ErrorKind::NotFound {
-                Client::default()
-            } else {
-                error = Some(format!(
-                    "error opening the file {}: {err}",
-                    data_file.display()
-                ));
-                Client::default()
-            }
-        }
-    };
-
-    if error.is_some() {
-        client.error_persistent = error;
-    }
-
-    rust_i18n::set_locale(&client.locale_selected.txt());
-
-    client.text_input = client.username.clone();
-
+fn i18n_buttons() -> HashMap<String, String> {
     let mut strings = HashMap::new();
 
     strings.insert("Login".to_string(), t!("Login").to_string());
@@ -184,7 +150,45 @@ fn init_client() -> Client {
         t!("Get Archived Games").to_string(),
     );
 
-    client.strings = strings;
+    strings
+}
+
+fn init_client() -> Client {
+    let data_file = data_file();
+    let mut error = None;
+    let mut client: Client = match &fs::read_to_string(&data_file) {
+        Ok(string) => match ron::from_str(string.as_str()) {
+            Ok(client) => client,
+            Err(err) => {
+                error = Some(format!(
+                    "error parsing the ron file {}: {err}",
+                    data_file.display()
+                ));
+                Client::default()
+            }
+        },
+        Err(err) => {
+            if err.kind() == ErrorKind::NotFound {
+                Client::default()
+            } else {
+                error = Some(format!(
+                    "error opening the file {}: {err}",
+                    data_file.display()
+                ));
+                Client::default()
+            }
+        }
+    };
+
+    if error.is_some() {
+        client.error_persistent = error;
+    }
+
+    rust_i18n::set_locale(&client.locale_selected.txt());
+
+    client.strings = i18n_buttons();
+    client.text_input = client.username.clone();
+
     client
 }
 
