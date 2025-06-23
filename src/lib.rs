@@ -34,7 +34,7 @@ pub mod time;
 pub static HOME: &str = "hnefatafl-copenhagen";
 pub static VERSION_ID: &str = "1503174b";
 pub static COPYRIGHT: &str = r#".SH COPYRIGHT
-Copyright © 2025 David Campbell
+Copyright © 2025 David Lawrence Campbell
 
 The MIT License:
 
