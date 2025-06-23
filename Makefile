@@ -1,8 +1,3 @@
-.PHONY: archive-games
-archive-games:
-	zstd "${HOME}"/.local/share/hnefatafl-games.ron
-	cp "${HOME}"/.local/share/hnefatafl-games.ron.zst /var/www/html/
-
 .PHONY: enable-git-hooks
 enable-git-hooks:
 	git config --local core.hooksPath .githooks/
