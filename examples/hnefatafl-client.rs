@@ -27,7 +27,7 @@ use env_logger::Builder;
 use futures::{SinkExt, executor};
 use hnefatafl_copenhagen::server_game::{ArchivedGame, ArchivedGameHandle};
 use hnefatafl_copenhagen::{
-    VERSION_ID,
+    COPYRIGHT, VERSION_ID,
     accounts::Email,
     draw::Draw,
     game::{Game, TimeUnix},
@@ -197,13 +197,12 @@ fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
     if args.man {
-        let cmd = Args::command().name("hnefatafl-client");
-        // .copyright("2025 David Lawrence Campbell")
-        // .license_files_or(["LICENSE-APACHE", "LICENSE-MIT"])
-
-        let man = clap_mangen::Man::new(cmd).date("2025-06-22");
         let mut buffer: Vec<u8> = Vec::default();
+        let cmd = Args::command().name("hnefatafl-client");
+        let man = clap_mangen::Man::new(cmd).date("2025-06-23");
+
         man.render(&mut buffer)?;
+        write!(buffer, "{COPYRIGHT}")?;
 
         std::fs::write("hnefatafl-client.1", buffer)?;
         return Ok(());

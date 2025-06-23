@@ -1,41 +1,20 @@
 #! /bin/bash -e
 
-# https://github.com/jgm/pandoc/releases/latest
+cargo run --bin hnefatafl-ai -- --man --username "" --password "" --role "attacker"
+cargo run --example hnefatafl-client -- --man
+cargo run -- --man
 
-pandoc\
-    --variable=title:hnefatafl-ai\
-    --variable=section:1\
-    --variable=date:2025-05-01\
-    --standalone --to=man packages/hnefatafl-ai.1.dj --output=packages/hnefatafl-ai.1
-
-gzip --no-name --best packages/hnefatafl-ai.1
-
-pandoc\
-    --variable=title:hnefatafl-client\
-    --variable=section:1\
-    --variable=date:2025-05-31\
-    --standalone --to=man packages/hnefatafl-client.1.dj --output=packages/hnefatafl-client.1
-
-gzip --no-name --best packages/hnefatafl-client.1
-
-pandoc\
-    --variable=title:hnefatafl-server-full\
-    --variable=section:1\
-    --variable=date:2025-02-22\
-    --standalone --to=man packages/hnefatafl-server-full.1.dj --output=packages/hnefatafl-server-full.1
-
-gzip --no-name --best packages/hnefatafl-server-full.1
-
-pandoc --standalone --to=plain README.md --output=packages/README.txt
+gzip --no-name --best hnefatafl-ai.1
+gzip --no-name --best hnefatafl-client.1
+gzip --no-name --best hnefatafl-server-full.1
 
 PACKAGE=$(cargo deb)
 echo $PACKAGE
 lintian $PACKAGE
 
-rm packages/hnefatafl-ai.1.gz
-rm packages/hnefatafl-client.1.gz
-rm packages/hnefatafl-server-full.1.gz
-rm packages/README.txt
+rm hnefatafl-ai.1.gz
+rm hnefatafl-client.1.gz
+rm hnefatafl-server-full.1.gz
 
 if [ -z $1 ]; then
     exit

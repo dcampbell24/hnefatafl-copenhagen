@@ -20,7 +20,7 @@ use chrono::{Local, Utc};
 use clap::{CommandFactory, Parser, command};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
-    VERSION_ID,
+    COPYRIGHT, VERSION_ID,
     accounts::{Account, Accounts, Email},
     draw::Draw,
     game::TimeUnix,
@@ -83,13 +83,12 @@ fn main() -> anyhow::Result<()> {
     init_logger(args.systemd);
 
     if args.man {
-        let cmd = Args::command().name("hnefatafl-server-full");
-        // .copyright("2025 David Lawrence Campbell")
-        // .license_files_or(["LICENSE-APACHE", "LICENSE-MIT"])
-
-        let man = clap_mangen::Man::new(cmd).date("2025-06-22");
         let mut buffer: Vec<u8> = Vec::default();
+        let cmd = Args::command().name("hnefatafl-server-full");
+        let man = clap_mangen::Man::new(cmd).date("2025-06-23");
+
         man.render(&mut buffer)?;
+        write!(buffer, "{COPYRIGHT}")?;
 
         std::fs::write("hnefatafl-server-full.1", buffer)?;
         return Ok(());
