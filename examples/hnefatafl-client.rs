@@ -25,6 +25,7 @@ use chrono::{Local, Utc};
 use clap::{CommandFactory, Parser, command};
 use env_logger::Builder;
 use futures::{SinkExt, executor};
+use hnefatafl_copenhagen::LONG_VERSION;
 use hnefatafl_copenhagen::server_game::{ArchivedGame, ArchivedGameHandle};
 use hnefatafl_copenhagen::{
     COPYRIGHT, VERSION_ID,
@@ -74,7 +75,7 @@ i18n!();
 ///
 /// This is a TCP client that connects to a server.
 #[derive(Parser, Debug)]
-#[command(author, version, about = "Copenhagen Hnefatafl Client")]
+#[command(long_version = LONG_VERSION, about = "Copenhagen Hnefatafl Client")]
 struct Args {
     /// Connect to the server at host
     #[arg(default_value = "hnefatafl.org", long)]
@@ -198,7 +199,7 @@ fn main() -> anyhow::Result<()> {
 
     if args.man {
         let mut buffer: Vec<u8> = Vec::default();
-        let cmd = Args::command().name("hnefatafl-client");
+        let cmd = Args::command().name("hnefatafl-client").long_version(None);
         let man = clap_mangen::Man::new(cmd).date("2025-06-23");
 
         man.render(&mut buffer)?;

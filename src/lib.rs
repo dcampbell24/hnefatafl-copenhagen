@@ -34,11 +34,9 @@ pub mod time;
 pub static HOME: &str = "hnefatafl-copenhagen";
 pub static VERSION_ID: &str = "1503174b";
 pub static COPYRIGHT: &str = r#".SH COPYRIGHT
-Copyright © 2025 David Lawrence Campbell
+Copyright (c) 2025 David Lawrence Campbell
 
 The MIT License:
-
-Copyright (c) 2025 David Lawrence Campbell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -75,6 +73,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 "#;
+
+pub static LONG_VERSION: &str = r"2.1.0
+Copyright (c) 2025 David Lawrence Campbell
+Licensed under the MIT license or The Apache-2.0 license";
 
 pub fn handle_error<T, E: fmt::Display>(result: Result<T, E>) -> T {
     match result {

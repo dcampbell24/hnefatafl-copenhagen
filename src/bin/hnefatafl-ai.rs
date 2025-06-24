@@ -8,7 +8,7 @@ use std::{
 use anyhow::Error;
 use clap::{CommandFactory, Parser, command};
 use hnefatafl_copenhagen::{
-    COPYRIGHT, VERSION_ID,
+    COPYRIGHT, LONG_VERSION, VERSION_ID,
     ai::{AI, AiBanal, AiBasic},
     game::Game,
     play::Vertex,
@@ -24,7 +24,7 @@ const PORT: &str = ":49152";
 ///
 /// This is an AI client that connects to a server.
 #[derive(Parser, Debug)]
-#[command(author, version, about = "Copenhagen Hnefatafl AI")]
+#[command(long_version = LONG_VERSION, about = "Copenhagen Hnefatafl AI")]
 struct Args {
     #[arg(long)]
     username: String,
@@ -58,7 +58,7 @@ fn main() -> anyhow::Result<()> {
 
     if args.man {
         let mut buffer: Vec<u8> = Vec::default();
-        let cmd = Args::command().name("hnefatafl-ai");
+        let cmd = Args::command().name("hnefatafl-ai").long_version(None);
         let man = clap_mangen::Man::new(cmd).date("2025-06-23");
 
         man.render(&mut buffer)?;

@@ -20,7 +20,7 @@ use chrono::{Local, Utc};
 use clap::{CommandFactory, Parser, command};
 use env_logger::Builder;
 use hnefatafl_copenhagen::{
-    COPYRIGHT, VERSION_ID,
+    COPYRIGHT, LONG_VERSION, VERSION_ID,
     accounts::{Account, Accounts, Email},
     draw::Draw,
     game::TimeUnix,
@@ -52,7 +52,7 @@ const PORT: &str = ":49152";
 /// This is a TCP server that listens for client connections.
 #[allow(clippy::struct_excessive_bools)]
 #[derive(Parser, Debug)]
-#[command(author, version, about = "Copenhagen Hnefatafl Server")]
+#[command(long_version = LONG_VERSION, about = "Copenhagen Hnefatafl Server")]
 struct Args {
     /// Whether to skip advertising updates
     #[arg(long)]
@@ -84,7 +84,9 @@ fn main() -> anyhow::Result<()> {
 
     if args.man {
         let mut buffer: Vec<u8> = Vec::default();
-        let cmd = Args::command().name("hnefatafl-server-full");
+        let cmd = Args::command()
+            .name("hnefatafl-server-full")
+            .long_version(None);
         let man = clap_mangen::Man::new(cmd).date("2025-06-23");
 
         man.render(&mut buffer)?;
