@@ -76,7 +76,7 @@ limitations under the License.
 
 pub static LONG_VERSION: &str = r"2.1.0
 Copyright (c) 2025 David Lawrence Campbell
-Licensed under the MIT license or The Apache-2.0 license";
+Licensed under the MIT license or the Apache-2.0 license";
 
 pub fn handle_error<T, E: fmt::Display>(result: Result<T, E>) -> T {
     match result {
