@@ -239,8 +239,7 @@ for the defenders.
 
 #### Added Rule
 
-If the defender would repeat a board position, the move is not allowed. If a
-side can't move, that side loses.
+If the defender would repeat a board position, the move is not allowed.
 
 ### 9. Automatic Loss
 
