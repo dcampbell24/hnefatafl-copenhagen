@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Update the documentation.
 - hnefatafl-client: focus the text boxes with `Tab` and `Shift` + `Tab`.
 
 ## [2.1.0] - 2025-06-20
