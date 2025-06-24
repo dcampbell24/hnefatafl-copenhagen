@@ -35,7 +35,7 @@ Copyright © 1998-2025 Aage Nielsen, All Rights Reserved;
 
 ### 2. First Turn
 
-The attackers (black) move first.
+The attackers move first.
 
 ### 3. Movement
 
@@ -232,12 +232,15 @@ unbroken ring, then they win, as they have prevented the king from escaping.
 
 ### 8. Perpetual Repetitions
 
+#### Deleted Rule
+
 Perpetual repetitions are forbidden. Any perpetual repetition results in a loss
-for white.
+for the defenders.
 
 #### Added Rule
 
-If white (the defender) would repeat a board position, the move is not allowed.
+If the defender would repeat a board position, the move is not allowed. If a
+side can't move, that side loses.
 
 ### 9. Automatic Loss
 
