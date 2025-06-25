@@ -8,7 +8,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     "keyLocation": "https://hnefatafl.org/514969c804234582abafaae69c947790.txt",
     "urlList": [
         "https://hnefatafl.org",
-        "https://hnefatafl.org/index.html",
         "https://hnefatafl.org/install.html",
         "https://hnefatafl.org/rules.html",
         "https://hnefatafl.org/sitemap.xml"
